@@ -1013,8 +1013,8 @@ void DrawFXLightning( SPECFX *fx )
 			ft4->tpage = tEntry->tpage;
 			ft4->clut  = tEntry->clut;
 	//		setSemiTrans(ft4, 1);
-			ft4->code  |= 2;//semi-trans on
- 			ft4->tpage |= 32;//add
+			//ft4->code  |= 2;//semi-trans on
+ 			//ft4->tpage |= 32;//add
 	// 		ft4->tpage = si->tpage | 64;//sub
 	//		ENDPRIM(ft4, 1, POLY_FT4);
 			ENDPRIM(ft4, otz, POLY_FT4);

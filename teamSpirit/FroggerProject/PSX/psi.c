@@ -6,7 +6,7 @@
 ************************************************************************************/
 
 // JH: Define this so that we can turn on and off the dcache usage
-#define _DCACHE_OPTIMISATION
+#define DCACHE_OPTIMISATION
 #define DCACHE 0x1f800000
 
 #include <stddef.h>

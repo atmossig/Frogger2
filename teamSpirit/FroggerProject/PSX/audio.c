@@ -92,6 +92,9 @@ int UpdateLoopingSample(AMBIENT_SOUND *sample)
 {
 	int vl,vr;
 	short pitch;
+
+	if ( !sample )
+		return;
 	
 	if(GetSoundVols(&sample->pos,&vl,&vr,sample->radius,sample->volume) == -1)
 	{
@@ -112,7 +115,7 @@ int UpdateLoopingSample(AMBIENT_SOUND *sample)
 		pitch = sample->pitch * PITCH_STEP;
 	}
 
-	if(sample->handle == -1)
+	if ( (sample->handle == -1) && ( sample->sample ) && (sample->sample->snd) )
 	{
  		sample->handle = sfxPlaySample(sample->sample->snd, vl,vr, pitch);
 		return;
@@ -285,7 +288,12 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_BABYCRY] = FindSample(utilStr2CRC("babycry"));
 	genSfx[GEN_BABYREPLY] = FindSample(utilStr2CRC("babyreply"));
 	genSfx[GEN_TELEPORT] = FindSample(utilStr2CRC("teleport"));
-	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("powerup"));
+
+// JH: changed file name to some thing else coz we don't have this one yet....
+	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("hopongrass"));
+
+	//genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("powerup"));
+
 	genSfx[GEN_CLOCKTICK] = FindSample(utilStr2CRC("clocktick"));
 	genSfx[GEN_POWERTICK] = FindSample(utilStr2CRC("puptick"));
 
@@ -467,7 +475,9 @@ SAMPLE *FindSample( unsigned long uid )
 			return cur;
 	}
 
-	return NULL;	
+	return FindSample ( utilStr2CRC ( "hopongrass" ) );
+
+//	return NULL;	
 }
  
 
@@ -523,7 +533,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  	int vl,vr;
 	int i;
 
-	if(!sample)
+	if ( (!sample) )
 	{
 		utilPrintf("Sample Not Valid!!!!!!\n");
 		return 0;
@@ -549,6 +559,9 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	{
 		vr = vl = (volume*globalSoundVol)/MAX_SOUND_VOL;
 	}
+
+	if ( !sample->snd )
+		return 0;
 
 	i =	sfxPlaySample( sample->snd, vl,vr, pitch);
 	if(i<0)

@@ -31,6 +31,7 @@
 #include "shell.h"
 
 int numTextureBanks = 0;
+int numUsedDummys = 0;
 
 //char *palNames [ 5 ] = { "BFG01", "BFG02", "BFG03", "BFG04", "BFG05"};
 char *palNames [ 5 ] = { "GREENBABY.PAL", "YELLOWBABY.PAL", "BLUEBABY.PAL", "PINKBABY.PAL", "REDBABY.PAL"};
@@ -41,6 +42,8 @@ TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ] = { NULL, NULL, NULL, NULL, 
 
 TEXTUREANIMLIST textureAnimList;
 
+
+TextureType *CreateSpareTextureSpace ( long dummyCrc );
 
 void LoadTextureBank ( int textureBank )
 {
@@ -157,9 +160,10 @@ void LoadTextureBank ( int textureBank )
 
 void LoadTextureAnimBank ( int textureBank )
 {
+	TextureType *dummyTexture;
 	int fileLength, counter, counter1, numframes, waitTime;
-	long crc;
-	char fileName[256];
+	long crc, dummyCrc;
+	char fileName[256], dummyString [ 256 ];
 	char titFileName[256];
 	unsigned long *p, *textureAnims;
 
@@ -220,16 +224,43 @@ void LoadTextureAnimBank ( int textureBank )
 
 	for ( counter = 0; counter < numAnimations; counter++ )
 	{
+		DR_MOVE *siMove;
+		RECT moveRect;
 		numframes = *p;	p++;
 		crc = *p; p++;
-		
+
 		textureAnim = CreateTextureAnimation( crc, numframes );
+
+		sprintf ( dummyString, "DUMMY%d", numUsedDummys++ );
+		dummyTexture = textureFindCRCInAllBanks ( utilStr2CRC ( dummyString ) );
+		
+
+		moveRect.x = VRAM_CALCVRAMX(textureAnim->animation->dest->handle);
+		moveRect.y = VRAM_CALCVRAMY(textureAnim->animation->dest->handle);
+		moveRect.w = (textureAnim->animation->dest->w + 3) / 4;
+		moveRect.h = textureAnim->animation->dest->h;
+
+		// check for 256 colour mode
+		if(textureAnim->animation->dest->tpage & (1 << 7))
+			moveRect.w *= 2;
+
+		// copy bit of vram
+		BEGINPRIM ( siMove, DR_MOVE );
+		SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(dummyTexture->handle),VRAM_CALCVRAMY(dummyTexture->handle));
+		ENDPRIM ( siMove, 1023, DR_MOVE );
+
 		for ( counter1 = 0; counter1 < numframes; counter1++ )
 		{
 			crc = *p; p++;
 			waitTime = *p; p++;
 
 			AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
+
+			if ( crc == textureAnim->animation->dest->imageCRC )
+			{
+				textureAnim->animation->anim [ counter1 ] = dummyTexture;
+			}
+			// ENDIF
 		}
 		// ENDFOR
 	}
@@ -257,6 +288,8 @@ void FreeAllTextureBanks ( void )
 	}
 	// ENDIF - 	for ( c = o; c < MAX_TEXTURE_BANKS; c++ )
 	numTextureBanks = 0;
+	numUsedDummys		= 0;
+
 	textureDestroy();
 }
 
@@ -320,7 +353,7 @@ static int LOADPAL_LoadPCPalette(char * const file,
 		return 0;
 	}
 
-	palette = fileLoad(file, &file_length);
+	palette = (unsigned char*)fileLoad(file, &file_length);
 
 	if (!palette)
 	{
@@ -520,7 +553,7 @@ void UpdateTextureAnimations ( void )
 	{
 		next = cur->next;
 
-		if ( cur->waitTime == cur->numFrames-1 )
+		if ( cur->waitTime == cur->numFrames )
 		{
 			cur->waitTime = 0;
 		}
@@ -594,6 +627,78 @@ void SubTextureAnim ( TEXTUREANIM *textureAnim )
 	textureAnimList.numEntries--;
 
 	FREE(textureAnim);
+}
+
+
+TextureType *CreateSpareTextureSpace ( long dummyCrc )
+{
+	RECT			rect;
+	DR_MOVE *siMove;
+	RECT	moveRect;
+
+	TextureType *texture, *dummy;
+
+	dummy = ( TextureType* ) MALLOC0 ( sizeof ( TextureType ) );
+
+	texture = textureFindCRCInAllBanks ( dummyCrc );
+
+	if ( !texture )
+	{
+		utilPrintf ("Could Not Find Replacement Texture.....\n");
+		return NULL;
+	}
+	// ENDIF - !texture
+
+	dummy->handle = textureVRAMalloc ( texture->w, texture->h );
+
+	if ( !dummy->handle )
+	{
+		utilPrintf("Could Not VRAM Alloc : Width : %d : Height : %d\n", texture->w, texture->h );
+		return NULL;
+	}
+	// ENDIF
+
+	rect.x = VRAM_CALCVRAMX(dummy->handle);
+	rect.y = VRAM_CALCVRAMY(dummy->handle);
+	rect.w = (texture->w+3)/4;
+	rect.h = texture->h;
+
+	dummy->x = VRAM_GETX ( dummy->handle ) * 8;
+	dummy->y = rect.y;
+
+	dummy->w = texture->w;
+	dummy->h = texture->h;
+
+  dummy->u0 = texture->x;
+  dummy->v0 = texture->y;
+  dummy->u1 = 255;
+  dummy->v1 = texture->y;
+  dummy->u2 = texture->x;
+  dummy->v2 = 255;
+  dummy->u3 = 255;
+  dummy->v3 = 255;
+
+	dummy->imageCRC = dummyCrc;
+
+	dummy->tpage = getTPage(
+		((texture->flags & NEIGHTBIT) ? 1 : 0),
+		0, rect.x, rect.y);
+
+	moveRect.x = VRAM_CALCVRAMX(dummy->handle);
+	moveRect.y = VRAM_CALCVRAMY(dummy->handle);
+	moveRect.w = dummy->w;
+	moveRect.h = dummy->h;
+
+	// check for 256 colour mode
+	if(dummy->tpage & (1 << 7))
+		moveRect.w *= 2;
+
+	BEGINPRIM		( siMove, DR_MOVE );
+	SetDrawMove	( siMove, &moveRect, VRAM_CALCVRAMX(texture->handle),VRAM_CALCVRAMY(texture->handle));
+	ENDPRIM			( siMove, 1023, DR_MOVE );
+
+
+	return dummy;
 }
 
 

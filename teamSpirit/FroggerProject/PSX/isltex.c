@@ -798,15 +798,9 @@ TextureBankType *textureLoadBank(char *sFile)
 	newBank->CRC = (unsigned long *)((unsigned char *)newBank + (sizeof(TextureBankType)));
 
 
-// JH: Implementing new texture animation stuff
 	for(loop=0; loop<newBank->numTextures; loop++)
 	{
 		newBank->CRC [ loop ] = newBank->pNSprite [ loop ].crc;
-
-		/*if ( fileLoad (
-		{
-		}
-		// ENDIF*/
 	}
 
 	newBank->texture = (TextureType *)((unsigned char *)newBank->CRC+newBank->numTextures*4);
