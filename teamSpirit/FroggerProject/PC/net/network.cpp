@@ -296,6 +296,8 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 			utilPrintf("NET: This machine is now the host\n");
 			// we are now the host
 			isHost = true;
+
+			NetgameHostGame();
 		}
 		break;
 	}

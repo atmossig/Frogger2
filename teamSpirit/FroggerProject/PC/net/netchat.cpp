@@ -190,9 +190,11 @@ void ShowMessage(const char* string, CHAT_FORMAT f)
 	case CHAT_ERROR:	fmt.dwEffects |= CFE_BOLD; fmt.crTextColor = errorColor; break;
 	}
 
+	SendMessage(hwndChatEdit, EM_SETSEL, 0x7FFFFFFF, 0x7FFFFFFF);
+	SendMessage(hwndChatEdit, EM_REPLACESEL, FALSE, (DWORD)"\n");
 	SendMessage(hwndChatEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&fmt);
 	SendMessage(hwndChatEdit, EM_REPLACESEL, FALSE, (DWORD)string);
-	SendMessage(hwndChatEdit, EM_REPLACESEL, FALSE, (DWORD)"\n");
+	SendMessage(hwndChatEdit, EM_SCROLLCARET, 0, 0);
 
 }
 

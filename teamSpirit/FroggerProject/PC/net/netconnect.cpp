@@ -520,6 +520,7 @@ BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
 				SetTimer( hDlg, 1, 250, NULL );
 
                 SetDlgItemText( hDlg, IDC_SEARCH, "Searching..." );
+				CheckDlgButton( hDlg, IDC_SEARCH, BST_CHECKED);
 
 				// Disable the join button until sessions are found
 				EnableWindow( GetDlgItem( hDlg, IDC_JOIN ), FALSE );

@@ -31,6 +31,8 @@ void NetgameRun();
 
 void NetgameDeath();
 
+void NetgameHostGame();
+
 #ifdef __cplusplus
 }
 #endif

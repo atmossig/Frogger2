@@ -188,6 +188,19 @@ void NetgameBegin()
 	}
 }
 
+void NetgameHostGame()
+{
+	if (!hostReady)
+	{
+		unsigned char msg;
+
+		msg = APPMSG_READY;
+		NetBroadcastUrgentMessage(&msg, 1);
+
+		hostReady = hostSync = wasSync = true;
+	}
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: NetgameRun
 	Purpose			: network-game specific version of GameLoop()
