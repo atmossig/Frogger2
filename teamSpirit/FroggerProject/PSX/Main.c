@@ -869,7 +869,7 @@ totalObjs = 0;
 			gte_SetRotMatrix(&GsWSMATRIX);
 			gte_SetTransMatrix(&GsWSMATRIX);
 
-//#if GOLDCD==0
+#if GOLDCD==0
 			if(camControlMode == 0)
 			{
 				if( (padData.debounce[0] & PAD_L1))
@@ -877,7 +877,7 @@ totalObjs = 0;
 					textureShowVRAM(1);
 				}
 			}
-//#endif
+#endif
 			myPadHandleInput();
 
 			if((gameState.mode!=PAUSE_MODE) || (quittingLevel))
