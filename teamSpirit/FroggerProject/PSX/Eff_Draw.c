@@ -1095,6 +1095,7 @@ void DrawPsxCroak(SPECFX *ring)
 	fixed t;
 	MATRIX rotMtx;
 	VECTOR absPos;
+	VECTOR scaledVtx;
 	SVECTOR scPos;
 	long sz;
 	int otz;
@@ -1109,6 +1110,36 @@ void DrawPsxCroak(SPECFX *ring)
 		#define MAX_RING_SCALE (10<<12)
 		if( (ring->scale.vx>MAX_RING_SCALE) || (ring->scale.vy>MAX_RING_SCALE) || (ring->scale.vz>MAX_RING_SCALE) )
 			continue;
+
+/*
+		//spinning circle
+		SetVectorFF( (FVECTOR*)&q1, &ring->normal );
+		q1.w = ring->angle;
+		fixedGetQuaternionFromRotation( &q2, &q1 );
+
+		QuatToPSXMatrix(&q2, &rotMtx);
+		ApplyMatrix(&rotMtx, &psxCroakVtx[i], &absPos);
+
+		//apply scale
+		//BB - TEMP BOTCH TO GET TO WORK ON SPACE (SORT OF WORK, ANYWAY)
+//		if(player[0].worldNum==WORLDID_SPACE && player[0].levelNum==LEVELID_SPACE3)
+//		{
+			absPos.vx = (absPos.vx*ring->scale.vx)>>12;
+			absPos.vy = (absPos.vy*ring->scale.vy)>>12;
+			absPos.vz = (absPos.vz*ring->scale.vz)>>12;
+//		}
+//		else
+//		{
+//			absPos.vx = FMul(absPos.vx, ring->scale.vx);
+//			absPos.vy = FMul(absPos.vy, ring->scale.vy);
+//			absPos.vz = FMul(absPos.vz, ring->scale.vz);
+//		}
+		
+		//position around centre
+		absPos.vx += -ring->origin.vx;
+		absPos.vy += -ring->origin.vy;
+		absPos.vz += ring->origin.vz;
+*/
 
 /*
 		//quat to rotate current point by spinning angle
@@ -1128,41 +1159,57 @@ void DrawPsxCroak(SPECFX *ring)
 		QuatToPSXMatrix(&q1, &rotMtx);
 		ApplyMatrix(&rotMtx, &psxCroakVtx[i], &absPos);
 
+		//apply scale
+		absPos.vx = (absPos.vx*ring->scale.vx)>>12;
+		absPos.vy = (absPos.vy*ring->scale.vy)>>12;
+		absPos.vz = (absPos.vz*ring->scale.vz)>>12;
+
 		//center around effect's origin
-		absPos.vx += ring->origin.vx;
-		absPos.vy += ring->origin.vy;
-		absPos.vz += ring->origin.vz;
+//		absPos.vx += ring->origin.vx;
+//		absPos.vy += ring->origin.vy;
+//		absPos.vz += ring->origin.vz;
+		absPos.vx += -ring->origin.vx;
+		absPos.vy += -ring->origin.vy;
+		absPos.vz +=  ring->origin.vz;
 */
 
-
-
-		//spinning circle
+		//quat to rotate current point by spinning angle
 		SetVectorFF( (FVECTOR*)&q1, &ring->normal );
 		q1.w = ring->angle;
 		fixedGetQuaternionFromRotation( &q2, &q1 );
 
-		QuatToPSXMatrix(&q2, &rotMtx);
-		ApplyMatrix(&rotMtx, &psxCroakVtx[i], &absPos);
+		//quat to rotate to plane (normal)
+		CrossProductFFF( (FVECTOR*)&cross, (FVECTOR*)&q1, &upVec );
+		MakeUnit( (FVECTOR*)&cross );
+		t = DotProductFF( (FVECTOR*)&q1, &upVec );
+		cross.w = -arccos(t);
+		fixedGetQuaternionFromRotation(&q3, &cross);
+
+		//scale pre-transformed vertex
+		SetVectorVS(&scaledVtx, &psxCroakVtx[i]);
+		scaledVtx.vx = (scaledVtx.vx*ring->scale.vx)>>12;
+		scaledVtx.vy = (scaledVtx.vy*ring->scale.vy)>>12;
+		scaledVtx.vz = (scaledVtx.vz*ring->scale.vz)>>12;
+
+		//combine and apply quats to current point
+		fixedQuaternionMultiply(&q1, &q3, &q2);
+		QuatToPSXMatrix(&q1, &rotMtx);
+//		ApplyMatrix(&rotMtx, &psxCroakVtx[i], &absPos);
+		ApplyMatrixLV(&rotMtx, &scaledVtx, &absPos);
 
 		//apply scale
-		//BB - TEMP BOTCH TO GET TO WORK ON SPACE (SORT OF WORK, ANYWAY)
-		if(player[0].worldNum==WORLDID_SPACE && player[0].levelNum==LEVELID_SPACE3)
-		{
-			absPos.vx = (absPos.vx*ring->scale.vx)>>12;
-			absPos.vy = (absPos.vy*ring->scale.vy)>>12;
-			absPos.vz = (absPos.vz*ring->scale.vz)>>12;
-		}
-		else
-		{
-			absPos.vx = FMul(absPos.vx, ring->scale.vx);
-			absPos.vy = FMul(absPos.vy, ring->scale.vy);
-			absPos.vz = FMul(absPos.vz, ring->scale.vz);
-		}
-		
-		//position around centre
+//		absPos.vx = (absPos.vx*ring->scale.vx)>>12;
+//		absPos.vy = (absPos.vy*ring->scale.vy)>>12;
+//		absPos.vz = (absPos.vz*ring->scale.vz)>>12;
+
+		//center around effect's origin
+//		absPos.vx += ring->origin.vx;
+//		absPos.vy += ring->origin.vy;
+//		absPos.vz += ring->origin.vz;
 		absPos.vx += -ring->origin.vx;
 		absPos.vy += -ring->origin.vy;
-		absPos.vz += ring->origin.vz;
+		absPos.vz +=  ring->origin.vz;
+
 
 
 
