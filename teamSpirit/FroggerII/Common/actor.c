@@ -276,8 +276,6 @@ void FreeActorList()
 ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode)
 {
 	ACTOR2 *newItem;
-	char tmp[5];
-	long i;
 
 	newItem			= (ACTOR2 *)JallocAlloc(sizeof(ACTOR2),YES,"ACTOR2");
 	newItem->actor	= (ACTOR *)JallocAlloc(sizeof(ACTOR),YES,"ACTOR");
@@ -299,21 +297,7 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	if( (newItem->actor->objectController) && (newItem->actor->objectController->object) )
 		AddObjectsSpritesToSpriteList(newItem->actor->objectController->object,0);
 
-	for( i=0; i<4; i++ )
-		tmp[i] = name[i];
-
-	tmp[4] = '\0';
-	// If not a water object, do transparent clipping
-	if( gstrcmp( tmp, "wat_\0" ) )
-		newItem->flags |= ACTOR_DRAW_CULLED;
-	else
-	{
-		newItem->flags |= ACTOR_DRAW_ALWAYS;
-		newItem->actor->xluOverride = WATER_XLU;
-
-		if( newItem->actor->objectController )
-			newItem->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
-	}
+	newItem->flags |= ACTOR_DRAW_CULLED;
 
 	newItem->speed				= 18.0;
 	newItem->offset				= 0.0;

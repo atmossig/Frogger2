@@ -577,6 +577,8 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	SCENIC *ts = Sc_000;
 	int actCount = 0;
 	OBJECT_CONTROLLER *objCont;
+	char tmp[5];
+	long i;
 	
 /*	
 	skyActor = CreateAndAddActor("sky.ndo",0,0,0,0,0,0);
@@ -602,8 +604,14 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 			theActor->flags = ACTOR_DRAW_ALWAYS;
 			globalLevelActor = theActor;
 		}
-		
-		//theActor->flags = flags;
+
+		for( i=0; i<4; i++ )
+			tmp[i] = ts->name[i];
+
+		tmp[4] = '\0';
+		// If a water object, draw always
+		if( !gstrcmp( tmp, "wat_\0" ) )
+			theActor->flags = ACTOR_DRAW_ALWAYS;
 
 		tv = ts->rot.y;
 		ts->rot.y = ts->rot.z;
