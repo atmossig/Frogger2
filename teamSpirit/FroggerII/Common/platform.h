@@ -59,9 +59,6 @@ typedef struct TAGPLATFORM
 	unsigned long			flags;					// platform flags
 	unsigned long			originalFlags;			// copy of original flags
 
-	float					*moveSpeed;
-	float					riseSpeed;
-	
 	float					currSpeed;				// platform current speed
 	short					isWaiting;				// platform node pause time
 
