@@ -109,8 +109,13 @@ void RunTitleScreen()
     {
 		if( currentSelection > 0 )
 		{
-			currentSelection--;
-//			PlaySampleNot3D(237,192,128,128);
+			switch (currentSelection--)
+			{
+				case 0: startText->draw = 1; break;
+				case 1: selectText->draw = 1; break;
+				case 2: multiText->draw = 1; break;
+				case 3: devText->draw = 1; break;
+			}
 		}
 	}
 	    
@@ -118,8 +123,13 @@ void RunTitleScreen()
     {
 		if( currentSelection < 3 )
 		{
-			currentSelection++;
-//			PlaySampleNot3D(237,192,128,128);
+			switch (currentSelection++)
+			{
+				case 0: startText->draw = 1; break;
+				case 1: selectText->draw = 1; break;
+				case 2: multiText->draw = 1; break;
+				case 3: devText->draw = 1; break;
+			}
 		}
 	}
 	
@@ -210,10 +220,10 @@ void RunTitleScreen()
 
 		switch (currentSelection)
 		{
-			case 0: startText->a = 255; break;
-			case 1: selectText->a = 255; break;
-			case 2: multiText->a = 255; break;
-			case 3: devText->a = 255; break;
+			case 0: startText->a = 255; if( !(actFrameCount%32) ) startText->draw = !startText->draw; break;
+			case 1: selectText->a = 255; if( !(actFrameCount%32) ) selectText->draw = !selectText->draw; break;
+			case 2: multiText->a = 255; if( !(actFrameCount%32) ) multiText->draw = !multiText->draw; break;
+			case 3: devText->a = 255; if( !(actFrameCount%32) ) devText->draw = !devText->draw;break;
 		}
 	}
 
@@ -246,9 +256,10 @@ void RunCharSelect()
 
 	// Sod it, it's only a menu.
 	for( i=0; i < NUM_CHARS; i++ )
-			charSelText[i]->a = 100;
+		charSelText[i]->a = 100;
 	
 	charSelText[curSel]->a = 0xff;
+	if( !(actFrameCount%32) ) charSelText[curSel]->draw = !charSelText[curSel]->draw;
 
 	button = controllerdata [ ActiveController ].button;
 
@@ -256,13 +267,13 @@ void RunCharSelect()
 	if((button & CONT_UP) && !(lastbutton & CONT_UP))
     {
 		if (curSel>0)
-			curSel--;
+			charSelText[curSel--]->draw = 1;
 	}
 	    
 	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
     {
 		if (curSel<NUM_CHARS-1)
-			curSel++;
+			charSelText[curSel++]->draw = 1;
 	}
 
 	if (frameCount>15)
@@ -352,7 +363,7 @@ void RunLevelSelect()
     {
 		if( lrSelect == 0 && currentWorldSelect > 0 ) // World select
 		{
-			currentWorldSelect--;
+			worldSelText[currentWorldSelect--]->draw = 1;
 			for( i=0; i < MAX_LEVELS; i++ )
 			{
 				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
@@ -365,6 +376,7 @@ void RunLevelSelect()
 		}
 		else if( lrSelect == 1 && currentLevelSelect > 0 ) // Level select
 		{
+			levelSelText[currentLevelSelect]->draw = 1;
 			for( i=currentLevelSelect-1; i >= 0; i-- )
 			{
 				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
@@ -380,7 +392,7 @@ void RunLevelSelect()
     {
 		if( lrSelect == 0 && currentWorldSelect < MAX_WORLDS-1 ) // World select
 		{
-			currentWorldSelect++;
+			worldSelText[currentWorldSelect++]->draw = 1;
 			for( i=0; i < MAX_LEVELS; i++ )
 			{
 				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
@@ -393,6 +405,7 @@ void RunLevelSelect()
 		}
 		else if( lrSelect == 1 && currentLevelSelect < MAX_LEVELS )
 		{
+			levelSelText[currentLevelSelect]->draw = 1;
 			for( i=currentLevelSelect+1; i < MAX_LEVELS; i++ )
 			{
 				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
@@ -480,12 +493,19 @@ void RunLevelSelect()
 	if(lrSelect == 0)
 	{
 		worldSelText[currentWorldSelect]->a = 255;
-		if( currentLevelSelect != 255 ) levelSelText[currentLevelSelect]->a = 175;
+		if( currentLevelSelect != 255 ) 
+		{
+			levelSelText[currentLevelSelect]->a = 175;
+			levelSelText[currentLevelSelect]->draw = 1;
+		}
+		if( !(actFrameCount%32) ) worldSelText[currentWorldSelect]->draw = !worldSelText[currentWorldSelect]->draw;
 	}
 	else
 	{
 		worldSelText[currentWorldSelect]->a = 175;
+		worldSelText[currentWorldSelect]->draw = 1;
 		if( currentLevelSelect != 255 ) levelSelText[currentLevelSelect]->a = 255;
+		if( !(actFrameCount%32) ) levelSelText[currentLevelSelect]->draw = !levelSelText[currentLevelSelect]->draw;
 	}
 
 	lastbutton = button;
@@ -510,15 +530,8 @@ void RunPauseMenu()
 	
 	button = controllerdata[ActiveController].button;
 
-//	pauseTitle->a -= 16;
-
-	if((button & CONT_UP) && !(lastbutton & CONT_UP))
-		if(currentSelection > 0)
-			currentSelection--;
-
-	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
-		if(currentSelection < 1)
-			currentSelection++;
+	if( ((button & CONT_UP) && !(lastbutton & CONT_UP)) || ((button & CONT_DOWN) && !(lastbutton & CONT_DOWN)) )
+		((currentSelection ^= 1)?(continueText):(quitText))->draw = 1; // If I have to do this I'm damn well going to hack it
 
 	if((button & CONT_A) && !(lastbutton & CONT_A))
 	{
@@ -599,6 +612,7 @@ void RunPauseMenu()
 		case 0:
 			continueText->a = 255;
 			continueText->r = continueText->g = continueText->b = 255;
+			if( !(actTickCount%4) ) continueText->draw = !continueText->draw;
 
 			quitText->a = 91; //255;
 			quitText->r = quitText->b = 255;
@@ -608,6 +622,7 @@ void RunPauseMenu()
 		case 1:
 			quitText->a = 255;
 			quitText->r = quitText->g = quitText->b = 255;
+			if( !(actTickCount%4) ) quitText->draw = !quitText->draw;
 
 			continueText->a = 91; //255;
 			continueText->r = continueText->b = 255;

@@ -324,7 +324,7 @@ void UpdateBattle( )
 					tf = AddBattleTrailNode( i );
 					AnimateFrogHop( frogFacing[i], i );
 				}
-				
+
 				if( !tf || !res ) player[i].frogState |= FROGSTATUS_ISDEAD;
 			}
 
