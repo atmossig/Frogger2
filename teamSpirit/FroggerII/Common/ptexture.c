@@ -13,6 +13,7 @@
 #include <ultra64.h>
 #include "incs.h"
 
+PROCTEXTURE *steamTex;
 
 PROCTEXTURE *prcTexList = NULL;
 POLYGON *rpList = NULL;
@@ -50,7 +51,53 @@ void ProcessPTFire( PROCTEXTURE *pt )
 		pt->buf1[1008+p-31] = 0xff;
 		pt->buf1[1008+p-33] = 0xff;
 	}
-	
+
+	// Smooth, move up and fade
+	for( i=30; i; i-- )
+		for( j=30; j; j-- )
+		{
+			p = (i<<5)+j;
+			t = ( pt->buf1[p+31]+ pt->buf1[p+33] + pt->buf1[p+64] );
+			pt->buf2[p]=((t+pt->buf1[p-64])+(t+pt->buf1[p-32]))>>3;
+		}
+
+	// Swap buffers
+	tmp = pt->buf1;
+	pt->buf1 = pt->buf2;
+	pt->buf2 = tmp;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ProcessPTCandle
+	Purpose			: Little candle flame
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void ProcessPTCandle( PROCTEXTURE *pt )
+{
+	unsigned long i,j,t;
+	unsigned char *tmp;
+	short p;
+
+	// Copy resultant buffer into texture
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->buf1, pt->palette );
+#else
+	memcpy(pt->tex->data,pt->buf1,928);
+#endif
+
+	pt->buf1[528] = 200+Random(56);
+	pt->buf1[528+1] = 200+Random(56);
+	pt->buf1[528-1] = 200+Random(56);
+	pt->buf1[528+32] = 200+Random(56);
+	pt->buf1[528-32] = 200+Random(56);
+	pt->buf1[528+31] = 200+Random(56);
+	pt->buf1[528+33] = 200+Random(56);
+	pt->buf1[528-31] = 200+Random(56);
+	pt->buf1[528-33] = 200+Random(56);
+
 	// Smooth, move up and fade
 	for( i=30; i; i-- )
 		for( j=30; j; j-- )
@@ -298,6 +345,94 @@ void ProcessPTWaterRipples( PROCTEXTURE *pt )
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: ProcessPTSteam
+	Purpose			: Procedural steam effect
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void ProcessPTWaterWaves( PROCTEXTURE *pt )
+{
+	unsigned long i,j;
+	unsigned char *tmp;
+	short p, res;
+
+	// Copy resultant buffer into texture
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->buf1, pt->palette );
+#else
+	memcpy(pt->tex->data,pt->buf1,1024);
+#endif
+
+	if( Random(3)>1 )
+		for( i=928; i<992; i++ )
+			if( Random(3)>1 )
+				pt->buf1[i] = 200 + Random(56);
+
+	for( i=30; i; i-- )
+		for( j=30; j; j-- )
+		{
+			p = (i<<5)+j;
+			res = (pt->buf1[p+32] + pt->buf1[p-32] + pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p+33] + pt->buf1[p+31] + pt->buf1[p-33] + pt->buf1[p-31] )>>2;
+			res -= pt->buf2[p] + (pt->buf2[p]>>3);
+			pt->buf2[p] = max(res,0);
+		}
+
+	// Swap buffers
+	tmp = pt->buf1;
+	pt->buf1 = pt->buf2;
+	pt->buf2 = tmp;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ProcessPTSteam
+	Purpose			: Procedural steam effect
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void ProcessPTSteam( PROCTEXTURE *pt )
+{
+	unsigned long i,j,t;
+	unsigned char *tmp;
+	short p, res;
+
+	// Copy resultant buffer into texture
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->buf1, pt->palette );
+#else
+	memcpy(pt->tex->data,pt->buf1,1024);
+#endif
+
+	if( pt->active )
+	{
+		for( i=935; i<953; i++ )
+			if( Random(3)>1 )
+				pt->buf1[i] = 200 + Random(56);
+
+		for( i=968; i<984; i++ )
+			if( Random(3)>1 )
+				pt->buf1[i] = 200 + Random(56);
+	}
+
+	// Smooth, move up and fade
+	for( i=30; i; i-- )
+		for( j=30; j; j-- )
+		{
+			p = (i<<5)+j;
+			t = ( pt->buf1[p+31]+ pt->buf1[p+33] + pt->buf1[p+64]);
+			pt->buf2[p]=((t+pt->buf1[p-64])+(t+pt->buf1[p-32]))>>3;
+		}
+
+	// Swap buffers
+	tmp = pt->buf1;
+	pt->buf1 = pt->buf2;
+	pt->buf2 = tmp;
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: ProcessProcTextures
 	Purpose			: Call update function pointers for all procedural textures
 	Parameters		: 
@@ -376,6 +511,8 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 	pt->buf2 = (unsigned char *)JallocAlloc( 1024, YES, "ptdata" );  // sizeof(char)*32*32
 	pt->palette = (unsigned short *)JallocAlloc( 512, NO, "ptpal" );  // sizeof(short)*256
 
+	pt->active = 1;
+
 	// Convert palette to 4444 format
 	if (
 #ifdef PC_VERSION
@@ -439,7 +576,17 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 			pt->Update = ProcessPTWaterBubbler;
 		else if( name[8]=='t' )
 			pt->Update = ProcessPTWaterTrail;
+		else if( name[8]=='w' )
+			pt->Update = ProcessPTWaterWaves;
 	}
+	else if( name[4]=='s' && name[5]=='t' && name[6]=='e' && name[7]=='a' )
+	{
+		pt->Update = ProcessPTSteam;
+		pt->active = 0;
+		steamTex = pt;
+	}
+	else if( name[4]=='c' && name[5]=='n' && name[6]=='d' && name[7]=='l' )
+		pt->Update = ProcessPTCandle;
 }
 
 

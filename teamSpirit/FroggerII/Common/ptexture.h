@@ -11,13 +11,12 @@
 #define __PTEXTURE_H
 
 
-
 typedef struct TAGPROCTEXTURE
 {
 	struct TAGPROCTEXTURE *next;
 
 	unsigned long timer;
-	unsigned char *buf1, *buf2;
+	unsigned char *buf1, *buf2, active;
 	short *palette;
 
 	TEXTURE *tex;
@@ -25,6 +24,9 @@ typedef struct TAGPROCTEXTURE
 	void  (*Update) ();
 
 } PROCTEXTURE;
+
+
+extern PROCTEXTURE *steamTex;
 
 
 extern PROCTEXTURE *prcTexList;
@@ -42,5 +44,9 @@ extern void ProcessPTWaterRipples( PROCTEXTURE *pt );
 extern void ProcessPTWaterDrops( PROCTEXTURE *pt );
 extern void ProcessPTWaterBubbler( PROCTEXTURE *pt );
 extern void ProcessPTWaterTrail( PROCTEXTURE *pt );
+extern void ProcessPTWaterWaves( PROCTEXTURE *pt );
+extern void ProcessPTSteam( PROCTEXTURE *pt );
+extern void ProcessPTCandle( PROCTEXTURE *pt );
+
 
 #endif
