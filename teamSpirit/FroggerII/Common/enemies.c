@@ -132,6 +132,7 @@ unsigned long waspPath20[] = { 5,	100,101,109,118,119 };
 unsigned long gatePath1[]    = { 1,		12};
 unsigned long gatePath2[]    = { 1,		15};
 
+unsigned long debug_nmePath[]	= { 4,	33,34,35,36 };
 
 
 static BOOL JumpedOnEnemy(ENEMY *enemy);
@@ -152,6 +153,7 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 	{
 		if ( levelID == LEVELID_GARDENLAWN )
 		{
+/*
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath1,0,0,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath1,0,0,12,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
 
@@ -185,7 +187,9 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath18,35,35,4,10.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath19,35,35,4,5.0F, ENEMY_HASPATH | ENEMY_PATHBACKWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
+*/
 
+			testEnemy = CreateAndAddEnemy("wasp.ndo",debug_nmePath,35,35,0,2,ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL | ENEMY_RADIUSBASEDCOLLISION);
 
 		} else if ( levelID == LEVELID_GARDENMAZE )
 		{
@@ -315,12 +319,23 @@ ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,
 	}
 
 	// add and initialise the actor
-	newItem->nmeActor	= CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);
+	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);
 	if(shadowRadius)
 		newItem->nmeActor->actor->shadow->radius = shadowRadius;
 
+	// specify enemy radius if the enemy is radius based
+	if(initFlags & ENEMY_RADIUSBASEDCOLLISION)
+	{
+		// set a default radius
+		newItem->nmeActor->radius = 25.0F;
+	}
+	else
+	{
+		// set radius to zero - not used for collision detection
+		newItem->nmeActor->radius = 0.0F;
+	}
+
 	// set animation depending on enemy type
-	// initialise enemy type dudes
 	if(enemyType > NMETYPE_NONE)
 	{
 		// This actor is an enemy so add to enemy actor list
@@ -759,8 +774,8 @@ void UpdateEnemies()
 		oldTile = currTile;
 		GetActiveTile(cur);
 
-		// check if frog has been 'killed' by current enemy
-		if ( ( currTile == cur->inTile ) && ( !frog->action.dead ) &&
+		// check if frog has been 'killed' by current enemy - tile based collision
+		if ( !(cur->flags & ENEMY_RADIUSBASEDCOLLISION) && ( currTile == cur->inTile ) && ( !frog->action.dead ) &&
 			 (!frog->action.safe) && (!(frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NOJUMPOVER) ) &&
 			 (! currPlatform ) && !( frogState & FROGSTATUS_ISFLOATING ) )
 		{
@@ -851,14 +866,20 @@ void UpdateEnemies()
 		}
 	}
 
-	// go through enemy list and update accelerating / decelerating enemies
+	// go through enemy list and update accelerating / decelerating enemies - radius based collision
 	for(cur = enemyList.head.next; cur != &enemyList.head; cur = next)
 	{
 		next = cur->next;
+
 		if(cur->flags & ENEMY_ACCELERATECONST)
 			cur->speed += cur->accel;
 		else if(cur->flags & ENEMY_DECELERATECONST)
 			cur->speed -= cur->accel;
+
+		if(cur->flags & ENEMY_RADIUSBASEDCOLLISION)
+		{
+			// perform radius collision check between frog and current enemy
+		}
 	}
 }
 
