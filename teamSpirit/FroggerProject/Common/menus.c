@@ -550,6 +550,7 @@ void RunPauseMenu()
 						else
 						{
 							gameState.mode = INGAME_MODE;
+							gameSpeed = pauseGameSpeed;
 							EnableHUD( );
 						}
 					}

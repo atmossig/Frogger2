@@ -671,16 +671,18 @@ long LoopFunc(void)
 		
 		actFrameCount = (timeInfo.frameCount-(pFrameModifier)) * (float)(turbo/4096);
 
+		gameSpeed = 4096*timeInfo.speed * (float)(turbo/4096);
+		lastFrames = timeInfo.frameCount;
+		lastTicks = timeInfo.tickCount;
+
 		if (beenPaused)
 		{
 			pFrameModifier += (actFrameCount - lastActFrameCount);		
 			actFrameCount = lastActFrameCount;
+			gameSpeed = pauseGameSpeed;
 			beenPaused = 0;
 		}
 
-		gameSpeed = 4096*timeInfo.speed * (float)(turbo/4096);
-		lastFrames = timeInfo.frameCount;
-		lastTicks = timeInfo.tickCount;
 		pauseGameSpeed = gameSpeed;
 	}
 	else
