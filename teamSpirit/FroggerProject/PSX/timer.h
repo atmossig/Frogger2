@@ -53,6 +53,7 @@ enum {
 	TIMER_PRINT_OVERS,
 	TIMER_PROCTEX,
 	TIMER_DRAWSYNC,
+	TIMER_INTERPRET,
 	TIMER_TIMERS,
 
 	TIMER_NUMTIMERS
@@ -70,6 +71,7 @@ enum {
 						"PRINT_OVERS", \
 						"PROCTEX", \
 						"DRAWSYNC", \
+						"INTERPRET", \
 						"TIMERS"
 #endif //TIMER_SET_0
 
