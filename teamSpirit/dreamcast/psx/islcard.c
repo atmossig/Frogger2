@@ -342,11 +342,18 @@ int cardWrite(char *memCardName, void *gSaveData, int gSaveDataSize)
 
 void cardDisplay(Uint8 *bitmap)
 {
-	int		loop;
-	pdGetPeripheral(vmuPortToUse);
-	pdLcdGetDirection(vmuPortToUse);
+	int	flag, flip;
+
+//	pdGetPeripheral(vmuPortToUse);
+
+	flip = pdLcdGetDirection(vmuPortToUse);
+	if( flip == PDD_LCD_DIRECTION_FLIP )
+		flag = PDD_LCD_FLAG_HVFLIP;
+	else
+		flag = PDD_LCD_DIRECTION_NORMAL;
+
 	if (pdVmsLcdIsReady(vmuPortToUse))
-		while(pdVmsLcdWrite(vmuPortToUse, bitmap, PDD_LCD_FLAG_HVFLIP) == PDD_LCDERR_BUSY);
+		while(pdVmsLcdWrite(vmuPortToUse, (void *)bitmap, flag) == PDD_LCDERR_BUSY);
 
 /*	for(loop=0; loop<60; loop++)
 #ifdef _NINJA_
