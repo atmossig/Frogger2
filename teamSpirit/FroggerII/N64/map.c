@@ -65,15 +65,47 @@ void FreeMapBank(void)
 
 void LoadCollision (int num)
 {
-		
+	int					tnum = -1;
 	char				*objectBank;
 	u32					bankRomStart, bankRomEnd, bankSize;
 	short				y, x;
 	GAMETILE			*cgT;
 	char				message[64];
+
+	switch(num)
+	{
+		// GARDEN LEVELS
+		case GARDENMASTER_COL:
+			break;
+		case GARDENMULTI_COL:
+			tnum = GARDENMULTI_COLL_BANK;
+			break;
+		case GARDENLEV1_COL:
+			tnum = LAWN_COLL_BANK;
+			break;
+		case GARDENLEV2_COL:
+			tnum = MAZE_COLL_BANK;
+			break;
+		case GARDENLEV3_COL:
+			tnum = VEGPATCH_COLL_BANK;
+			break;
+
+		// ANCIENTS LEVELS
+		case ANCIENTMASTER_COL:
+			break;
+		case ANCIENTMULTI_COL:
+			break;
+		case ANCIENTLEV1_COL:
+			break;
+		case ANCIENTLEV2_COL:
+			tnum = RUINEDCITY_COLL_BANK;
+			break;
+		case ANCIENTLEV3_COL:
+			break;
+	}
 	
-	bankRomStart	= (u32)collBanksStart[num];
-	bankRomEnd		= (u32)collBanksEnd[num];			
+	bankRomStart	= (u32)collBanksStart[tnum];
+	bankRomEnd		= (u32)collBanksEnd[tnum];			
 	bankSize = bankRomEnd - bankRomStart;
 
 	objectBank = (char *)JallocAlloc(DMAGetSize(bankRomStart, bankRomEnd), FALSE,"mBank");
@@ -83,7 +115,7 @@ void LoadCollision (int num)
 	DMAMemory(objectBank, bankRomStart, bankRomEnd);
 
 	if(objectBank)
-		dprintf"Loaded map bank %i (size %d)\n",num,(int)bankSize));
+		dprintf"Loaded map bank %i (size %d)\n",tnum,(int)bankSize));
 	else
 	{
 		dprintf"Unable to load map bank %s\n",message));
@@ -163,15 +195,101 @@ void LoadCollision (int num)
 
 void LoadScenics (int num)
 {
-			
+	int					tnum = -1;
 	char				*objectBank;
 	u32					bankRomStart, bankRomEnd, bankSize;
 	short				y, x;
 	SCENIC				*cSc;
 	char				message[64];
 	
-	bankRomStart	= (u32)scenBanksStart[num];
-	bankRomEnd		= (u32)scenBanksEnd[num];			
+/*
+
+	SYSTEM_COL,
+
+	SPACEMASTER_COL,
+	SPACELEV1_COL,
+	SPACELEV2_COL,
+	SPACELEV3_COL,
+	SPACEBONUS_COL,
+	SPACEMULTI_COL,
+
+	CITYMASTER_COL,
+	CITYLEV1_COL,
+	CITYLEV2_COL,
+	CITYLEV3_COL,
+	CITYBONUS_COL,
+	CITYMULTI_COL,
+
+	SUBTERRANEANMASTER_COL,
+	SUBTERRANEANLEV1_COL,
+	SUBTERRANEANLEV2_COL,
+	SUBTERRANEANLEV3_COL,
+	SUBTERRANEANBONUS_COL,
+	SUBTERRANEANMULTI_COL,
+
+	LABORATORYMASTER_COL,
+	LABORATORYLEV1_COL,
+	LABORATORYLEV2_COL,
+	LABORATORYLEV3_COL,
+	LABORATORYBONUS_COL,
+	LABORATORYMULTI_COL,
+
+	TOYSHOPMASTER_COL,
+	TOYSHOPLEV1_COL,
+	TOYSHOPLEV2_COL,
+	TOYSHOPLEV3_COL,
+	TOYSHOPBONUS_COL,
+	TOYSHOPMULTI_COL,
+
+	HALLOWEENMASTER_COL,
+	HALLOWEENLEV1_COL,
+	HALLOWEENLEV2_COL,
+	HALLOWEENLEV3_COL,
+	HALLOWEENBONUS_COL,
+	HALLOWEENMULTI_COL,
+
+	RETROMASTER_COL,
+	RETROLEV1_COL,
+	RETROLEV2_COL,
+	RETROLEV3_COL,
+	RETROBONUS_COL,
+	RETROMULTI_COL,
+*/
+
+	switch(num)
+	{
+		// GARDEN LEVELS
+		case GARDENMASTER_COL:
+			break;
+		case GARDENMULTI_COL:
+			tnum = GARDENMULTI_COLL_BANK;
+			break;
+		case GARDENLEV1_COL:
+			tnum = LAWN_COLL_BANK;
+			break;
+		case GARDENLEV2_COL:
+			tnum = MAZE_COLL_BANK;
+			break;
+		case GARDENLEV3_COL:
+			tnum = VEGPATCH_COLL_BANK;
+			break;
+
+		// ANCIENTS LEVELS
+		case ANCIENTMASTER_COL:
+			break;
+		case ANCIENTMULTI_COL:
+			break;
+		case ANCIENTLEV1_COL:
+			break;
+		case ANCIENTLEV2_COL:
+			tnum = RUINEDCITY_COLL_BANK;
+			break;
+		case ANCIENTLEV3_COL:
+			break;
+	}
+
+	bankRomStart	= (u32)scenBanksStart[tnum];
+	bankRomEnd		= (u32)scenBanksEnd[tnum];			
 	bankSize = bankRomEnd - bankRomStart;
 
 	objectBank = (char *)JallocAlloc(DMAGetSize(bankRomStart, bankRomEnd), FALSE,"sBank");
@@ -181,7 +299,7 @@ void LoadScenics (int num)
 	DMAMemory(objectBank, bankRomStart, bankRomEnd);
 
 	if(objectBank)
-		dprintf"Loaded scee bank %i (size %d)\n",num,(int)bankSize));
+		dprintf"Loaded scee bank %i (size %d)\n",tnum,(int)bankSize));
 	else
 	{
 		dprintf"Unable to load map bank %s\n",message));
