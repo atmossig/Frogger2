@@ -15,6 +15,8 @@
 ACTORLIST	actorList;
 
 
+#include "bbtimer.h"
+
 //#define min(a,b) (((a) < (b)) ? (a) : (b))
 //#define max(a,b) (((a) > (b)) ? (a) : (b))
 //#define Bound(a,x,b) min(b,max(a,x))
@@ -83,10 +85,7 @@ void actorSub(ACTOR *actor)
 
 void actorFree(ACTOR *actor)
 {
-#ifdef PSXVERSION
-
 	FREE(actor->psiData.objectTable);
-#endif
 //	if (actor->shadow)
 //	{
 //		FREE((UBYTE **)&actor->shadow);//IF SHADOWS ARE ADDED...mm
@@ -105,7 +104,6 @@ void actor2Free(ACTOR2 *actor)
 
 
 static ULONG 	*segTable;
-#ifdef
 static PSIOBJECT *psiobNext;
 
 static void actorSetTree(PSIOBJECT *obj,PSIMESH *mesh)
@@ -151,6 +149,8 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 
 	parts = psiModel->noofmeshes;			// number of objects in this model
 
+	utilPrintf("Number of Objects in Model : %d\n",parts);
+
 	len = parts * sizeof(PSIOBJECT);
 	len += sizeof (ACTOR);
 
@@ -185,6 +185,8 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 
 	// set prim counter
 	actor->psiData.noofPrims = psiModel->noofPrims;
+
+	utilPrintf ( "Name : %s, Number of polys: %d", actor->psiData.modelName, actor->psiData.noofPrims );
 
 	actor->psiData.noofVerts = psiModel->noofVerts;
 
@@ -407,11 +409,14 @@ void actorMove(ACTOR *actor)
 	RETURNS:	
 **************************************************************************/
 
+BBTIMER tActorDraw, tDrawSegments, tCalcWorldMatrix;
+
 void actorDraw(ACTOR *actor)
 {
 	PSIOBJECT *world;
 
-   	world = actor->psiData.object;
+	TimerStart(&tActorDraw);
+	world = actor->psiData.object;
 
 	if(actor->psiData.flags & ACTOR_MOTIONBONE)
 	{
@@ -428,9 +433,15 @@ void actorDraw(ACTOR *actor)
 
 	PSIrootScale = &actor->psiData.object->scale;
 	
+	TimerStart(&tCalcWorldMatrix);
 	psiCalcWorldMatrix(actor->psiData.object);
+	TimerStop(&tCalcWorldMatrix);
 
+	TimerStart(&tDrawSegments);
 	psiDrawSegments(&actor->psiData);
+	TimerStop(&tDrawSegments);
+
+	TimerStop(&tActorDraw);
 }
 
 void actorDraw2(ACTOR *actor)

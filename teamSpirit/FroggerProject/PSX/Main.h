@@ -3,9 +3,7 @@
 
 //#define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
 
-#ifdef PSXVERSION
 GsRVIEW2	camera;
-#endif
 
 extern ULONG	frame;
 

@@ -7,9 +7,7 @@
 //	#include "global.h"
 	#include "types.h"
 //	#include <islpsi.h>
-#ifdef PSXVERSION
 	#include <psitypes.h>
-#endif
 	#include "shell.h"
 
 #include "bff_load.h"

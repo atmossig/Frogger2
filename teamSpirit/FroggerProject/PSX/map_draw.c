@@ -22,6 +22,8 @@
 //#define WATERANIM_2 (u+((rsin(frame<<6)+4096)>>11))|((v+((rcos(frame<<6)+4096)>>11))<<8)
 
 
+extern int polyCount;
+
 #define WATERANIM_1	(u|(v<<8))
 #define WATERANIM_2	WATERANIM_1
 
@@ -363,6 +365,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 #endif
 				packet = ADD2POINTER(packet,sizeof(POLY_GT4));
+				polyCount++;
 			}
 		}
 	}
@@ -441,6 +444,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 #endif
 				packet = ADD2POINTER(packet,sizeof(POLY_GT3));
+				polyCount++;
 			}
 		}
 	}

@@ -8,10 +8,8 @@
 
 #include "map.h"
 
-#include "babyfrog.h"
 
-
-//int numBabies = 0;
+int numBabies = 0;
 int tileCount = 0;
 int scenicCount = 0;
 
@@ -72,6 +70,9 @@ void LoadScenics ( int collBank )
 			sprintf ( fileName, "SCENICS\\SPACE2.SCE" );
 			break;
 
+		case CITYLEV3_COL:
+			sprintf ( fileName, "SCENICS\\CITY3.SCE" );
+			break;
 
 		case SUBTERRANEANLEV1_COL:
 			sprintf ( fileName, "SCENICS\\SUB1.SCE" );
@@ -159,7 +160,7 @@ void LoadLevelEntities ( int worldID, int levelID )
 	char fileName[256];
 
 //	sprintf ( fileName, "\\maps\\entity-%d-%d.dat", worldID, levelID );
-	sprintf ( fileName, "MAPS\\ENT%d%d.dat", worldID, levelID );
+	sprintf ( fileName, "MAPS\\ENTITY-%d-%d.dat", worldID, levelID );
 
 	//bb
 	if(entityFile)
@@ -240,6 +241,10 @@ void LoadCollision ( int collBank )
 
 		case SPACELEV2_COL:
 			sprintf ( fileName, "COLLISION\\SPACE2.COL" );
+			break;
+
+		case CITYLEV3_COL:
+			sprintf ( fileName, "COLLISION\\CITY3.COL" );
 			break;
 
 		case SUBTERRANEANLEV1_COL:

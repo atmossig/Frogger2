@@ -31,6 +31,10 @@ void LoadTextureBank ( int textureBank )
 				sprintf ( fileName, "TEXTURES\\SPACE.SPT" );
 			break;
 
+		case CITY_TEX_BANK:
+				sprintf ( fileName, "TEXTURES\\CITY.SPT" );
+			break;
+
 		case SUBTERRANEAN_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\SUB.SPT" );
 			break;

@@ -15,13 +15,16 @@
 #include <gtemac.h>
 
 #include <islutil.h>
-//#include <islcard.h>
+#include <islcard.h>
 #include <isltex.h>
 #include <islfont.h>
-//#include <islsound.h>
+#include <islsound.h>
 #include <islpad.h>
 #include <islmem.h>
 #include <islfile.h>
+//#include <islpsi.h>
+#include "sonylibs.h"
+#include "shell.h"
 #include <islpsi.h>
 
 
@@ -44,6 +47,12 @@
 void customDrawPrimitives2(int);
 void customDrawSortedPrimitives(int);
 void LSCAPE_DrawSortedPrimitives(int);
+
+extern USHORT EXPLORE_black_ref_palette[16];
+
+extern USHORT EXPLORE_black_CLUT;
+
+
 
 GsRVIEW2	camera;
 
@@ -441,6 +450,8 @@ unsigned long CRC;
 
 TextureType *texture;
 
+extern int polyCount;
+
 int main ( )
 {
 	while ( 1 )
@@ -488,10 +499,13 @@ int main ( )
 		psiInitialise(100);
 		psiInitLights();
 
-//		psiRegisterDrawFunction(LSCAPE_DrawSortedPrimitives);
+		psiRegisterDrawFunction(LSCAPE_DrawSortedPrimitives);
+
+	// SL: Right... here, I make up and store the index for an all black palette, used to do true transparency...
+	EXPLORE_black_CLUT = textureAddCLUT16(EXPLORE_black_ref_palette);
 
 //		psiRegisterDrawFunction2(customDrawPrimitives2);
-		psiRegisterDrawFunction(customDrawSortedPrimitives);
+//		psiRegisterDrawFunction(customDrawSortedPrimitives);
 
 		psiSetAmbient(128,128,128);
 
@@ -553,6 +567,8 @@ int main ( )
 		//	texture = textureFindCRCInAllBanks ( CRC );  // Testing........
 
 
+		InitNewBabyAnim();
+
 
 		while ( !quitMainLoop )
 		{
@@ -565,6 +581,8 @@ int main ( )
 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
 
+			polyCount = 0;
+
 			DrawBackDrop();
 
 // 			bbTime1 = GetRCnt(1);
@@ -574,6 +592,8 @@ int main ( )
 			GameLoop();
 			TimerStop(&tGameLoop);
 			
+			if(spriteList.numEntries)
+				AnimateSprites();
 			
 
 			TimerStart(&tDrawWorld);
@@ -597,6 +617,8 @@ int main ( )
 			if(gameState.mode == INGAME_MODE)
 				DrawActorList();
 			TimerStop(&tDrawActorList);
+
+//			utilPrintf ( "Poly Count : %d\n", polyCount );
 
 			PrintTextOverlays();
 

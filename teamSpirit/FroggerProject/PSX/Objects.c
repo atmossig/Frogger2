@@ -7,6 +7,8 @@
 #include <islutil.h>
 //#include <islpsi.h>
 
+#include <islpsi.h>
+
 #include "Layout.h"
 #include "bff_load.h"
 #include "Objects.h"
@@ -31,7 +33,7 @@ void ExtractPsiNames ( void )
 	int i;
 
 
-	addr = (char*)pilLibraryList[0];// = (long*)addr;
+	addr = (char*)pilLibraryList[1];// = (long*)addr;
 
 	i = (int)*addr;
 	(char*)table = addr+4;
@@ -110,6 +112,10 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( BFFfileName, "OBJECTS\\SPACE\\SPACE2.BFF" );
 			break;
 
+		case CITYLEV3_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\CITY\\CITY3.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY3.PIL" );
+			break;
 
 		case SUBTERRANEANMASTER_OBJ_BANK:
 					sprintf ( PILfileName, "OBJECTS\\SUB.PIL" );					
@@ -212,6 +218,9 @@ void LoadObjectBank ( int objectBank )
 		utilPrintf("Error Loading: %s : %s, Max Object Banks Reached\n", PILfileName, BFFfileName );
 	}
 	// ENDELSEIF - 	if ( numObjectBanks < MAX_OBJECT_BANKS )
+
+	ExtractPsiNames();
+
 
 }
 

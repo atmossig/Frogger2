@@ -71,10 +71,7 @@ USHORT			*animSegments;			// list of start-end frames (shorts)
    	VECTOR			size; //mm only ever set to 1(4096)
 	ULONG			radius;
 	BOUNDINGBOX		bounding;//mm not used in PC
-
-#ifdef PSXVERSION
 	PSIDATA			psiData;
-#endif
 
 	//Additions from Frogger2
 	FVECTOR vel;
@@ -83,6 +80,10 @@ USHORT			*animSegments;			// list of start-end frames (shorts)
  	SVECTOR			rotaim;//mm not used in the PSX at the moment, but may make it easier to determine direction 
 /* 	ACTOR_SHADOW	*shadow; //mm added from PC                                                                  */
 /* 	int				visible;//mm added from PC                                                                   */
+
+
+//bb - for merge
+	IQUATERNION qRot;
 
 } ACTOR;
 
@@ -115,9 +116,7 @@ void actorSub(ACTOR *actor);
 
 void actorFree(ACTOR *actor);
 
-#ifdef PSXVERSION
 ACTOR *actorCreate(PSIMODEL *psiModel);
-#endif
 
 void actorInitAnim(ACTOR *actor);
 

@@ -3,8 +3,9 @@
 #include "sonylibs.h"
 #include "shell.h"
 #include "types.h"
+#include <islpsi.h>
 //#include <islpsi.h>
-//#include <psitypes.h>
+#include <psitypes.h>
 
 TMD_P_FT4I *testpol;
 POLY_FT4 *testsi;
@@ -13,7 +14,7 @@ POLY_FT4 *testsi;
 // external variables needed for drawing
 extern long *transformedVertices;
 extern VERT *transformedNormals;
-extern PSIMODELCTRL	PSImodelctrl;
+//extern PSIMODELCTRL	PSImodelctrl;
 extern unsigned long *sortedIndex;
 extern int sortCount;
 extern long minDepth;
@@ -266,52 +267,52 @@ void customDrawSortedPrimitives(int depth)
 
 			case GPU_COM_TF4SPR :
 				{
-// 				SHORT		spritez;
-// 				int		width, height;
-// 
-// //				si = (POLY_FT4*)packet;
-// //				op = (TMD_P_FT4I*)(opcd);
-// 
-// 				BEGINPRIM(si, POLY_FT4);
-// 
-// 				testpol = op;
-// 				testsi = si;
-// 
-// 	// scaling-and-transform-in-one-go code from the Action Man people...
-// 				width = op->v2;
-// 				gte_SetLDDQB(0);			// clear offset control reg (C2_DQB)
-// 				gte_ldv0(&vp[op->v0]);		// Load centre point
-// 				gte_SetLDDQA(width);		// shove sprite width into control reg (C2_DQA)
-// 				gte_rtps();					// do the rtps
-// 				gte_stsxy(&si->x0);			// get screen x and y
-// 				gte_stsz(&spritez);		// get order table z
-// 	// end of scaling-and-transform
-// 
-// 
-// 				if (spritez < 20) break;
-// 
-// 				gte_stopz(&width);		// get scaled width of sprite
-// 				width >>= 17;
-// 
-//  				*(u_long *) & si->r0 = *(u_long *) & op->r0;			// Texture coords / colors
-// 				*(u_long *) & si->u0 = *(u_long *) & op->tu0;
-// 				*(u_long *) & si->u1 = *(u_long *) & op->tu1;
-// 				*(u_long *) & si->u2 = *(u_long *) & op->tu2;
-// 				*(u_long *) & si->u3 = *(u_long *) & op->tu3;
-// 
-// 				si->x1 = si->x3=si->x0+width;
-// 				si->x0 = si->x2=si->x0-width;
-// 			
-//  		 		height = width>>1;//(LONG)(width*(3))/spritez;
-// 			
-// 				si->y2 = si->y3=si->y0+height;
-// 				si->y0 = si->y1=si->y0-height;
-// 				setPolyFT4(si);
-// 
-// 				si->code = op->cd | modctrl->semitrans;
-// 		
-//  				ENDPRIM(si, depth, POLY_FT4);
-// 				op = op->next;
+/*				SHORT		spritez;
+				int		width, height;
+
+//				si = (POLY_FT4*)packet;
+//				op = (TMD_P_FT4I*)(opcd);
+
+				BEGINPRIM(si, POLY_FT4);
+
+				testpol = op;
+				testsi = si;
+
+	// scaling-and-transform-in-one-go code from the Action Man people...
+				width = op->v2;
+				gte_SetLDDQB(0);			// clear offset control reg (C2_DQB)
+				gte_ldv0(&vp[op->v0]);		// Load centre point
+				gte_SetLDDQA(width);		// shove sprite width into control reg (C2_DQA)
+				gte_rtps();					// do the rtps
+				gte_stsxy(&si->x0);			// get screen x and y
+				gte_stsz(&spritez);		// get order table z
+	// end of scaling-and-transform
+
+
+				if (spritez < 20) break;
+
+				gte_stopz(&width);		// get scaled width of sprite
+				width >>= 17;
+
+ 				*(u_long *) & si->r0 = *(u_long *) & op->r0;			// Texture coords / colors
+				*(u_long *) & si->u0 = *(u_long *) & op->tu0;
+				*(u_long *) & si->u1 = *(u_long *) & op->tu1;
+				*(u_long *) & si->u2 = *(u_long *) & op->tu2;
+				*(u_long *) & si->u3 = *(u_long *) & op->tu3;
+
+				si->x1 = si->x3=si->x0+width;
+				si->x0 = si->x2=si->x0-width;
+			
+ 		 		height = width>>1;//(LONG)(width*(3))/spritez;
+			
+				si->y2 = si->y3=si->y0+height;
+				si->y0 = si->y1=si->y0-height;
+				setPolyFT4(si);
+
+				si->code = op->cd | modctrl->semitrans;
+		
+ 				ENDPRIM(si, depth, POLY_FT4);
+				op = op->next;*/
 			}
 			break;
 

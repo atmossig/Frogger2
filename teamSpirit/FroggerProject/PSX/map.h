@@ -3,7 +3,7 @@
 
 #include "define.h"
 
-//extern int numBabies;
+extern int numBabies;
 extern int tileCount;
 
 extern void *file;
