@@ -964,6 +964,8 @@ void MapDraw_SetScenicMatrix(FMA_MESH_HEADER* mesh, SCENICOBJ* sc)
 {
 	MATRIX tx,r;
 
+//	gte_MulMatrix0(&GsWSMATRIX,&sc->matrix,&r);
+
 	gte_SetRotMatrix(&GsWSMATRIX);
 	gte_SetTransMatrix(&GsWSMATRIX);
 
@@ -976,8 +978,10 @@ void MapDraw_SetScenicMatrix(FMA_MESH_HEADER* mesh, SCENICOBJ* sc)
 	gte_rtirtr();
 	gte_stlvl(&tx.t);
 
+
+
 //	gte_SetRotMatrix(&GsWSMATRIX);
-	MulMatrix0(&GsWSMATRIX, &sc->matrix, &r);
+	gte_MulMatrix0(&GsWSMATRIX, &sc->matrix, &r);
 	gte_SetRotMatrix(&r);
 	gte_SetTransMatrix(&tx);
 
