@@ -647,7 +647,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i;
 
-	InitLevelLists();
+	InitGameLists();
 
 #ifdef PC_VERSION
 	actFrameCount = 0;
