@@ -13,6 +13,9 @@
 #include <islutil.h>
 #include <islpad.h>
 
+#include <windows.h>
+#include <ddraw.h>
+#include <d3d.h>
 #include <mdx.h>
 #include <mdxException.h>
 #include <softstation.h>
@@ -20,9 +23,11 @@
 // common
 #include "frogmove.h"
 #include "cam.h"
-
+#include "tongue.h"
+#include "specfx.h"
 
 // pc
+#include "drawloop.h"
 #include "fadeout.h"
 #include "pcsprite.h"
 #include "pcgfx.h"
@@ -33,11 +38,18 @@
 #include "controll.h"
 #include "pcmisc.h"
 #include "pcaudio.h"
-
+#include "main.h"
 #include "..\resource.h"
 #include "fxBlur.h"
+#include "game.h"
 
+#include "..\network.h"
+#include "..\netchat.h"
+#include "..\netgame.h"
 
+#include "editor.h"
+
+extern "C" {MDX_LANDSCAPE *world;}
 
 /*	--------------------------------------------------------------------------------
 	Function	: WinMain

@@ -60,7 +60,9 @@ extern unsigned long currentFrameTime;
 
 extern psFont* font;	// todo: put this somewhere sensible for heaven's sake
 extern psFont *fontSmall;
-	
+
+extern float camY, camZ;
+extern int editorOk;
 extern long pFrameModifier;
 extern char lButton, rButton;
 extern char baseDirectory[MAX_PATH];

@@ -118,12 +118,7 @@ BOOL WINAPI  EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverN
     return DDENUMRET_OK;
 }
 
-char col0txt[] = "Description";
-char col1txt[] = "Driver DLL";
 unsigned long selIdx;
-LV_ITEM i1 = {LVIF_TEXT,0,0,0,0,NULL,255};
-LV_COLUMN c1 = {LVCF_FMT | LVCF_TEXT | LVCF_WIDTH,LVCFMT_LEFT,700,col1txt,255,0};
-LV_COLUMN c2 = {LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM,LVCFMT_LEFT,500,col0txt,255,1};
 
 #define NUM_LANGUAGES 5
 
@@ -131,6 +126,13 @@ char *languageText[NUM_LANGUAGES] = {"English","Français","Deutsch","Italiano","
 
 BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	char *col0txt = "Description";
+	char *col1txt = "Driver DLL";
+	const LV_COLUMN c1 = {LVCF_FMT | LVCF_TEXT | LVCF_WIDTH,LVCFMT_LEFT,100,col1txt,255,0};
+	const LV_COLUMN c2 = {LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM,LVCFMT_LEFT,350,col0txt,255,1};
+
+	LV_ITEM i1 = {LVIF_TEXT,0,0,0,0,NULL,255};
+
 	static int	initFlag;
 	int			i,lastIdx;
 	char		text[32];
@@ -139,8 +141,10 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 	// this dialog appears to handle the video radio buttons
 	if (userDlgProc)
-		if (userDlgProc(hwndDlg,uMsg,wParam, lParam))
-			return TRUE;
+	{
+		BOOL result = userDlgProc(hwndDlg,uMsg,wParam, lParam);
+		if (result) return result;
+	}
 
     switch(uMsg)
 	{
@@ -302,7 +306,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	Info		: 
 */
 
-unsigned long DDrawInitObject (GUID *guid)
+unsigned long DDrawInitObject (int showDialog)
 {
 	HRESULT		res;
 	DDCAPS		ddCaps;
@@ -311,7 +315,7 @@ unsigned long DDrawInitObject (GUID *guid)
 	if (dxNumDevices == 0)
 	{
 		// Create a base DirectDraw object
-		DirectDrawEnumerateEx(EnumDDDevices, guid, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
+		DirectDrawEnumerateEx(EnumDDDevices, 0, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
 
 		dxDeviceList[dxNumDevices].desc = (char *) AllocMem(sizeof(char)*(strlen (softwareString)+1));
 		dxDeviceList[dxNumDevices].name = (char *) AllocMem(sizeof(char)*(strlen (softwareDriver)+1));
@@ -322,15 +326,32 @@ unsigned long DDrawInitObject (GUID *guid)
 		dxDeviceList[dxNumDevices++].guid = (GUID *)-1;
 	}
 
-	if (!DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_VIDEODEVICE),NULL,(DLGPROC)HardwareProc))
-		return -1;
+	if (!showDialog && rVideoDevice[0])
+	{
+		for (i=0; i<dxNumDevices; i++)
+			if ((strcmp(dxDeviceList[i].desc, rVideoDevice) == 0))
+				break;
+		
+		if (i<dxNumDevices)
+			dp ("%s\n%s\n",dxDeviceList[i].name,dxDeviceList[i].desc);
+		else
+			showDialog = 1;
+	}
+	else
+		showDialog = 1;
 
-	for (i=0; i<dxNumDevices; i++)
-		if ((dxDeviceList[i].idx == selIdx) && ((dxDeviceList[i].caps.dwCaps & DDCAPS_3D) || (dxDeviceList[i].guid == (GUID *)-1)))
-			break;
-	dp ("%s\n%s\n",dxDeviceList[i].name,dxDeviceList[i].desc);
+	if (showDialog)
+	{
+		if (!DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_VIDEODEVICE),NULL,(DLGPROC)HardwareProc))
+			return -1;
 
-	strcpy(rVideoDevice, dxDeviceList[i].desc);
+		for (i=0; i<dxNumDevices; i++)
+			if ((dxDeviceList[i].idx == selIdx) && ((dxDeviceList[i].caps.dwCaps & DDCAPS_3D) || (dxDeviceList[i].guid == (GUID *)-1)))
+				break;
+		dp ("%s\n%s\n",dxDeviceList[i].name,dxDeviceList[i].desc);
+
+		strcpy(rVideoDevice, dxDeviceList[i].desc);
+	}
 
 	if (dxDeviceList[i].guid == (GUID *)-1)
 	{

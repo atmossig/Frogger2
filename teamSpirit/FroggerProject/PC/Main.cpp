@@ -2,17 +2,18 @@
 
 	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
 
-	File		: block.c
-	Programmer	: Andy Eder
-	Date		: 28/06/99 10:19:37
+	File		: main.cpp
+	Programmer	: 
+	Date		:
+
+	Note - I've moved the draw loop to drawloop.cpp and drawloop.h because main.cpp has become
+	overly congested
 
 ----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
 #include <ddraw.h>
 #include <d3d.h>
-#include <dplay.h>
-#include <dplobby.h>
 #include <math.h>
 #include <islutil.h>
 #include <islpad.h>
@@ -24,8 +25,6 @@
 #include "types2d.h"
 #include "frogger.h"
 #include "levplay.h"
-#include "frogmove.h"
-#include "cam.h"
 #include "tongue.h"
 #include "babyfrog.h"
 #include "hud.h"
@@ -45,9 +44,8 @@
 #include "maths.h"
 #include "E3_Demo.h"
 #include "menus.h"
-
 #include "editor.h"
-
+#include "drawloop.h"
 #include "fadeout.h"
 #include "pcsprite.h"
 #include "pcgfx.h"
@@ -87,7 +85,6 @@ char lButton = 0, rButton = 0;
 int editorOk = 0;
 
 float camY = 100,camZ = 100;
-extern "C" {MDX_LANDSCAPE *world;}
 
 unsigned long nextSynchAt;
 unsigned long actTickCountModifier = 0;
@@ -99,6 +96,7 @@ long resolution = 1;
 long slideSpeeds[4] = {0,16,32,64};
 
 long fogEnable = 0;
+bool configDialog = false;
 
 void GetArgs(char *arglist);
 
@@ -202,7 +200,6 @@ int SetRegistryInformation(void)
 	{
 		// Save base directory
 		RegSetValueEx(hkey, "InstallDir", NULL, REG_SZ, (unsigned char*)baseDirectory, strlen(baseDirectory) + 1);
-//		RegSetValueEx(hkey, "VideoCard", NULL, REG_SZ, videoCardName, strlen(videoCardName) + 1);
 
 		// Save working resolution
 		val = resolution;
@@ -238,51 +235,55 @@ void GetArgs(char *arglist)
 		{
 			cmdMode = 1;
 			while (cmdMode)
-				switch(*(++arglist))
+				switch(toupper(*(++arglist)))
 				{
-					case 'C': case 'c':
+					case 'C':
+						configDialog = true;
+						break;
+
+/*
 						swingCam = !swingCam;
 						utilPrintf("Swinging camera %s\n",swingCam?"enabled":"disabled");
 						break;
-
-					case 'R': case 'r':
+*/
+					case 'R':
 						rKeying = 1;
 						break;
 
-					case 'P': case 'p':
+					case 'P':
 						rPlaying = 1;
 						break;
 
-					case 'a': case 'A':
+					case 'a':
 						useAudio = !useAudio;
 						utilPrintf("Audio %s\n",useAudio?"enabled":"disabled");
 						break;
 
-					case 'D': case 'd':
+					case 'D':
 						playDemos = !playDemos;
 						utilPrintf("Demos %s\n",playDemos?"enabled":"disabled");
 						break;
 
-					case 'K': case 'k':
+					case 'K':
 						debugKeys = !debugKeys;
 						displayDebugInfo = debugKeys;
 						utilPrintf("Debug keys %s\n",debugKeys?"enabled":"disabled");
 						break;
 
-					case 'S': case 's':
+					case 'S':
 						sortMode = MA_SORTBACKFRONT;
 						break;
 
-					case 'I': case 'i':
+					case 'I':
 						screenshotEnable = !screenshotEnable;
 						utilPrintf("Screenshot mode is %s\n",screenshotEnable?"enabled":"disabled");
 						break;
 
-					case 'M': case 'm':
+					case 'M':
 						e3multi = !e3multi;
 						break;
 
-					case 'E': case 'e':
+					case 'E':
 						showMemDebug = !showMemDebug;
 						break;
 
@@ -353,61 +354,6 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		case WM_INITDIALOG:
 		{
-/*
-			strcpy (fPath,baseDirectory);
-			strcpy (fName,fPath);
-			strcat (fName,"*.fsg");
-
-			fHandle = FindFirstFile (fName,&fData);
-
-			if (fHandle != INVALID_HANDLE_VALUE)
-			{
-				long ret;
-				char finalFile[MAX_PATH];
-				char finalShort[MAX_PATH];
-
-				do
-				{
-					strcpy (finalFile,fPath);
-					strcat (finalFile,fData.cFileName);
-					strcpy (finalShort,fData.cFileName);
-					ret = FindNextFile (fHandle,&fData);
-					
-					for (int i=0; finalShort[i]!=0; i++)
-						if (finalShort[i] == '.')
-							finalShort[i] = 0;
-
-					SendMessage ( GetDlgItem(hWnd,IDC_LIST3),CB_INSERTSTRING,0,(long)finalShort);
-				}
-				while (ret);
-			
-				FindClose (fHandle);
-
-				SendMessage ( GetDlgItem(hWnd,IDC_640),BM_SETCHECK,BST_CHECKED,0);
-			}
-			else
-				dp("No savegames",fName);
-
-			SendMessage ( GetDlgItem(hWnd,IDC_LIST3),CB_SETCURSEL,0,0);
-
-			strcpy (fName,fPath);
-			strcat (fName,"setup.fsc");
-			fp = fopen(fName,"rb");
-			if (fp)
-			{
-				fread(&data,1,4,fp);
-				SendMessage ( GetDlgItem(hWnd,IDC_640),BM_SETCHECK,data,0);
-				fread(&data,1,4,fp);
-				SendMessage ( GetDlgItem(hWnd,IDC_800),BM_SETCHECK,data,0);
-				fread(&data,1,4,fp);
-				SendMessage ( GetDlgItem(hWnd,IDC_1024),BM_SETCHECK,data,0);
-				fread(&data,1,4,fp);
-				SendMessage ( GetDlgItem(hWnd,IDC_1280),BM_SETCHECK,data,0);
-				fread(&data,1,4,fp);
-				SendMessage ( GetDlgItem(hWnd,IDC_WINDOW),BM_SETCHECK,data,0);				
-				fclose(fp);
-			}
-*/
 			switch (resolution)	{
 				case 0: SendMessage(GetDlgItem(hWnd,IDC_320),BM_SETCHECK,1,0); break;
 				case 1: SendMessage(GetDlgItem(hWnd,IDC_640),BM_SETCHECK,1,0); break;
@@ -619,335 +565,6 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	return 0;
 }
-
-#define CAMVECTSCALE (1.0f/40960.0f)
-
-/*	--------------------------------------------------------------------------------
-	Function	: WinMain
-	Purpose		: Application startup and shutdown
-	Parameters	: the usual...
-	Returns		: success
-*/
-void CalcViewMatrix(long uDate)
-{
-	guLookAtF (vMatrix.matrix,
-		currCamTarget.vx*CAMVECTSCALE, currCamTarget.vy*CAMVECTSCALE, currCamTarget.vz*CAMVECTSCALE,
-		currCamSource.vx*CAMVECTSCALE, currCamSource.vy*CAMVECTSCALE, currCamSource.vz*CAMVECTSCALE,
-		camVect.vx*CAMVECTSCALE, camVect.vy*CAMVECTSCALE, camVect.vz*CAMVECTSCALE,uDate);
-
-//	sheenCam.vx = currCamSource.vx*CAMVECTSCALE;
-//	sheenCam.vy = currCamSource.vy*CAMVECTSCALE;
-//	sheenCam.vz = currCamSource.vz*CAMVECTSCALE;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function	: WinMain
-	Purpose		: Application startup and shutdown
-	Parameters	: the usual...
-	Returns		: success
-*/
-void DrawBackground(void)
-{
-	
-	float oF = farClip;
-//	float oFs = fStart, oFe = fEnd;
-	if (!drawGame)
-		return;
-
-	SwapFrame(0);
-	backGnd->actor->visible = 1;
-	
-	noClipping = 1;
-	farClip = 124000;
-	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vx = currCamSource.vx / 40960.0;
-	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vy = currCamSource.vy / 40960.0;
-	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vz = currCamSource.vz / 40960.0;
-		
-	XformActor(((MDX_ACTOR *)backGnd->actor->actualActor),1);
-	DrawActor(((MDX_ACTOR *)backGnd->actor->actualActor));
-
-	noClipping = 0;
-
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,FALSE);
-	//pDirect3DDevice->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);	// clamp textures
-	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);//D3DFILTER_LINEAR);
-
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE,TRUE);
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHAREF,0);
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHAFUNC,D3DCMP_NOTEQUAL);
-
-	//D3DSetupRenderstates(xluAddRS);
-
-	DrawBatchedPolys();
-	//D3DSetupRenderstates(xluSemiRS);
-
-	// Draw the second mavis frame set, Transparent objects (non water objects)
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE,FALSE);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,TRUE);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,TRUE);
-	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_WRAP);	// wrap textures
-	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
-	
-	BlankFrame;
-
-	farClip = oF;
-}
-
-
-/* -----------------------------------------------------------------------
-   Function : DrawLoop
-   Purpose : main draw loop pass
-   Parameters : rectangle, colour, mdx texture pointer, u0,v0 pair, u1,v1 pair
-   Returns : 1 draw error else 0 okay
-   Info : 
-*/
-
-long DrawLoop(void)
-{
-	POINT	t;
-
-	D3DSetupRenderstates(D3DDefaultRenderstates);
-	// Just to get functionality... ;)
-	StartTimer (2,"Viewing, bg, fog");
-//	DrawActorList();
-
-	if ((gameState.mode != FRONTEND_MODE) && (editorOk || fixedPos))
-		CalcViewMatrix(0);
-	else
-		CalcViewMatrix(1);
-
-	//	changedView = 1;
-
-	SetupFogParams(fog.min,0,0,0,0);
-
-	BeginDraw();
-	DrawBackdrop();
-
-	if(tileTexture)
-		DrawTiledBackdrop();
-
-	if (backGnd)
-		DrawBackground();
-	EndDraw();
-
-	farClip = (float)fog.max*0.1;
-//	if (fog.mode && fog.min>0)
-//	{
-//		SetupFogParams(fog.min,fog.r/255.0,fog.g/255.0,fog.b/255.0,1);
-//		fogEnable = 1;
-//	}
-	
-	BlankAllFrames();
-	SwapFrame(MA_FRAME_NORMAL);
-	EndTimer(2);
-
-	if (drawGame)
-	{
-		D3DSetupRenderstates(cullCWRS);
-
-	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
-
-		StartTimer(14,"Landscape");
-		if (world && drawLandscape)
-			DrawLandscape(world);
-		EndTimer(14);
-
-		
-		StartTimer(1,"Actors and Shadows");
-		// Draw Actors before shadows
-		ActorListDraw(0);
-
-		if(!backdrop)
-		{
-			// Draw landscape
-			DrawAllFrames();
-			BlankAllFrames();
-
-			D3DSetupRenderstates(xluZRS);
-			D3DSetupRenderstates(normalAlphaCmpRS);
-			ProcessShadows();
-
-			BeginDraw();
-			DrawBatchedPolys();
-			EndDraw();
-
-			BlankAllFrames();
-			D3DSetupRenderstates(normalZRS);
-			SwapFrame(0);
-		}
-
-		// Draw actors after shadows
-		ActorListDraw(1);
-		EndTimer(1);
-
-		if( gameState.multi == SINGLEPLAYER )
-		{
-			UpdateFrogTongue(0);
-			UpdateFrogCroak(0);
-		}
-		
-		StartTimer(15,"DAF");
-		if (rHardware)
-		{
-			DrawAllFrames();
-			BlankAllFrames();
-		}
-		EndTimer(15);
-
-		BeginDraw();
-		
-		StartTimer(16,"Sprites,text & SpecFX");
-	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
-		D3DSetupRenderstates(xluZRS);
-		D3DSetupRenderstates(cullNoneRS);
-		
-		// Draw Sprites
-		if(sprList.count)
-			PrintSprites();
-
-		D3DSetupRenderstates(xluZRS);
-		// FX and shadows
-		DrawSpecialFX();
-
-		// Light halos
-	//	CheckHaloPoints();
-	//	DrawHalos();
-	}
-	else
-	{
-		D3DSetupRenderstates(xluZRS);
-		D3DSetupRenderstates(cullNoneRS);
-	}
-
-	if (rHardware)
-	{
-		SwapFrame(MA_FRAME_NORMAL);
-		DrawBatchedPolys();
-		BlankFrame;
-
-		D3DSetupRenderstates(xluAddRS);
-		SwapFrame(MA_FRAME_ADDITIVE);
-		DrawBatchedPolys();
-		BlankFrame;
-
-		D3DSetupRenderstates(xluSemiRS);
-		SwapFrame(MA_FRAME_NORMAL);
-
-		D3DSetupRenderstates(noZRS);  // And disable z tests
-	}
-	else
-	{
-//		D3DSetupRenderstates(xluAddRS);
-		
-		DrawAllFrames();
-		BlankAllFrames();
-	}
-
-	D3DSetupRenderstates(cullNoneRS);
-
-	if(!fadeText)
-		DrawScreenTransition();
-
-//	D3DSetupRenderstates(cullCWRS);
-
-	PrintSpriteOverlays(0);	
-	PrintTextOverlays();
-
-	PrintSpriteOverlays(1);	
-	PrintSpriteOverlays(2);	
-
-	if(fadeText)
-		DrawScreenTransition();
-
-	if (editorOk)
-		DrawEditor();
-
-	if( chatFlags && gameState.mode == INGAME_MODE )
-		DrawChatBuffer( 100, 20, 540, 150 );
-
-	EndDraw();
-	EndTimer(16);
-
-	EndTimer(0);
-
-	if (textureDraw)
-		ShowTextures();
-	if( showSounds )
-		ShowSounds( );
-
-	if (consoleDraw)
-		PrintConsole();
-	if (timerDraw)
-		PrintTimers();
-	
-	ClearTimers();
-	StartTimer(0,"Everything");
-
-
-	// ** Flip the screen
-	
-	StartTimer(17,"Flip");
-	BeginDraw();
-	EndDraw();
-
-	if( screenshotEnable )
-		if (KEYPRESS(DIK_F9))
-			ScreenShot();
-
-	//GrabSurfaceToTexture(100, 50, GetTexEntryFromCRC(UpdateCRC("febwood.bmp")),surface[RENDER_SRF]);	
-//	fxBlurSurface(surface[RENDER_SRF]);
-
-	// *ASL* 13/06/2000
-	SurfaceDraw();
-
-	DDrawFlip();
-	EndTimer(17);
-	StartTimer(18,"Clear");
-	D3DClearView();
-	EndTimer(18);
-
-
-// *ASL* 13/06/2000
-// ** Section commented out
-// ** Why print anything after a flip!!!
-#if 0
-	if (grabToTexture == 1)
-	{
-		DrawPageB();
-		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256b.bmp")),surface[RENDER_SRF]);	
-		grabToTexture = 0;
-	}
-
-	if (grabToTexture == 3)
-	{
-		DrawPageB();
-		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
-		grabToTexture = 2;
-	}
-#endif
-
-
-	GetCursorPos(&t);
-	camZ = t.x*8;
-	camY = t.y*8;
-
-	CleanBufferSamples();
-
-	StartTimer(19,"PText");
-	if( gameState.mode != PAUSE_MODE )
-		ProcessProcTextures( );
-	EndTimer(19);
-	
-	UpdateAnimatingTextures();
-	//UpdateTextureText();
-
-	return 0;
-}
-
-
-
 
 
 long turbo = 4096;
@@ -1245,6 +862,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		currTime.wHour, currTime.wMinute, currTime.wSecond);
 
 	GetRegistryInformation();
+	GetArgs(lpCmdLine);
 
 #ifdef FINAL_MASTER
 	while (!FindFrogger2CD())
@@ -1273,7 +891,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	while (1)
 	{
 		// Init DDraw Object
-		if (DDrawInitObject (NULL) == -1)
+		if (DDrawInitObject (configDialog) == -1)
 			return 1;
 
 		// *ASL* 13/06/2000
@@ -1336,7 +954,6 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 			MB_ICONEXCLAMATION|MB_OK);
 	}
 
-	GetArgs(lpCmdLine);
 	GameStartup();
 	CommonInit();
 	
