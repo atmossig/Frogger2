@@ -87,6 +87,7 @@ void CalcTongueNodes(SVECTOR *vT, int pl, int i)
 	MATRIX rMtrx;
 	long sz;
 
+	// Calculate matrix to face to screen
 	SetVectorFF(&pos, &t->segment[i]);
 	SubVectorFFF(&normal, &currCamSource, &pos);
 	MakeUnit(&normal);
@@ -101,22 +102,23 @@ void CalcTongueNodes(SVECTOR *vT, int pl, int i)
 	rMtrx.t[1] = -pos.vy>>12;
 	rMtrx.t[2] = pos.vz>>12;
 
+	// Rotate point 1 to screen then around frog in local space
 	p1.vx = (-12000+(i*1024))*SCALE;
 	p1.vy = p1.vz = 0;
+	ApplyMatrixLV( &rMtrx, &p1, &p1 );
 	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
 	SetVectorSF( &vT[0], &p2 );
 
+	// Rotate point 1 to screen then around frog in local space
 	p1.vx = (12000+(i*1024))*SCALE;
 	p1.vy = p1.vz = 0;
+	ApplyMatrixLV( &rMtrx, &p1, &p1 );
 	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
 	SetVectorSF( &vT[1], &p2 );
 
-	// Rotation and translation
-	SetVectorFS(&tempV,&vT[0]);
-	ApplyMatrixLV( &rMtrx, &tempV, &tempV );
-	SetVectorSF(&tempSvect,&tempV);
+	// Translate and transform point 1
+	SetVectorSS( &tempSvect, &vT[0] );
 	tempSvect.vx += rMtrx.t[0]; tempSvect.vy += rMtrx.t[1]; tempSvect.vz += rMtrx.t[2];
-
 	gte_SetTransMatrix(&GsWSMATRIX);
 	gte_SetRotMatrix(&GsWSMATRIX);
 	gte_ldv0(&tempSvect);
@@ -125,12 +127,9 @@ void CalcTongueNodes(SVECTOR *vT, int pl, int i)
 	gte_stszotz(&sz);
 	vT[0].vz = sz;
 
-	// Rotation and translation
-	SetVectorFS(&tempV,&vT[1]);
-	ApplyMatrixLV( &rMtrx, &tempV, &tempV );
-	SetVectorSF(&tempSvect,&tempV);
+	// Translate and transform point 2
+	SetVectorSS( &tempSvect, &vT[1] );
 	tempSvect.vx += rMtrx.t[0]; tempSvect.vy += rMtrx.t[1]; tempSvect.vz += rMtrx.t[2];
-
 	gte_SetTransMatrix(&GsWSMATRIX);
 	gte_SetRotMatrix(&GsWSMATRIX);
 	gte_ldv0(&tempSvect);
