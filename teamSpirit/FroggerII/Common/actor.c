@@ -36,6 +36,7 @@ float ACTOR_DRAWDISTANCEINNER = 100000.0F;
 float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
 #endif
 
+#define WATER_XLU 70
 
 int objectMatrix = 0;
 
@@ -78,22 +79,16 @@ void XformActorList()
 				XformActor(cur->actor);
 
 			// determine this actor's visibility
-#ifdef PC_VERSION
-			cur->draw = 1;
-#else
-			cur->draw = 0;
-#endif
+//#ifdef PC_VERSION
+//			cur->draw = 1;
+//#else
+//			cur->draw = 0;
+//#endif
 
 			if(cur->flags & ACTOR_DRAW_ALWAYS)
 			{
 				// always draw this actor
 				cur->draw = 1;
-			}
-			else if(cur->flags & ACTOR_DRAW_CULLED)
-			{
-				// determine if actor is visible
-				if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
-					cur->draw = 1;
 			}
 		}
 		else
@@ -142,7 +137,7 @@ void DrawActorList()
 		// Need to set this once for each actor
 		cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
 
-		if( !(cur->flags & ACTOR_DRAW_ALWAYS) )
+		if( !(cur->flags & ACTOR_DRAW_ALWAYS) && (cur->flags & ACTOR_DRAW_CULLED) )
 		{
 			if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER )
 			{
@@ -287,6 +282,9 @@ void FreeActorList()
 ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode)
 {
 	ACTOR2 *newItem;
+	char tmp[5];
+	long i;
+
 	newItem			= (ACTOR2 *)JallocAlloc(sizeof(ACTOR2),YES,"ACTOR2");
 	newItem->actor	= (ACTOR *)JallocAlloc(sizeof(ACTOR),YES,"ACTOR");
 
@@ -297,14 +295,26 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	newItem->actor->oldpos.v[Y]	= cy;
 	newItem->actor->oldpos.v[Z]	= cz;
 
-	newItem->draw	= 0;
-	newItem->flags	|= ACTOR_DRAW_CULLED;
+	newItem->draw	= 1;
 	newItem->radius	= 0.0F;
 	newItem->animSpeed = 1.0F;
 	newItem->value1 = 0.0F;
+/*
+	for( i=0; i<4; i++ )
+		tmp[i] = name[i];
 
+	tmp[4] = '\0';
+	// If not a water object, do transparent clipping
+	if( gstrcmp( tmp, "wat_\0" ) )
+		newItem->flags |= ACTOR_DRAW_CULLED;
+	else
+	{
+		newItem->actor->xluOverride = WATER_XLU;
+		newItem->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
+	}
+*/
 	// add actor object sprites to sprite list
-	if((newItem->actor->objectController) && (newItem->actor->objectController->object))
+	if( (newItem->actor->objectController) && (newItem->actor->objectController->object) )
 		AddObjectsSpritesToSpriteList(newItem->actor->objectController->object,0);
 	
 	newItem->speed				= 18.0;

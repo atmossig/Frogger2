@@ -602,8 +602,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 			flags |= ACTOR_DRAW_ALWAYS;
 			globalLevelActor = theActor;
 		}
-		else
-			flags |= ACTOR_DRAW_CULLED;
 		
 		theActor->flags = flags;
 

@@ -24,6 +24,7 @@ SPRITEOVERLAY *konami = NULL;
 
 SPRITE *sp = NULL;
 
+//#define MBR_DEMO 1
 
 /*	--------------------------------------------------------------------------------
 	Function 	: RunTitleScreen
@@ -75,6 +76,22 @@ void RunTitleScreen( )
 		ResetParameters();
 
 		StartDrawing ( "Title Screen" );
+
+#ifdef MBR_DEMO
+		FreeAllLists();
+		player[0].worldNum = WORLDID_LABORATORY;
+		player[0].levelNum = 0;
+		InitLevel( player[0].worldNum, player[0].levelNum );
+
+		gameState.oldMode = FRONTEND_MODE;
+		gameState.mode = GAME_MODE;
+
+		frameCount = 0;
+		lastbutton = 0;
+		PlaySample ( 0,0,0,0);
+		NUM_FROGS = 1;
+		return;
+#endif
 	}
 
 	startText->a = 100;
