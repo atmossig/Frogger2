@@ -21,6 +21,7 @@ ENEMYLIST enemyList;						// the enemy linked list
 #define ENEMY_RANDOMNESS (0.5 + (Random(100)/100.0))	// returns a value from 0.5 to 1.5
 
 void NMEDamageFrog( int num, ENEMY *nme );
+void DoEnemyCollision( ENEMY *cur );
 void RotateWaitingNME( ENEMY *cur );
 void SlerpWaitingFlappyThing( ENEMY *cur );
 
@@ -35,6 +36,7 @@ void UpdateHomingNME( ENEMY *cur );
 void UpdateMoveOnMoveNME( ENEMY *cur );
 void UpdateFlappyThing( ENEMY *cur );
 void UpdateFrogWatcher( ENEMY *cur );
+void UpdateRandomMoveNME( ENEMY *cur );
 
 
 /*	--------------------------------------------------------------------------------
@@ -56,6 +58,64 @@ ENEMY *GetEnemyFromUID (long uid)
 	return NULL;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: DoEnemyCollision
+	Purpose			: Check for collision with frog in single and multiplayer
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void DoEnemyCollision( ENEMY *cur )
+{
+	ACTOR2 *act = cur->nmeActor;
+
+	if (NUM_FROGS==1)
+	{
+		if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION))
+		{
+			if (!frog[0]->action.dead && !frog[0]->action.safe &&
+				(DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos)<((frog[0]->radius+act->radius)*(frog[0]->radius+act->radius))) )
+			{
+				if( cur->flags & ENEMY_NEW_BABYFROG )
+				{
+					if( PickupBabyFrog( cur->nmeActor ) )
+						cur->active = 0;
+				}
+				else NMEDamageFrog(0,cur);
+			}
+		}
+		else
+		{
+			if( (currTile[0] == cur->inTile) && !frog[0]->action.dead && !frog[0]->action.safe &&
+				(!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
+				!currPlatform[0] && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE) )
+			{
+				if( cur->flags & ENEMY_NEW_BABYFROG )
+				{
+					if( PickupBabyFrog( cur->nmeActor ) )
+						cur->active = 0;
+				}
+				else NMEDamageFrog(0,cur);
+			}
+		}
+	}
+	else
+	{
+		int i;
+		for (i=0; i<NUM_FROGS; i++)
+			if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[i]->action.safe &&
+				(DistanceBetweenPointsSquared(&frog[i]->actor->pos,&act->actor->pos)<((frog[i]->radius+act->radius)*(frog[i]->radius+act->radius))) )
+			{
+				KillMPFrog(i);
+			}
+			else if( (currTile[i] == cur->inTile) && !frog[i]->action.safe && 
+					(!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
+					!(player[i].frogState & FROGSTATUS_ISFLOATING))
+			{
+				KillMPFrog(i);
+			}
+	}
+}
 
 void NMEDamageFrog( int num, ENEMY *nme )
 {
@@ -116,19 +176,22 @@ void UpdateEnemies()
 			continue;
 
 		// Set point of interest for frog
-		if( cur->nmeActor->distanceFromFrog < pOIDistance )
+		if( act->distanceFromFrog < pOIDistance )
 		{
 			VECTOR moveVec;
 			float angle;
-			SubVector( &moveVec, &cur->nmeActor->actor->pos, &frog[0]->actor->pos );
+			SubVector( &moveVec, &act->actor->pos, &frog[0]->actor->pos );
 			MakeUnit( &moveVec );
 			angle = acos(DotProduct( &currTile[0]->dirVector[frogFacing[0]], &moveVec ));
 			if( angle < 0.9 )
 			{
-				pOIDistance = cur->nmeActor->distanceFromFrog;
-				pointOfInterest = &cur->nmeActor->actor->pos;
+				pOIDistance = act->distanceFromFrog;
+				pointOfInterest = &act->actor->pos;
 			}
 		}
+
+		if( frameCount > 10 )
+			DoEnemyCollision( cur );
 
 		// check if this enemy is currently 'waiting' at a node
 		if(cur->isWaiting)
@@ -140,13 +203,19 @@ void UpdateEnemies()
 				cur->isWaiting = 0;
 			else
 			{
-				// if enemy is following a path, do a slerp so it'll rotate nicely
-				// (except the way I do it is a bit poo - Dave)
-				if (cur->flags & ENEMY_NEW_FOLLOWPATH && !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
-					RotateWaitingNME( cur );
-				else if( cur->flags & ENEMY_NEW_FLAPPYTHING && !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
-					SlerpWaitingFlappyThing( cur );
-
+				if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
+				{
+					// if enemy is following a path, do a slerp so it'll rotate nicely
+					// (except the way I do it is a bit poo - Dave)
+					if( (cur->flags & ENEMY_NEW_FOLLOWPATH) || (cur->flags & ENEMY_NEW_RANDOMMOVE) )
+					{
+						RotateWaitingNME( cur );
+					}
+					else if( cur->flags & ENEMY_NEW_FLAPPYTHING )
+					{
+						SlerpWaitingFlappyThing( cur );
+					}
+				}
 				continue;
 			}
 		}
@@ -155,58 +224,8 @@ void UpdateEnemies()
 		if (cur->Update)
 			cur->Update(cur);
 
-		// Single and multiplayer damage to frog
-		if( frameCount > 10 )
-		{
-			if (NUM_FROGS==1)
-			{
-				if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION))
-				{
-					if (!frog[0]->action.dead && !frog[0]->action.safe &&
-						(DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos)<((frog[0]->radius+act->radius)*(frog[0]->radius+act->radius))) )
-					{
-						if( cur->flags & ENEMY_NEW_BABYFROG )
-						{
-							if( PickupBabyFrog( cur->nmeActor ) )
-								cur->active = 0;
-						}
-						else NMEDamageFrog(0,cur);
-					}
-				}
-				else
-				{
-					if( (currTile[0] == cur->inTile) && !frog[0]->action.dead && !frog[0]->action.safe &&
-						(!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-						!currPlatform[0] && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE) )
-					{
-						if( cur->flags & ENEMY_NEW_BABYFROG )
-						{
-							if( PickupBabyFrog( cur->nmeActor ) )
-								cur->active = 0;
-						}
-						else NMEDamageFrog(0,cur);
-					}
-				}
-			}
-			else
-			{
-				for (i=0; i<NUM_FROGS; i++)
-					if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[i]->action.safe &&
-						(DistanceBetweenPointsSquared(&frog[i]->actor->pos,&act->actor->pos)<((frog[i]->radius+act->radius)*(frog[i]->radius+act->radius))) )
-					{
-						KillMPFrog(i);
-					}
-					else if( (currTile[i] == cur->inTile) && !frog[i]->action.safe && 
-							(!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-							!(player[i].frogState & FROGSTATUS_ISFLOATING))
-					{
-						KillMPFrog(i);
-					}
-			}
-		}
-
 		// Do Special Effects attached to enemies
-		if( cur->nmeActor->effects && !(cur->flags & ENEMY_NEW_VENT) )
+		if( act->effects && !(cur->flags & ENEMY_NEW_VENT) )
 			ProcessAttachedEffects( (void *)cur, ENTITY_ENEMY );
 	}
 }
@@ -794,21 +813,21 @@ void UpdateHomingNME( ENEMY *cur )
 */
 void UpdateMoveOnMoveNME( ENEMY *cur )
 {
-	VECTOR frogVec, up, fwd;
+	VECTOR up, fwd;
 	PATH *path = cur->path;
+	ACTOR2 *act = cur->nmeActor;
 	float length;
 
 	if( path->numNodes < 3 )
 		return;
 
-	if( cur->nmeActor->distanceFromFrog > (path->nodes[0].waitTime*path->nodes[0].waitTime) )
+	if( act->distanceFromFrog > (path->nodes[0].waitTime*path->nodes[0].waitTime) )
 	{
 		cur->isIdle = 0;
 		path->nodes[2].worldTile = NULL;
 		return;
 	}
 
-	// Check if the enemy has 3 path nodes. Allocate if not ( first time through )
 	if( !cur->isSnapping )
 	{
 		path->nodes[1].worldTile = NULL;
@@ -827,7 +846,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 			path->nodes[1].worldTile = path->nodes[2].worldTile;
 			path->nodes[2].worldTile = NULL;
 		}
-		else if( actFrameCount > cur->path->startFrame+(0.5*(cur->path->endFrame-cur->path->startFrame)) )
+		else if( actFrameCount > path->startFrame+(0.5*(path->endFrame-path->startFrame)) )
 		{
 			cur->inTile = path->nodes[2].worldTile;
 		}
@@ -836,7 +855,8 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	// If we need a new destination tile, find it by the direction to the frog
 	if( cur->isIdle && !path->nodes[2].worldTile )
 	{
-		SubVector( &frogVec, &currTile[0]->centre, &cur->nmeActor->actor->pos ); 
+		VECTOR frogVec;
+		SubVector( &frogVec, &currTile[0]->centre, &act->actor->pos ); 
 		path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &frogVec );
 
 		path->startFrame = actFrameCount;
@@ -851,17 +871,101 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 		SubVector(&fwd,&path->nodes[2].worldTile->centre,&path->nodes[1].worldTile->centre);
 		length = (float)(actFrameCount - path->startFrame)/(float)(path->endFrame - path->startFrame);
 		ScaleVector(&fwd,length);
-		AddVector(&cur->nmeActor->actor->pos,&fwd,&path->nodes[1].worldTile->centre);
+		AddVector(&act->actor->pos,&fwd,&path->nodes[1].worldTile->centre);
 
 		// Orientate to direction of travel
 		MakeUnit( &fwd );
 		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
-			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
+			Orientate(&act->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
 
 		// Elevate above gametile
 		SetVector( &up, &cur->inTile->normal );
 		ScaleVector( &up, path->nodes[0].offset );
-		AddToVector( &cur->nmeActor->actor->pos, &up );
+		AddToVector( &act->actor->pos, &up );
+	}
+}
+
+
+void UpdateRandomMoveNME( ENEMY *cur )
+{
+	VECTOR up, fwd;
+	PATH *path = cur->path;
+	ACTOR2 *act = cur->nmeActor;
+	float length;
+
+	if( path->numNodes < 3 )
+		return;
+
+	if( !cur->isSnapping )
+	{
+		path->nodes[2].worldTile = path->nodes[1].worldTile;
+		path->nodes[1].worldTile = path->nodes[0].worldTile;
+		cur->isSnapping = 1; // This is a completely random misuse of isSnapping. And I don't care.
+		cur->path->fromNode = 1;
+		cur->path->toNode = 2;
+	}
+
+	// If enemy is on the next path node, set startnode worldtile and the next to zero
+	if( path->nodes[2].worldTile )
+	{
+		if( actFrameCount > path->endFrame )
+		{
+			VECTOR rVec = {0,0,0};
+			int r;
+
+			SubVector( &fwd, &path->nodes[2].worldTile->centre, &path->nodes[1].worldTile->centre );
+			path->nodes[1].worldTile = path->nodes[2].worldTile;
+
+			r = Random(4);
+			if(r==0) rVec.v[X] = 1;
+			else if(r==1) rVec.v[X] = -1;
+			else if(r==2) rVec.v[Z] = 1;
+			else rVec.v[Z] = -1;
+			path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &rVec );
+
+			cur->isWaiting = path->nodes[0].waitTime;
+
+			if( cur->flags & ENEMY_NEW_BABYFROG )
+			{
+				SubVector( &rVec, &path->nodes[2].worldTile->centre, &path->nodes[1].worldTile->centre );
+				if( DotProduct(&fwd, &rVec) < 0.99 ) // Only do cartwheel if baby needs to turn
+					AnimateActor( act->actor, BABY_ANIM_CARTWHEEL, NO, NO, act->animSpeed, 0, 0 );
+
+				AnimateActor( act->actor, BABY_ANIM_WAVE, NO, YES, act->animSpeed, 0, 0 );
+			}
+
+			path->startFrame = actFrameCount + ((Random(cur->isWaiting*0.5)+cur->isWaiting*0.5) * waitScale);
+			path->endFrame = path->startFrame + (60*path->nodes[0].speed);
+			return;
+		}
+		else if( actFrameCount > path->startFrame+(0.5*(path->endFrame-path->startFrame)) )
+		{
+			cur->inTile = path->nodes[2].worldTile;
+		}
+	}
+
+	// Move towards next node - third condition is so fwd is not scaled to zero
+	if( path->nodes[1].worldTile && path->nodes[2].worldTile && (actFrameCount > path->startFrame) )
+	{
+		if( cur->flags & ENEMY_NEW_BABYFROG )
+		{	// Start baby hop the first time we move
+			if( DistanceBetweenPointsSquared(&path->nodes[1].worldTile->centre, &act->actor->pos) < 5 )
+				AnimateActor( act->actor, BABY_ANIM_HOP, NO, NO, act->animSpeed, 0, 0 );
+		}
+		SubVector(&fwd,&path->nodes[2].worldTile->centre,&path->nodes[1].worldTile->centre);
+		length = (float)(actFrameCount - path->startFrame)/(float)(path->endFrame - path->startFrame);
+		ScaleVector(&fwd,length);
+		AddVector(&act->actor->pos,&fwd,&path->nodes[1].worldTile->centre);
+
+		// Orientate to direction of travel
+		MakeUnit( &fwd );
+		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
+			Orientate(&act->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
+
+		// Elevate above gametile
+		SetVector( &up, &cur->inTile->normal );
+		ScaleVector( &up, path->nodes[0].offset );
+		AddToVector( &act->actor->pos, &up );
 	}
 }
 
@@ -1184,6 +1288,8 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 		newItem->Update = UpdateMoveOnMoveNME;
 	else if( newItem->flags & ENEMY_NEW_FLAPPYTHING )
 		newItem->Update = UpdateFlappyThing;
+	else if( newItem->flags & ENEMY_NEW_RANDOMMOVE )
+		newItem->Update = UpdateRandomMoveNME;
 
 	if( newItem->flags & ENEMY_NEW_BABYFROG )
 		for( i=0; i<numBabies; i++ )
