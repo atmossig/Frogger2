@@ -1023,11 +1023,13 @@ void UpdateFlappyThing( ENEMY *nme )
 */
 void SlerpWaitingFlappyThing( ENEMY *cur )
 {
-	QUATERNION q1, q2;
+	QUATERNION q1, q2, q3;
 	float speed;
 
 	SetQuaternion( &q1, &cur->nmeActor->actor->qRot );
-	SetQuaternion( &q2, &vertQ );
+	SetVector( (VECTOR *)&q3, &cur->path->nodes[cur->path->startNode].worldTile->normal );
+	q3.w = 0;
+	GetQuaternionFromRotation( &q2, &q3 );
 	speed = cur->path->nodes[0].speed * gameSpeed;
 	if( speed > 0.999 ) speed = 0.999;
 	QuatSlerp( &q1, &q2, speed, &cur->nmeActor->actor->qRot );
