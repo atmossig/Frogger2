@@ -89,20 +89,35 @@ typedef struct TAG_ARCADE_HUD
 	unsigned long timedOut;
 } ARCADE_HUD;
 
+
+typedef struct TAG_MULTI_HUD
+{
+	SPRITEOVERLAY *backTime;
+	SPRITEOVERLAY *backPenalise[MAX_FROGS];
+	TEXTOVERLAY   *penaliseText[MAX_FROGS];
+
+	TEXTOVERLAY   *timeTextMin;
+	TEXTOVERLAY   *timeTextSec;
+	TEXTOVERLAY   *timeTextHSec;
+} MULTI_HUD;
+
+
 ARCADE_HUD arcadeHud;
+MULTI_HUD multiHud;
 char timeStringMin[8]	= "00";
 char timeStringSec[8]	= "00";
+char timeStringHSec[8]	= "00";
+
 char coinsText[32] = "00 of 32";
 char timeOutString[64] = "Out of time";
+char penalString[8][4] = {"00","00","00","00"};
 
 TEXTOVERLAY   *polysText;
 char polyString[256] = "";
 
- 
-void InitHUD(void)
+void InitArcadeHUD(void)
 {
-	int
-		i;
+	int i;
 	arcadeHud.livesOver = CreateAndAddSpriteOverlay(5,240-27,"hud_frog.bmp",32,32,0xff,0);
 	arcadeHud.timeOver = CreateAndAddSpriteOverlay(236,240-27,"hud_time.bmp",32,32,0xff,0);
 	arcadeHud.coinsOver = CreateAndAddSpriteOverlay(68,240-4-13,"hud_coin.bmp",12,12,0xff,0);
@@ -147,6 +162,35 @@ void InitHUD(void)
 	}
 }
 
+long xPos_multi[4] = {5,320 - 85,320 - 85,5};
+long yPos_multi[4] = {5,5,240 - 50,240 - 50};
+
+void InitMultiHUD()
+{
+	int i;
+	multiHud.backTime = CreateAndAddSpriteOverlay(160-40,5,"wback2.bmp",80,25,170,0);
+	for (i = 0; i<NUM_FROGS; i++)
+	{
+		multiHud.backPenalise[i] = CreateAndAddSpriteOverlay(xPos_multi[i],yPos_multi[i],"wback2.bmp",80,45,170,0);
+		multiHud.penaliseText[i] = CreateAndAddTextOverlay(xPos_multi[i]+5,yPos_multi[i]+5,penalString[i],NO,255,currFont,0,0);
+		multiHud.penaliseText[i]->scale = 2;
+		multiHud.timeTextMin = CreateAndAddTextOverlay(120-8,9,timeStringMin,NO,255,currFont,0,0);
+		multiHud.timeTextSec = CreateAndAddTextOverlay(120+32-8,9,timeStringSec,NO,255,currFont,0,0);
+		multiHud.timeTextHSec = CreateAndAddTextOverlay(120+32+32-8,9,timeStringHSec,NO,255,currFont,0,0);
+		multiHud.timeTextHSec->scale = 0.75;
+	}
+
+}
+
+void InitHUD(void)
+{
+	
+	if (gameState.multi == SINGLEPLAYER)
+		InitArcadeHUD();		
+	else
+		InitMultiHUD();	
+}
+
 void SparkleCoins(void)
 {
 	arcadeHud.sX = 82;
@@ -179,6 +223,23 @@ void EnableHUD(void)
 	arcadeHud.backLeft->draw = arcadeHud.backRightExtra->draw = arcadeHud.backRight->draw = arcadeHud.backCentre->draw = 
 	arcadeHud.livesText->draw = arcadeHud.coinsText->draw = arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = 1;
 	arcadeHud.timeOutText->draw = 1;
+}
+
+void UpDateMultiplayerInfo( void )
+{
+	long timeFrames=0,i;
+
+	for (i=0; i<NUM_FROGS; i++)
+	{
+		sprintf(penalString[i],"%02i",((int)(mpl[i].penalty)/60)%60);
+
+		if (mpl[i].timer>timeFrames)
+			timeFrames=mpl[i].timer;
+	}
+
+	sprintf(timeStringHSec,"%02i",((int)(timeFrames*100)/60)%100);
+	sprintf(timeStringSec,"%02i",((int)timeFrames/60)%60);
+	sprintf(timeStringMin,"%2i",((int)timeFrames/(60*60))%60);	
 }
 
 void UpDateOnScreenInfo( void )

@@ -77,7 +77,7 @@ void DrawHalos(void)
 
 	for (int i=0; i<numHaloPoints; i++)
 	{
-		if (haloPoints[i].v[2])
+		if (haloPoints[i].v[2]>10)
 		{
 			unsigned long c,size,size2;
 			DrawAlphaSprite(haloPoints[i].v[0] - 60,haloPoints[i].v[1] - 60, 0,120,120, 0,0,1,1,haloHandle,haloColor[i]);
@@ -119,7 +119,7 @@ void DrawHalos(void)
 void StoreHaloPoints(void)
 {
 	DDSURFACEDESC		ddsd;
-	VECTOR v;
+	VECTOR v,t;
 
 	DDINIT(ddsd);
 	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK,0)!=DD_OK);
@@ -129,11 +129,18 @@ void StoreHaloPoints(void)
 	for (int i=0; i<numHaloPoints; i++)
 	{
 		XfmPoint(&v,&haloPoints[i]);
-		haloPoints[i].v[0] = (unsigned long)v.v[0];
-		haloPoints[i].v[1] = (unsigned long)v.v[1];
-		haloPoints[i].v[2] = v.v[2];
+	
+		haloPoints[i].v[2] = -1;
 		
-		if (haloPoints[i].v[2]>100)
+		if ((v.v[0]>0) && (v.v[0]<640))
+			if ((v.v[1]>0) && (v.v[1]<480))
+			{
+				haloPoints[i].v[0] = (unsigned long)v.v[0];
+				haloPoints[i].v[1] = (unsigned long)v.v[1];
+				haloPoints[i].v[2] = v.v[2];
+			}
+					
+		if (haloPoints[i].v[2]>10)
 			haloZVals[i] = ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].v[0]+(haloPoints[i].v[1]*ddsd.lPitch))];
 	}
 
@@ -160,7 +167,7 @@ void CheckHaloPoints(void)
 	ddsd.lPitch /= sizeof(short);
 
 	for (i=0; i<numHaloPoints; i++)
-		if (haloPoints[i].v[2]>100)
+		if (haloPoints[i].v[2]>10)
 			if (haloZVals[i] == ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].v[0]+(haloPoints[i].v[1]*ddsd.lPitch))])
 				haloPoints[i].v[Z] = 0;
 	

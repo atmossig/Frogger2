@@ -37,6 +37,9 @@ long useNear = 0;
 
 ACTOR2 *hat[MAX_FROGS];
 
+#define SETALPHA(rgba, x) ((((long)(x)) << 24) | ((rgba & 0x00ffffff)))
+#define MODALPHA(rgba, x) ((((long) ((x*(rgba>>24))>>8)) << 24) | ((rgba & 0x00ffffff)))
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -325,11 +328,6 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 		if ((obj->name[0] == 'g') && (obj->name[1] == 'l') && (obj->name[2] == '_'))
 		{
 			VECTOR v;
-			float r,g,b;
-
-			r = (obj->name[3]-'0')/9.0;
-			g = (obj->name[4]-'0')/9.0;
-			b = (obj->name[5]-'0')/9.0;
 
 			SwapFrame(4);
 			PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
@@ -338,7 +336,7 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 			v.v[Y] = obj->objMatrix.matrix[3][1];
 			v.v[Z] = obj->objMatrix.matrix[3][2];
 			
-			AddHalo(&v,vMatrix[2][0],vMatrix[2][2],D3DRGBA(r,g,b,0.8));
+			AddHalo(&v,vMatrix[2][0],vMatrix[2][2],SETALPHA(*((long *)(&(((VECTOR *)obj->mesh->vertexNormals)->v[0]))),(long)(0.8*0xff)));
 
 			SwapFrame(0);
 		}
@@ -1356,8 +1354,6 @@ float fogMulBase = 0.7;
 
 short facesON[3] = {0,1,2};
 
-#define SETALPHA(rgba, x) ((((long)(x)) << 24) | ((rgba & 0x00ffffff)))
-#define MODALPHA(rgba, x) ((((long) ((x*(rgba>>24))>>8)) << 24) | ((rgba & 0x00ffffff)))
 
 float naddr = 0.25;
 float nmult = 4.0;

@@ -732,7 +732,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	if (player[0].worldNum==8 || gameState.multi != SINGLEPLAYER)
 	{
 	//	CreateOverlays();
-		DisableHUD();
+//		DisableHUD();
 //		livesTextOver->draw = 0;
 		garibCount->draw = 0;
 		creditCount->draw = 0;

@@ -45,6 +45,7 @@ void UpdateRace( )
 	static TIMER endTimer, multiTimer;
 	int i, j, score;
 
+	UpDateMultiplayerInfo();
 	// Wait for all players to be on the start/finish line
 	if( !started )
 	{
