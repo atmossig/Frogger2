@@ -568,6 +568,45 @@ void Actor2ClipCheck(ACTOR2* act)
 	pos.vy = -pos.vy;
 
 
+// 	if(!act->draw)
+// 	{
+// 		act->clipped = 1;
+// 		return;
+// 	}
+
+
+	//let special cases through,
+	//such as always draw.
+	if(act->flags & ACTOR_DRAW_ALWAYS)
+	{
+		if(act->actor->psiData.object)
+		{
+			TIMER_START1(TIMER_UPANI);
+	//		oldStackPointer = SetSp(0x1f800400);
+			actorUpdateAnimations(act->actor);
+	//		SetSp(oldStackPointer);
+			TIMER_STOP_ADD1(TIMER_UPANI);
+
+			TIMER_START1(TIMER_SETANI);
+	//		oldStackPointer = SetSp(0x1f800400);
+			actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
+	//		SetSp(oldStackPointer);
+			TIMER_STOP_ADD1(TIMER_SETANI);
+		}
+
+
+		QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
+// 		act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
+// 		act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
+// 		act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
+		act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
+		act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
+		act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
+
+		act->clipped = 0;
+		return;
+	}
+
 
 	//bb if boulder draw, increase far clipping
 	//change this to draw always
@@ -648,37 +687,9 @@ void Actor2ClipCheck(ACTOR2* act)
 		}
 	}
 
-	//let special cases through,
-	//such as always draw.
-	if(act->flags & ACTOR_DRAW_ALWAYS)
-	{
-		if(act->actor->psiData.object)
-		{
-			TIMER_START1(TIMER_UPANI);
-	//		oldStackPointer = SetSp(0x1f800400);
-			actorUpdateAnimations(act->actor);
-	//		SetSp(oldStackPointer);
-			TIMER_STOP_ADD1(TIMER_UPANI);
-
-			TIMER_START1(TIMER_SETANI);
-	//		oldStackPointer = SetSp(0x1f800400);
-			actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
-	//		SetSp(oldStackPointer);
-			TIMER_STOP_ADD1(TIMER_SETANI);
-		}
 
 
-		QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
-// 		act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
-// 		act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
-// 		act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
-		act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
-		act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
-		act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
-		act->clipped = 0;
 
-		return;
-	}
 
 
 
