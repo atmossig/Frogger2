@@ -172,7 +172,11 @@ void UpdatePlatforms()
 					j = player[i].frogunder;
 					while(j != -1)
 					{
-						SetVectorSS( &frog[j]->actor->position, &cur->carrying->actor->position );
+						if( !player[j].isSuperHopping )
+						{
+							SetVectorSS( &frog[j]->actor->position, &cur->carrying->actor->position );
+						}
+
 						j = player[j].frogunder;
 					}
 					j = player[i].frogon;
