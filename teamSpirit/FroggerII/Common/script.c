@@ -185,9 +185,9 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			ENEMY *enemy;
 
 			params = AllocArgs(2);
-			if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
+			if (!(enemy = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
 			params[0] = (void*)enemy;
-			params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
+			params[1] = (void*)GetTileFromNumber(MEMGETWORD(p));
 			trigger = MakeTrigger(EnemyOnTile, params);
 		}
 		break;
@@ -196,7 +196,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 		{
 			params = AllocArgs(2);
 			params[0] = (void*)MEMGETBYTE(p);
-			params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
+			params[1] = (void*)GetTileFromNumber(MEMGETWORD(p));
 			trigger = MakeTrigger(FrogOnTile, params);
 		}
 		break;
@@ -207,7 +207,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 
 			params = AllocArgs(2);
 			params[0] = (void*)frog[MEMGETBYTE(p)];
-			if (!(platform = GetPlatformFromUID(MEMGETINT(p)))) return 0;
+			if (!(platform = GetPlatformFromUID(MEMGETWORD(p)))) return 0;
 			params[1] = (void*)platform;
 			trigger = MakeTrigger(FrogOnPlatform, params);
 		}
@@ -218,7 +218,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			PLATFORM *platform; VECTOR *v;
 
 			params = AllocArgs(3);
-			if (!(platform = GetPlatformFromUID(MEMGETINT(p)))) return 0;
+			if (!(platform = GetPlatformFromUID(MEMGETWORD(p)))) return 0;
 			params[0] = platform->pltActor->actor;
 			v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
 			v->v[X] = MEMGETFLOAT(p);
@@ -235,7 +235,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			ENEMY *enemy; VECTOR *v;
 
 			params = AllocArgs(3);
-			if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
+			if (!(enemy = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
 			params[0] = enemy->nmeActor->actor;
 			v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
 			v->v[X] = MEMGETFLOAT(p);
@@ -252,7 +252,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			ENEMY *enemy;
 
 			params = AllocArgs(2);
-			if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
+			if (!(enemy = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
 			params[0] = enemy->path;
 			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETWORD(p);
 			trigger = MakeTrigger(PathAtFlag, params);
@@ -264,7 +264,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			PLATFORM *plt;
 
 			params = AllocArgs(2);
-			if (!(plt = GetPlatformFromUID(MEMGETINT(p)))) return 0;
+			if (!(plt = GetPlatformFromUID(MEMGETWORD(p)))) return 0;
 			params[0] = plt->path;
 			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETWORD(p);
 			trigger = MakeTrigger(PathAtFlag, params);
@@ -345,6 +345,86 @@ TRIGGER *LoadTrigger(UBYTE **p)
 }
 
 /*	--------------------------------------------------------------------------------
+    Function		: SetEnemy
+	Parameters		: ENEMY*, int
+	Returns			: 
+*/
+void SetEnemy(ENEMY *nme, int v)
+{
+	switch (v)
+	{
+Move:
+	case FS_SET_MOVE:
+		if (nme->isWaiting)
+		{
+			nme->isWaiting = 0;
+			nme->path->startFrame = actFrameCount;
+			nme->path->endFrame = nme->path->startFrame + (int)(60.0*nme->speed);
+		}
+		break;
+Stop:			
+	case FS_SET_STOP:
+		nme->isWaiting = -1; break;
+	
+	case FS_SET_TOGGLEMOVE:
+		if (nme->isWaiting) goto Move; else goto Stop;
+Invis:
+	case FS_SET_INVIS:
+		nme->active = 0;
+		nme->nmeActor->draw = 0;
+		break;
+Vis:
+	case FS_SET_VIS:
+		nme->active = 1;
+		nme->nmeActor->draw = 1;
+		break;
+
+	case FS_SET_TOGGLEVIS:
+		if (nme->active) goto Invis; else goto Vis;
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+    Function		: SetPlatform
+	Parameters		: PLATFORM*, int
+	Returns			: 
+*/
+void SetPlatform(PLATFORM *plt, int v)
+{
+	switch (v)
+	{
+Move:
+	case FS_SET_MOVE:
+		if (plt->isWaiting)
+		{
+			plt->isWaiting = 0;
+			plt->path->startFrame = actFrameCount;
+			plt->path->endFrame = plt->path->startFrame + (int)(60.0*plt->currSpeed);
+		}
+		break;
+Stop:			
+	case FS_SET_STOP:
+		plt->isWaiting = -1; break;
+	
+	case FS_SET_TOGGLEMOVE:
+		if (plt->isWaiting) goto Move; else goto Stop;
+Invis:
+	case FS_SET_INVIS:
+		plt->active = 0;
+		plt->pltActor->draw = 0;
+		break;
+Vis:
+	case FS_SET_VIS:
+		plt->active = 1;
+		plt->pltActor->draw = 1;
+		break;
+
+	case FS_SET_TOGGLEVIS:
+		if (plt->active) goto Invis; else goto Vis;
+	}
+}
+
+/*	--------------------------------------------------------------------------------
     Function		: ExecuteCommand
 	Parameters		: UBYTE*
 	Returns			: TRUE if successful, FALSE otherwise
@@ -377,7 +457,7 @@ BOOL ExecuteCommand(UBYTE **p)
 		{
 			int tile, state;
 			
-			tile = MEMGETINT(p);
+			tile = MEMGETWORD(p);
 			state = MEMGETBYTE(p);
 
 			firstTile[tile].state = (unsigned char)state;
@@ -388,7 +468,7 @@ BOOL ExecuteCommand(UBYTE **p)
 		{
 			ENEMY *nme;
 			int flag;
-			if (!(nme = GetEnemyFromUID(MEMGETINT(p)))) return 0;
+			if (!(nme = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
 			flag = MEMGETINT(p);
 			nme->flags |= flag;
 
@@ -399,7 +479,7 @@ BOOL ExecuteCommand(UBYTE **p)
 		{
 			ENEMY *nme;
 			int flag;
-			if (!(nme = GetEnemyFromUID(MEMGETINT(p)))) return 0;
+			if (!(nme = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
 			flag = MEMGETINT(p);
 			nme->flags &= ~flag;
 
@@ -411,7 +491,7 @@ BOOL ExecuteCommand(UBYTE **p)
 		{
 			PLATFORM *plt;
 			int flag;
-			if (!(plt = GetPlatformFromUID(MEMGETINT(p)))) return 0;
+			if (!(plt = GetPlatformFromUID(MEMGETWORD(p)))) return 0;
 			flag = MEMGETINT(p);
 			plt->flags |= flag;
 			RecalculatePlatform(plt);
@@ -422,7 +502,7 @@ BOOL ExecuteCommand(UBYTE **p)
 		{
 			PLATFORM *plt;
 			int flag;
-			if (!(plt = GetPlatformFromUID(MEMGETINT(p)))) return 0;
+			if (!(plt = GetPlatformFromUID(MEMGETWORD(p)))) return 0;
 			flag = MEMGETINT(p);
 			plt->flags &= ~flag;
 			RecalculatePlatform(plt);
@@ -435,7 +515,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			char anim, flags;
 			float speed;
 
-			actor = GetActorFromUID(MEMGETINT(p));
+			actor = GetActorFromUID(MEMGETWORD(p));
 			if (!actor) return 0;
 
 			anim = MEMGETBYTE(p);
@@ -449,74 +529,20 @@ BOOL ExecuteCommand(UBYTE **p)
 	case EV_SETENEMY:
 		{
 			ENEMY *nme;
-			nme = GetEnemyFromUID(MEMGETINT(p));
+			nme = GetEnemyFromUID(MEMGETWORD(p));
 			if (!nme) return 0;
 
-			switch (MEMGETBYTE(p))
-			{
-Move:
-			case FS_SET_MOVE:
-				if (nme->isWaiting)
-				{
-					nme->isWaiting = 0;
-					nme->path->startFrame = actFrameCount;
-					nme->path->endFrame = nme->path->startFrame + (int)(60.0*nme->speed);
-				}
-				break;
-Stop:			
-			case FS_SET_STOP:
-				nme->isWaiting = -1; break;
-			
-			case FS_SET_TOGGLEMOVE:
-				if (nme->isWaiting) goto Move; else goto Stop;	// gotos! I have no shame - Dave
-Invis:
-			case FS_SET_INVIS:
-				nme->active = 0;
-				nme->nmeActor->draw = 0;
-				break;
-Vis:
-			case FS_SET_VIS:
-				nme->active = 1;
-				nme->nmeActor->draw = 1;
-				break;
-
-			case FS_SET_TOGGLEVIS:
-				if (nme->active) goto Invis; else goto Vis;
-			}
-
+			SetEnemy(nme, MEMGETBYTE(p));
 			break;
 		}
 
 	case EV_SETPLATFORM:
 		{
 			PLATFORM *plt;
-			plt = GetPlatformFromUID(MEMGETINT(p));
+			plt = GetPlatformFromUID(MEMGETWORD(p));
 			if (!plt) return 0;
 
-			switch (MEMGETBYTE(p))
-			{
-			case FS_SET_MOVE:
-				if (plt->isWaiting)
-				{
-					plt->isWaiting = 0;
-					plt->path->startFrame = actFrameCount;
-					plt->path->endFrame = plt->path->startFrame + (int)(60.0*plt->currSpeed);
-				}
-				break;
-			case FS_SET_STOP:
-				plt->isWaiting = -1; break;
-			case FS_SET_TOGGLEMOVE:
-				if (plt->isWaiting)
-				{
-					plt->isWaiting = 0;
-					plt->path->startFrame = actFrameCount;
-					plt->path->endFrame = plt->path->startFrame + (int)(60.0*plt->currSpeed);
-				}
-				else
-					plt->isWaiting = -1;
-				break;
-			}
-
+			SetPlatform(plt, MEMGETBYTE(p));
 			break;
 		}
 
@@ -569,7 +595,7 @@ Vis:
 			TRIGGER *t;
 			EVENT *e;
 			int fNum = MEMGETBYTE(p),
-				tNum = MEMGETINT(p),
+				tNum = MEMGETWORD(p),
 				time = (MEMGETFLOAT(p) * 60) + actFrameCount;
 			VECTOR telePos;
 			void **param;
@@ -604,7 +630,7 @@ Vis:
 			float height, time;
 
 			frogNum = MEMGETBYTE(p);
-			tileNum = MEMGETINT(p);
+			tileNum = MEMGETWORD(p);
 			height = MEMGETFLOAT(p);
 			time = MEMGETFLOAT(p);
 
@@ -642,7 +668,7 @@ Vis:
 			ENEMY *nme;
 			int flag;
 
-			nme = GetEnemyFromUID(MEMGETINT(p));
+			nme = GetEnemyFromUID(MEMGETWORD(p));
 			if (!nme) return 0;
 
 			flag = MEMGETWORD(p);
@@ -658,13 +684,14 @@ Vis:
 			PLATFORM *plt;
 			int flag;
 
-			plt = GetPlatformFromUID(MEMGETINT(p));
+			plt = GetPlatformFromUID(MEMGETWORD(p));
 			if (!plt) return 0;
 
 			flag = MEMGETWORD(p);
 			if (flag > 0 && flag < plt->path->numNodes)
 			{
 				plt->path->fromNode = flag;
+				plt->isWaiting = 1;
 				RecalculatePlatform(plt);
 			}
 			break;
@@ -676,8 +703,8 @@ Vis:
 			GAMETILE *tile;
 			int g, t;
 
-			g = MEMGETINT(p);
-			t = MEMGETINT(p);
+			g = MEMGETWORD(p);
+			t = MEMGETWORD(p);
 
 			if (g < 0 || g > garibCollectableList.numEntries || t < 0) return 0;
 
@@ -698,7 +725,7 @@ Vis:
 
 			n = MEMGETBYTE(p);
 			delta = MEMGETFLOAT(p);
-			platnum = MEMGETINT(p);
+			platnum = MEMGETWORD(p);
 			amount = ChangeVolume(n, delta);
 
 			plt = GetPlatformFromUID(platnum);
@@ -716,7 +743,7 @@ Vis:
 
 	case EV_BABYONPLATFORM:
 		{
-			long pid = MEMGETINT(p);
+			long pid = MEMGETWORD(p);
 			int baby = MEMGETBYTE(p);
 			PLATFORM *plat = GetPlatformFromUID( pid );
 
@@ -738,7 +765,7 @@ Vis:
 			break;
 		}
 
-	case EV_SETSTARTTILE:	gTStart[0] = GetTileFromNumber(MEMGETINT(p)); break;
+	case EV_SETSTARTTILE:	gTStart[0] = GetTileFromNumber(MEMGETWORD(p)); break;
 
 	case EV_FOG:
 		{
@@ -766,7 +793,7 @@ Vis:
 	case EV_HOP:
 		{
 			int pl = MEMGETBYTE(p);
-			GAMETILE *tile = GetTileFromNumber(MEMGETINT(p));
+			GAMETILE *tile = GetTileFromNumber(MEMGETWORD(p));
 			HopFrogToTile(tile, pl);
 			break;
 		}
