@@ -29,7 +29,7 @@ extern unsigned long timerDraw;
 
 int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode);
 void RunWindowsLoop(long (*AppLoop)());
-
+WNDPROC mdxSetUserWndProc(WNDPROC);
 
 #ifdef __cplusplus
 }

@@ -36,6 +36,7 @@ extern "C"
 #endif
 
 MDX_WININFO mdxWinInfo;
+WNDPROC userWndProc;
 
 unsigned long consoleDraw = 0;
 unsigned long timerDraw = 0;
@@ -43,6 +44,10 @@ char winAppName[128];
 
 long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 {
+	if (userWndProc)
+		if (userWndProc(hWnd, message, wParam, lParam) == 0)
+			return 0;
+
     switch(message)
 	{
 		case WM_CREATE:
@@ -51,6 +56,10 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			cp(">");
 			break;
 			
+		case WM_SHOWWINDOW:
+			dp("WM_SHOWWINDOW: %s\n", (wParam)?"showing":"hiding");
+			break;
+
         case WM_DESTROY:
 			PostQuitMessage(0);
             break;
@@ -88,9 +97,12 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		
 		case WM_RBUTTONUP:
 			break;
+
+		default:
+		    return DefWindowProc(hWnd,message,wParam,lParam);
 	}
 
-    return DefWindowProc(hWnd,message,wParam,lParam);
+	return 0;
 }
 
 int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
@@ -181,6 +193,15 @@ void RunWindowsLoop(long (*AppLoop)())
 		}
 	}
 }
+
+WNDPROC mdxSetUserWndProc(WNDPROC proc)
+{
+	WNDPROC oldWndProc = userWndProc;
+	userWndProc = proc;
+
+	return oldWndProc;
+}
+
 
 #ifdef __cplusplus
 }

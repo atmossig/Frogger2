@@ -241,6 +241,8 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 	rFullscreen = 0;
 	if (rBitDepth)
 	{
+		ShowWindow(mdxWinInfo.hWndMain,SW_SHOWMAXIMIZED);
+
 		// Fullscreen Exclusive
 		if ((res = pDirectDraw7->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE)) != DD_OK)
 		{
