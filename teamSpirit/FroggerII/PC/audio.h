@@ -13,6 +13,7 @@
 
 
 extern int PlaySample(short num, VECTOR *pos, short tempVol,short pitch);
+extern int PlaySampleRadius(short num, VECTOR *pos, short vol,short pitch,float radius);
 extern void PrepareSong(char num);
 
 

@@ -25,6 +25,18 @@ int PlaySample(short num,VECTOR *pos,short tempVol,short pitch)
 }
 
 /*	--------------------------------------------------------------------------------
+	Function		: PlaySampleRadius
+	Purpose			: 
+	Parameters		: short,VECTOR,short,short,float
+	Returns			: int
+	Info			: 
+*/
+int PlaySampleRadius(short num, VECTOR *pos, short vol,short pitch,float radius)
+{
+	return 0;
+}
+
+/*	--------------------------------------------------------------------------------
 	Function		: PrepareSong
 	Purpose			: prepares a song...and plays it...woohoo !
 	Parameters		: char
