@@ -36,6 +36,7 @@ typedef struct TAGSPRITE
 	BYTE  offsetX;
 	BYTE  offsetY;
 	VECTOR sc;
+	char draw;
 
 	float angle;
 	float angleInc;

@@ -875,6 +875,15 @@ void RunGameLoop (void)
 					if (creditsActive==0)
 						ActivateCredits();
 				}
+				else if( currTile[0] == &firstTile[2] )
+				{
+					FreeAllLists();
+
+					frameCount = 0;
+					gameState.mode = MENU_MODE;
+					gameState.menuMode = LEVELSELECT_MODE;
+					return;
+				}
 				else
 					DeactivateCredits();
 				

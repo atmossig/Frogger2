@@ -736,7 +736,11 @@ void UpdateFXSmoke( SPECFX *fx )
 	{
 		fo = fx->fade * gameSpeed;
 		if( s->a > fo ) s->a -= fo;
-		else s->a = 0;
+		else
+		{
+			s->draw = 0;
+			s->a = 0;
+		}
 
 		s->pos.v[X] += fx->vel.v[X] * gameSpeed;
 		s->pos.v[Y] += fx->vel.v[Y] * gameSpeed;
@@ -967,9 +971,8 @@ void UpdateFXExplode( SPECFX *fx )
 
 			if( s->a < 16 )
 			{
-				s->scaleX	= 0;
-				s->scaleY	= 0;
-				s->a		= 0;
+				s->a = 0;
+				s->draw = 0;
 				fx->particles[i].bounce = 2;
 			}
 		}
@@ -1270,7 +1273,11 @@ void UpdateFXTwinkle( SPECFX *fx )
 
 		fo = Random((int)fx->fade) * gameSpeed;
 		if( fx->sprites->a > fo ) fx->sprites->a -= fo;
-		else fx->sprites->a = 0;
+		else
+		{
+			fx->sprites->a = 0;
+			fx->sprites->draw = 0;
+		}
 
 		if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 			fx->deadCount = 5;

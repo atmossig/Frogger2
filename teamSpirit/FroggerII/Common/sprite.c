@@ -47,6 +47,7 @@ SPRITE *AllocateSprites( int number )
 		s->next	= sprList.head.next;
 		sprList.head.next->prev	= s;
 		sprList.head.next = s;
+		s->draw = 1;
 
 		sprList.count++;
 	}
@@ -81,6 +82,7 @@ void DeallocateSprites( SPRITE *head, int number )
 		s->prev->next	= s->next;
 		s->next->prev	= s->prev;
 		s->next = NULL;
+		s->draw = 0;
 
 		sprList.count--;
 		sprList.stack[++sprList.stackPtr] = s;
@@ -111,6 +113,7 @@ void FreeSpriteList( )
 			sprList.array[i].prev->next	= sprList.array[i].next;
 			sprList.array[i].next->prev	= sprList.array[i].prev;
 			sprList.array[i].next = NULL;
+			sprList.array[i].draw = 0;
 		}
 
 		JallocFree( (UBYTE **)&sprList.array );

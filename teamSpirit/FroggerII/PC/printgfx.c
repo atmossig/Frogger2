@@ -173,8 +173,7 @@ SPRITE *PrintSprites()
 
 	// draw from the newly sorted static array
 	i = numSortArraySprites;
-	while(i--)
-		PrintSprite(&spriteSortArray[i]);
+	while(i--) if( spriteSortArray[i].draw ) PrintSprite(&spriteSortArray[i]);
 
 	return cur;
 }

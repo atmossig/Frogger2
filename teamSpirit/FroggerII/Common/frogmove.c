@@ -1081,7 +1081,16 @@ void CheckForFroggerLanding(long pl)
 		{
 			if(!player[pl].dead.time)
 			{
+				SPECFX *fx;
+
 				CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 20, 0.8, 0.1, 0.6 );
+				if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPLASH, &frog[pl]->actor->pos, &currTile[pl]->normal, 10, 4, 0, 2 )) )
+				{
+					fx->gravity = 0.2;
+					fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+					SetVector( &fx->rebound->normal, &currTile[pl]->normal );
+					SetVector( &fx->rebound->point, &frog[pl]->actor->pos );
+				}
 
 				// If single player or not a race mode
 				if( gameState.multi == SINGLEPLAYER || !(multiplayerMode == MULTIMODE_RACE_NORMAL || multiplayerMode == MULTIMODE_RACE_KNOCKOUT) )
