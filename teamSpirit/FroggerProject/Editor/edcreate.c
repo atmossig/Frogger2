@@ -72,10 +72,16 @@ void EditorCreateEntities(void)
 
 	memset(counts, 0, sizeof(int) * 5);
 	for (i=0, node=createList->nodes; node; node=node->link, i++)
-		counts[((CREATEENTITY*)(node->thing))->thing]++;
+	{
+		if( ((CREATEENTITY*)(node->thing))->thing == CREATE_CAMERACASE )
+			counts[CREATE_CAMERACASE] += CountGroupMembers( ((CREATEENTITY*)(node->thing))->group );
+		else
+			counts[((CREATEENTITY*)(node->thing))->thing]++;
+	}
 
 	AllocNmeBlock(counts[CREATE_ENEMY]+counts[CREATE_PLACEHOLDER]);
 	AllocPlatformBlock(counts[CREATE_PLATFORM]);
+	AllocCamBlock( counts[CREATE_CAMERACASE] );
 
 	for (i=0; i<4; i++)
 		if (currPlatform[i])
@@ -195,14 +201,15 @@ void EditorCreateEntities(void)
 				v = create->camera;
 				ScaleVector(&v, 10);
 				SSetVector(&camv, &v);
-				c = CreateAndAddTransCamera((GAMETILE*)cam->thing, (unsigned char)(create->flags >> 16), &camv, (unsigned char)(create->flags & 0xFF));
+				if( (c = CreateAndAddTransCamera((GAMETILE*)cam->thing, (unsigned char)(create->flags >> 16), &camv, (unsigned char)(create->flags & 0xFF))) )
+				{
+					c->FOV = GAMEFLOAT(create->scale);
+					c->speed = GAMEFLOAT(create->animSpeed);
 
-				c->FOV = GAMEFLOAT(create->scale);
-				c->speed = GAMEFLOAT(create->animSpeed);
-
-				c->camLookAt.vx = GAMEFLOAT((float)((char)(create->startNode & 0xFF))/0x7F);
-				c->camLookAt.vy = GAMEFLOAT((float)((char)((create->startNode>>8) & 0xFF))/0x7F);		// oof! :o)
-				c->camLookAt.vz = GAMEFLOAT((float)((char)((create->startNode>>16) & 0xFF))/0x7F);
+					c->camLookAt.vx = GAMEFLOAT((float)((char)(create->startNode & 0xFF))/0x7F);
+					c->camLookAt.vy = GAMEFLOAT((float)((char)((create->startNode>>8) & 0xFF))/0x7F);		// oof! :o)
+					c->camLookAt.vz = GAMEFLOAT((float)((char)((create->startNode>>16) & 0xFF))/0x7F);
+				}
 			}
 			break;
 		}

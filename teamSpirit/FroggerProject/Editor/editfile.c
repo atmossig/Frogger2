@@ -449,7 +449,12 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 	
 	memset(counters, 0, sizeof(int) * 5);
 	for (count = 0, node = list->nodes; node; node = node->link, count++)
-		counters[((CREATEENTITY*)(node->thing))->thing]++;
+	{
+		if( ((CREATEENTITY*)(node->thing))->thing == CREATE_CAMERACASE )
+			counters[CREATE_CAMERACASE] += CountGroupMembers( ((CREATEENTITY*)(node->thing))->group );
+		else
+			counters[((CREATEENTITY*)(node->thing))->thing]++;
+	}
 
 	for (i=0; i<5; i++)
 		WriteWord(counters[i], f);
