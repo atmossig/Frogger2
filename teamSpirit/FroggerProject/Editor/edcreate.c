@@ -75,18 +75,14 @@ void EditorCreateEntities(void)
 	{
 		create = (CREATEENTITY*)node->thing;
 
-#ifdef NEW_EDITOR
+//		if (create->thing == CREATE_ENEMY || create->thing == CREATE_PLATFORM)
+//		{
+//			OBJECT_CONTROLLER *foo;
 
-#else
-		if (create->thing == CREATE_ENEMY || create->thing == CREATE_PLATFORM)
-		{
-			OBJECT_CONTROLLER *foo;
-
-			FindObject(&foo, UpdateCRC(create->type), create->type, YES);
-			if(!foo)
-				strcpy(create->type, "nothing.obe");
-		}
-#endif
+//			FindObject(&foo, UpdateCRC(create->type), create->type, YES);
+//			if(!foo)
+//				strcpy(create->type, "nothing.obe");
+//		}
 
 		switch (create->thing)
 		{
@@ -94,29 +90,23 @@ void EditorCreateEntities(void)
 			path = EditorPathMake(create->path,create->startNode);
 			path->startNode = create->startNode;
 
-#ifdef NEW_EDITOR
 			enemy = CreateAndAddEnemy(create->type,create->flags,create->ID,path, (fixed)(create->animSpeed*4096), create->facing);
-#else
-			enemy = CreateAndAddEnemy(create->type,create->flags,create->ID,path, create->animSpeed, create->facing);
-#endif
+			if (!enemy) continue;
+
 			act = enemy->nmeActor;
 
 			act->radius = GAMEFLOAT(create->radius);
 			act->value1 = GAMEFLOAT(create->value1);
-#ifndef NEW_EDITOR
-			act->actor->scale.v[X] = create->scale;
-			act->actor->scale.v[Y] = create->scale;
-			act->actor->scale.v[Z] = create->scale;
-#endif
-			// PUT THIS IN LATER
+
+// todo: object flags?
 //			act->actor->objectController->object->flags = create->objFlags;
 
 			if( !(enemy->flags & ENEMY_NEW_BABYFROG) )
 			{
 				act->effects = create->effects;
-				act->actor->size.vx = create->scale;
-				act->actor->size.vy = create->scale;
-				act->actor->size.vz = create->scale;
+				act->actor->size.vx = GAMEFLOAT(create->scale);
+				act->actor->size.vy = GAMEFLOAT(create->scale);
+				act->actor->size.vz = GAMEFLOAT(create->scale);
 			}
 			else
 			{
@@ -149,23 +139,21 @@ void EditorCreateEntities(void)
 			path = EditorPathMake(create->path,create->startNode);
 			path->startNode = create->startNode;
 
-#ifdef NEW_EDITOR
 			platform = CreateAndAddPlatform(create->type,create->flags,create->ID,path,GAMEFLOAT(create->animSpeed));
-#else
-			platform = CreateAndAddPlatform(create->type,create->flags,create->ID,path,create->animSpeed,create->facing);
-#endif
+			if (!platform) continue;
 
 			act = platform->pltActor;
-#ifndef NEW_EDITOR
-			act->actor->scale.v[X] = create->scale;
-			act->actor->scale.v[Y] = create->scale;
-			act->actor->scale.v[Z] = create->scale;
-#endif
+
+			act->actor->size.vx = GAMEFLOAT(create->scale);
+			act->actor->size.vy = GAMEFLOAT(create->scale);
+			act->actor->size.vz = GAMEFLOAT(create->scale);
+
 			act->radius = GAMEFLOAT(create->radius);
 			act->value1 = GAMEFLOAT(create->value1);
 			act->effects = create->effects;
 			act->animSpeed = GAMEFLOAT(create->animSpeed);
-			// PUT THIS IN LATER
+
+// todo: object flags?
 //			act->actor->objectController->object->flags = create->objFlags;
 
 			if(gstrcmp(create->type,"nothing.obe") == 0)
@@ -187,31 +175,21 @@ void EditorCreateEntities(void)
 		case CREATE_CAMERACASE:
 			for (cam = create->group->nodes; cam; cam = cam->link)
 			{
-#ifdef NEW_EDITOR
+				EDVECTOR v;
 				SVECTOR camv;
 				TRANSCAMERA *c;
 
-				SSetVector(&camv,&create->camera);
+				v = create->camera;
+				ScaleVector(&v, 10);
+				SSetVector(&camv, &v);
 				c = CreateAndAddTransCamera((GAMETILE*)cam->thing, create->flags >> 16, &camv, create->flags & 0xFFFF);
-#else
-				TRANSCAMERA *c = CreateAndAddTransCamera((GAMETILE*)cam->thing,
-					create->flags >> 16,	// direction
-					&create->camera,
-					create->flags & 0xFFFF);
-#endif
 
 				c->FOV = GAMEFLOAT(create->scale);
 				c->speed = GAMEFLOAT(create->animSpeed);
-#ifdef NEW_EDITOR
+
 				c->camLookAt.vx = GAMEFLOAT((float)((char)(create->startNode & 0xFF))/0x7F);
 				c->camLookAt.vy = GAMEFLOAT((float)((char)((create->startNode>>8) & 0xFF))/0x7F);		// oof! :o)
 				c->camLookAt.vz = GAMEFLOAT((float)((char)((create->startNode>>16) & 0xFF))/0x7F);
-	
-#else
-				c->camLookAt.v[X] = GAMEFLOAT((float)((char)(create->startNode & 0xFF))/0x7F);
-				c->camLookAt.v[Y] = GAMEFLOAT((float)((char)((create->startNode>>8) & 0xFF))/0x7F);		// oof! :o)
-				c->camLookAt.v[Z] = GAMEFLOAT((float)((char)((create->startNode>>16) & 0xFF))/0x7F);
-#endif
 			}
 
 			counts[3]++;
