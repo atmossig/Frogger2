@@ -110,7 +110,8 @@ void CalcTongueNodes(SVECTOR *vT, int pl, int i)
 
 
 
-	p1.vx = -20480+(i*1638);
+//	p1.vx = 20480-(i*1638);
+	p1.vx = -12000+(i*1024);
 	p1.vx *= SCALE;
 	p1.vy = 0;
 	p1.vz = 0;
@@ -119,7 +120,8 @@ void CalcTongueNodes(SVECTOR *vT, int pl, int i)
 	vT[0].vy = p2.vy>>12;
 	vT[0].vz = p2.vz>>12;
 
-	p1.vx = 20480-(i*1638);
+//	p1.vx = 20480-(i*1638);
+	p1.vx = 12000+(i*1024);
 	p1.vx *= SCALE;
 	p1.vy = 0;
 	p1.vz = 0;
