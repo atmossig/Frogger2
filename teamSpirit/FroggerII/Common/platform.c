@@ -690,9 +690,10 @@ void RecalculatePlatform(PLATFORM *plat)
 	// only recalculate when we're actually waiting, otherwise when it gets to the next
 	// path node it'll sort itself out anyway.
 
-	if (plat->isWaiting && (plat->flags & PLATFORM_NEW_FOLLOWPATH))
+	if (plat->isWaiting && (plat->Update))
 	{
-		CalcNextPlatformDest(plat);
+		//CalcNextPlatformDest(plat);
+		plat->Update();
 	}
 }
 
