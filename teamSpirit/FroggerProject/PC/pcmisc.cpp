@@ -361,19 +361,48 @@ void mtxSetIdent( float *m )
 	memcpy (m,imtx,sizeof(float)*16);
 }
 
-void CopyTexture( TextureType *dest, TextureType *src, int copyPalette )
-{
-	HRESULT res;
-	LPDIRECTDRAWSURFACE7 to, from;
-	
-	if( !dest || !src ) return;
-	
-	to = ((MDX_TEXENTRY *)dest)->surf;
-	from = ((MDX_TEXENTRY *)src)->surf;
 
-	if( (res = to->BltFast(0,0,from,NULL,DDBLTFAST_NOCOLORKEY)) != DD_OK )
-		ddShowError(res);
+// *ASL* 26/06/2000 
+/* -----------------------------------------------------------------------
+   Function : CopyTexture
+   Purpose : copt texture from source to destination
+   Parameters : destination texture pointer, source texture pointer, copy palette flag
+   Returns : 
+   Info : only copies software textures if dimensions og texture buffers are equal
+*/
+
+void CopyTexture(TextureType *dest, TextureType *src, int copyPalette)
+{
+	HRESULT					res;
+	LPDIRECTDRAWSURFACE7	to, from;
+	MDX_TEXENTRY			*mdxsrc, *mdxdst;
+
+	if (!dest || !src) 
+		return;
+
+	if (rHardware)
+	{
+		to = ((MDX_TEXENTRY *)dest)->surf;
+		from = ((MDX_TEXENTRY *)src)->surf;
+
+		if ((res = to->BltFast(0, 0, from, NULL, DDBLTFAST_NOCOLORKEY)) != DD_OK)
+			ddShowError(res);
+	}
+	else
+	{
+		// re-cast to mdx textures
+		mdxsrc = (MDX_TEXENTRY *)src;
+		mdxdst = (MDX_TEXENTRY *)dest;
+		// check if source and destinations are equal..
+		if (mdxsrc->softData != NULL && mdxdst->softData != NULL && (mdxsrc->xSize * mdxsrc->ySize == mdxdst->xSize * mdxdst->ySize))
+		{
+			// blit texture from source to destination
+			memcpy(mdxdst->softData, mdxsrc->softData, mdxsrc->xSize*mdxdst->ySize*sizeof(unsigned long));
+		}
+	}
 }
+
+
 
 enum { TOP=0x1, BOTTOM=0x2, LEFT=0x4, RIGHT=0x8, INWARD=0x10, OUTWARD=0x20 };
 
