@@ -239,10 +239,17 @@ void LoadTextureBank(int num)
 			sprintf(message,"FRONT_TB");
 			strcat (filename,"front\\");
 			break;
+		
 		case SNDVIEW_TEX_BANK:
 			sprintf(message,"SNDVIEW_TB");
 			strcat (filename,"sndview\\");
 			break;
+		
+		case FRONTEND_TEX_BANK:
+			sprintf(message,"TITLES_TB");
+			strcat (filename,"titles\\");
+			break;
+		
 		default:
 			dprintf"Invalid texture bank!\n"));
 			for(;;);
