@@ -746,10 +746,25 @@ void TransformObject(OBJECT *obj, float time)
 	if (strncmp(obj->name,"fghed",5) == 0)
 	{
 		float rotmat2[4][4];
-		QUATERNION quat, rot = {0,1,0,hedRotAmt};
-		GetQuaternionFromRotation (&quat,&rot);
-		QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
-		guMtxCatF(rotmat,rotmat2,rotmat);
+		QUATERNION quat, rot = {0,1,0,0};
+		VECTOR pointVec;
+
+		if (pointOfInterest)
+		{
+			SubVector (&pointVec,pointOfInterest,&(frog[0]->actor->pos));
+			MakeUnit (&pointVec);
+			//nextCamFacing
+			if (currTile[0])
+			{
+				CrossProduct( (VECTOR *)&rot, &(currTile[0]->dirVector[frogFacing[0]]),&pointVec);
+				rot.w = acos(DotProduct(&pointVec,&(currTile[0]->dirVector[frogFacing[0]])));
+
+				GetQuaternionFromRotation (&quat,&rot);
+				QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
+				guMtxCatF(rotmat,rotmat2,rotmat);
+				//translation.v[Z]+=50;
+			}
+		}
 	}
 
 	rotmat[3][0] = translation.v[X] * actorScale->v[X] * parentScaleStack[parentScaleStackLevel].v[X];
