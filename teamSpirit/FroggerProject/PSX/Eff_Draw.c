@@ -778,205 +778,85 @@ void CalcTrailPoints( SVECTOR *vT, SPECFX *trail, int i )
 
 void DrawFXLightning( SPECFX *fx )
 {
-/*
-// 	VECTOR tempVect, m;
- 	SVECTOR	 vT[5], vTPrev[2];
-// 	TEXENTRY *tEntry;
- 	long i=0;
- 	unsigned long colour;
- 
-//PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
-	colour = fx->r>>1;
-	colour += (fx->g>>1)<<8;
-	colour += (fx->b>>1)<<16; 
-
- 
- 	while( i < fx->numP-1 )
- 	{
-// Copy in previous transformed vertices, if they exist
- 		if( i != 0 && vTPrev[0].vz && vTPrev[1].vz )
- 			memcpy( vT, vTPrev, sizeof(SVECTOR)*2 );
- 		else
- 		{
-// Otherwise, transform them again 			
-	   	vT[0].vx = fx->particles[i].poly[0].vx;
-	   	vT[0].vy = fx->particles[i].poly[0].vy;
-	   	vT[0].vz = fx->particles[i].poly[0].vz;
-
-		vT[1].vx = fx->particles[i].poly[1].vx;
-		vT[1].vy = fx->particles[i].poly[1].vy;
-		vT[1].vz = fx->particles[i].poly[1].vz;
- 		}
- 
- 		// Now the next two, to make a quad
-    
-		vT[2].vx = fx->particles[i+1].poly[1].vx;
-		vT[2].vy = fx->particles[i+1].poly[1].vy;
-		vT[2].vz = fx->particles[i+1].poly[1].vz;
- 
-		vT[3].vx = fx->particles[i+1].poly[0].vx;
-		vT[3].vy = fx->particles[i+1].poly[0].vy;
-		vT[3].vz = fx->particles[i+1].poly[0].vz;
- 
- 		// Store first 2 vertices of the next segment
- 		memcpy( vTPrev, &vT[2], sizeof(SVECTOR)*2 );
- 
-// 		memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
-// Draw polys, if they're not clipped
-
-//		#ifdef PSX_VERSION
-		Print3D3DSprite ( fx, vT, colour );
-//		#else
-//		Print3D3DSprite ( fx->tex, vT, colour,ripple->a );
-//		#endif
- 
- 		i++;
- 	} 
-*/
-
-//	MDX_VECTOR tempVect, m;
-	SVECTOR vT[5], vTPrev[2];
-	long otz;
+	SVECTOR vT[5], vTPrev[2], tempSvect;
 	TextureType *tEntry;
 	PARTICLE *p;
-	long i=0;
+	long i=0, otz, clipped, sz;
+	POLY_FT4 *ft4;
 
 	if( !(tEntry = (fx->tex)) )
 		return;
 
-	// Additive mode
-//	SwapFrame(3);
-
 	gte_SetTransMatrix(&GsWSMATRIX);
 	gte_SetRotMatrix(&GsWSMATRIX);
+
 	p = fx->particles;
 	while( i < fx->numP-1 )
 	{
-		SVECTOR tempSvect;
-
+		clipped = 0;
 		// Copy in previous transformed vertices, if they exist
 		if( i && vTPrev[0].vz && vTPrev[1].vz )
-			memcpy( vT, vTPrev, sizeof(SVECTOR)*2 );
+			lmemcpy( (long *)vT, (long *)vTPrev, 4 );
 		else
 		{
 			// Otherwise, transform them again
-//			tempVect.vx = p->poly[0].vx;//*0.1;
-//			tempVect.vy = p->poly[0].vy;//*0.1;
-//			tempVect.vz = p->poly[0].vz;//*0.1;
-//			XfmPoint( &m, &tempVect, NULL );
-//			gte_ldv0(&p->poly[0]);
 			SetVectorSS(&tempSvect, &p->poly[0]);
 			tempSvect.vx = -tempSvect.vx;
 			tempSvect.vy = -tempSvect.vy;
 			gte_ldv0(&tempSvect);
 			gte_rtps();
 			gte_stsxy(&vT[0].vx);
-//			gte_stotz(&otz);
 			gte_stszotz(&otz);
 			vT[0].vz = otz;
-//			vT[0].sx = m.vx;
-//			vT[0].sy = m.vy;
-//			vT[0].rhw = 1;
-//			vT[0].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
-//			vT[0].color = D3DRGBA(p->r/255.0, p->g/255.0, p->b/255.0, p->a/255.0);
+			gte_stsz(&sz);
+			if(sz<20 || sz>fog.max) continue;
 
-//			tempVect.vx = p->poly[1].vx*0.1;
-//			tempVect.vy = p->poly[1].vy*0.1;
-//			tempVect.vz = p->poly[1].vz*0.1;
-//			XfmPoint( &m, &tempVect, NULL );
-//			gte_ldv0(&p->poly[1]);
 			SetVectorSS(&tempSvect, &p->poly[1]);
 			tempSvect.vx = -tempSvect.vx;
 			tempSvect.vy = -tempSvect.vy;
 			gte_ldv0(&tempSvect);
 			gte_rtps();
 			gte_stsxy(&vT[1].vx);
-//			gte_stotz(&otz);
 			gte_stszotz(&otz);
 			vT[1].vz = otz;
-//			vT[1].sx = m.vx;
-//			vT[1].sy = m.vy;
-//			vT[1].rhw = 1;
-//			vT[1].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
-//			vT[1].color = vT[0].color;
+			gte_stsz(&sz);
+			if(sz<20 || sz>fog.max) continue;
 		}
 
-		// Now the next two, to make a quad
-//		tempVect.vx = p->next->poly[1].vx*0.1;
-//		tempVect.vy = p->next->poly[1].vy*0.1;
-//		tempVect.vz = p->next->poly[1].vz*0.1;
-//		XfmPoint( &m, &tempVect, NULL );
-//		vT[2].sx = m.vx;
-//		vT[2].sy = m.vy;
-//		vT[2].rhw = 1;
-//		vT[2].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
-//		vT[2].color = vT[0].color;
-//		gte_ldv0(&p->next->poly[1]);
 		SetVectorSS(&tempSvect, &p->next->poly[1]);
 		tempSvect.vx = -tempSvect.vx;
 		tempSvect.vy = -tempSvect.vy;
 		gte_ldv0(&tempSvect);
 		gte_rtps();
 		gte_stsxy(&vT[2].vx);
-//		gte_stotz(&otz);
 		gte_stszotz(&otz);
 		vT[2].vz = otz;
+		gte_stsz(&sz);
+		if(sz<20 || sz>fog.max) continue;
 
-
-//		tempVect.vx = p->next->poly[0].vx*0.1;
-//		tempVect.vy = p->next->poly[0].vy*0.1;
-//		tempVect.vz = p->next->poly[0].vz*0.1;
-//		XfmPoint( &m, &tempVect, NULL );
-//		vT[3].sx = m.vx;
-//		vT[3].sy = m.vy;
-//		vT[3].rhw = 1;
-//		vT[3].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
-//		vT[3].color = vT[0].color;
-//		gte_ldv0(&p->next->poly[0]);
 		SetVectorSS(&tempSvect, &p->next->poly[0]);
 		tempSvect.vx = -tempSvect.vx;
 		tempSvect.vy = -tempSvect.vy;
 		gte_ldv0(&tempSvect);
 		gte_rtps();
 		gte_stsxy(&vT[3].vx);
-//		gte_stotz(&otz);
 		gte_stszotz(&otz);
 		vT[3].vz = otz;
+		gte_stsz(&sz);
+		if(sz<20 || sz>fog.max) continue;
 
 		// Store first 2 vertices of the next segment
-		memcpy( vTPrev, &vT[3], sizeof(SVECTOR) );
-		memcpy( &vTPrev[1], &vT[2], sizeof(SVECTOR) );
+		lmemcpy( (long *)vTPrev, (long *)&vT[3], 2 );
+		lmemcpy( (long *)&vTPrev[1], (long *)&vT[2], 2 );
 		// And back to the first vertex for the second tri
-		memcpy( &vT[4], &vT[0], sizeof(SVECTOR) );
+		lmemcpy( (long *)&vT[4], (long *)&vT[0], 2 );
 
 		// Draw polys, if they're not clipped
-		//if( vT[0].vz && vT[1].vz && vT[2].vz && vT[3].vz )
-		{
-/*			vT[0].specular = D3DRGB(0,0,0);
-			vT[0].tu = 1;
-			vT[0].tv = 1;
-			vT[1].specular = vT[0].specular;
-			vT[1].tu = 0;
-			vT[1].tv = 1;
-			vT[2].specular = vT[0].specular;
-			vT[2].tu = 0;
-			vT[2].tv = 0;
-			vT[3].specular = vT[0].specular;
-			vT[3].tu = 1;
-			vT[3].tv = 0;
-			vT[4].specular = D3DRGB(0,0,0);
-			vT[4].tu = 1;
-			vT[4].tv = 1;
-
-			Clip3DPolygon( vT, tEntry );
-			Clip3DPolygon( &vT[2], tEntry );
-*/
-			POLY_FT4 *ft4;
-//			int zAvg = (vT[0].vz + vT[1].vz + vT[2].vz + vT[3].vz)/4;
+//		if( !clipped )
+//		{
 
 			otz = (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)/4;
 			otz += fx->zDepthOff;
-
 
 			//draw poly
 			BEGINPRIM(ft4, POLY_FT4);
@@ -985,15 +865,6 @@ void DrawFXLightning( SPECFX *fx )
 			*((long*)&ft4->x1) = *((long*)&vT[1].vx);
 			*((long*)&ft4->x2) = *((long*)&vT[2].vx);
 			*((long*)&ft4->x3) = *((long*)&vT[3].vx);
-//			ft4->r0 = p->r;
-//			ft4->g0 = p->g;
-//			ft4->b0 = p->b;
-
-//			utilPrintf ( "ft4->z0 : %d\n", vT[0].vz  );
-//			utilPrintf ( "ft4->z1 : %d\n", vT[1].vz  );
-//			utilPrintf ( "ft4->z2 : %d\n", vT[2].vz  );
-//			utilPrintf ( "ft4->z3 : %d\n", vT[3].vz  );
-
 
 			ft4->r0 = (p->r*p->a)>>8;
 			ft4->g0 = (p->g*p->a)>>8;
@@ -1008,20 +879,17 @@ void DrawFXLightning( SPECFX *fx )
 			ft4->v3 = tEntry->v3;
 			ft4->tpage = tEntry->tpage;
 			ft4->clut  = tEntry->clut;
-//			setSemiTrans(ft4, 1);
+
 			ft4->code  |= 2;//semi-trans on
  			ft4->tpage |= 32;//add
 	// 		ft4->tpage = si->tpage | 64;//sub
-	//		ENDPRIM(ft4, 1, POLY_FT4);
-//			ENDPRIM(ft4, (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)>>2, POLY_FT4);
+
 			ENDPRIM(ft4, (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)>>4, POLY_FT4);
-		}
+//		}
 
 		i++;
 		p = p->next;
 	} 
-
-//	SwapFrame(0);
 }
  
 SVECTOR *psxCroakVtx = NULL;
