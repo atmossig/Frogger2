@@ -457,6 +457,24 @@ void DrawFXRing( SPECFX *fx )
 			Clip3DPolygon( vT, tEntry );
 			Clip3DPolygon( &vT[2], tEntry );
 		}
+
+		if( i&1 )
+		{
+			SVECTOR pos;
+			SPECFX *fx;
+
+			pos.vx = vT[0].sx*SCALE;
+			pos.vy = vT[0].sy*SCALE;
+			pos.vz = vT[0].sz*SCALE;
+
+			if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &pos, &fx->normal, 81920, 8192, 0, 20480 )) )
+			{
+				fx->gravity = 500;
+
+				if( i&2 ) SetFXColour( fx, 60, 200, 60 );
+				else SetFXColour( fx, 180, 230, 180 );
+			}
+		}
 	}
 
 	PopMatrix( ); // Rotation
