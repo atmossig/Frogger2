@@ -621,7 +621,7 @@ int ToggleRectTileSelection(int ax, int ay, int bx, int by, EDITGROUP *selection
 
 	for (tile = firstTile; tile; tile = tile->next)
 	{
-		SetVectorS(&c, &tile->centre);
+		GetTilePos(&c, tile);
 		EdXfmPoint(&v, &c);
 		if (!v.vz) continue;
 		
@@ -647,7 +647,7 @@ int ToggleRectFlagSelection(int ax, int ay, int bx, int by, EDITGROUP *selection
 
 	for (pnode = path->nodes; pnode; pnode = pnode->link)
 	{
-		SetVectorS(&c, &pnode->tile->centre);
+		GetTilePos(&c, pnode->tile);
 		EdXfmPoint(&v, &c);
 		if (!v.vz) continue;
 		
@@ -722,54 +722,6 @@ int CountGroupMembers(EDITGROUP *group)
 
 	for (node = group->nodes, count = 0; node; node = node->link, count++);
 	return count;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: FreeEnemyList
-	Parameters		: 
-	Returns			: 
-
-void FreeEnemyList(void)
-{
-	ENEMY *e;
-	int i;
-
-	for (i = enemyList.numEntries, e = enemyList.head.next; i; i--, e = e->next)
-	{
-		SubActor(e->nmeActor);
-		e->nmeActor = NULL;
-	}
-	FreeEnemyLinkedList();
-}
-*/
-
-/*	--------------------------------------------------------------------------------
-	Function		: FreePlatformList
-	Parameters		: 
-	Returns			: 
-
-void FreePlatformList(void)
-{
-	PLATFORM *p;
-	int i;
-
-	for (i = platformList.numEntries, p = platformList.head.next; i; i--, p = p->next)
-	{
-		SubActor(p->pltActor);
-		p->pltActor = NULL;
-	}
-	FreePlatformLinkedList();
-}
-*/
-
-#define CAMVECTSCALE (1.0f/40960.0f)
-
-void EdCalcViewMatrix(void)
-{
-	guLookAtF (vMatrix.matrix,
-		currCamTarget.vx*CAMVECTSCALE, currCamTarget.vy*CAMVECTSCALE, currCamTarget.vz*CAMVECTSCALE,
-		currCamSource.vx*CAMVECTSCALE, currCamSource.vy*CAMVECTSCALE, currCamSource.vz*CAMVECTSCALE,
-		camVect.vx*CAMVECTSCALE, camVect.vy*CAMVECTSCALE, camVect.vz*CAMVECTSCALE);
 }
 
 /*	--------------------------------------------------------------------------------
