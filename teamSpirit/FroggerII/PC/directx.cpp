@@ -43,10 +43,10 @@ extern "C"
 #include "software.h"
 #include "mavis.h"
 
-long SCREEN_WIDTH=320;	//320
-long SCREEN_HEIGHT=240;	//240
-long HALF_WIDTH = 160;
-long HALF_HEIGHT = 120;
+long SCREEN_WIDTH=640;	//320
+long SCREEN_HEIGHT=480;	//240
+long HALF_WIDTH = 320;
+long HALF_HEIGHT = 240;
 float RES_DIFF = 1;
 float RES_DIFF2 = 2;
 
@@ -219,6 +219,10 @@ extern long numFacesDrawn;
 
 GUID guID;
 
+// TODO: Tidy tidy tidy!
+char videoCardName[256];	// which card we want
+int foundDesiredVideo = 0;
+
 //static GUID     guID;
 
 void ScreenShot ( DDSURFACEDESC ddsd );
@@ -253,7 +257,18 @@ static BOOL FAR PASCAL EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR
 	
 	lpDD->QueryInterface(IID_IDirectDraw4, (LPVOID *)&pDD4);
 	pDD4->GetDeviceIdentifier(&ddId,0);
-	
+
+	// Pick desired card if at all possible!
+
+	if (videoCardName[0] && (strcmp(ddId.szDescription, videoCardName) == 0))
+	{
+		if (lpGUID)
+			memcpy(lpContext, lpGUID, sizeof(GUID));
+		foundDesiredVideo = 1;
+		lpDD->Release();
+		return DDENUMRET_CANCEL;	// yay, we found it
+	}
+
 	dxDeviceList[dxNumDevices].desc = new char [strlen (ddId.szDescription)];
 	dxDeviceList[dxNumDevices].name = new char [strlen (ddId.szDriver)];
 	
@@ -285,9 +300,9 @@ static BOOL FAR PASCAL EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR
 	Info          : -
 */
 
-void EnumDXObjects (void)
+void EnumDXObjects (GUID *guid)
 {
-	DirectDrawEnumerate(EnumDDDevices, NULL);
+	DirectDrawEnumerate(EnumDDDevices, guid);
 }
 
 char col0txt[] = "Name";
@@ -297,6 +312,7 @@ char hwText[] = "3D Hardware Accelerated";
 char swText[] = "Software Renderer";
 char swName[] = "ISL Software Engine";
 char swDesc[] = "Always3D Software Renderer";
+
 
 BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
 				LPSTR lpszDrvName, LPVOID lpContext )
@@ -319,7 +335,6 @@ BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
 			lpTemp );
     return( TRUE );
     }
-
 
 void DisplayReadme(HWND hwnd)
 {
@@ -616,8 +631,6 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 
 // It's DirectX, innit?
-
-
 long DirectXInit(HWND window, long hardware )
 {
 	D3DVIEWPORT				viewport;
@@ -632,19 +645,32 @@ long DirectXInit(HWND window, long hardware )
 	win = window;
 
 	GUID guID;
+	GUID videoguid, *vguid;
 
-	EnumDXObjects();
+	EnumDXObjects(&videoguid);
+	if (!videoguid.Data1)
+		vguid = NULL; // todo: do this a LOT better
 
-	DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1),window,(DLGPROC)HardwareProc, ( LPARAM ) &guID );
+	if (!foundDesiredVideo)
+	{
+		DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1),window,(DLGPROC)HardwareProc, ( LPARAM ) &guID );
+		
+		if (dxDeviceList[selIdx].guid)
+		{
+			memcpy(&videoguid, dxDeviceList[selIdx].guid, sizeof(GUID));
+			vguid = &videoguid;
+		}
+		else
+			vguid = NULL;
+
+		strcpy(videoCardName, dxDeviceList[selIdx].desc);
+	}
 
 	if (runQuit)
 		return 0;
 
-	// Initialise DSound!
-	InitDirectSound ( &guID, winInfo.hInstance, winInfo.hWndMain, prim );
-
 	// Initialise DirectDraw
-	DDrawInitObject (dxDeviceList[selIdx].guid);
+	DDrawInitObject (vguid);
 	
 	// Setup our sufaces
 	DDrawCreateSurfaces (window, SCREEN_WIDTH, SCREEN_HEIGHT, 16, TRUE, 16); 
@@ -659,6 +685,9 @@ long DirectXInit(HWND window, long hardware )
 
 	//SetupRenderstates(); 
 	RES_DIFF = SCREEN_WIDTH/640.0;	
+
+	// Initialise DSound!
+	InitDirectSound ( &guID, winInfo.hInstance, winInfo.hWndMain, prim );
 
 	return TRUE;
 }

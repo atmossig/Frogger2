@@ -112,6 +112,8 @@ extern long showActorNames;
 	Returns			: none
 	Info			:
 */
+#ifndef FULL_BUILD
+
 void debugPrintf(int num)
 {
 	FILE *f;
@@ -126,6 +128,8 @@ void debugPrintf(int num)
 		fclose(f);
 	}
 }
+
+#endif
 
 /*	--------------------------------------------------------------------------------
 	Function		: Crash(char *mess)
@@ -147,6 +151,9 @@ void Crash(char *mess)
 	Info			: Gets setup stuff (e.g. install dir) from the registry
 */
 
+// TODO: put a nicer interface on this, PLEASE
+extern char videoCardName[256];
+
 int GetRegistryInformation(void)
 {
 	HKEY hkey;
@@ -166,38 +173,33 @@ int GetRegistryInformation(void)
 		else
 			dprintf"Couldn't read InstallDir value from registry\n"));
 
+		len = 255;
+		RegQueryValueEx(hkey, "VideoCard", NULL, NULL, videoCardName, &len);
+
 		RegCloseKey(hkey);
 	}
 
 	return 1;
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: SaveRegistryInformation(void)
-	Parameters		: 
-	Returns			: int
-	Info			: Puts some stuff in the registry
-*/
-
-int SaveRegistryInformation(void)
+int SetRegistryInformation(void)
 {
 	HKEY hkey;
 	DWORD len = MAX_PATH;
 
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_WRITE, &hkey) != ERROR_SUCCESS)
 	{
-		dprintf"Couldn't open registry key\n")); return 0;
+		dprintf"Couldn't open registry kep for writing\n")); return 0;
 	}
 	else
 	{
-		//RegSetValueEx(hkey, "DeviceGUID", 0, REG_SZ, guidStr, len);
-		
+		RegSetValueEx(hkey, "InstallDir", NULL, REG_SZ, baseDirectory, strlen(baseDirectory) + 1);
+		RegSetValueEx(hkey, "VideoCard", NULL, REG_SZ, videoCardName, strlen(videoCardName) + 1);
 		RegCloseKey(hkey);
 	}
 
 	return 1;
 }
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: WinMain
@@ -557,7 +559,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	}
 
 	// Save stuff in the registry
-	SaveRegistryInformation();
+	SetRegistryInformation();
 
 	// clean up
 	FreeAllLists();
@@ -597,7 +599,7 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
     wc.cbWndExtra		= 0;
     wc.hInstance		= hInstance;
     wc.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FROGGER));
-    wc.hCursor			= LoadCursor(NULL,IDC_ARROW);
+    wc.hCursor			= NULL;
     wc.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
     wc.lpszMenuName		= NULL;
     wc.lpszClassName	= "Frogger2PC";
@@ -658,6 +660,10 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 
     switch(message)
 	{
+		case WM_SETCURSOR:
+			SetCursor(NULL);
+			break;
+
         case WM_DESTROY:
 			PostQuitMessage(0);
 			appActive = 0;

@@ -53,7 +53,12 @@ extern int runQuit;
 extern float gameSpeed;
 extern float vMatrix[4][4];
 
+#ifdef FULL_BUILD
+#define debugPrintf(n)
+#else
 void debugPrintf(int num);
+#endif
+
 void Crash(char *mess);
 
 int InitialiseWindows(HINSTANCE hInstance,int nCmdShow);
