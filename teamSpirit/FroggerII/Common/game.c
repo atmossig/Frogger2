@@ -178,7 +178,7 @@ void GameProcessController(long pl)
 //		frogTrail[pl]->follow = frog[pl]->actor;
 //		SetFXColour( frogTrail[pl], 50, 200, 50 );
 
-		if (((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && (!player[pl].hasDoubleJumped))
+		if( ((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && !(player[pl].hasDoubleJumped) )
 		{
 			int dir=-1;
 
@@ -319,16 +319,6 @@ void GameProcessController(long pl)
 			player[pl].idleTime = MAX_IDLE_TIME;
 		}
 	}
-
-	if(button[pl] & CONT_G)
-	{
-		player[pl].frogState |= FROGSTATUS_ISFLOATING;
-	}
-	else
-	{
-		player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
-	}
-
 
 	if((button[pl] & CONT_R) && !(lastbutton[pl] & CONT_R))
 	{
@@ -812,18 +802,7 @@ void RunGameLoop (void)
 					UpdateCameraPosition(0);
 
 					for (i=0; i<NUM_FROGS; i++)
-					{
-					
-						if ( !( player[i].frogState & FROGSTATUS_ISFLOATING ) )
-							if (frog[i])
-								SitAndFace(frog[i],currTile[i],frogFacing[i]);
-						else if ( player[i].frogState & FROGSTATUS_ISFLOATING )
-						{
-							//SitAndFace(frog,currTile,frogFacing);
-							//RotateFrog ( frog, frogFacing );
-							//switch ( turnDir )
-						}
-					}
+						if (frog[i]) SitAndFace(frog[i],currTile[i],frogFacing[i]);
 				}	  
 			}
 			// ENDIF 

@@ -101,8 +101,6 @@ typedef struct _PLAYER
 
 	unsigned char	extendedHopDir;
 
-	unsigned long	isCroakFloating;
-
 	unsigned long	jumpStartFrame;
 	unsigned long	jumpEndFrame;
 	float			vInitialVelocity;
