@@ -1,3 +1,12 @@
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+
+	File		: netgame.cpp
+	Programmer	: David Swift
+	Date		:
+
+----------------------------------------------------------------------------------------------- */
 
 // PC headers
 #include "network.h"
@@ -12,6 +21,8 @@
 #include "frogger.h"
 #include "frogmove.h"
 #include "cam.h"
+#include "enemies.h"
+#include "specfx.h"
 
 #define BIT(x)	(1<<(x))
 
@@ -19,7 +30,7 @@
 #define NETUPD_DOUBLEJUMP	BIT(1)
 
 #define UPDATE_PERIOD		5		// in 60ths of a second (actFrameCounts)
-#define PING_PERIOD			20
+#define PING_PERIOD			200		// how often we should ping once we're synchronised
 
 unsigned long nextUpdate = 0, nextPing = 0;
 
@@ -379,13 +390,14 @@ void NetgameStartGame()
 
 	for (pl=0; pl<NUM_FROGS; pl++)
 	{
-		player[pl].character = FROG_FROGGER; //(netPlayerList[pl].isHost)?FROG_FROGGER:FROG_LILLIE;
+		player[pl].character = temp_netchars[pl];
+		//FROG_FROGGER; //(netPlayerList[pl].isHost)?FROG_FROGGER:FROG_LILLIE;
 	}
 
 	NetInstallMessageHandler(NetgameMessageDispatch);
 
 	GTInit( &modeTimer, 1 );
-	InitLevel(9, 0);
+	InitLevel(9, 3);
 
 }
 
@@ -416,6 +428,10 @@ void NetgameRun()
 		UpdateCameraPosition();
 		GameProcessController(0);                                      
 		UpdateFroggerPos(0);
+		
+		// ooer missus
+		UpdateEnemies();
+		UpdateSpecialEffects();
 
 		int i;
 

@@ -1,3 +1,12 @@
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+
+	File		: netconnect.h
+	Programmer	: 
+	Date		:
+
+----------------------------------------------------------------------------------------------- */
 #ifndef __NETCHAT_H
 #define __NETCHAT_H
 

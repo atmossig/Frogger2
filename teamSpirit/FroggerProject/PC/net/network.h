@@ -1,3 +1,13 @@
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+
+	File		: network.h
+	Programmer	: David Swift
+	Date		:
+
+----------------------------------------------------------------------------------------------- */
+
 #ifndef __NETWORK_H
 #define __NETWORK_H
 
