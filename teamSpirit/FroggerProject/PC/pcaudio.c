@@ -308,6 +308,7 @@ void PlaySfxMappedSample( MDX_ACTOR *act )
 		return;
 
 	SetVectorSR( &pos, &act->pos );
+	ScaleVector( &pos, 10 );
 	// If looping, add ambient sound and remove sample from mapping
 	if( sample->flags & SFXFLAGS_LOOP )
 	{
@@ -485,7 +486,10 @@ void UpdateAmbientSounds()
 
 		// If it is attached to a platform, make ambient follow that platform
 		if( amb->follow )
+		{
 			SetVectorSR( &amb->pos, &amb->follow->pos );
+			ScaleVector( &amb->pos, 10 );
+		}
 
 		// If sound doesn't have a source
 		if( !mdxMagnitudeSquared(&amb->pos) )
