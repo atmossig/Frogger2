@@ -129,7 +129,61 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 	{
 		float r,g,b,a;
 		unsigned long dupCount = 0;
+if (obj->mesh->numFaces)
+		{
+			unsigned long cTex = (unsigned long)obj->mesh->textureIDs[0];
 
+			for (x=1; x<obj->mesh->numFaces; x++)
+			{
+				if ((unsigned long)obj->mesh->textureIDs[x] != cTex)
+				{
+					for (y=x; y<obj->mesh->numFaces; y++)
+						if ((unsigned long)obj->mesh->textureIDs[y] == cTex)
+							break;
+					
+					if (y!=obj->mesh->numFaces)
+					{
+						QUATERNION t;
+						SHORTVECTOR t1;
+						USHORT2DVECTOR t2;
+
+						obj->mesh->textureIDs[y] = obj->mesh->textureIDs[x];
+						obj->mesh->textureIDs[x] = (TEXTURE *)cTex;
+						
+						t = ((QUATERNION *)obj->mesh->vertexNormals)[x*3];
+						((QUATERNION *)obj->mesh->vertexNormals)[x*3] = ((QUATERNION *)obj->mesh->vertexNormals)[y*3];
+						((QUATERNION *)obj->mesh->vertexNormals)[y*3] = t;
+
+						t = ((QUATERNION *)obj->mesh->vertexNormals)[x*3+1];
+						((QUATERNION *)obj->mesh->vertexNormals)[x*3+1] = ((QUATERNION *)obj->mesh->vertexNormals)[y*3+1];
+						((QUATERNION *)obj->mesh->vertexNormals)[y*3+1] = t;
+
+						t = ((QUATERNION *)obj->mesh->vertexNormals)[x*3+2];
+						((QUATERNION *)obj->mesh->vertexNormals)[x*3+2] = ((QUATERNION *)obj->mesh->vertexNormals)[y*3+2];
+						((QUATERNION *)obj->mesh->vertexNormals)[y*3+2] = t;
+						
+						t1 = obj->mesh->faceIndex[x];
+						obj->mesh->faceIndex[x] = obj->mesh->faceIndex[y];
+						obj->mesh->faceIndex[y] = t1;
+						
+						t2 = obj->mesh->faceTC[x*3];
+						obj->mesh->faceTC[x*3] = obj->mesh->faceTC[y*3];
+						obj->mesh->faceTC[y*3] = t2;
+						
+						t2 = obj->mesh->faceTC[x*3+1];
+						obj->mesh->faceTC[x*3+1] = obj->mesh->faceTC[y*3+1];
+						obj->mesh->faceTC[y*3+1] = t2;
+						
+						t2 = obj->mesh->faceTC[x*3+2];
+						obj->mesh->faceTC[x*3+2] = obj->mesh->faceTC[y*3+2];
+						obj->mesh->faceTC[y*3+2] = t2;
+							
+					}
+				}
+
+				cTex = (unsigned long)obj->mesh->textureIDs[x];
+			}
+		}
 		obj->renderData = JallocAlloc (sizeof(D3DTLVERTEX)*obj->mesh->numFaces*3,0,"vtxPC");
 
 		for (x=0; x<obj->mesh->numVertices; x++)

@@ -1542,6 +1542,8 @@ void DrawScreenOverlays(void)
 {
 	unsigned short faces[] = {0,1,2,0,2,3};
 	long numRequired = (SCREEN_WIDTH/SCREENTEX_SIZE) * (SCREEN_HEIGHT/SCREENTEX_SIZE);
+
+	return;
 	BeginDrawHardware();
 
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
@@ -1605,6 +1607,7 @@ void FreeScreenTextures(LPDIRECTDRAWSURFACE *where,LPDIRECTDRAWSURFACE *where2, 
 
 void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRECTDRAWSURFACE *to2)
 {
+
 	int i, j,y,sY,dY;
 	LPDIRECTDRAWSURFACE surface, *dds, surface2, *dds2;
 	DDSURFACEDESC ddsd,ddsd2;
@@ -1612,6 +1615,8 @@ void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRE
 	unsigned long *hdl;
 	HRESULT res;
 	RECT rect;
+
+	return;
 
 	dds = &to[0];
 	dds2 = &to2[0];

@@ -203,7 +203,6 @@ LPDIRECTDRAWSURFACE D3DCreateTexSurface2(long xs,long ys,long videoRam, long tex
 		RELEASE(pSurface); 
 		return NULL;
 	}
-
 	
 	return pSurface;
 }	
