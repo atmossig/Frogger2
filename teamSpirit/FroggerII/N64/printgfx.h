@@ -122,6 +122,8 @@ typedef struct TAGGRABSTRUCT
 
 } GRABSTRUCT;
 
+
+
 extern Vtx shadowVtx[4];
 extern Sprite template_sprite;
 
