@@ -1319,9 +1319,6 @@ static void doPoly(void *arg)
 
 	//InitEeprom();
 
-	// Initialise for object viewing - ANDY
-	ObjViewInit();
-
     osCreateMesgQueue(&main_msgQ,main_msgbuf,8);
 	nnScAddClient(&sched,&main_client,&main_msgQ);
 

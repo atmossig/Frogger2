@@ -200,8 +200,6 @@ void ReadDebugPad()
 
 	if((button & CONT_E) && !(lastbutton & CONT_E))
     {
-		// Toggle on/off object info. in object viewer - ANDYE
-		showObjectInfo = !showObjectInfo;
     }
 
 	if(button & CONT_D)

@@ -71,7 +71,6 @@
 #include "cam.h"
 #include "tongue.h"
 #include "develop.h"
-#include "singlemodetitle.h"
 #include "frontend.h"
 #include "sndview.h"
 #include "map.h"
