@@ -3,6 +3,8 @@
 // *ASL* 10/08/2000 - Use the latest Kamui macros
 #define _KM_USE_VERTEX_MACRO_
 #define _KM_USE_VERTEX_MACRO_L5_
+//#define _KM_USE_CHANGESTRIP_MACRO_
+
 
 #include <shinobi.h>
 #include <kamui2.h>
@@ -1171,9 +1173,9 @@ void MapDraw_Dreamcast_InitWorld(FMA_WORLD *fma_world)
 			*((PKMFLOAT)vp) = (KMFLOAT)psxQuads->v3 / 127.0f; vp++;
 			*((PKMFLOAT)vp) = (KMFLOAT)psxQuads->u3 / 127.0f; vp++;
 
-			// polygon indices and strip header.. 1 32byte cache line
+			// polygon indices, strip header and texture map.. 1 32byte cache line
 			map = &DCKtextureList[psxQuads->tpage];
-			ip[3] = (int)&map->stripHead;
+			ip[3] = (int)map;
 
 			// ** These indices directly need to reference directly into our transform vertices list whoose
 			// ** entries are 16bytes in size (xf,yf,zf,wf). Since they are already pre-multiplied by 4 for
@@ -1213,9 +1215,9 @@ void MapDraw_Dreamcast_InitWorld(FMA_WORLD *fma_world)
 			*((PKMFLOAT)vp) = (KMFLOAT)psxTris->v2 / 127.0f; vp++;
 			*((PKMFLOAT)vp) = (KMFLOAT)psxTris->u2 / 127.0f; vp++;
 
-			// polygon indices and strip header.. 1 32byte cache line
+			// polygon indices, strip header and texture map.. 1 32byte cache line
 			map = &DCKtextureList[psxTris->tpage];
-			ip[4] = (int)&map->stripHead;
+			ip[4] = (int)map;
 
 			// indices
 			ip[5] = psxTris->vert2 << 2;
@@ -1338,7 +1340,8 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			fr1 = *v3;
 			fr0 += fr1;											// z0+z1+z2+z3
 
-			r0 = *--vis;										// load ahead this polygons texture strip
+			// load ahead this polygons texture map
+			r0 = *--vis;
 
 			// z clip check
 			if (fr0 < zmin || fr0 > zmax)
@@ -1389,12 +1392,32 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			z2 = *v2;
 			z3 = *v3;
 
-			// need to change the texture strip header?
-			if (r0 != shLast)
+			// are we an animated texture map?
+			if (!(((TextureType *)r0)->animated))
 			{
-				// change render state
-				kmxxStartStrip(&vertexBufferDesc, r0);
-				shLast = r0;
+				// need to change the texture strip header?
+				r0 = (int)&((TextureType *)r0)->stripHead;
+				if (r0 != shLast)
+				{
+					// change render state
+					kmxxStartStrip(&vertexBufferDesc, r0);
+					shLast = r0;
+				}
+			}
+			else
+			{
+				// check to see if alpha channel is to be used
+				if (((TextureType *)r0)->colourKey)
+				{
+					kmChangeStripTextureSurface(&StripHead_GT4_FMA_Alpha,KM_IMAGE_PARAM1, ((TextureType *)r0)->surfacePtr);
+					kmxxStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA_Alpha);
+				}
+				else
+				{
+					kmChangeStripTextureSurface(&StripHead_GT4_FMA,KM_IMAGE_PARAM1, ((TextureType *)r0)->surfacePtr);
+					kmxxStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA);
+				}
+				shLast = 0;
 			}
 
 			// vertex 0
@@ -1493,7 +1516,8 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			fr1 = *v2;
 			fr0 += fr1;											// z0+z1+z2
 
-			r0 = *--vis;										// load ahead this polygons texture strip
+			// load ahead this polygons texture map
+			r0 = *--vis;
 
 			// z clip check
 			if (fr0 < zmin || fr0 > zmax)
@@ -1526,7 +1550,6 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			y2 = *v2++;
 
 			// completely off at the TOP or BOTTOM?
-			// completely off at the LHS or RHS?
 			if ((y0 > 480.0f && y1 > 480.0f && y2 > 480.0f) ||
 				(y0 <   0.0f && y1 <   0.0f && y2 <   0.0f))
 			{
@@ -1541,12 +1564,32 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			z1 = *v1;
 			z2 = *v2;
 
-			// need to change the texture strip header?
-			if (r0 != shLast)
+			// are we an animated texture map?
+			if (!(((TextureType *)r0)->animated))
 			{
-				// change render state
-				kmxxStartStrip(&vertexBufferDesc, r0);
-				shLast = r0;
+				// need to change the texture strip header?
+				r0 = (int)&((TextureType *)r0)->stripHead;
+				if (r0 != shLast)
+				{
+					// change render state
+					kmxxStartStrip(&vertexBufferDesc, r0);
+					shLast = r0;
+				}
+			}
+			else
+			{
+				// check to see if alpha channel is to be used
+				if (((TextureType *)r0)->colourKey)
+				{
+					kmChangeStripTextureSurface(&StripHead_GT4_FMA_Alpha,KM_IMAGE_PARAM1, ((TextureType *)r0)->surfacePtr);
+					kmxxStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA_Alpha);
+				}
+				else
+				{
+					kmChangeStripTextureSurface(&StripHead_GT4_FMA,KM_IMAGE_PARAM1, ((TextureType *)r0)->surfacePtr);
+					kmxxStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA);
+				}
+				shLast = 0;
 			}
 
 			// vertex 0

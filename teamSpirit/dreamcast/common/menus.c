@@ -1072,7 +1072,7 @@ void RunFrontendGameLoop (void)
 
 		fadingLogos = NO;
 #ifdef PSX_VERSION
-		frogLogo = CreateAndAddSpriteOverlay(1168,2700,"FROGLOGO",4096,1,255,0);
+		frogLogo = CreateAndAddSpriteOverlay(1168,2500,"FROGLOGO",4096,1,255,0);
 #endif
 		
 #ifdef PC_VERSION
@@ -1189,6 +1189,7 @@ void RunFrontendGameLoop (void)
 				}
 			}
 		}
+
 #endif
 
 		if(options.page == NULL)

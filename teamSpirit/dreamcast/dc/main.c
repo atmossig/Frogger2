@@ -136,6 +136,11 @@ SYCHAIN vblChain;
 // used to abort the game
 unsigned int globalAbortFlag = 0;
 
+// *ASL* 14/08/2000 - sprite counts
+int spriteRotNum;
+int spriteNum;
+
+
 
 // ----------
 // Prototypes
@@ -187,11 +192,11 @@ void Kamui_Init()
     kmSystemConfig.nVertexBufferSize          	= 0x100000 * 2;		// 2MB for vertex buffer
     kmSystemConfig.nPassDepth                 	= 1;
     kmSystemConfig.Pass[0].dwRegionArrayFlag  	= KM_PASSINFO_AUTOSORT;
-    kmSystemConfig.Pass[0].fBufferSize[0]     	= 30.0f;
+    kmSystemConfig.Pass[0].fBufferSize[0]     	= 50.0f;
     kmSystemConfig.Pass[0].fBufferSize[1]     	= 0.0f;
-    kmSystemConfig.Pass[0].fBufferSize[2]     	= 35.0f;
+    kmSystemConfig.Pass[0].fBufferSize[2]     	= 50.0f;
     kmSystemConfig.Pass[0].fBufferSize[3]     	= 0.0f;
-    kmSystemConfig.Pass[0].fBufferSize[4]     	= 35.0f;
+    kmSystemConfig.Pass[0].fBufferSize[4]     	= 0.0f;
 
 	kmSetSystemConfiguration(&kmSystemConfig);
 
@@ -581,7 +586,7 @@ void main()
 	initCheckForSoftReset();
 
 	// show all legal screens and FMV
-	showLegalFMV(0);
+//	showLegalFMV(0);
 
 	CommonInit();
 
@@ -674,14 +679,15 @@ void main()
 	{
 		DCTIMER_START(0);
 
-		DCTIMER_START(1);		
 		polyCount = 0;
 		actorCount = 0;		
 		mapCount = 0;
 		psiActorCount = 0;
 		fmaActorCount = 0;
-		
-		DCTIMER_STOP(1);		
+
+			// *ASL* 14/08/2000 - sprite counts
+			spriteRotNum = 0;
+			spriteNum = 0;
 
 		padCounter = 0;
 		i=0;
@@ -792,28 +798,29 @@ void main()
 		{
 			break;
 		}
-	
+
+		DCTIMER_START(1);
 		kmBeginScene(&kmSystemConfig);
 		kmBeginPass(&vertexBufferDesc);
-
-		DCTIMER_STOP(1);		
+		DCTIMER_STOP(1);
 
 		DCTIMER_START(2);		
 		DrawSpecialFX();
 		PrintSprites();
-		DCTIMER_STOP(2);		
+		DCTIMER_STOP(2);
 
 		DCTIMER_START(3);		
 		if(drawLandscape && drawGame)
 			DrawWorld();		
 		DCTIMER_STOP(3);		
 
-		DCTIMER_START(4);		
+
+		DCTIMER_START(4);
 		if(drawLandscape && drawGame)
 			DrawScenicObjList();
 		if(drawLandscape && drawGame)
-			DrawWaterList();			
-		DCTIMER_STOP(4);		
+			DrawWaterList();
+		DCTIMER_STOP(4);
 		
 		DCTIMER_START(5);		
 		if(drawGame)
@@ -852,6 +859,10 @@ void main()
 				if(current[i].sound.isPlaying)
 					numUsed++;
 			}
+
+//			// *ASL* 14/08/2000 - sprite numbers
+//			sprintf(textbuffer, "%d, %d  %d", spriteNum, spriteRotNum, spriteNum+spriteRotNum);
+//			fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
 		}
 	
 		kmEndPass(&vertexBufferDesc);
