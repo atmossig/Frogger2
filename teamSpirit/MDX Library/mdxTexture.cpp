@@ -128,7 +128,7 @@ MDX_TEXPAGE *GetFreeTexturePage(void)
 			yCrd+=32;
 		}
 	}
-	return ret;				
+	return ret;
 }
 
 MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
@@ -271,7 +271,7 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 				
 				break;
 			}								
-	
+
 			case TEXTURE_AC:
 			{
 				// Create a temporary surface to hold the texture.
@@ -285,8 +285,7 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 				
 				newE->type = TEXTURE_AI;
 				break;
-			}			
-
+			}
 		}
 
 		if (newE->surf && rHardware)
@@ -430,7 +429,9 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 					dp("texFrames: %s %lu",me->name,me->numFrames);
 					
 					me->frameTimes = (float *) AllocMem(sizeof(float)*me->numFrames);
-					me->frames = (LPDIRECTDRAWSURFACE7 *) AllocMem(sizeof(LPDIRECTDRAWSURFACE7)*me->numFrames);
+
+					// *ASL* 15/06/2000 - allocate enough room for all texture frames
+					me->frames = (void **)AllocMem(sizeof(void *)*me->numFrames);
 					me->lastGameFrame = me->lastFrame = 0;
 					me->updated = 0;
 					for (int i=0; i<me->numFrames; i++)
@@ -441,8 +442,9 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 						if (line[0]=='"')
 							me->frameTimes[i] = me->frameTimes[i-1];
 						else
-							sscanf(line,"%f",&(me->frameTimes[i]));										
-						me->frames[i] = (LPDIRECTDRAWSURFACE7)UpdateCRC(tempName);	
+							sscanf(line,"%f",&(me->frameTimes[i]));
+						// *ASL* 15/06/2000 - temporarily save texture frame crc to reference texture map
+						me->frames[i] = (void *)UpdateCRC(tempName);
 					}
 					fclose(animFp);
 				}
@@ -464,10 +466,11 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 		{
 			for (int i=0; i<me->numFrames; i++)
 				if (tex = GetTexEntryFromCRC((long)me->frames[i]))
-					me->frames[i] = tex->surf;
+					// *ASL* 15/06/2000 - if using hardware load texture surface else load software data
+					me->frames[i] = (rHardware) ? (void *)tex->surf : (void *)tex->softData;
 				else
 					me->frames[i] = NULL;
-				me->updated++;
+			me->updated++;
 		}
 	return 1;
 }
@@ -498,8 +501,12 @@ void UpdateAnimatingTextures(void)
 						me->lastFrame = 0;
 				}
 			}
-			
-			me->surf = me->frames[me->lastFrame];
+
+			// *ASL* 15/06/2000 - set current hardware texture surface or software texture data
+			if (rHardware)
+				me->surf = (LPDIRECTDRAWSURFACE7)me->frames[me->lastFrame];
+			else
+				me->softData = (long *)me->frames[me->lastFrame];
 		}
 	}
 	
@@ -541,13 +548,17 @@ void FreeAllTextureBanks()
 */
 		if( cur->data ) 
 			gelfDefaultFree(cur->data);
-		if( cur->softData ) 
-			FreeMem (cur->softData);
 
+		// animated texture?
 		if (cur->numFrames > 1)
 		{
-			// Reset the frame to the origional.
-			cur->surf = cur->frames[0];
+			// reset to the origional frame
+			// *ASL* 15/06/2000 - reset hardware texture surface or software texture data
+			if (rHardware)
+				cur->surf = (LPDIRECTDRAWSURFACE7)cur->frames[0];
+			else
+				cur->softData = (long *)cur->frames[0];
+
 			FreeMem (cur->frameTimes);
 			FreeMem (cur->frames);
 		}
@@ -557,6 +568,9 @@ void FreeAllTextureBanks()
 			cur->surf->Release();
 			surfacesMade--;
 		}
+
+		if (cur->softData) 
+			FreeMem(cur->softData);
 
 		FreeMem (cur);
 	}

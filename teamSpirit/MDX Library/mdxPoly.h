@@ -134,11 +134,54 @@ void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf);
 void softDrawTexturedRect(RECT r, D3DCOLOR colour, float u0, float v0, float u1, float v1);
 
 void DrawFlatRect(RECT r, D3DCOLOR colour);
+
+
+
+/* -----------------------------------------------------------------------
+   Function : DrawTexturedRect
+   Purpose : draw a texture rectangle using hardware only
+   Parameters : rectangle, colour, mdx texture pointer, u0,v0 pair, u1,v1 pair
+   Returns : 
+   Info : 
+*/
+
 void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1);
+
+
+// *ASL* 13/06/2000
+/* -----------------------------------------------------------------------
+   Function : mdxPolyDrawTextureRect
+   Purpose : draw a MDX texture rectangle
+   Parameters : rectangle, colour, mdx texture pointer, u0,v0 pair, u1,v1 pair
+   Returns : 
+   Info : this routine will eventually replace the DrawTexturedRect() call above
+*/
+
+void mdxPolyDrawTextureRect(RECT rc, D3DCOLOR colour, MDX_TEXENTRY *mdxTexture, float u0, float v0, float u1, float v1);
+
+
+/* -----------------------------------------------------------------------
+   Function : mdxDrawRectangle
+   Purpose : draw a rectange into the surface
+   Parameters : rectangle, r, g, b
+   Returns : 1 blit error else 0 okay
+   Info : 
+*/
+
+int mdxDrawRectangle(RECT rc, int r, int g, int b);
+
+
+
+
+
+
+
+
 void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, float v1);
 void BlankAllFrames(void);
 void DrawAllFrames(void);
 void SetSoftwareState(unsigned long *me);
+
 
 #define FULL_TEXTURE 0,0,1,1
 

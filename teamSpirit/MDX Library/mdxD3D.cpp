@@ -167,10 +167,9 @@ void D3DClearView(void)
 		pDirect3DDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER , D3DRGB(fogR,fogG,fogB),1, 0L );
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR,D3DRGB(fogR,fogG,fogB));
 	}
-#ifndef MDXPOLY_USEMMXBUFFER
+	// *ASL* 13/06/2000
 	else
-		memset(softScreen,0,640*480*sizeof(long));
-#endif
+		ssClearViewport();
 }
 
 /*	--------------------------------------------------------------------------------
@@ -203,8 +202,10 @@ unsigned long D3DShutdown(void)
 {
 	if (rHardware)
 	{
-		if (pDirect3DDevice) pDirect3DDevice->Release();
-		if (pDirect3D) pDirect3D->Release();
+		if (pDirect3DDevice)
+			pDirect3DDevice->Release();
+		if (pDirect3D)
+			pDirect3D->Release();
 	}
 	// *ASL* 13/06/2000
 	else
@@ -493,34 +494,91 @@ unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short
 }
 
 
-/*  -------------------------------------------------------------------------------
-	Function	: BeginDraw
-	Purpose		:
-	Parameters	: (void)
-	Returns		: void
-	Info		:
+// *ASL* 13/06/2000
+/* -----------------------------------------------------------------------
+   Function : BeginDraw
+   Purpose : prepares a scene for drawing 3d.
+   Parameters : 
+   Returns : 0 everything okay, else 1
+   Info : in the software render mode this locks the current back buffer so
+		  no blits should take place should occur until after the corresponding
+		  EndDraw() call.
 */
 
-void BeginDraw(void)
+int BeginDraw()
 {
+#ifdef MDXPOLY_USEMMXBUFFER
+	DDSURFACEDESC2		ddsd;
+	int					dxError;
+#endif
+
 	if (rHardware)
 		pDirect3DDevice->BeginScene();
-
+	else
+	{
+#ifdef MDXPOLY_USEMMXBUFFER
+		DDINIT(ddsd);
+		dxError = surface[RENDER_SRF]->Lock(NULL, &ddsd, DDLOCK_SURFACEMEMORYPTR, 0);
+		if (FAILED(dxError))
+			return 1;
+		ssBeginScene(ddsd.lpSurface, ddsd.lPitch, ddsd.dwWidth, ddsd.dwHeight);
+#else
+		ssBeginScene(softScreen, 1280, 640, 480);
+#endif
+	}
+	return 0;
 }
 
-/*  -------------------------------------------------------------------------------
-	Function	: EndDraw
-	Purpose		:
-	Parameters	: (void)
-	Returns		: void
-	Info		:
+
+// *ASL* 13/06/2000
+/* -----------------------------------------------------------------------
+   Function : EndDraw
+   Purpose : ends a scene that was begun by BeginDraw
+   Parameters : 
+   Returns : 0 everything okay, else 1
+   Info : in the software render mode this locks the current back buffer so
+		  no blits should take place should occur until after the corresponding
+		  EndDraw call.
 */
 
-void EndDraw(void)
+int EndDraw()
 {
+#ifdef MDXPOLY_USEMMXBUFFER
+	int					dxError;
+#endif
+
 	if (rHardware)
 		pDirect3DDevice->EndScene();
+	else
+	{
+		ssEndScene(SSENDSCENE_NOBLIT);
+#ifdef MDXPOLY_USEMMXBUFFER
+		dxError = surface[RENDER_SRF]->Unlock(NULL);
+		if (FAILED(dxError))
+			return 1;
+#endif
+	}
+	return 0;
 }
+
+
+// *ASL* 13/06/2000
+/* -----------------------------------------------------------------------
+   Function : SurfaceDraw
+   Purpose : draw the rendered scene to the surface
+   Parameters : 
+   Returns : 
+   Info : this should only be called after ALL drawing to the surface as finished.
+*/
+
+void SurfaceDraw()
+{
+	ssBlitToScreen();
+#ifndef MDXPOLY_USEMMXBUFFER
+	CopySoftScreenToSurface(surface[RENDER_SRF]);
+#endif
+}
+
 
 /*	--------------------------------------------------------------------------------
 	Function	: DDrawCopyToSurface

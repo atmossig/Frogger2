@@ -939,23 +939,26 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 			f2 = lpwIndices[i+1];
 			f3 = lpwIndices[i+2];
 
-			v[0].x = (long)softV[f1].sx;
-			v[0].y = (long)softV[f1].sy;
-			v[0].r = RGBA_GETRED(softV[f1].color);
-			v[0].g = RGBA_GETGREEN(softV[f1].color);
-			v[0].b = RGBA_GETBLUE(softV[f1].color);
+			//.*ASL* 14/06/2000
+			// ** Changed softV refs to verts
 
-			v[1].x = (long)softV[f2].sx;
-			v[1].y = (long)softV[f2].sy;
-			v[1].r = RGBA_GETRED(softV[f2].color);
-			v[1].g = RGBA_GETGREEN(softV[f2].color);
-			v[1].b = RGBA_GETBLUE(softV[f2].color);
+			v[0].x = (long)verts[f1].sx;
+			v[0].y = (long)verts[f1].sy;
+			v[0].r = RGBA_GETRED(verts[f1].color);
+			v[0].g = RGBA_GETGREEN(verts[f1].color);
+			v[0].b = RGBA_GETBLUE(verts[f1].color);
 
-			v[2].x = (long)softV[f3].sx;
-			v[2].y = (long)softV[f3].sy;
-			v[2].r = RGBA_GETRED(softV[f3].color);
-			v[2].g = RGBA_GETGREEN(softV[f3].color);
-			v[2].b = RGBA_GETBLUE(softV[f3].color);
+			v[1].x = (long)verts[f2].sx;
+			v[1].y = (long)verts[f2].sy;
+			v[1].r = RGBA_GETRED(verts[f2].color);
+			v[1].g = RGBA_GETGREEN(verts[f2].color);
+			v[1].b = RGBA_GETBLUE(verts[f2].color);
+
+			v[2].x = (long)verts[f3].sx;
+			v[2].y = (long)verts[f3].sy;
+			v[2].r = RGBA_GETRED(verts[f3].color);
+			v[2].g = RGBA_GETGREEN(verts[f3].color);
+			v[2].b = RGBA_GETBLUE(verts[f3].color);
 
 			if (cTexture)
 			{
@@ -968,10 +971,6 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 				else
 					ssSetTexture(NULL, 0,0);
 
-/*				thisTex.width = cTexture->xSize;
-				thisTex.height = cTexture->ySize;
-				thisTex.image = (unsigned short *)cTexture->data;
-		*/
 				v[0].u = verts[f1].tu * cTexture->xSize;
 				v[0].v = verts[f1].tv * cTexture->ySize;
 
@@ -1026,6 +1025,8 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 				v[2].v = SSMAKEUV(((long)v[2].v));
 				
 				ssDrawPrimitive(v, 3);
+				// *ASL* 13/06/2000
+				res = D3D_OK;
 			}
 		}
 	}
@@ -1246,12 +1247,13 @@ void softDrawTexturedRect(RECT r, D3DCOLOR colour, float u0, float v0, float u1,
 }
 */
 
-/*	--------------------------------------------------------------------------------
-	Function		: DrawFlatRect
-	Purpose			: draw a flat rectangle
-	Parameters		: 
-	Returns			: 
-	Info			: 
+
+/* -----------------------------------------------------------------------
+   Function : DrawTexturedRect
+   Purpose : draw a texture rectangle using hardware only
+   Parameters : rectangle, colour, mdx texture pointer, u0,v0 pair, u1,v1 pair
+   Returns : 
+   Info : 
 */
 
 void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1)
@@ -1336,6 +1338,150 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 		pDirect3DDevice->SetTexture(0,NULL);
 	}
 }
+
+
+// *ASL* 13/06/2000
+/* -----------------------------------------------------------------------
+   Function : mdxPolyDrawTextureRect
+   Purpose : draw a MDX texture rectangle
+   Parameters : rectangle, colour, mdx texture pointer, u0,v0 pair, u1,v1 pair
+   Returns : 
+   Info : this routine will eventually replace the DrawTexturedRect() call above
+*/
+
+void mdxPolyDrawTextureRect(RECT rc, D3DCOLOR colour, MDX_TEXENTRY *mdxTexture, float u0, float v0, float u1, float v1)
+{
+	// check if rectangle out of clip window
+	if ((rc.left>clx1) || (rc.top>cly1) || (rc.right<clx0) || (rc.bottom<cly0))
+		return;
+
+	// clip left
+	if (rc.left<clx0)
+	{
+		u0 += ((clx0 - rc.left)/((float)rc.right-rc.left)) * (u1-u0);
+		rc.left = clx0;
+		
+	}
+
+	// clip top
+	if (rc.top<cly0)
+	{
+		v0 += ((cly0 - rc.top)/((float)rc.bottom-rc.top)) * (v1-v0);
+		rc.top = cly0;
+	}
+
+	// clip right
+	if (rc.right>clx1)
+	{
+		u1 += ((clx1 - rc.right)/((float)rc.right-rc.left)) * (u1-u0);
+		rc.right = clx1;		
+	}
+
+	// clip bottom
+	if (rc.bottom>cly1)
+	{
+		v1 += ((cly1 - rc.bottom)/((float)rc.bottom-rc.top))*(v1-v0);
+		rc.bottom = cly1;		
+	}
+
+	// hardware?
+	if (rHardware)
+	{
+		D3DLVERTEX v[4] = {
+			{
+				rc.left,rc.top,0,0,
+				colour,D3DRGBA(0,0,0,1),
+				u0,v0
+			},
+			{
+				rc.left,rc.bottom,0,0,
+				colour,D3DRGBA(0,0,0,1),
+				u0,v1
+				},
+			{
+				rc.right,rc.bottom,0,0,
+				colour,D3DRGBA(0,0,0,1),
+				u1,v1
+			},
+			{
+				rc.right,rc.top,0,0,
+				colour,D3DRGBA(0,0,0,1),
+				u1,v0
+			}
+		};
+
+		pDirect3DDevice->SetTexture(0, mdxTexture->surf);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, 0);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE, D3DCULL_NONE);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, 0);
+
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+		
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE, FALSE);
+
+		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
+
+		if (fogging)
+			pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
+
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+		pDirect3DDevice->SetTexture(0,NULL);
+		return;
+	}
+
+	// software
+	int sr,sg,sb, su0,sv0, su1,sv1;
+
+	sr = RGBA_GETRED(colour);
+	sg = RGBA_GETGREEN(colour);
+	sb = RGBA_GETBLUE(colour);
+
+	if (mdxTexture != NULL)
+	{
+		su0 = (int)(u0*mdxTexture->xSize);
+		sv0 = (int)(v0*mdxTexture->ySize);
+		su1 = (int)(u1*mdxTexture->xSize);
+		sv1 = (int)(v1*mdxTexture->ySize);
+
+		su0 = min(su0, mdxTexture->xSize);
+		su0 = max(su0, 0);
+		sv0 = min(sv0, mdxTexture->ySize);
+		sv0 = max(sv0, 0);
+		su1 = min(su1, mdxTexture->xSize);
+		su1 = max(su1, 0);
+		sv1 = min(sv1, mdxTexture->ySize);
+		sv1 = max(sv1, 0);
+
+		su0 = SSMAKEUV(su0);
+		sv0 = SSMAKEUV(sv0);
+		su1 = SSMAKEUV(su1);
+		sv1 = SSMAKEUV(sv1);
+	}
+	else
+		su0 = sv0 = su1 = sv1 = 0;
+
+	TSSVertex verts[4] = 
+	{
+		{rc.left,  rc.top,    sr,sg,sb, su0,sv0},
+		{rc.left,  rc.bottom, sr,sg,sb, su0,sv1},
+		{rc.right, rc.bottom, sr,sg,sb, su1,sv1},
+		{rc.right, rc.top,    sr,sg,sb, su1,sv0},
+	};
+
+	ssSetRenderState(SSRENDERSTATE_CULLING, SSCULLING_NONE);
+	ssSetRenderState(SSRENDERSTATE_CLIPPING, SSCLIPPING_OFF);
+
+	ssSetRenderState(SSRENDERSTATE_SHADEMODE, SSSHADEMODE_FLAT);
+	ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_NONE);
+
+	if (mdxTexture != NULL)
+		ssSetTexture(mdxTexture->softData, mdxTexture->xSize, mdxTexture->ySize, mdxTexture->keyed ? 0 : SSTEXHINT_NOTRANS);
+	else
+		ssSetTexture(NULL, 0, 0, 0);
+
+	ssDrawPrimitive(verts, 4);
+}
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: DrawFlatRect
@@ -1961,6 +2107,29 @@ void DrawAllFrames(void)
 
 	pDirect3DDevice->EndScene();
 }
+
+
+
+
+/* -----------------------------------------------------------------------
+   Function : mdxDrawRectangle
+   Purpose : draw a rectange into the surface
+   Parameters : rectangle, r, g, b
+   Returns : 1 blit error else 0 okay
+   Info : 
+*/
+
+int mdxDrawRectangle(RECT rc, int r, int g, int b)
+{
+	DDBLTFX		dxBlit;
+	HRESULT		dxError;
+
+	DDINIT(dxBlit);
+	dxBlit.dwFillColor = (r565) ? ((r>>3)<<11) | ((g>>2)<<5) | (b>>3) : ((r>>3)<<10) | ((g>>3)<<5) | (b>>3);
+	dxError = surface[RENDER_SRF]->Blt(&rc, NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &dxBlit);
+	return FAILED(dxError) ? 1 : 0;
+}
+
 
 
 }

@@ -26,78 +26,102 @@
 #include "mdxpoly.h"
 #include <lang.h>		// yes yes yes yes yes yes yes yes . yes
 
+
+#define FONT_TEXTURE_SIZE		256
+#define FONT_TEMP_SURFACES		4
+
+
+/* -----------------------------------------------------------------------
+   Stucture : MDX_FONTCHAR
+   Purpose : font character
+   Info :
+*/
 struct MDX_FONTCHAR
 {
-	LPDIRECTDRAWSURFACE7 surf;
-	float coords[4];
-	long softCoord;
-	short width;
+	LPDIRECTDRAWSURFACE7	surf;				// hardware font character surface
+	float					coords[4];			// hardware texture cordinates
+	short					width;				// charater pixel width
+	unsigned long			*softData;			// software font data
 };
 
+
+/* -----------------------------------------------------------------------
+   Stucture : MDX_FONT
+   Purpose : font
+   Info :
+*/
 typedef struct _MDX_FONT
 {
-	LPDIRECTDRAWSURFACE7 *surf;
-	long numSurfs;
-
-	short *data;
-	short *softData;
-
-	MDX_FONTCHAR characters[256];
-	
-	long width, height;
-
+	LPDIRECTDRAWSURFACE7	*surf;				// all font surfaces
+	long					numSurfs;			// number of surfaces used
+	MDX_FONTCHAR			characters[256];	// entry for each character used in the font
+	long					width;				// source font width
+	long					height;				// source font height
 } MDX_FONT;
 
-#define FONT_TEXTURE_SIZE	256
-#define FONT_TEMP_SURFACES	4
 
-const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-=+[]{}:;\"'|\\,<.>/?"
-	"\xe0\xe8\xec\xf2\xf9\xc0\xc8\xcc\xd2\xd9\xe1\xe9\xed\xf3\xfa\xfd\xc1\xc9\xcd\xd3\xda\xdd\xe2\xea\xee\xf4\xfb\xc2\xca\xce\xd4\xdb\xe3\xf1\xf5\xc3\xd1\xd5\xe4\xeb\xef\xf6\xfc\xff\xc4\xcb\xcf\xd6\xdc\xe5\xc5\xe6\xc6\xe7\xc7\xf0\xd0\xf8\xd8\xbf\xa1\xdf";
-
-//		DDrawCopyToSurface(tFont->surf[surf],(unsigned short *)tData,0,dim,dim,0);
+// *ASL* 15/06/2000
+// alphabet string for all character fonts - important this is kept as unsigned chars rather than chars!!!
+const unsigned char alphabet[] =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-=+[]{}:;\"'|\\,<.>/?"
+		"\xe0\xe8\xec\xf2\xf9\xc0\xc8\xcc\xd2\xd9\xe1\xe9\xed\xf3\xfa\xfd\xc1\xc9\xcd\xd3\xda\xdd\xe2\xea\xee\xf4\xfb\xc2\xca\xce\xd4\xdb\xe3\xf1\xf5\xc3\xd1\xd5\xe4\xeb\xef\xf6\xfc\xff\xc4\xcb\xcf\xd6\xdc\xe5\xc5\xe6\xc6\xe7\xc7\xf0\xd0\xf8\xd8\xbf\xa1\xdf";
 
 long CalcStringWidth(const char *string,MDX_FONT *font, float scale);
 long GetCharWidth(char c, MDX_FONT *font, float scale);
 
-/*	--------------------------------------------------------------------------------
-	Function		: InitFont
-	Purpose			: initialises a font from a bitmap file
-	Parameters		: 
-	Returns			: 
-	Info			: 
+
+
+/* -----------------------------------------------------------------------
+   Function: InitFont
+   Purpose : initialises a font from a bitmap file
+   Parameters : font filename pointer
+   Returns : mdx font pointer or NULL error
+   Info :
 */
+
 MDX_FONT *InitFont(const char *filename)
 {
-	short *tData, *scratch; short transparent;
-	int i, pptr = -1, bmpWidth, bmpHeight, charSize;
-	int currSurf = 0;
-	int txpos = 0;
-	POINT charUV = { 0, 0 };
+	unsigned short	*tData, *scratch;
+	unsigned short	transparent;
+	int				i, pptr = -1, bmpWidth, bmpHeight, charSize;
+	int				currSurf = 0;
+	int				txpos = 0;
+	POINT			charUV = { 0, 0 };
+	MDX_FONT		*font;
+	int				alphaLen;
+
 
 	LPDIRECTDRAWSURFACE7 surfaces[FONT_TEMP_SURFACES];
 
-	tData = (short *)gelfLoad_BMP((char*)filename,NULL,(void**)&pptr,&bmpWidth,&bmpHeight,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
-	
+	tData = (unsigned short *)gelfLoad_BMP((char*)filename,NULL,(void**)&pptr,&bmpWidth,&bmpHeight,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
 	if (!tData)
 		return NULL;
 
-	transparent = tData[0];	// take transparent colour as the top-left pixel colour
+	// take transparent colour as the top-left pixel colour
+	transparent = tData[0];
 
-	MDX_FONT *font = (MDX_FONT*)AllocMem(sizeof(MDX_FONT));
-
-	font->width = bmpWidth;
+	font = (MDX_FONT*)AllocMem(sizeof(MDX_FONT));
+	font->width  = bmpWidth;
 	font->height = bmpHeight;
+	for (i=0; i<256; i++)
+	{
+		font->characters[i].width = 0;
+		font->characters[i].softData = NULL;
+	}
 
 	charSize = bmpHeight;
-	//for (charSize=1;charSize<bmpHeight;charSize<<=1);	
 
-	scratch = (short*)AllocMem(2*FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE);
-	for (int clear=0;clear<FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE;clear++) scratch[clear]=0xf81f;
+	//for (charSize=1;charSize<bmpHeight;charSize<<=1);	
+	scratch = (unsigned short*)AllocMem(2*FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE);
+	for (int clear=0;clear<FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE;clear++)
+		scratch[clear]=0xf81f;
 
 	//surfaces[0] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
 	surfaces[currSurf] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
 
-	for (i=0; i<strlen(alphabet) && (currSurf == 0); i++)
+	// build all font characters
+	alphaLen = strlen((const char *)alphabet);
+	for (i=0; i<alphaLen && (currSurf == 0); i++)
 	{
 		int yscan, found = 0;
 
@@ -105,8 +129,12 @@ MDX_FONT *InitFont(const char *filename)
 		while (txpos<bmpWidth)
 		{
 			for (yscan=0;yscan<bmpHeight;yscan++)
-				if (tData[yscan*bmpWidth + txpos] != transparent) { found=1; break; }
-			
+				if (tData[yscan*bmpWidth + txpos] != transparent)
+				{
+					found=1;
+					break;
+				}
+
 			if (found)
 				break;
 			else
@@ -121,9 +149,14 @@ MDX_FONT *InitFont(const char *filename)
 		{
 			found = 0;
 			for (yscan=0;yscan<bmpHeight;yscan++)
-				if (tData[yscan*bmpWidth + txpos] != transparent) { found=1; break; }
+				if (tData[yscan*bmpWidth + txpos] != transparent)
+				{
+					found=1;
+					break;
+				}
 			
-			if (!found) break;
+			if (!found)
+				break;
 				
 			width++, txpos++;
 
@@ -150,12 +183,13 @@ MDX_FONT *InitFont(const char *filename)
 		for (int y=0; y<bmpHeight; y++)
 			for (int x=0; x<width; x++)
 			{
-				short *dt;
+				unsigned short *dt;
 				//unsigned long d,r,g,b;
 				dt = &tData[(x+left)+(y*bmpWidth)];
 
-				if (*dt==transparent) *dt = 0xf81f;
-			
+				if (*dt==transparent)
+					*dt = 0xf81f;
+
 				scratch[(y+charUV.y)*FONT_TEXTURE_SIZE+(x+charUV.x)] = *dt;
 			}
 
@@ -166,15 +200,45 @@ MDX_FONT *InitFont(const char *filename)
 		c->coords[1] = charUV.y/(float)FONT_TEXTURE_SIZE;
 		c->coords[2] = (charUV.x + width)/(float)FONT_TEXTURE_SIZE;
 		c->coords[3] = (charUV.y + charSize)/(float)FONT_TEXTURE_SIZE;
-
-		c->softCoord = left; //(left << SSUV_COORDPRECISION)/bmpWidth;
-
 		c->width = width;
+		c->softData = NULL;					// null software font data
 
 		charUV.x += width+1;
 
-		if (txpos == bmpWidth) break;
-		//dp("char '%c' @ %d,0, %d x %d\n", alphabet[i], left, width, bmpHeight);
+
+		// *ASL* 15/06/2000
+		// ** Now we initialise the software texture font. Each character entry
+		// ** we hold a pointer to its corresponding 24bit rgb data.
+
+		if (!rHardware)
+		{
+			MDX_FONTCHAR	*fontChar;
+			int				cx, cy;
+			unsigned short	rgb555;
+			unsigned long	*cp;
+
+			// hash character font entry
+			fontChar = c;
+
+			// allocate rgb buffer for font character
+			if (fontChar->softData == NULL)
+				if ((fontChar->softData = (unsigned long *)AllocMem(sizeof(unsigned long) * width * charSize)) != NULL)
+				{
+					// convert font character into 24bit rgb
+					cp = fontChar->softData;
+					for (cy=0; cy<charSize; cy++)
+						for (cx=0; cx<width; cx++)
+						{
+							if ((rgb555 = tData[(cx + left) + (cy*bmpWidth)]) == 0xf81f)
+								*cp++ = 0xff00ff;
+							else
+								*cp++ = ((((unsigned long)rgb555) & 0x7c00)<<(16-10)) | ((((unsigned long)rgb555) & 0x03e0)<<( 8- 3)) | ((((unsigned long)rgb555) & 0x001f)<<( 0- 0));
+						}
+				}
+		}
+
+		if (txpos == bmpWidth)
+			break;
 	}
 
 	DDrawCopyToSurface(surfaces[currSurf], (unsigned short *)scratch,0,FONT_TEXTURE_SIZE,FONT_TEXTURE_SIZE,0);
@@ -189,13 +253,50 @@ MDX_FONT *InitFont(const char *filename)
 	font->characters[' '].width = font->characters['!'].width;
 
 	FreeMem(scratch);
-	font->softData = tData;
-	//free(tData);
+
+
+	// ** Unfotunately i have to keep this gelf image loaded as an debug assertion occurs
+	// ** if the image is freed! This could be a c-runtime problem with gelf / frogger using
+	// ** different heap types OR, more seriously, the memory wrappers becoming invalid through
+	// ** a code bug. I've noticed that throughout this project, a gelf image is NEVER freed!!
+
+	// *ASL* 15/06/2000
+	//gelfDefaultFree(tData);
 
 	dp("Font '%s' loaded, %d textures used\n", filename, currSurf);
-
 	return font;
 }
+
+
+/* -----------------------------------------------------------------------
+   Function: ShutdownFont
+   Purpose : shut down and release font
+   Parameters : mdx font pointer
+   Returns : 
+   Info :
+*/
+
+void ShutdownFont(MDX_FONT *mdxFont)
+{
+	int	l;
+
+	if (mdxFont == NULL)
+		return;
+
+	// release font surface buffers
+	if (mdxFont->surf)
+		FreeMem(mdxFont->surf);
+	// release all font characters
+	for (l=0; l<256; l++)
+		if (mdxFont->characters[l].softData)
+		{
+			FreeMem(mdxFont->characters[l].softData);
+			mdxFont->characters[l].softData = NULL;
+		}
+	// release the font structure
+	FreeMem(mdxFont);
+}
+
 
 
 /*	--------------------------------------------------------------------------------
@@ -210,7 +311,7 @@ void InitFontSystem(void)
 	
 }
 
-
+#if 0
 void CopyCharSoftware(MDX_FONT *font, char c, int x, int y)
 {
 	MDX_FONTCHAR *ch = &font->characters[c];
@@ -234,42 +335,54 @@ void CopyCharSoftware(MDX_FONT *font, char c, int x, int y)
 		py += 640; //640;
 	}
 }
+#endif
 
 
+// *ASL* 14/06/2000
+/* -----------------------------------------------------------------------
+   Function : DrawFontCharAtLoc
+   Purpose : draw font charater ch at location xy
+   Parameters : x, y, char, colour, mdx texture font, scale
+   Returns : character pixel width
+   Info : 
+*/
 
-long DrawFontCharAtLoc(long x,long y,char ch,unsigned long colour, MDX_FONT *font,float scale)
+long DrawFontCharAtLoc(long x, long y, char ch, unsigned long colour, MDX_FONT *font, float scale)
 {
-	if (!font)
-		return 0;
+	RECT			rc;
+	MDX_FONTCHAR	*mdxChar;
+	MDX_TEXENTRY	tmap;
 
-	MDX_FONTCHAR *c = &font->characters[ch];
+	if (font == NULL)
+		return 0;
+	mdxChar = &font->characters[ch];
+
+	rc.left = x;
+	rc.right = x + (mdxChar->width * scale);
+	rc.top = y;
+	rc.bottom = y + (font->height * scale);
 
 	if (rHardware)
 	{
-		RECT r;
-
-
-		if (!c->surf) return c->width;
-		
-		r.left = x;
-		r.right = x+(c->width*scale);
-		r.top = y;
-		r.bottom = y+(font->height*scale);
-
-		DrawTexturedRect(r, colour, c->surf, c->coords[0], c->coords[1], c->coords[2], c->coords[3]);
-
+		if (mdxChar->surf != NULL)
+			DrawTexturedRect(rc, colour, mdxChar->surf, mdxChar->coords[0], mdxChar->coords[1], mdxChar->coords[2], mdxChar->coords[3]);
 	}
 	else
 	{
-//		ssSetTexture(font->softData, 32, 32); //font->width, font->height);
-//		softDrawTexturedRect(r, colour,
-//			c->softCoords[0], 0,
-//			c->softCoords[1], 1<<12);
-		CopyCharSoftware(font, ch, x, y);
+		if (mdxChar->softData)
+		{
+			memset(&tmap, 0, sizeof(tmap));
+			tmap.softData = (long *)mdxChar->softData;
+			tmap.xSize = mdxChar->width;
+			tmap.ySize = font->height;
+			tmap.keyed = 1;
+			mdxPolyDrawTextureRect(rc, colour, &tmap, 0.0f, 0.0f, 1.0f, 1.0f);
+		}
 	}
-
-		return c->width*scale;
+	return mdxChar->width*scale;
 }
+
+
 
 long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX,long centredY)
 {

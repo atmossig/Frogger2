@@ -95,8 +95,48 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurfaceScreen(long xs,long ys, long cKey, long 
 unsigned long DDrawCopyToSurface2(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long xs, unsigned long ys);
 
 void D3DClearView(void);
-void BeginDraw(void);
-void EndDraw(void);
+
+
+// *ASL* 13/06/2000
+/* -----------------------------------------------------------------------
+   Function : BeginDraw
+   Purpose : prepares a scene for drawing 3d.
+   Parameters : 
+   Returns : 0 everything okay, else 1
+   Info : in the software render mode this locks the current back buffer so
+		  no blits should take place should occur until after the corresponding
+		  EndDraw() call.
+*/
+
+int BeginDraw();
+
+
+// *ASL* 13/06/2000
+/* -----------------------------------------------------------------------
+   Function : EndDraw
+   Purpose : ends a scene that was begun by BeginDraw
+   Parameters : 
+   Returns : 0 everything okay, else 1
+   Info : in the software render mode this locks the current back buffer so
+		  no blits should take place should occur until after the corresponding
+		  EndDraw call.
+*/
+
+int EndDraw();
+
+
+// *ASL* 13/06/2000
+/* -----------------------------------------------------------------------
+   Function : SurfaceDraw
+   Purpose : draw the rendered scene to the surface
+   Parameters : 
+   Returns : 
+   Info : this should only be called after ALL drawing to the surface as finished.
+*/
+
+void SurfaceDraw();
+
+
 void SetupFogParams(float fStart,float fR,float fG,float fB,long enable);
 
 

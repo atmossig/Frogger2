@@ -40,7 +40,9 @@ typedef struct TAG_MDX_TEXENTRY
 	unsigned long lastGameFrame;
 	unsigned long numFrames;	
 	float *frameTimes;
-	LPDIRECTDRAWSURFACE7 *frames;
+
+	// *ASL* 15/06/2000
+	void			**frames;		// LPDIRECTDRAWSURFACE7 *frames;
 
 	struct TAG_MDX_TEXENTRY *next,*prev;	
 } MDX_TEXENTRY;

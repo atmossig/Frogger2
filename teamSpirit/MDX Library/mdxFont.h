@@ -19,8 +19,31 @@ extern "C"
 
 typedef struct _MDX_FONT MDX_FONT;
 
-void InitFontSystem(void);
+
+/* -----------------------------------------------------------------------
+   Function: InitFont
+   Purpose : initialises a font from a bitmap file
+   Parameters : font filename pointer
+   Returns : mdx font pointer or NULL error
+   Info :
+*/
+
 MDX_FONT *InitFont(const char *filename);
+
+
+/* -----------------------------------------------------------------------
+   Function: ShutdownFont
+   Purpose : shut down and release font
+   Parameters : mdx font pointer
+   Returns : 
+   Info :
+*/
+
+void ShutdownFont(MDX_FONT *mdxFont);
+
+
+void InitFontSystem(void);
+
 long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,float scale);
 long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX,long centredY);
 long CalcStringWidth(const char *string,MDX_FONT *font, float scale);
