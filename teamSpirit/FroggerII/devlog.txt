@@ -172,7 +172,17 @@ Chris Wilson:
 
 Matt Cloy:
 ------------------------------------------------
+	Morning:
 
+		Spent much of the morning writing a piece of code to work out vertex normals on modgy/skinned objects.
+		When I realised it was crap I threw it away.
+		
+		I also sorted Out mikes 3 month review form.
+
+		This afternoon I processed the increasing number of things to do in my inbox, including some of the bugs that have been accumulating.
+
+		I cant think straight today, maybe I'm getting the brain rot cold bug that Chris, Kevin, and Alex have had. Hope not.
+		
 
 Andy Eder:
 ------------------------------------------------
