@@ -81,9 +81,6 @@ void StopFadeout()
 */
 void DrawScreenTransition(void)
 {
-	if (KEYPRESS(DIK_F))
-		ScreenFade(0, 255, 60);
-
 	if (fadeProc)
 		if (fadeProc())
 		{
