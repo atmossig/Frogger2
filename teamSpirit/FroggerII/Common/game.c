@@ -338,7 +338,6 @@ void GameProcessController(long pl)
 	if((button[pl] & CONT_B) && !(lastbutton[pl] & CONT_B) && (tongue[pl].flags & TONGUE_IDLE))
     {
 		// want to use tongue
-		PlaySample(genSfx[GEN_FROG_TONGUE],&frog[pl]->actor->pos,0,SAMPLE_VOLUME,-1/*64*/);
 		tongue[pl].flags = TONGUE_NONE | TONGUE_SEARCHING;
 
 		// update player idleTime

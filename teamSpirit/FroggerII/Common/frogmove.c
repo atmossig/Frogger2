@@ -61,7 +61,7 @@ float	hopHeight		= 30;
 float	superhopHeight	= 50;
 float	doublehopHeight = 75;
 
-float	floatMultiply	= 0.25f;
+float	floatMultiply	= 0.15f;
 
 BOOL cameoMode			= FALSE;
 

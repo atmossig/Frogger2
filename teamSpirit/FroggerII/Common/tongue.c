@@ -87,6 +87,8 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 
 	if( !tongue[pl].canTongue || !player[pl].canJump ) return;
 
+	PlaySample(genSfx[GEN_FROG_TONGUE],&frog[pl]->actor->pos,0,SAMPLE_VOLUME,-1/*64*/);
+
 	// Determine frog's forward vector
 	RotateVectorByQuaternion( &tongue[pl].fwd, &inVec, &frog[pl]->actor->qRot );
 
