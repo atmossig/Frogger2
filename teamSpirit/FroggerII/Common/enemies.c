@@ -60,33 +60,43 @@ PATHNODE debug_lawnWaspNodes5[] =
 	487,30,0,4,10,	486,30,0,4,0,	485,30,0,3,5,	474,30,0,3,0
 };
 
-//unsigned long lawnPath13[] = { 8,	232,233,234,247,258,257,256,245 };
 PATHNODE debug_lawnWaspNodes6[] =
 {
 	232,30,0,5,0,	233,30,0,5,0,	234,30,0,5,0,	247,30,0,5,0,
 	258,30,0,5,0,	257,30,0,5,0,	256,30,0,5,0,	245,30,0,5,0
 };
 
-//unsigned long lawnPath5[] = { 8,	235,236,237,250,261,260,259,248 };
 PATHNODE debug_lawnWaspNodes7[] =
 {
 	235,30,0,3,0,	236,30,0,3,0,	237,30,0,3,0,	250,30,0,3,0,
 	261,30,0,3,0,	260,30,0,3,0,	259,30,0,3,0,	248,30,0,3,0
 };
 
-//unsigned long lawnPath6[] = { 8,	238,239,240,253,264,263,262,251 };
 PATHNODE debug_lawnWaspNodes8[] =
 {
 	238,30,0,3,0,	239,30,0,3,0,	240,30,0,3,0,	253,30,0,3,0,
 	264,30,0,3,0,	263,30,0,3,0,	262,30,0,3,0,	251,30,0,3,0
 };
 
-//unsigned long lawnPath14[] = { 8,	241,242,243,294,295,266,265,254 };
 PATHNODE debug_lawnWaspNodes9[] =
 {
 	241,30,0,5,0,	242,30,0,5,0,	243,30,0,5,0,	294,30,0,5,0,
 	295,30,0,5,0,	266,30,0,5,0,	265,30,0,5,0,	254,30,0,5,0
 };
+
+PATHNODE debug_lawnWaspNodes10[] =
+{
+	532,30,0,10,0,	533,30,0,10,0,	534,30,0,10,0,	535,30,0,10,0,	536,30,0,10,0,	541,30,0,10,0,
+	546,30,0,10,0,	551,30,0,10,0,	571,30,0,10,0,	554,30,0,10,0,	553,30,0,10,0,	552,30,0,10,0,
+	570,30,0,10,0
+};
+
+PATHNODE debug_lawnWaspNodes11[] =
+{
+	538,30,0,5,0,	539,30,0,5,0,	540,30,0,5,0,	545,30,0,5,0,
+	550,30,0,5,0,	549,30,0,5,0,	548,30,0,5,0,	543,30,0,5,0
+};
+
 
 PATH debug_lawnWasp1 = { 8,0,0,0,debug_lawnWaspNodes1 };
 PATH debug_lawnWasp2 = { 8,0,0,0,debug_lawnWaspNodes2 };
@@ -99,6 +109,8 @@ PATH debug_lawnWasp7 = { 8,0,0,3,debug_lawnWaspNodes7 };
 PATH debug_lawnWasp8 = { 8,0,0,5,debug_lawnWaspNodes8 };
 PATH debug_lawnWasp9 = { 8,0,0,6,debug_lawnWaspNodes9 };
 
+PATH debug_lawnWasp10 = { 13,0,0,4,debug_lawnWaspNodes10 };
+PATH debug_lawnWasp11 = { 8,0,0,4,debug_lawnWaspNodes11 };
 
 
 PATHNODE debug_lawnRollNodes1[] =
@@ -121,6 +133,24 @@ PATHNODE debug_lawnRollNodes3[] =
 	449,0,0,5,0,	460,0,0,5,0,	473,0,0,5,0,	484,0,0,5,0
 };
 
+PATHNODE debug_lawnRollNodes4[] =
+{
+	581,0,0,3,0,	578,0,0,3,0,	514,0,0,3,0,	515,0,0,3,0,
+	516,0,0,3,0,	572,0,0,3,0,	575,0,0,3,0
+};
+
+PATHNODE debug_lawnRollNodes5[] =
+{
+	582,0,0,3,0,	579,0,0,3,0,	520,0,0,3,0,	521,0,0,3,0,
+	522,0,0,3,0,	573,0,0,3,0,	576,0,0,3,0
+};
+
+PATHNODE debug_lawnRollNodes6[] =
+{
+	583,0,0,3,0,	580,0,0,3,0,	526,0,0,3,0,	527,0,0,3,0,
+	528,0,0,3,0,	574,0,0,3,0,	577,0,0,3,0
+};
+
 
 PATH debug_lawnRoll1a = { 17,0,0,5,debug_lawnRollNodes1 };
 PATH debug_lawnRoll1b = { 17,0,0,12,debug_lawnRollNodes1 };
@@ -130,6 +160,10 @@ PATH debug_lawnRoll2b = { 17,0,0,10,debug_lawnRollNodes2 };
 PATH debug_lawnRoll2c = { 17,0,0,15,debug_lawnRollNodes2 };
 
 PATH debug_lawnRoll3 = { 8,0,0,5,debug_lawnRollNodes3 };
+
+PATH debug_lawnRoll4 = { 7,0,0,2,debug_lawnRollNodes4 };
+PATH debug_lawnRoll5 = { 7,0,0,3,debug_lawnRollNodes5 };
+PATH debug_lawnRoll6 = { 7,0,0,2,debug_lawnRollNodes6 };
 
 
 
@@ -163,17 +197,6 @@ PATH debug_lawnMow2b = { 59,0,0,13,debug_lawnMowNodes2 };
 PATH debug_lawnMow2c = { 59,0,0,23,debug_lawnMowNodes2 };
 PATH debug_lawnMow2d = { 59,0,0,33,debug_lawnMowNodes2 };
 PATH debug_lawnMow2e = { 59,0,0,43,debug_lawnMowNodes2 };
-
-
-
-/*
-unsigned long lawnPath15[] = { 7,	581,578,514,515,516,572,575 };
-unsigned long lawnPath16[] = { 7,	582,579,520,521,522,573,576 };
-unsigned long lawnPath17[] = { 7,	583,580,526,527,528,574,577 };
-
-unsigned long lawnPath18[] = { 13,	532,533,534,535,536,541,546,551,571,554,553,552,570 };
-unsigned long lawnPath19[] = { 8,	538,539,540,545,550,549,548,543 };
-*/
 
 
 /**************************************************************************************************************/
@@ -291,6 +314,13 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 			devNME1 = CreateAndAddEnemy("wasp.ndo");
 			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp9,PATH_MAKENODETILEPTRS);
 
+			devNME1 = CreateAndAddEnemy("wasp.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_BACKWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp10,PATH_MAKENODETILEPTRS);
+
+			devNME1 = CreateAndAddEnemy("wasp.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp11,PATH_MAKENODETILEPTRS);
+
+
 			// rollers
 			devNME1 = CreateAndAddEnemy("roll.ndo");
 			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnRoll1a,PATH_MAKENODETILEPTRS);
@@ -306,6 +336,15 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 
 			devNME1 = CreateAndAddEnemy("roll.ndo");
 			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_PINGPONG,&debug_lawnRoll3,PATH_MAKENODETILEPTRS);
+
+			devNME1 = CreateAndAddEnemy("roll.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_PINGPONG,&debug_lawnRoll4,PATH_MAKENODETILEPTRS);
+
+			devNME1 = CreateAndAddEnemy("roll.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_PINGPONG,&debug_lawnRoll5,PATH_MAKENODETILEPTRS);
+
+			devNME1 = CreateAndAddEnemy("roll.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_PINGPONG,&debug_lawnRoll6,PATH_MAKENODETILEPTRS);
 
 			// mowers
 			devNME1 = CreateAndAddEnemy("moa.ndo");
@@ -323,25 +362,6 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow2d,0);
 			devNME1 = CreateAndAddEnemy("moa.ndo");
 			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow2e,0);
-
-/*
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath5,35,35,3,3.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath6,35,35,5,3.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath7,35,35,1,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath8,35,35,2,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath9,35,35,3,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath10,35,35,4,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath11,35,35,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath13,35,35,1,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath14,35,35,6,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-
-			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath15,0,0,2,3.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath16,0,0,3,3.0F, ENEMY_HASPATH | ENEMY_PATHBACKWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath17,0,0,2,3.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL);
-
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath18,35,35,4,10.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath19,35,35,4,5.0F, ENEMY_HASPATH | ENEMY_PATHBACKWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-*/
 
 		} else if ( levelID == LEVELID_GARDENMAZE )
 		{
