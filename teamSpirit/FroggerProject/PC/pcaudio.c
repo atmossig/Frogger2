@@ -71,8 +71,10 @@ DWORD stopCDTrack( HWND hWndNotify );
 
 // CD Audio variables
 
-static int		auxVolume, oldVolume, cdTrack;
+static int		auxVolume, oldVolume;
 static DWORD	volumecontrolid, cdaudiovalid;
+
+int cdTrack = 0;	// cd is not playing
 
 static char		errStr[128];
 static int		mixerid;
@@ -960,7 +962,7 @@ void PrepareSong(short world, short loop)
 	if (loop)
 		cdTrack = track;
 	else
-		cdTrack = -1;
+		cdTrack = -1;	// playing but not looping
 }
 
 
@@ -968,15 +970,22 @@ void LoopSong()
 {
 	if (cdTrack>0)
 		playCDTrack(mdxWinInfo.hWndMain, cdTrack);
+	else
+		cdTrack = 0;	// CD is not playing
 }
 
 
 void StopSong( )
 {
 	stopCDTrack( mdxWinInfo.hWndMain );
-	cdTrack = -1;
+	cdTrack = 0;
 }
 
+
+int IsSongPlaying()
+{
+	return (cdTrack != 0);
+}
 
 DWORD stopCDTrack ( HWND hWndNotify )
 {
