@@ -303,21 +303,18 @@ void __fastcall Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
 		vOutCount = 0;
 	}
 
-	numFaces = 0;
 	j=0;
 	fL = faceList;
-	for (i=1; i<(vInCount-1); i++, j+=3)
+	for (i=1; i<(vInCount-1); i++)
 	{
 		*fL = 0;
 		*(fL+1) = i;
 		*(fL+2) = i+1;
-//		faceList[j+1] = i;
-//		faceList[j+2] = i+1;
 		fL+=3;
-		numFaces++;
 	}
 	
-	if (numFaces)
+	j = (i-1)*3;
+	if (j)
 	{
 		PushPolys(vIn,vInCount,faceList,j,tEntry);
 	}
