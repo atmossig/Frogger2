@@ -979,7 +979,7 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 
 	pTSurface->Blt(NULL,pSurface,NULL,DDBLT_WAIT,0);
 	RELEASE(pSurface);
-	dp ("Tex = %x\n",pTSurface);
+	//dp ("Tex = %x\n",pTSurface);
 //	DDINIT(ddCaps);													// Init caps struct
 //	capsResult = pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
 //	dp ( "After Total Mem : %d : - Total Free : %d :\n",ddCaps.dwVidMemTotal, ddCaps.dwVidMemFree );
@@ -1239,6 +1239,7 @@ D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf)
 		return NULL;
 
 	texture->GetHandle(pDirect3DDevice, &textureHandle);
+	texture->Release();
 	return textureHandle;
 }
 
