@@ -194,11 +194,11 @@ TRIGGER *LoadTrigger(UBYTE **p)
 
 	case TR_PLATATFLAG:
 		{
-			ENEMY *enemy;
+			PLATFORM *plt;
 
 			params = AllocArgs(2);
-			if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
-			params[0] = enemy->path;
+			if (!(plt = GetPlatformFromUID(MEMGETINT(p)))) return 0;
+			params[0] = plt->path;
 			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETWORD(p);
 			trigger = MakeTrigger(PathAtFlag, params);
 		}
