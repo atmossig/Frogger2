@@ -164,7 +164,7 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
 
-	SetVector( &normal, &firstTile[(int)baby->value1].normal );
+	SetVector( &normal, &gTStart[0]->normal );
 
 	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 50, 3, 0, 5 );
 	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
