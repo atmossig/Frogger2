@@ -434,7 +434,7 @@ void UpdateFroggerPos(long pl)
 			ScaleVector(&effectPos,20);
 			AddToVector(&effectPos,&newPos);
 
-			CreateAndAddSpecialEffect( FXTYPE_JUMPBLUR, &effectPos, &currTile[0]->normal, 128, 0, 0, 0.3 );
+			CreateAndAddSpecialEffect( FXTYPE_JUMPBLUR, &effectPos, &currTile[0]->normal, 128, 0, 0, 0.6 );
 		}
 	}
 

@@ -430,7 +430,7 @@ void PickupCollectable(GARIB *garib, int pl)
 
 			CreateAndAddSpawnScoreSprite(&garib->sprite.pos,player[0].spawnScoreLevel);
 
-			CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->sprite.pos, &upVec, 25, 0.0, 0.1, 1.5 );
+			CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->sprite.pos, &upVec, 25, 0.0, 0.0, 2.0 );
 
 			player[0].score += (player[0].spawnScoreLevel * 10);
 			player[0].numSpawn++;

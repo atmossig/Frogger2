@@ -67,6 +67,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		Check for NME flags and do different effects
 		*/
 		cameraShake = 25;
+		CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[num]->actor->pos, &currTile[num]->normal, 30, 0, 0, 3.0 );
 		PlaySample(42,NULL,192,128);
 		frog[num]->action.safe = 25;
 	}
@@ -176,7 +177,7 @@ void UpdateEnemies()
 					KillMPFrog(i);
 				}
 		}
-/*
+
 		// Do Special Effects attached to enemies
 		if( cur->nmeActor->effects & EF_RIPPLE_RINGS )
 		{
@@ -196,9 +197,9 @@ void UpdateEnemies()
 			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
 			{
 				if( cur->flags & ENEMY_NEW_FOLLOWPATH ) // More of a wake effect when moving
-					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 30, cur->speed, 1, 5 );
+					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 30, 1/cur->speed, 0.3, 2 );
 				else // Gentle ripples
-					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 50, 1, 0.1, 20 );
+					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 50, 1, 0.1, 3 );
 			}
 		}
 		if( cur->nmeActor->effects & EF_SMOKE_CLOUDS )
@@ -210,7 +211,7 @@ void UpdateEnemies()
 				r = 10;
 
 			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
-				CreateAndAddFXSmoke(&cur->nmeActor->actor->pos,80,20);
+				CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->nmeActor->actor->pos, &cur->currNormal, 80, 0, 0, 3 );
 		}
 		if( cur->nmeActor->effects & EF_SPARK_BURSTS )
 		{
@@ -221,14 +222,8 @@ void UpdateEnemies()
 				r = 10;
 
 			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
-			{
-				PLANE2 rebound;
-				SetVector(&rebound.point,&cur->inTile->centre);
-				SetVector(&rebound.normal,&cur->inTile->normal);
-				CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->currNormal, 5, 30, &rebound, 10 );
-			}
+				CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 4, 0, 2 );
 		}
-*/
 	}
 }
 

@@ -84,6 +84,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->size = size;
 		effect->speed = speed;
 		effect->accn = accn;
+		effect->spin = 0.15;
 		effect->lifetime = actFrameCount + life;
 		effect->fade = effect->a / life;
 
@@ -198,6 +199,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
 		effect->sprites->texture = txtrSmoke;
+		SetVector( &effect->sprites->pos, &effect->origin );
 		effect->sprites->scaleX = effect->size;
 		effect->sprites->scaleY = effect->size;
 		effect->sprites->r = 255;
@@ -307,6 +309,8 @@ void UpdateSpecialEffects( )
 */
 void UpdateFXRipple( SPECFX *fx )
 {
+	int fo;
+
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
@@ -314,9 +318,17 @@ void UpdateFXRipple( SPECFX *fx )
 			return;
 		}
 
-	fx->a -= fx->fade * gameSpeed;
-	fx->speed += fx->accn;
-	fx->size += fx->speed;
+	fo = fx->fade * gameSpeed;
+	if( fx->a > fo ) fx->a -= fo;
+	else fx->a = 0;
+
+	fx->speed += fx->accn * gameSpeed;
+	fx->size += fx->speed * gameSpeed;
+	
+	if( fx->type == FXTYPE_GARIBCOLLECT )
+	{
+		fx->angle += fx->spin * gameSpeed;
+	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
@@ -332,6 +344,8 @@ void UpdateFXRipple( SPECFX *fx )
 */
 void UpdateFXSmoke( SPECFX *fx )
 {
+	int fo;
+
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
@@ -339,7 +353,9 @@ void UpdateFXSmoke( SPECFX *fx )
 			return;
 		}
 
-	fx->sprites->a -= fx->fade * gameSpeed;
+	fo = fx->fade * gameSpeed;
+	if( fx->sprites->a > fo ) fx->sprites->a -= fo;
+	else fx->sprites->a = 0;
 
 	AddToVector( &fx->sprites->pos,&fx->vel );
 	fx->vel.v[X] *= 0.95;
@@ -371,6 +387,7 @@ void UpdateFXSmoke( SPECFX *fx )
 */
 void UpdateFXSwarm( SPECFX *fx )
 {
+	VECTOR up;
 	int i = fx->numP;
 
 	if( fx->deadCount )
@@ -381,32 +398,36 @@ void UpdateFXSwarm( SPECFX *fx )
 		}
 
 	if( fx->type == FXTYPE_FROGSTUN )
-		SetVector( &fx->origin, &frog[0]->actor->pos );
+	{
+		SetVector( &up, &currTile[0]->normal );
+		ScaleVector( &up, 20 );
+		AddVector( &fx->origin, &up, &frog[0]->actor->pos );
+	}
 
 	while(i--)
 	{
 		if( fx->type == FXTYPE_FROGSTUN )
-			fx->sprites[i].a -= 8;
+			if( fx->sprites[i].a > 7 ) fx->sprites[i].a -= 8;
+			else fx->sprites[i].a = 0;
 
 		if( fx->sprites[i].pos.v[X] > fx->origin.v[X])
-			fx->particles[i].vel.v[X] -= 1.0F;
+			fx->particles[i].vel.v[X] -= gameSpeed;
 		else
-			fx->particles[i].vel.v[X] += 1.0F;
+			fx->particles[i].vel.v[X] += gameSpeed;
 
 		if( fx->sprites[i].pos.v[Y] > fx->origin.v[Y] )
-			fx->particles[i].vel.v[Y] -= 1.0F;
+			fx->particles[i].vel.v[Y] -= gameSpeed;
 		else
-			fx->particles[i].vel.v[Y] += 1.0F;
+			fx->particles[i].vel.v[Y] += gameSpeed;
 
 		if( fx->sprites[i].pos.v[Z] > fx->origin.v[Z])
-			fx->particles[i].vel.v[Z] -= 1.0F;
+			fx->particles[i].vel.v[Z] -= gameSpeed;
 		else
-			fx->particles[i].vel.v[Z] += 1.0F;
+			fx->particles[i].vel.v[Z] += gameSpeed;
 
-		fx->particles[i].pos.v[X] += fx->particles[i].vel.v[X];
-		fx->particles[i].pos.v[Y] += fx->particles[i].vel.v[Y];
-		fx->particles[i].pos.v[Z] += fx->particles[i].vel.v[Z];
-
+		// Add velocity to local particle position
+		AddToVector( &fx->particles[i].pos, &fx->particles[i].vel );
+		// Add local particle pos to swarm origin to get world coords for sprite
 		AddVector( &fx->sprites[i].pos, &fx->origin, &fx->particles[i].pos );
 	}
 
@@ -425,7 +446,7 @@ void UpdateFXSwarm( SPECFX *fx )
 void UpdateFXExplode( SPECFX *fx )
 {
 	float dist;
-	int i = fx->numP;
+	int i = fx->numP, fo;
 	SPECFX *ring;
 
 	if( fx->deadCount)
@@ -468,7 +489,10 @@ void UpdateFXExplode( SPECFX *fx )
 			}
 		}
 
-		fx->sprites[i].a -= (Random(4) + fx->fade) * gameSpeed ;
+		fo = (Random(4) + fx->fade) * gameSpeed ;
+		if( fx->sprites->a > fo ) fx->sprites->a -= fo;
+		else fx->sprites->a = 0;
+
 		if( fx->sprites[i].a < 16 )
 		{
 			fx->sprites[i].scaleX	= 0;

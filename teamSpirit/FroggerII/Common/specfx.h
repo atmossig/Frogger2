@@ -71,7 +71,7 @@ typedef struct TAGSPECFX
 	Vtx *verts;									// Persistent vertices on N64
 
 	short type, fade;
-	float speed, accn, size;
+	float speed, accn, angle, size, spin;
 	long lifetime, deadCount, numP;				// numP is number of particles
 
 	unsigned char r, g, b, a;
