@@ -2,6 +2,11 @@
 #include "specfx.h"
 #include "Eff_Draw.h"
 #include "cam.h"
+#include "enemies.h"
+#include "platform.h"
+#include "collect.h"
+#include "frogmove.h"
+#include "main.h"
 
 
 
@@ -30,143 +35,141 @@ void DrawSpecialFX()
 
 
 
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessShadows
-	Purpose			: processes the shadows
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
+
+
+
 void ProcessShadows()
 {
-// 	VECTOR vec;
-// 	ENEMY *nme;
-// 	PLATFORM *plat;
-// 	GARIB *garib;
-// 	int i;
-// 	long tex;
-// 	float height;
-// 	
-// 	tex = (long)((TEXENTRY *)txtrSolidRing)->hdl;
-// 
-// 	for( i=0; i<NUM_FROGS; i++ )
-// 		if( frog[i]->actor->shadow && frog[i]->draw && frog[i]->actor->shadow->draw )
-// 		{
-// 			SubVector( &vec, &frog[i]->actor->pos, &currTile[i]->centre );
-// 			height = DotProduct( &vec, &currTile[i]->normal );
-// 			DrawShadow( &frog[i]->actor->pos, &currTile[i]->normal, frog[i]->actor->shadow->radius/max(height*0.02, 1), -height+1, frog[i]->actor->shadow->alpha/max(height*0.02, 1), tex );
-// 		}
-// 
-// 	//------------------------------------------------------------------------------------------------
-// 
-// 	// process enemy shadows
-// 	for(nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next)
-// 	{
-// 		if( !nme->active || !nme->nmeActor )
-// 			continue;
-// 
-// 		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
-// 		{
-// 			SubVector( &vec, &nme->nmeActor->actor->pos, &nme->inTile->centre );
-// 			height = DotProduct( &vec, &nme->inTile->normal );
-// 
-// 			if (nme->path->nodes[nme->path->fromNode].worldTile==nme->inTile)
-// 				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius/max(height*0.02, 1), -height+1, nme->nmeActor->actor->shadow->alpha/max(height*0.02, 1), tex );
-// 			else
-// 				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius/max(height*0.02, 1), -height+1, nme->nmeActor->actor->shadow->alpha/max(height*0.02, 1), tex );
-// 		}
-// 	}
-// 
-// 	// process platform shadows
-// 	for(plat = platformList.head.next; plat != &platformList.head; plat = plat->next)
-// 	{
-// 		if( !plat->active || !plat->pltActor )
-// 			continue;
-// 
-// 		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
-// 		{
-// 			SubVector( &vec, &plat->pltActor->actor->pos, &plat->inTile[0]->centre );
-// 			height = DotProduct( &vec, &plat->inTile[0]->normal );
-// 			DrawShadow( &plat->pltActor->actor->pos, &plat->inTile[0]->normal, plat->pltActor->actor->shadow->radius/max(height*0.02, 1), -height+1, plat->pltActor->actor->shadow->alpha/max(height*0.02, 1), tex );
-// 		}
-// 	}
-// 
-// 	// process garib shadows
-// /*	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
-// 	{
-// 		if(garib->distanceFromFrog < SPRITE_DRAWDISTANCE)
-// 		{
-// 			vec.v[X] = garib->sprite.pos.v[X];
-// 			vec.v[Y] = garib->sprite.pos.v[Y] + garib->sprite.offsetY;
-// 			vec.v[Z] = garib->sprite.pos.v[Z];
-// 			DrawShadow( &vec, &garib->gameTile->normal, garib->shadow.radius, 0, garib->shadow.alpha, tex );
-// 		}
-// 	}*/
+	FVECTOR vec;
+	ENEMY *nme;
+	PLATFORM *plat;
+	GARIB *garib;
+	int i;
+	long tex;
+	fixed height;
+	
+//	tex = (long)((TextureType *)txtrSolidRing)->handle;
+	tex = (long*)txtrSolidRing;
+
+	for( i=0; i<NUM_FROGS; i++ )
+		if( frog[i]->actor->shadow && frog[i]->draw && frog[i]->actor->shadow->draw )
+		{
+			SubVectorFSS( &vec, &frog[i]->actor->position, &currTile[i]->centre );
+			height = DotProductFF( &vec, &currTile[i]->normal );
+//			DrawShadow( &frog[i]->actor->position, &currTile[i]->normal, FDiv(frog[i]->actor->shadow->radius,max(FMul(height,82),4096 )), -height+4096, FDiv(ToFixed(frog[i]->actor->shadow->alpha),max(FMul(height,82), 4096))>>12, tex );
+			DrawShadow( &frog[i]->actor->position, &currTile[i]->normal, FDiv(frog[i]->actor->shadow->radius,max(FMul(height,8),4096 )), -height+4096, FDiv(ToFixed(frog[i]->actor->shadow->alpha),max(FMul(height,8), 4096))>>12, tex );
+		}
+
+	//------------------------------------------------------------------------------------------------
+
+	// process enemy shadows
+	for(nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next)
+	{
+		if( !nme->active || !nme->nmeActor )
+			continue;
+
+		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ToFixed(BBACTOR_DRAWDISTANCEINNER))
+		{
+			SubVectorFSS( &vec, &nme->nmeActor->actor->position, &nme->inTile->centre );
+			height = DotProductFF( &vec, &nme->inTile->normal );
+
+			if (nme->path->nodes[nme->path->fromNode].worldTile==nme->inTile)
+//				DrawShadow( &nme->nmeActor->actor->position, &nme->inTile->normal, FDiv(nme->nmeActor->actor->shadow->radius,max(FMul(height,82*SCALE), 4096)), -height+4096, FDiv(ToFixed(nme->nmeActor->actor->shadow->alpha),max(FMul(height,82), 4096))>>12, tex );
+				DrawShadow( &nme->nmeActor->actor->position, &nme->inTile->normal, FDiv(nme->nmeActor->actor->shadow->radius,max(FMul(height,8), 4096)), -height+4096, FDiv(ToFixed(nme->nmeActor->actor->shadow->alpha),max(FMul(height,8), 4096))>>12, tex );
+			else
+//				DrawShadow( &nme->nmeActor->actor->position, &nme->inTile->normal, FDiv(nme->nmeActor->actor->shadow->radius,max(FMul(height,82*SCALE), 4096)), -height+4096, FDiv(ToFixed(nme->nmeActor->actor->shadow->alpha),max(FMul(height,82), 4096))>>12, tex );
+				DrawShadow( &nme->nmeActor->actor->position, &nme->inTile->normal, FDiv(nme->nmeActor->actor->shadow->radius,max(FMul(height,8), 4096)), -height+4096, FDiv(ToFixed(nme->nmeActor->actor->shadow->alpha),max(FMul(height,8), 4096))>>12, tex );
+		}
+	}
+
+	// process platform shadows
+	for(plat = platformList.head.next; plat != &platformList.head; plat = plat->next)
+	{
+		if( !plat->active || !plat->pltActor )
+			continue;
+
+		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ToFixed(BBACTOR_DRAWDISTANCEINNER))
+		{
+			SubVectorFSS( &vec, &plat->pltActor->actor->position, &plat->inTile[0]->centre );
+			height = DotProductFF( &vec, &plat->inTile[0]->normal );
+//			DrawShadow( &plat->pltActor->actor->position, &plat->inTile[0]->normal, FDiv(plat->pltActor->actor->shadow->radius*SCALE,max(FMul(height,82), 4096)), -height+4096, FDiv(ToFixed(plat->pltActor->actor->shadow->alpha),max(FMul(height,82), 4096))>>12, tex );
+			DrawShadow( &plat->pltActor->actor->position, &plat->inTile[0]->normal, FDiv(plat->pltActor->actor->shadow->radius*SCALE,max(FMul(height,8), 4096)), -height+4096, FDiv(ToFixed(plat->pltActor->actor->shadow->alpha),max(FMul(height,8), 4096))>>12, tex );
+		}
+	}
+
+	// process garib shadows
+/*	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
+	{
+		if(garib->distanceFromFrog < SPRITE_DRAWDISTANCE)
+		{
+			vec.v[X] = garib->sprite.pos.v[X];
+			vec.v[Y] = garib->sprite.pos.v[Y] + garib->sprite.offsetY;
+			vec.v[Z] = garib->sprite.pos.v[Z];
+			DrawShadow( &vec, &garib->gameTile->normal, garib->shadow.radius, 0, garib->shadow.alpha, tex );
+		}
+	}*/
 }
 
 
 
 
- 
- 
-void DrawShadow( FVECTOR *pos, FVECTOR *normal, fixed size, fixed offset, short alpha, long tex )
+
+
+
+void DrawShadow( SVECTOR *pos, FVECTOR *normal, fixed size, fixed offset, short alpha, long tex )
 {
-// 	VECTOR tempVect, m, fwd;
-// 	D3DTLVERTEX vT[5];
-// 	QUATERNION cross, q, up;
-// 	long i, zeroZ=0;
-// 	float t;
-// 
-// 	vT[0].sx = size;
-// 	vT[0].sy = offset;
-// 	vT[0].sz = size;
-// 	vT[0].tu = 0;
-// 	vT[0].tv = 0;
-// 	vT[0].color = D3DRGBA(0,0,0,alpha/255.0);
-// 	vT[0].specular = D3DRGB(0,0,0);
-// 
-// 	vT[1].sx = size;
-// 	vT[1].sy = offset;
-// 	vT[1].sz = -size;
-// 	vT[1].tu = 0;
-// 	vT[1].tv = 1;
-// 	vT[1].color = vT[0].color;
-// 	vT[1].specular = vT[0].specular;
-// 
-// 	vT[2].sx = -size;
-// 	vT[2].sy = offset;
-// 	vT[2].sz = -size;
-// 	vT[2].tu = 1;
-// 	vT[2].tv = 1;
-// 	vT[2].color = vT[0].color;
-// 	vT[2].specular = vT[0].specular;
-// 	
-// 	vT[3].sx = -size;
-// 	vT[3].sy = offset;
-// 	vT[3].sz = size;
-// 	vT[3].tu = 1;
-// 	vT[3].tv = 0;
-// 	vT[3].color = vT[0].color;
-// 	vT[3].specular = vT[0].specular;
-// 
+	FVECTOR tempV[4], m, fwd;
+	SVECTOR vT[4];
+	IQUATERNION cross, q, up;
+	long i, zeroZ=0;
+	fixed t;
+	static SPECFX fx;
+	unsigned long colour;
+
+//PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
+	colour = 255>>1;// 191;;
+	colour += 255>>1 <<8;//255<<8;
+	colour += 255>>1 <<16;//0<<16;
+
+
+// 	if(!fx)
+// 		fx = (SPECFX*)MALLOC0(sizeof(SPECFX));
+
+	vT[0].vx = size>>12;
+	vT[0].vy = offset>>12;
+	vT[0].vz = size>>12;
+	
+
+	vT[1].vx = size>>12;
+	vT[1].vy = offset>>12;
+	vT[1].vz = -size>>12;
+
+	vT[2].vx = -size>>12;
+	vT[2].vy = offset>>12;
+	vT[2].vz = -size>>12;
+	
+	vT[3].vx = -size>>12;
+	vT[3].vy = offset>>12;
+	vT[3].vz = size>>12;
+
 // 	// Translate to current fx pos and push
 // 	guTranslateF( tMtrx, pos->v[X], pos->v[Y], pos->v[Z] );
 // 	PushMatrix( tMtrx );
-// 
-// 	// Rotate to be around normal
-// 	CrossProduct( (VECTOR *)&cross, normal, &upVec );
-// 	MakeUnit( (VECTOR *)&cross );
-// 	t = DotProduct( normal, &upVec );
-// 	cross.w = -acos(t);
-// 	GetQuaternionFromRotation( &q, &cross );
+
+	// Rotate to be around normal
+	CrossProductFFF( (FVECTOR *)&cross, normal, &upVec );
+	MakeUnit( (FVECTOR *)&cross );
+	t = DotProductFF( normal, &upVec );
+	cross.w = -arccos(t);
+	fixedGetQuaternionFromRotation( &q, &cross );
 // 	QuaternionToMatrix( &q,(MATRIX *)rMtrx);
 // 	PushMatrix( rMtrx );
-// 
+
 // 	// Transform point by combined matrix
 // 	SetMatrix( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
-// 
-// 	for( i=0; i<4; i++ )
-// 	{
+
+	for( i=0; i<4; i++ )
+	{
 // 		guMtxXFMF( dMtrx, vT[i].sx, vT[i].sy, vT[i].sz, &tempVect.v[X], &tempVect.v[Y], &tempVect.v[Z] );
 // 		XfmPoint( &m, &tempVect );
 // 
@@ -175,18 +178,35 @@ void DrawShadow( FVECTOR *pos, FVECTOR *normal, fixed size, fixed offset, short 
 // 		vT[i].sy = m.v[Y];
 // 		if( !m.v[Z] ) zeroZ++;
 // 		else vT[i].sz = (m.v[Z]+DIST+4)*0.00025;
-// 	}
-// 
-// 	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
-// 
-// 	if( tex && !zeroZ )
-// 	{
-// 		Clip3DPolygon( vT, tex );
-// 		Clip3DPolygon( &vT[2], tex );
-// 	}
-// 
-// 	PopMatrix( ); // Rotation
-// 	PopMatrix( ); // Translation
+
+
+		SetVectorFS(&tempV[i],&vT[i]);
+	   	RotateVectorByQuaternionFF(&tempV[i],&tempV[i],&q);
+	  	SetVectorSF(&vT[i],&tempV[i]);								
+
+// 	//add world coords 
+// 		vT[i].vx += ripple->origin.vx;
+// 		vT[i].vy += ripple->origin.vy;
+// 		vT[i].vz += ripple->origin.vz;
+	//add world coords 
+ 		vT[i].vx += pos->vx;
+ 		vT[i].vy += pos->vy+150;//mmfrig  debug to ensure the shadow appears above landscape CHANGE!!!!
+ 		vT[i].vz += pos->vz;
+
+
+	}
+
+//	memcpy( &vT[4], &vT[0], sizeof(SVECTOR ));
+
+	fx.tex = tex;
+	fx.flags = SPRITE_SUBTRACTIVE;
+//	fx.a = alpha;
+	fx.a = 75;
+
+
+	Print3D3DSprite ( &fx, vT, colour );
+
+
 }
 
 
@@ -259,11 +279,11 @@ void DrawFXRipple( SPECFX *ripple )
 
 	}
 
-	#ifdef PSX_VERSION
+//	#ifdef PSX_VERSION
 	Print3D3DSprite ( ripple, vT, colour );
-	#else
-	Print3D3DSprite ( ripple->tex, vT, colour,ripple->a );
-	#endif
+//	#else
+//	Print3D3DSprite ( ripple->tex, vT, colour,ripple->a );
+//	#endif
 }
 
 
@@ -323,11 +343,11 @@ void DrawFXRing( SPECFX *ring )
 			vT[j].vy += ring->origin.vy;
 			vT[j].vz += ring->origin.vz;
  		}
-		#ifdef PSX_VERSION
+//		#ifdef PSX_VERSION
 		Print3D3DSprite ( ring, vT, colour );
-		#else
-		Print3D3DSprite ( ring->tex, vT, colour,ring->a );
-		#endif
+//		#else
+//		Print3D3DSprite ( ring->tex, vT, colour,ring->a );
+//		#endif
 
  	}
 }
@@ -379,11 +399,11 @@ void DrawFXTrail( SPECFX *trail )
 		vT[3].vy += trail->origin.vy;
 		vT[3].vz += trail->origin.vz;
 
-		#ifdef PSX_VERSION
+//		#ifdef PSX_VERSION
 		Print3D3DSprite ( trail, vT, colour );
-		#else
-		Print3D3DSprite ( trail->tex, vT, colour,ripple->a );
-		#endif
+//		#else
+//		Print3D3DSprite ( trail->tex, vT, colour,ripple->a );
+//		#endif
 
  
  		if( ++i >= trail->numP ) i=0;
@@ -498,11 +518,11 @@ void DrawFXLightning( SPECFX *fx )
 // 		memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
 // Draw polys, if they're not clipped
 
-		#ifdef PSX_VERSION
+//		#ifdef PSX_VERSION
 		Print3D3DSprite ( fx, vT, colour );
-		#else
-		Print3D3DSprite ( fx->tex, vT, colour,ripple->a );
-		#endif
+//		#else
+//		Print3D3DSprite ( fx->tex, vT, colour,ripple->a );
+//		#endif
  
  		i++;
  	} 
