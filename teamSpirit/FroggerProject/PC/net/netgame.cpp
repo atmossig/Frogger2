@@ -37,7 +37,7 @@
 #define STARTGAME_COUNT		(4*60)	// how much time we allow for the countdown
 
 unsigned long	nextUpdate = 0, nextPing = 0, gameStartTime = 0;
-bool			hostSync, hostReady, gameReady;
+bool			hostSync, wasSync, hostReady, gameReady;
 NETGAME_LOOP	netgameLoopFunc = NULL;
 TEXTOVERLAY		*netMessage;
 
@@ -104,11 +104,10 @@ void OnUpdate(LPMSG_UPDATEGAME lpMsg, NETPLAYER *pl);
 // ---------------------------------------------------------------------------------
 
 /*
-
 here's a little experiment - the host sorts the players by dpid and assigns a start tile number to
 each player. We want to do this when STARTING THE GAME and pass all the character data around at the
-same time. - ds
-
+same time so InitLevel sets everything up properly. - ds
+*/
 void SortOutPlayerNumbers()
 {
 	int s, pl, dpid;
@@ -130,11 +129,10 @@ void SortOutPlayerNumbers()
 
 	for (pl=0; pl<NUM_FROGS; pl++)
 	{
-		//UBYTE data[2] = { APPMSG_PLAYERNUM, start[pl] };
-		//dplay->Send(dpidLocalPlayer, netPlayerList[pl].dpid, DPSEND_GUARANTEED, data, 2);
+		UBYTE data[2] = { APPMSG_PLAYERNUM, start[pl] };
+		dplay->Send(dpidLocalPlayer, netPlayerList[pl].dpid, DPSEND_GUARANTEED, data, 2);
 	}
 }
-*/
 
 /*	--------------------------------------------------------------------------------
 	Function		: NetgameStartGame
@@ -190,8 +188,8 @@ void NetgameStartGame()
 	{
 		unsigned char msg;
 		
-		// do this *before* starting the game (see top of file) -ds
-		// SortOutPlayerNumbers();
+		// See comment at the top of the file - ds
+		SortOutPlayerNumbers();
 
 		msg = APPMSG_HOSTREADY;
 		NetBroadcastUrgentMessage(&msg, 1);
@@ -218,8 +216,10 @@ void NetgameStartGame()
 
 void NetgameRun()
 {
+
 	if (!dplay) return;
 
+	wasSync = hostSync;
 	NetProcessMessages();
 
 	if (!WaitForGameReady())
@@ -274,8 +274,6 @@ int WaitForGameReady()
 
 	if (!hostReady)
 		return 0;
-
-	bool wasSync = hostSync;
 
 	if (!hostSync)
 	{
@@ -376,8 +374,8 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 {
 	switch (*(unsigned char*)data)
 	{
-	case APPMSG_PLAYERNUM:
-		SetFroggerStartPos(gTStart[((UBYTE*)data)[1]], 0); // umm
+	case APPMSG_PLAYERNUM:	// See the remark at the top of the file; this is a little test
+		SetFroggerStartPos(gTStart[((UBYTE*)data)[1]], 0);
 		frog[0]->draw = 1;
 		return 0;
 
