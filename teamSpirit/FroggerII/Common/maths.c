@@ -639,6 +639,21 @@ void GetQuaternionFromRotation(QUATERNION *destQ,QUATERNION *srcQ)
 	destQ->z = sinThetaOver2 * srcQ->z;
 }
 
+void GetQuaternionFromXZRotation(QUATERNION *destQ,QUATERNION *srcQ)
+{
+	float thetaOver2;
+	float sinThetaOver2;
+
+	thetaOver2 = srcQ->w*0.5;
+	sinThetaOver2 = sinf(thetaOver2);
+
+	destQ->w = cosf(thetaOver2);
+	destQ->x = sinThetaOver2 * srcQ->x;
+	destQ->y = 0;
+	destQ->z = sinThetaOver2 * srcQ->z;
+}
+
+
 /*	--------------------------------------------------------------------------------
 	Function 	: AddOneScaledVector()
 	Purpose 	: 
@@ -1552,6 +1567,8 @@ void RotateVectorByQuaternion(VECTOR *result,VECTOR *vect,QUATERNION *q)
 	GetRotationFromQuaternion(&rot,q);
 	RotateVectorByRotation(result,vect,&rot);
 }
+
+
 /*	--------------------------------------------------------------------------------
 	Function 	: RotateVectorByQuaternion
 	Purpose 	: 
@@ -1594,6 +1611,55 @@ void RotateVectorByRotation(VECTOR *result,VECTOR *vect,QUATERNION *rot)
 
 		result->v[X] = mVec.v[X] + cosTheta * pVec.v[X] + sinTheta * vVec.v[X];
 		result->v[Y] = mVec.v[Y] + cosTheta * pVec.v[Y] + sinTheta * vVec.v[Y];
+		result->v[Z] = mVec.v[Z] + cosTheta * pVec.v[Z] + sinTheta * vVec.v[Z];
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: RotateVectorByQuaternion
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		: destination CAN be same as source
+*/
+void RotateVectorByXZRotation(VECTOR *result,VECTOR *vect,QUATERNION *rot)
+{
+	float m,n,sinTheta,cosTheta;
+	VECTOR mVec,pVec,vVec;
+
+	m = vect->v[X]*rot->x;
+	m += vect->v[Z]*rot->z;
+
+	mVec.v[X] = m*rot->x;				
+	mVec.v[Y] = 0;
+	mVec.v[Z] = m*rot->z;				
+
+	SubVector(&pVec,vect,&mVec);
+
+	vVec.v[X] = -rot->z * pVec.v[Y];
+	vVec.v[Y] =  rot->z * pVec.v[X] - rot->x * pVec.v[Z];
+	vVec.v[Z] =  rot->x * pVec.v[Y];
+	
+	//CrossProduct(&vVec,(VECTOR *)rot,&pVec);
+
+	m = Magnitude(&pVec);
+
+	if(m == 0)
+		SetVector(result,vect);
+	else
+	{
+		n = Magnitude(&vVec);
+		if(n)
+		{
+			m /= n;
+			ScaleVector(&vVec,m);
+		}
+
+		cosTheta = cosf(rot->w);
+		sinTheta = sinf(rot->w);
+
+		result->v[X] = mVec.v[X] + cosTheta * pVec.v[X] + sinTheta * vVec.v[X];
+		result->v[Y] = cosTheta * pVec.v[Y] + sinTheta * vVec.v[Y];
 		result->v[Z] = mVec.v[Z] + cosTheta * pVec.v[Z] + sinTheta * vVec.v[Z];
 	}
 }

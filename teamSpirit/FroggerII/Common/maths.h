@@ -126,6 +126,7 @@ void QuaternionToMatrixZeroY(QUATERNION *squat, MATRIX *dmatrix);
 void MatrixToQuaternion(MATRIX *smatrix, QUATERNION *dquat);
 void GetRotationFromQuaternion(QUATERNION *destQ,QUATERNION *srcQ);
 void GetQuaternionFromRotation(QUATERNION *destQ,QUATERNION *srcQ);
+void GetQuaternionFromXZRotation(QUATERNION *destQ,QUATERNION *srcQ);
 void QuaternionMultiply(QUATERNION *res,QUATERNION *q1,QUATERNION *q2);
 /*
 int IntersectEdges(float *x,float *y,POINT2D *v1,POINT2D *v2,POINT2D *v3,POINT2D *v4);
@@ -137,6 +138,7 @@ void NormalToQuaternion(QUATERNION *q,VECTOR *normal);
 //void ZeroVector(VECTOR *v1);
 void RotateVectorByQuaternion(VECTOR *result,VECTOR *vect,QUATERNION *q);
 void RotateVectorByRotation(VECTOR *result,VECTOR *vect,QUATERNION *rot);
+void RotateVectorByXZRotation(VECTOR *result,VECTOR *vect,QUATERNION *rot);
 //void SetVector(VECTOR *v1,VECTOR *v2);
 //void SubVector(VECTOR *result,VECTOR *operand1,VECTOR *operand2);
 void SubVector2D(VECTOR *result,VECTOR *operand1,VECTOR *operand2);
