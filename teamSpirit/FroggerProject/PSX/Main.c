@@ -387,7 +387,7 @@ int main ( )
 
 
 		actorInitialise();
-		InitBackdrop ( "FROGGER2.RAW" );
+		//InitBackdrop ( "FROGGER2.RAW" );
 
 		CommonInit();
 
@@ -413,9 +413,7 @@ int main ( )
 			currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
 			ClearOTagR(currentDisplayPage->ot, 1024);
 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
-
-			DrawBackDrop();
-
+			
 			lastpolyCount =  polyCount;
 			lastactorCount = actorCount;
 			polyCount = 0;
@@ -481,6 +479,128 @@ int main ( )
 	//			AnimateSprites();
 			
 
+			TIMER_START0(TIMER_DRAWSYNC);
+			DrawSync(0);
+			TIMER_STOP0(TIMER_DRAWSYNC);
+
+
+			TIMER_STOP(TIMER_TOTAL);
+			TIMER_ENDFRAME;
+			TIMER_ZERO;
+
+			VSync(2);
+
+			PutDispEnv(&currentDisplayPage->dispenv);
+			PutDrawEnv(&currentDisplayPage->drawenv);
+
+			// JH:  Main Draw Function That Runs All The Draw Functions.
+			MainDrawFunction();
+
+
+			if ( padData.digital[1] & PAD_DOWN )
+			{
+				camDist.vy += ( 20 * gameSpeed ) >> 12;
+			}
+			// ENDIF
+
+			if ( padData.digital[1] & PAD_UP )
+			{
+				camDist.vy-=(20*gameSpeed)>>12;
+			}
+			// ENDIF
+
+			if ( padData.digital[1] & PAD_LEFT )
+			{
+				camSideOfs+=20*gameSpeed;
+			}
+			// ENDIF
+			if ( padData.digital[1] & PAD_RIGHT )
+			{
+				camSideOfs-=20*gameSpeed;
+			}
+			// ENDIF
+
+			if ( padData.digital[1] & PAD_TRIANGLE )
+			{
+				camDist.vz+=(20*gameSpeed)>>12;
+			}
+			// ENDIF
+			if ( padData.digital[1] & PAD_CROSS )
+			{
+				camDist.vz-=(20*gameSpeed)>>12;
+			}
+			// ENDIF
+
+
+
+			if(gameState.mode!=PAUSE_MODE)
+			{
+				char tempText[64];
+ 				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
+ 						gameSpeed>>12, lastactorCount, lastpolyCount); 
+ 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
+			}
+
+
+//			utilPrintf("countMakeUnit %d\n", countMakeUnit);
+//			utilPrintf("countQuatToPSXMatrix %d\n", countQuatToPSXMatrix);
+
+			gte_SetRotMatrix(&GsWSMATRIX);
+			gte_SetTransMatrix(&GsWSMATRIX);
+
+//			actorUpdateAnimations(frog[0]->actor);
+//			actorSetAnimation(frog[0]->actor, frog[0]->actor->animation.frame);
+//			actorDraw(frog[0]->actor);
+
+#if GOLDCD==0
+//			if (padData.debounce[0] & PAD_L1)
+			if( (padData.debounce[0] & PAD_L1))
+			{
+//				textureShowVRAM(1); // 1 = PAL mode
+				froggerShowVRAM(1);
+				continue;
+			}
+#endif
+			padHandler();
+			if (padData.digital[4] == (PAD_SELECT|PAD_START|PAD_L1|PAD_R1|PAD_L2|PAD_R2))
+				quitMainLoop = 1;
+
+
+			DrawOTag(currentDisplayPage->ot+(1024-1));
+
+			if(gameState.mode!=PAUSE_MODE)
+			{
+ 				gameSpeed = vsyncCounter<<12;
+ 				actFrameCount += vsyncCounter;
+ 				vsyncCounter = 0;
+			}
+
+		}//end main loop
+
+
+		StopSound();
+
+		utilPrintf("\nFROGGER2 QUIT/RESET\n");
+		DrawSync(0);
+		ClearImage2(&VRAMarea, 0,0,0);
+
+//		sfxDestroy();//mmsound
+//		sfxStopSound();//mmsound
+
+		StopCallback();
+
+		ResetGraph(3);
+		VSync(10);
+	}
+	// ENDWHILE
+
+	return 0;
+}
+
+
+
+void MainDrawFunction ( void )
+{
 			TIMER_START0(TIMER_DRAW_WORLD);
 			if(drawLandscape)
 				DrawWorld();
@@ -524,119 +644,8 @@ int main ( )
 			TIMER_STOP0(TIMER_PROCTEX);
 
 
-			if ( padData.digital[1] & PAD_DOWN )
-			{
-				camDist.vy += ( 20 * gameSpeed ) >> 12;
-			}
-			// ENDIF
-
-			if ( padData.digital[1] & PAD_UP )
-			{
-				camDist.vy-=(20*gameSpeed)>>12;
-			}
-			// ENDIF
-
-			if ( padData.digital[1] & PAD_LEFT )
-			{
-				camSideOfs+=20*gameSpeed;
-			}
-			// ENDIF
-			if ( padData.digital[1] & PAD_RIGHT )
-			{
-				camSideOfs-=20*gameSpeed;
-			}
-			// ENDIF
-
-			if ( padData.digital[1] & PAD_TRIANGLE )
-			{
-				camDist.vz+=(20*gameSpeed)>>12;
-			}
-			// ENDIF
-			if ( padData.digital[1] & PAD_CROSS )
-			{
-				camDist.vz-=(20*gameSpeed)>>12;
-			}
-			// ENDIF
-
-
 			timerDisplay();
 
-			if(gameState.mode!=PAUSE_MODE)
-			{
-				char tempText[64];
- 				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
- 						gameSpeed>>12, lastactorCount, lastpolyCount); 
- 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
-			}
-
-
-//			utilPrintf("countMakeUnit %d\n", countMakeUnit);
-//			utilPrintf("countQuatToPSXMatrix %d\n", countQuatToPSXMatrix);
-
-			gte_SetRotMatrix(&GsWSMATRIX);
-			gte_SetTransMatrix(&GsWSMATRIX);
-
-//			actorUpdateAnimations(frog[0]->actor);
-//			actorSetAnimation(frog[0]->actor, frog[0]->actor->animation.frame);
-//			actorDraw(frog[0]->actor);
-
-#if GOLDCD==0
-//			if (padData.debounce[0] & PAD_L1)
-			if( (padData.debounce[0] & PAD_L1))
-			{
-//				textureShowVRAM(1); // 1 = PAL mode
-				froggerShowVRAM(1);
-				continue;
-			}
-#endif
-			padHandler();
-			if (padData.digital[4] == (PAD_SELECT|PAD_START|PAD_L1|PAD_R1|PAD_L2|PAD_R2))
-				quitMainLoop = 1;
-
-
-			TIMER_START0(TIMER_DRAWSYNC);
-			DrawSync(0);
-			TIMER_STOP0(TIMER_DRAWSYNC);
-
-
-			TIMER_STOP(TIMER_TOTAL);
-			TIMER_ENDFRAME;
-			TIMER_ZERO;
-
-			VSync(2);
-			PutDispEnv(&currentDisplayPage->dispenv);
-			PutDrawEnv(&currentDisplayPage->drawenv);
-			DrawOTag(currentDisplayPage->ot+(1024-1));
-
-			if(gameState.mode!=PAUSE_MODE)
-			{
- 				gameSpeed = vsyncCounter<<12;
- 				actFrameCount += vsyncCounter;
- 				vsyncCounter = 0;
-			}
-
-		}//end main loop
-
-
-		StopSound();
-
-		utilPrintf("\nFROGGER2 QUIT/RESET\n");
-		DrawSync(0);
-		ClearImage2(&VRAMarea, 0,0,0);
-
-//		sfxDestroy();//mmsound
-//		sfxStopSound();//mmsound
-
-		StopCallback();
-
-		ResetGraph(3);
-		VSync(10);
-	}
-	// ENDWHILE
-
-	return 0;
+			DrawBackDrop();
 }
-
-
-
 

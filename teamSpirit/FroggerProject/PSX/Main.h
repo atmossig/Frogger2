@@ -23,5 +23,6 @@ extern int drawLandscape;
 #define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
 
 void *memoryAllocateZero(unsigned long size, char *file, int line);
+void MainDrawFunction ( void );
 
 #endif
