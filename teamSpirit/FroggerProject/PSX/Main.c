@@ -580,7 +580,7 @@ int main ( )
 		actFrameCount = 0;
 
 		loadCodeOverlays = NO;
-		StartVideoPlayback(FMV_ATARI_LOGO);
+		StartVideoPlayback(FMV_HASBRO_LOGO);
 		if(quitAllVideo == 0)
 		{
 			StartVideoPlayback(FMV_BLITZ_LOGO);

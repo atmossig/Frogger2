@@ -28,7 +28,7 @@
 FMV_DATA fmv[NUM_FMV_SEQUENCES] = 
 {
 	"",0,
-	"ATARIS",250,		//	FMV_ATARI_LOGO,            
+	"HASBROS",273,		//	FMV_HASBRO_LOGO,            
 	"BLITZS",118,		//	FMV_BLITZ_LOGO,            
 	"01S",1299,			//	FMV_INTRO,
 	"02S",1299,			//	FMV_FROGGER_LILLIE_BABIES, 
