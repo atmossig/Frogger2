@@ -141,8 +141,10 @@ SAMPLE * GetEntryFromSampleList ( int num )
 */
 int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 {
+	
 	SAMPLE *sample;
-
+	return 0;
+//	if ( num != 0
 	sample = GetEntryFromSampleList ( num );
 
 	if ( ( !sample ) || ( !lpDS ) )
