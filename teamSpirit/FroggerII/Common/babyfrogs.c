@@ -88,7 +88,9 @@ void InitBabyList( unsigned char createOverlays )
 	{
 		for(i=0; i<numBabies; i++)
 		{
-			char fn[] = "frog001.bmp\0";
+			babyIcons[i] = CreateAndAddSpriteOverlay( ((234-15)-(i*15)),240-16,"00baby06.bmp",15,12,100,0 );
+
+/*			char fn[] = "frog001.bmp\0";
 
 			babyIcons[i] = CreateAndAddSpriteOverlay( ((234-15)-(i*15)),240-16,fn,10,10,91,ANIMATION_FORWARDS|ANIMATION_CYCLE);
 
@@ -98,7 +100,7 @@ void InitBabyList( unsigned char createOverlays )
 				sprintf(fn, "frog%03d.bmp", j);
 				AddFrameToSpriteOverlay(babyIcons[i], fn);
 			}
-		}
+*/		}
 	}
 }
 

@@ -748,6 +748,11 @@ void DrawFXRing( SPECFX *ring )
 	QuaternionToMatrix( &q1,(MATRIX *)rMtrx);
 	PushMatrix( rMtrx );
 
+	if( ring->type == FXTYPE_CROAK )
+	{
+		SwapFrame(3);
+	}
+
 	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=4 )
 	{
 		memcpy( vT, &ringVtx[vx], sizeof(D3DTLVERTEX)*4 );
@@ -790,6 +795,11 @@ void DrawFXRing( SPECFX *ring )
 
 	PopMatrix( ); // Rotation
 	PopMatrix( ); // Translation
+
+	if( ring->type == FXTYPE_CROAK )
+	{
+		SwapFrame(0);
+	}
 }
 
 

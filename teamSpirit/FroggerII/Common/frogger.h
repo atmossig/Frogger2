@@ -165,8 +165,6 @@ typedef struct _PLAYER
 extern PLAYER player[];
 							
 
-extern float CROAK_SOUND_RANGE;
-
 extern float globalFrogScale;
 
 extern ACTOR2	*frog[];

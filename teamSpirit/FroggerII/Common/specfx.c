@@ -38,6 +38,7 @@ TEXTURE *txtrTrail		= NULL;
 TEXTURE *txtrFlash		= NULL;
 TEXTURE *txtrFlare		= NULL;
 TEXTURE *txtrElectric	= NULL;
+TEXTURE *txtrCroak		= NULL;
 
 
 enum
@@ -162,6 +163,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		break;
 	case FXTYPE_FROGSHIELD:
 	case FXTYPE_POLYRING:
+	case FXTYPE_CROAK:
 		if( !ringVtx )
 			CreateBlastRing( );
 
@@ -174,6 +176,8 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		if( effect->type == FXTYPE_FROGSHIELD )
 			effect->tex = txtrFlash;
+		else if( effect->type == FXTYPE_CROAK )
+			effect->tex = txtrCroak;
 		else
 			effect->tex = txtrBlank;
 
@@ -1403,6 +1407,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrFlash,UpdateCRC("flash.bmp"),YES);
 	FindTexture(&txtrFlare,UpdateCRC("flare.bmp"),YES);
 	FindTexture(&txtrElectric,UpdateCRC("electric.bmp"),YES);
+	FindTexture(&txtrCroak,UpdateCRC("ai_croak.bmp"),YES);
 }
 
 
@@ -1486,6 +1491,7 @@ SPECFX *AllocateFX( int number, int type )
 	case FXTYPE_GLOW: update = FXUPDATE_TWINKLE; break;
 	case FXTYPE_TWINKLE: update = FXUPDATE_TWINKLE; break;
 	case FXTYPE_WAKE: update = FXUPDATE_DECAL; break;
+	case FXTYPE_CROAK: update = FXUPDATE_RING; break;
 	default: update = FXUPDATE_DECAL; break;
 	}
 

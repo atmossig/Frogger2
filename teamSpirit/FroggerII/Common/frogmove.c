@@ -51,6 +51,7 @@ struct {
 	int Min;
 } frogPitch = { 0, 128, 15, 2, 8, 64,50 };
 
+#define FROG_CROAK_RANGE		500000
 
 #define MAX_HOP_HEIGHT			26.0f	// +1 for rounding :o)
 #define MAX_SUPERHOP_HEIGHT		51.0f
@@ -463,8 +464,10 @@ void UpdateFroggerPos(long pl)
 		{
 			SetVector(&effectPos,&frog[pl]->actor->pos);
 			effectPos.v[Y] += 15;
-			if( (fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &effectPos, &currTile[pl]->normal, 20, 1, 0.1, 1.5 )) )
+			if( (fx = CreateAndAddSpecialEffect( FXTYPE_CROAK, &effectPos, &currTile[pl]->normal, 20, 1.5, 0.2, 1.5 )) )
 			{
+				fx->tilt = 0.7;
+				fx->spin = 0.1;
 				fx->r = 191;
 				fx->g = 255;
 				fx->b = 0;
@@ -474,23 +477,25 @@ void UpdateFroggerPos(long pl)
 		GTUpdate( &player[pl].isCroaking, -1 );
 		if( !player[pl].isCroaking.time )
 		{
-			int baby;
+			int baby, i;
 			player[pl].frogState &= ~FROGSTATUS_ISCROAKING;
 
-			// check for nearest baby frog - do radius check ????
-			baby = GetNearestBabyFrog();
-
-			if( baby != -1 )
+			for( i=0; i<numBabies; i++ )
 			{
-				VECTOR pos;
-				SetVector( &pos, &upVec );
-				ScaleVector( &pos, 20 );
-				AddToVector( &pos, &babyList[baby].baby->actor->pos );
-				if ((fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &pos, &upVec, 15, 1, 0.1, 1.2 )))
-				{				
-					fx->r = babyList[baby].fxColour[R];
-					fx->g = babyList[baby].fxColour[G];
-					fx->b = babyList[baby].fxColour[B];
+				if( !babyList[i].isSaved && (DistanceBetweenPointsSquared(&frog[pl]->actor->pos, &babyList[i].baby->actor->pos)) < FROG_CROAK_RANGE )
+				{
+					VECTOR pos;
+					SetVector( &pos, &upVec );
+					ScaleVector( &pos, 20 );
+					AddToVector( &pos, &babyList[i].baby->actor->pos );
+					if ((fx = CreateAndAddSpecialEffect( FXTYPE_CROAK, &pos, &upVec, 20, 1.5, 0.2, 1.5 )))
+					{				
+						fx->tilt = 0.7;
+						fx->spin = 0.1;
+						fx->r = babyList[i].fxColour[R];
+						fx->g = babyList[i].fxColour[G];
+						fx->b = babyList[i].fxColour[B];
+					}
 				}
 			}
 		}
