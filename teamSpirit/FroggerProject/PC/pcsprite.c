@@ -280,7 +280,7 @@ void PrintSpriteOverlays(long num)
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
 			}
 
-			DrawAlphaSprite( cur->xPos*2, cur->yPos*2, 0, cur->width*2, cur->height*2, 0, 0, 1, 1, 
+			DrawAlphaSprite( cur->xPos*OVERLAY_X, cur->yPos*OVERLAY_Y, 0, cur->width*OVERLAY_X, cur->height*OVERLAY_Y, 0, 0, 1, 1, 
 				tEntry->surf,D3DRGBA(cur->r/255.0,cur->g/255.0,cur->b/255.0,cur->a/255.0) );
 
 			if (cur->flags & SPRITE_ADDITIVE)
