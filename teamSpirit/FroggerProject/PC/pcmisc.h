@@ -18,6 +18,7 @@ extern "C"
 #endif
 
 #include <ddraw.h>
+#include <isltex.h>
 
 extern short mouseX;
 extern short mouseY;
