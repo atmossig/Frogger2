@@ -1,0 +1,418 @@
+/*
+
+	This file is part of Frogger2, (c) 1997 Interactive Studios Ltd.
+
+
+	File		: main.h
+	Programmer	: Matthew Cloy
+	Date		: 19/11/98
+
+----------------------------------------------------------------------------------------------- */
+
+#include <windows.h>
+#include "stdio.h"
+#include "math.h"
+
+// | | | | 2048 1024 512 256  128 64 32 16 8 4 2 1
+
+char indata[65535];
+char outdata[65535];
+
+int incount;
+int outcount;
+
+int threshhold = 3;
+int maxlength = 7;
+
+int FindMatch(char *data1, char *data2, int maxlen)
+{
+	int len = 0;
+	while ((data1[len] == data2[len]) && (len<maxlen) && (&data2[len] < data1))	len++;
+	return len;
+}
+
+int main (int argc, char *argv[])
+{
+	FILE *fp;
+	int charin,charout;
+	int largestlength,largestpos;
+
+	if (argc != 3)
+	{
+		printf("Parameters:		infile outfile\n");
+		exit (1);
+	}
+
+	fp = fopen(argv[1],"rb");
+	fseek(fp,0,SEEK_END);
+	incount = ftell(fp);
+	fseek(fp,0,SEEK_SET);
+	fread(indata,1,incount,fp);
+	fclose (fp);
+
+	charin = charout = 0;
+	
+	while (charin<incount)
+	{
+		largestlength = threshhold;
+		largestpos = 0;
+		
+		for (unsigned int i=1; i<64; i-=2)
+		{
+			int thislength;
+
+			if (charin<i)
+				continue;
+
+			thislength = FindMatch(&indata[charin],&indata[charin-i],(incount-charin)<maxlength?(incount-charin):maxlength);
+			
+			if ((thislength>maxlength))
+				thislength = maxlength;
+
+			if ((thislength>largestlength))
+			{
+				largestlength = thislength;
+				largestpos = i;
+			}
+		}
+
+		if (largestpos)
+		{
+			outdata[charout++]=0xff;
+			outdata[charout++]=0x00; //Needs replacing with pos/offset			
+//			outdata[charout++]=0x00; //Needs replacing with pos/offset			
+			charin+=largestlength;
+		}
+		else
+		{
+			outdata[charout++] = indata[charin];
+			if (outdata[charout-1]==0xff)
+				outdata[charout++]=0xff;
+			charin++;
+		}
+
+		
+	}
+
+	return 1;
+}
+
+/*
+char inF[255],outF[255];
+
+char typenames[10][255] = 
+{
+	"TYPE_NORMAL",
+	"TYPE_HASPATH",
+};
+
+struct vect
+{
+	float x,y,z;
+};
+
+struct obj
+{
+	char name[255];
+	float x,y,z;
+	float rx,ry,rz,rv;
+	char linename[255];
+	float linepc;
+	int type;
+};
+
+struct line
+{
+	char name[255];
+	int nV;
+	int cV;
+	vect v[4000];
+};
+
+long nObj = 0;
+long nLine = 0;
+
+obj objList[4000];
+line lineList[4000];
+obj cur;
+line cul;
+
+void AddLastObject(void)
+{
+	if (cur.name[0])
+	{
+		memcpy(&objList[nObj++],&cur,sizeof(obj));
+		cur.name[0]=0;
+		cur.linename[0]=0;
+		cur.type = 0;
+	}
+
+	if (cul.name[0])
+	{
+		memcpy(&lineList[nLine++],&cul,sizeof(line));
+		cul.name[0]=0;
+	}
+}
+
+int where=-1;
+
+void ProcessCommand (char *line)
+{
+	if (!strncmp(line,"GEOMOBJECT ",8))
+	{
+		AddLastObject();
+		where = 1;
+	}
+	else
+	if (!strncmp(line,"SHAPEOBJECT ",12))
+	{
+		printf("SHAPE!\n");
+		AddLastObject();
+		where = 2;
+	}
+	else
+	if (!strncmp(line,"NODE_PARENT ",12))
+	{
+			cur.name[0]=0;
+			cul.name[0]=0;
+			where = 0;
+	}
+	else
+	if (where==1)
+	{
+		if (!strncmp(line,"NODE_NAME ",10))
+		{
+			line+=11;
+			
+			for (int i=0; i<strlen(line); i++)
+				if (line[i]=='"')
+					line[i]=0;
+
+			strcpy (cur.name,line);						
+	
+			int letr = strlen(cur.name)-1;
+			while ((cur.name[letr]>='0') && (cur.name[letr]<='9')) letr--;
+			letr++;
+			cur.name[letr]=0;
+			if (!strcmp(cur.name,"collision"))
+			{
+				where = 120;
+				cur.name[0] = 0;
+			}
+		}
+
+		if (!strncmp(line,"TM_POS ",7))
+		{
+			if (cur.name[0])
+			{
+				line+=7;
+				sscanf(line,"%f	%f	%f",&cur.x,&cur.y,&cur.z);
+			}
+		}
+
+		if (!strncmp(line,"GAME_PATH_LINK ",15))
+		{
+			cur.type = 1;
+			line+=16;
+			for (int i=0; i<strlen(line); i++)
+				if (line[i]=='"')
+					line[i]=0;
+			strcpy (cur.linename,line);
+		}
+
+		if (!strncmp(line,"GAME_PATH_PERCENT ",18))
+		{
+			line+=18;
+			sscanf(line,"%f",&cur.linepc);
+			while (cur.linepc<0) cur.linepc+=1.0;
+		}
+
+		if (!strncmp(line,"TM_ROTAXIS ",11))
+		{
+			if (cur.name[0])
+			{
+				line+=11;
+				sscanf(line,"%f	%f	%f",&cur.rx,&cur.ry,&cur.rz);
+			}
+		}
+
+		if (!strncmp(line,"TM_ROTANGLE ",12))
+		{
+			if (cur.name[0])
+			{
+				line+=11;
+				sscanf(line,"%f",&cur.rv);			
+			}
+		}		
+	}
+	else
+	if (where==2)
+	{
+		if (!strncmp(line,"NODE_NAME ",10))
+		{
+			line+=11;
+			
+			for (int i=0; i<strlen(line); i++)
+				if (line[i]=='"')
+					line[i]=0;
+
+			strcpy (cul.name,line);			
+		}
+
+		if (!strncmp(line,"SHAPE_VERTEXCOUNT ",18))
+		{
+			line+=18;
+			sscanf(line,"%i",&cul.nV);
+			cul.cV = 0;
+		}
+
+		
+		if (!strncmp(line,"SHAPE_VERTEX_KNOT",17))
+		{
+			float x,y,z;
+			line+=17;
+			while (line[0]<'0' || line [0] >'9') line++;
+			while (line[0]>='0' && line [0] <='9') line++;
+			line++;
+			while ((line[0]<'0' || line [0] >'9') && (line[0]!='-')) line++;
+
+			sscanf(line,"%f	%f	%f",&cul.v[cul.cV].x,&cul.v[cul.cV].y,&cul.v[cul.cV].z);
+			cul.cV++;
+		}
+	}	
+}
+
+void ProcessLine (char *line)
+{
+	while ((line[0]==' ' || line[0]=='\t') && line[0]!=0) line++;
+	if (line[0]=='*')
+	{
+		line++;
+		ProcessCommand (line);
+	}
+}
+
+
+void WriteData(void)
+{
+	FILE *out;
+	char inStr[255];
+	unsigned int i,j;
+
+	printf ("Writing: %s \n",outF);
+	out = fopen (outF,"wt");
+
+	fputs ("// Scenic object file - generated by objConv\n\n",out);
+	fputs ("#include \"oddballs.h\" \n#include \"define.h\" \n\n",out);
+	for (i=0; i<nObj; i++)
+		fprintf (out,"extern SCENIC Sc_%03i;\n",i);
+
+	fprintf (out,"\n");
+
+	for (i=0; i<nLine; i++)
+		fprintf (out,"extern VECTOR Pt_%s[%i];\n",lineList[i].name,lineList[i].nV);
+	
+	fprintf (out,"\n");
+	
+	for (i=0; i<nObj; i++)
+		if (objList[i].type)
+			fprintf (out,"extern TYPEDATA TD_%03i;\n",i);		
+	
+	fprintf (out,"\n");
+	
+	for (i=0; i<nObj; i++)
+	{
+		fprintf (out,"SCENIC Sc_%03i\n =",i);
+		fprintf (out,"{\n");
+		fprintf (out,((i==nObj-1)?"	0, //%03i\n":"	&Sc_%03i,\n"),i+1);
+		fprintf (out,"	\"%s.ndo\",\n",objList[i].name);
+		fprintf (out,"	{%f,%f,%f},\n",objList[i].x,-objList[i].y,objList[i].z);
+		fprintf (out,"	{%f,%f,%f,%f},\n",-objList[i].rx,objList[i].ry,-objList[i].rz,objList[i].rv);
+		fprintf (out,"	%s,\n",typenames[objList[i].type]);
+		fprintf (out,"	%s%s%03i,\n",
+			!objList[i].type?"":"&",
+			!objList[i].type?"":"TD_",
+			!objList[i].type?0:i);
+		fprintf (out,"};\n\n");
+	}
+
+	for (i=0; i<nLine; i++)
+	{
+		fprintf (out,"VECTOR Pt_%s[%i] = \n{\n",lineList[i].name,lineList[i].nV);
+		for (j=0; j<lineList[i].nV; j++)
+		{
+			fprintf(out,"    %f,%f,%f,\n",lineList[i].v[j].x,-lineList[i].v[j].y,lineList[i].v[j].z);
+		}
+
+		fprintf (out,"};\n\n");
+	}
+	
+	for (i=0; i<nObj; i++)
+		if (objList[i].type)
+		{
+			long lnum = 0;
+			fprintf (out,"TYPEDATA TD_%03i = \n{\n",i);		
+
+			for (int lv = 0; lv<nLine; lv++)
+				if (!strcmp (objList[i].linename,lineList[lv].name))
+					lnum = lv;
+				
+			fprintf (out,"    %i,\n",lineList[lnum].nV);
+			fprintf (out,"    Pt_%s,\n",lineList[lnum].name);
+			fprintf (out,"    0,\n");
+			fprintf (out,"    3,\n");
+			fprintf (out,"    %i,\n",(long)(objList[i].linepc*lineList[lnum].nV));
+			fprintf (out,"    0,\n");
+
+			fprintf (out,"};\n\n");
+		}
+	
+	fclose (out);
+}
+
+void ReadData(void)
+{
+	FILE *in;
+	char inStr[255];
+
+	cur.name[0]==0;
+	cul.name[0]==0;
+	printf ("Reading: %s \n",inF);
+	in = fopen (inF,"rt");
+	
+	fgets(inStr,200,in);
+	while (!feof(in))
+	{	
+		ProcessLine (inStr);
+		fgets(inStr,200,in);
+	}		
+	fclose (in);
+
+	AddLastObject();
+
+	// Save+SetCurrobjName: *NODE_NAME "t2trnk"
+	// SetSkip:				*NODE_PARENT "t2trnk"
+	// SetPos:				*TM_POS 167.6407	-179.3794	9.0164
+	// SetRot:				*TM_ROTAXIS -0.8795	-0.2375	-0.4125
+	// SetRot:				*TM_ROTANGLE 1.7549
+
+	// *NODE_PARENT "t2trnk"
+
+}
+
+
+int main (int argc, char *argv[])
+{
+	printf("Object Converter - V1.0 Matthew Cloy - Interactive Studios Ltd \n\n");
+	if (argc != 3)
+	{		
+		printf("Parameters: [Infile] [OutFile]\n");
+		exit (1);
+	}
+	strcpy (inF,argv[1]);
+	strcpy (outF,argv[2]);
+	ReadData();
+	WriteData();
+	return 1;
+}
+*/
