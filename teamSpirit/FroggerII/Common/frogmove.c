@@ -1093,19 +1093,17 @@ void CheckForFroggerLanding(long pl)
 					SetVector( &fx->rebound->point, &frog[pl]->actor->pos );
 				}
 
-				// If single player or not a race mode
-				if( gameState.multi == SINGLEPLAYER || !(multiplayerMode == MULTIMODE_RACE_NORMAL || multiplayerMode == MULTIMODE_RACE_KNOCKOUT) )
+				// If single player
+				if( gameState.multi == SINGLEPLAYER )
 				{
 					AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 					player[pl].frogState |= FROGSTATUS_ISDEAD;
 					player[pl].deathBy = DEATHBY_DROWNING;
 					GTInit( &player[pl].dead, 3 );
 				}
-				else // Race multiplayer mode
+				else // multiplayer mode
 				{
 					KillMPFrog(pl);
-					if( !(player[pl].frogState & FROGSTATUS_ISDEAD) )
-						RaceRespawn(pl);
 				}
 			}
 			return;

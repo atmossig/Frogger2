@@ -648,6 +648,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 				}
 				else
 				{
+					lastActFrameCount = actFrameCount;
 #ifdef FIX_FRAME_TIME
 					actTickCount += gameSpeed*60;
 					actFrameCount += gameSpeed;

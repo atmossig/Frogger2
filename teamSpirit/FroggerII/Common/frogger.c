@@ -138,7 +138,7 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 */			}
 		}
 	}
-	else if( multiplayerMode != MULTIMODE_BATTLE )
+/*	else if( multiplayerMode != MULTIMODE_BATTLE )
 	{
 		int j,k = 0;
 		for (j=0; j<NUM_FROGS; j++)
@@ -154,7 +154,7 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 		}
 		
 	}
-
+*/
 
 }
 

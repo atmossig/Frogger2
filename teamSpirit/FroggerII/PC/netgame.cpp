@@ -423,10 +423,6 @@ int MPAddFrog( int i )
 	if( frog[i]->draw ) // Already enabled
 		return 1;
 
-	// Health sprites need init
-	for( j=0; j<3; j++ )
-		sprHeart[(i*3)+j]->draw = 1;
-
 	frog[i]->draw = TRUE; // Make it visible
 
 	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[i]->normal, 255, 255, 255 );
@@ -455,10 +451,6 @@ int MPRemoveFrog( int i )
 
 	player[i].healthPoints = 0;
 	player[i].lives = 0;
-
-	// Disable health sprites
-	for( j=0; j<3; j++ )
-		sprHeart[(i*3)+j]->draw = FALSE;
 
 	frog[i]->draw = FALSE; // Make it invisible
 

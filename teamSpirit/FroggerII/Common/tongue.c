@@ -262,8 +262,8 @@ void UpdateFrogTongue( int pl )
 				{
 					if( tongue[pl].type == TONGUE_GET_GARIB || tongue[pl].type == TONGUE_GET_HEALTH )
 						PickupCollectable( (GARIB *)tongue[pl].thing, pl );
-					else if( tongue[pl].type == TONGUE_GET_BABY )
-						PickupBabyFrogMulti( (ENEMY *)tongue[pl].thing, pl );
+//					else if( tongue[pl].type == TONGUE_GET_BABY )
+//						PickupBabyFrogMulti( (ENEMY *)tongue[pl].thing, pl );
 					else if( tongue[pl].type == TONGUE_GET_FROG ) // Throw frog as far as he will go
 					{
 						int dir;
