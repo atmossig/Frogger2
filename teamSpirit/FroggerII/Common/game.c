@@ -28,9 +28,10 @@ unsigned long currTileNum = 0;
 //----------------------------------------------------------------------
 
 unsigned long INPUT_POLLPAUSE	= 0;
+extern unsigned long attractTime;
 
 struct gameStateStruct gameState;
-
+unsigned long butPressed = 0;
 unsigned short screenNum = 0;
 unsigned long fadingLogos = 0;
 unsigned long runAttractMode = 0;
@@ -82,6 +83,17 @@ unsigned long levelPlayList[] =
 	5,2,
 	1000,1000
 };
+
+void StopKeying(void)
+{
+	PlayKeyDone();
+	player[0].worldNum = WORLDID_FRONTEND;
+	player[0].levelNum = LEVELID_FRONTEND1;
+	lastActFrameCount = actFrameCount;
+	gameState.mode = LEVELCOMPLETE_MODE;
+	GTInit( &modeTimer, 1 );
+	showEndLevelScreen = 0;
+}
 
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
@@ -369,13 +381,7 @@ void GameProcessController(long pl)
 		
 		if (rPlaying)
 		{
-			PlayKeyDone();
-			player[0].worldNum = WORLDID_FRONTEND;
-			player[0].levelNum = LEVELID_FRONTEND1;
-			lastActFrameCount = actFrameCount;
-			gameState.mode = LEVELCOMPLETE_MODE;
-			GTInit( &modeTimer, 1 );
-			showEndLevelScreen = 0;
+			StopKeying();
 		}
 		else
 		{

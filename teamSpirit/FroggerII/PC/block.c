@@ -59,6 +59,8 @@ extern unsigned long rKeying;
 extern unsigned long rPlaying;
 extern long synchedFrameCount;
 
+void StopKeying(void);
+
 float vMatrix[4][4];
 long keyInput = 1;
 
@@ -690,6 +692,9 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			break;
 
 		case WM_CHAR:
+			if (rPlaying)
+				StopKeying();
+		
 			if( chatFlags & CHAT_INPUT )
 			{
 				ChatInput((char)wParam);
