@@ -2104,11 +2104,15 @@ David Swift:
 James Hubbard:
 ------------------------------------------------
 
-	I made a lightning effect that goes between 2 points, and is currently cued from a vent enemy. I love effects.
-	More bug fixing too.
+	Morning:
+		I made a lightning effect that goes between 2 points, and is currently cued from a vent enemy. I love effects.
+		More bug fixing too.
 
-	Now someone else start writing devlog and make me feel less of a freak.
+		Now someone else start writing devlog and make me feel less of a freak.
 
+	Afternoon:
+		Can now attach sounds to scenics, in a kind of ambient style.
+	
 
 James Healey:
 ------------------------------------------------
