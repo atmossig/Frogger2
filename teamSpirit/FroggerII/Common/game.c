@@ -236,30 +236,36 @@ void GameProcessController(long pl)
 			// To enable endless double jumping
 			//player[pl].hasDoubleJumped = 0;
 		}
-		else if(!(player[pl].isSuperHopping) && !(player[pl].inputPause) && player[pl].canJump)
+		else if(!(player[pl].isSuperHopping) && !(player[pl].inputPause))
 		{
-			// frog is wanting superhop
-			player[pl].isSuperHopping = 1;
-			player[pl].hasJumped = 1;
-			player[pl].hasDoubleJumped = 0;
-
-			player[pl].inputPause = INPUT_POLLPAUSE;
-			UpdateScore(frog[pl],hopAmt);
-
-			switch(player[pl].extendedHopDir)
+			// Check if the player can jump.. if not, check if we're just hopping
+			// What a horrible hack
+			if (player[pl].canJump ||
+			   (player[pl].frogState & (FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM)))
 			{
-				case MOVE_UP:
-					player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPU;
-					break;
-				case MOVE_LEFT:
-					player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPL;
-					break;
-				case MOVE_DOWN:
-					player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPD;
-					break;
-				case MOVE_RIGHT:
-					player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPR;
-					break;
+				// frog is wanting superhop
+				player[pl].isSuperHopping = 1;
+				player[pl].hasJumped = 1;
+				player[pl].hasDoubleJumped = 0;
+
+				player[pl].inputPause = INPUT_POLLPAUSE;
+				UpdateScore(frog[pl],hopAmt);
+
+				switch(player[pl].extendedHopDir)
+				{
+					case MOVE_UP:
+						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPU;
+						break;
+					case MOVE_LEFT:
+						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPL;
+						break;
+					case MOVE_DOWN:
+						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPD;
+						break;
+					case MOVE_RIGHT:
+						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPR;
+						break;
+				}
 			}
 		}
 	}
