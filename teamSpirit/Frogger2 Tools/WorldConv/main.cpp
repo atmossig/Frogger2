@@ -1162,9 +1162,9 @@ void WritePSXTileData(FILE *f)
 		
 		for (i=0; i<4; i++)
 		{
-			WRITEINT(squareList[tile].n[i].x * 4096);
-			WRITEINT(squareList[tile].n[i].y * 4096);
-			WRITEINT(squareList[tile].n[i].z * 4096);
+			WRITEINT(squareList[tile].n[(i+1)%4].x * 4096);
+			WRITEINT(squareList[tile].n[(i+1)%4].y * 4096);
+			WRITEINT(squareList[tile].n[(i+1)%4].z * 4096);
 		}
 	}
 }
