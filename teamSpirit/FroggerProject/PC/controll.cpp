@@ -1298,12 +1298,30 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 
 							for( i=0; i<NUM_CONTROLS; i++ )
 							{
+								switch(i)
+								{
+								case 0: strcpy( itmTxt, GAMESTRING(STR_UP) ); break;
+								case 1: strcpy( itmTxt, GAMESTRING(STR_DOWN) ); break;
+								case 2: strcpy( itmTxt, GAMESTRING(STR_LEFT) ); break;
+								case 3: strcpy( itmTxt, GAMESTRING(STR_RIGHT) ); break;
+								case 4: strcpy( itmTxt, GAMESTRING(STR_SUPERHOP) ); break;
+								case 5: strcpy( itmTxt, GAMESTRING(STR_CROAK) ); break;
+								case 6: strcpy( itmTxt, GAMESTRING(STR_START) ); break;
+								case 7: strcpy( itmTxt, GAMESTRING(STR_TONGUE) ); break;
+								}
+								strcat( itmTxt, "\t" );
+								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key][gameTextLang] );
+								SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
+							}
+/*
+							for( i=0; i<NUM_CONTROLS; i++ )
+							{
 								strcpy( itmTxt, controlDesc[i].name );
 								strcat( itmTxt, "\t" );
 								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key][gameTextLang] );
 								SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
 							}
-
+*/
 							SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_SETCURSEL,(WPARAM)-1,(LPARAM)0);
 
 							break;
