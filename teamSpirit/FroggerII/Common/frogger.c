@@ -51,33 +51,32 @@ TEXTURE *frogEyeOpen,*frogEyeClosed;
 
 void CreateFrogActor (GAMETILE *where, char *name,long p)
 {
-	ACTOR2 **me = &frog[p];
+	ACTOR2 *me;
 
-	(*me) = CreateAndAddActor(name,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
+	me = frog[p] = CreateAndAddActor(name,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
 
-	(*me)->actor->shadow->radius = 30;
-	(*me)->actor->shadow->alpha = 191;
-//	(*me)->flags	|= ACTOR_DRAW_ALWAYS;
-	(*me)->flags	= ACTOR_DRAW_ALWAYS;
+	me->actor->shadow->radius = 30;
+	me->actor->shadow->alpha = 191;
+//	me->flags	|= ACTOR_DRAW_ALWAYS;
+	me->flags	= ACTOR_DRAW_ALWAYS;
 	
 	tongueState	 = TONGUE_NONE | TONGUE_IDLE;
 	
-	InitActorAnim ((*me)->actor);
-	AnimateActor  ((*me)->actor,FROG_ANIM_DANCE1,YES,NO,0.75F,0,0);
+	InitActorAnim (me->actor);
+	AnimateActor  (me->actor,FROG_ANIM_DANCE1,YES,NO,0.75F,0,0);
 
-	(*me)->actor->scale.v[0] = globalFrogScale;	//0.09;
-	(*me)->actor->scale.v[1] = globalFrogScale;	//0.09;
-	(*me)->actor->scale.v[2] = globalFrogScale;	//0.09;
+	me->actor->scale.v[0] = globalFrogScale;	//0.09;
+	me->actor->scale.v[1] = globalFrogScale;	//0.09;
+	me->actor->scale.v[2] = globalFrogScale;	//0.09;
 	
 	SetFroggerStartPos(where,p);
 
-	(*me)->action.healthPoints	= 3;
-	(*me)->action.isOnFire		= 0;
-	(*me)->action.frogon		= -1;
-	(*me)->action.frogunder		= -1;
+	me->action.healthPoints	= 3;
+	me->action.isOnFire		= 0;
+	me->action.frogon		= -1;
+	me->action.frogunder		= -1;
 
-	(*me)->radius				= 22.0F;
-
+	me->radius				= 22.0F;
 }
 
 void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlays, unsigned char createBabyOverlays)
