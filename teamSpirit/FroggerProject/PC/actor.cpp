@@ -8,10 +8,17 @@
 	Date		: 11/11/98
 
 ----------------------------------------------------------------------------------------------- */
-
+#include <math.h>
+#include <windows.h>
+#include <ddraw.h>
+#include <d3d.h>
 
 #define F3DEX_GBI_2
 #define LEAVEOUT_MATH
+
+//#include <ddraw.h>
+//#include <d3d.h>
+
 //#include "ultra64.h"
 //#include <assert.h>
 //#include <stdio.h>
@@ -25,6 +32,8 @@
 
 extern "C"
 {
+
+
 #include "actor.h"
 #include "frogger.h"
 #include "block.h"
@@ -43,6 +52,7 @@ extern "C"
 
 
 #include <islutil.h>
+#include "mdx.h"
 
 //#define MAX_UNIQUE_ACTORS	50
 
@@ -1173,6 +1183,8 @@ void actorFree(ACTOR *actor)
 
 void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe)
 {
+	if (actor->actualActor)
+		Animate((MDX_ACTOR *)actor->actualActor,animNum,loop,0,speed/4096.0);
 }
 
 

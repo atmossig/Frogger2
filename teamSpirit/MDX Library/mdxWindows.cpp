@@ -28,7 +28,6 @@
 #include "mdxProfile.h"
 #include "mdxWindows.h"
 #include "mdxFont.h"
-#include "fxBlur.h"
 #include "gelf.h"
 
 #ifdef __cplusplus

@@ -1,8 +1,8 @@
 #ifndef _LIBGTE_H_INCLUDE
 #define _LIBGTE_H_INCLUDE
 
-#define rsin(x) (sin(x/(4096/6.14))*4096)
-#define rcos(x) (cos(x/(4096/6.14))*4096)
+#define rsin(x) (sin((x/4096)*3.14)*4096)
+#define rcos(x) (cos((x/4096)*3.14)*4096)
 
 typedef struct
 {		/* long word type 3D vector */

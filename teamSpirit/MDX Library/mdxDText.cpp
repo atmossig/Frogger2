@@ -27,7 +27,6 @@
 #include "mdxDText.h"
 #include "mdxProfile.h"
 #include "mdxWindows.h"
-#include "fxBlur.h"
 #include "gelf.h"
 #include "stdio.h"
 

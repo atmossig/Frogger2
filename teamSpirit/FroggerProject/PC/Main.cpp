@@ -123,7 +123,7 @@ long LoopFunc(void)
 {
 	ACTOR2 *c;
 
-	actFrameCount += timeInfo.frameCount;
+	actFrameCount = timeInfo.frameCount;
 	gameSpeed = 4096*timeInfo.speed;
 
 	GameLoop();
@@ -135,10 +135,13 @@ long LoopFunc(void)
 		((MDX_ACTOR *)(c->actor->actualActor))->pos.vy = c->actor->position.vy / 10.0;
 		((MDX_ACTOR *)(c->actor->actualActor))->pos.vz = c->actor->position.vz / 10.0;
 
-		//((MDX_ACTOR *)(c->actor->actualActor))->qRot.x = c->actor->qRot.x / 4096.0;
-		//((MDX_ACTOR *)(c->actor->actualActor))->qRot.y = c->actor->qRot.y / 4096.0;
-		//((MDX_ACTOR *)(c->actor->actualActor))->qRot.z = c->actor->qRot.z / 4096.0;
-		//((MDX_ACTOR *)(c->actor->actualActor))->qRot.w = (c->actor->qRot.w / 4096.0) * 6.28;
+		if (c->actor->qRot.w)
+		{
+			((MDX_ACTOR *)(c->actor->actualActor))->qRot.x = c->actor->qRot.x / 4096.0;
+			((MDX_ACTOR *)(c->actor->actualActor))->qRot.y = c->actor->qRot.y / 4096.0;
+			((MDX_ACTOR *)(c->actor->actualActor))->qRot.z = c->actor->qRot.z / 4096.0;
+			((MDX_ACTOR *)(c->actor->actualActor))->qRot.w = (c->actor->qRot.w / 4096.0) * 6.28;
+		}
 
 		c = c->next;
 	}

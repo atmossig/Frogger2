@@ -19,7 +19,6 @@
 #include "mdxWindows.h"
 #include "mdxFont.h"
 #include "commctrl.h"
-#include "fxBlur.h"
 #include "gelf.h"
 
 #endif
