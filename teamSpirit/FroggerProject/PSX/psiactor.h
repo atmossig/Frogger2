@@ -12,7 +12,6 @@
 #include "fixed.h"
 
 
-
 #define ANIM_QUEUE_LENGTH	8
 #define ANIMSHIFT			8
 
@@ -156,7 +155,8 @@ void actorDrawBones(ACTOR *actor);
 
 void actorRotate(short angx, short angy, short angz, long movex, long movey, long movez, VECTOR *result);
 
-void actorSetAnimation(ACTOR *actor, ULONG frame);
+//void actorSetAnimation(ACTOR *actor, ULONG frame);
+void actorSetAnimation(ACTOR *actor, ULONG frame, int setKeys);
 
 void actorSetAnimation2(ACTOR *actor, ULONG frame0, ULONG frame1, ULONG blend);
 
@@ -178,5 +178,8 @@ void *ChangeModel( ACTOR *actor, char *model );
 int UndoChangeModel( ACTOR *actor );
 
 void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int speed, char skip);
+
+//void CopyKeyFrames ( ACTOR *dest, ACTOR *src );
+void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src );
 
 #endif //__ACTOR_H__
