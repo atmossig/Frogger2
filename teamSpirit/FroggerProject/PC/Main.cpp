@@ -952,6 +952,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 			"· Use the software rendering mode\n\n"
 			"If these do not help, consult the accompanying documentation.", "Frogger2",
 			MB_ICONEXCLAMATION|MB_OK);
+
+		configDialog = true;
 	}
 
 	GameStartup();
