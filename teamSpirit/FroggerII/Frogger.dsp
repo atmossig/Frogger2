@@ -393,6 +393,14 @@ SOURCE=.\Common\sprite.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\story.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\story.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\textoverlays.c
 # End Source File
 # Begin Source File

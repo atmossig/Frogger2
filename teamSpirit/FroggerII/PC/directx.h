@@ -67,6 +67,7 @@ void FreeScreenTextures(LPDIRECTDRAWSURFACE *where,LPDIRECTDRAWSURFACE *where2, 
 extern D3DTLVERTEX *InitScreenVertexList(void);
 extern void ShowDesignScreen(char *filename);
 void PrintTextureInfo(void);
+void CopyShortDataToScreen(short *data);
 
 #define SCREENTEX_SIZE 32
 

@@ -99,6 +99,15 @@ void GameLoop(void)
 		RunPauseMenu();
 		frameCount++;
 		break;
+
+	case FMVPLAY_MODE:
+		if(frameCount == 15)
+			StartDrawing("gameloop");
+
+		RunFMVMode();
+		frameCount++;
+		break;
+	
 	}
 
 	i = NUM_FROGS;
@@ -174,6 +183,11 @@ void RunLevelComplete( )
 //				SaveGameData();
 #endif
 		}
+
+		if (gameState.single == STORY_MODE)
+			if (CheckForFMVMode())
+				return;
+
 
 		FreeAllLists();
 		frameCount = 0;

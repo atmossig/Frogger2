@@ -684,6 +684,25 @@ long DirectXInit(HWND window, long hardware )
 
 /* ------------------------------------------------------------------------------------------ */
 
+void CopyShortDataToScreen(short *data)
+{
+	long i,j;
+	HRESULT res;
+	DDSURFACEDESC ddsd;
+	DDINIT(ddsd);	
+	res = surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT|DDLOCK_WRITEONLY, 0);
+	
+	if (res == DD_OK)
+	{
+		for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
+			memcpy (&((short *)ddsd.lpSurface)[i],&data[j],SCREEN_WIDTH*2);
+
+		surface[RENDER_SRF]->Unlock(NULL);
+	}
+	else
+		ddShowError(res);
+
+}
 
 void ShowLoadScreen(void)
 {
