@@ -1,0 +1,31 @@
+Dont modify this, it's our blank.
+
+BUG------------ 
+SENT BY-------- 
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+|---------------------------------------------------------------------------|
+|		Here is a list of pending bugs, move them to fixed when fixed!		|
+|---------------------------------------------------------------------------|
+
+BUG------------ Snappers crash the game when you jump on their tiles
+INSTANCE-------	
+SENT BY-------- Lauren
+RESPONSIBILTY-- Jim
+FIXED NOTES----
+
+BUG------------ Collision tiles with two opposing vertices lower than the other two causes the normal to be inversed
+INSTANCE-------	Ancients1 test map, see simon
+SENT BY-------- Lauren
+RESPONSIBILTY-- Dave
+FIXED NOTES----
+
+BUG------------ 
+SENT BY-------- 
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+|-------------------------------------------|
+|		Here is a list of fixed bugs		|
+|-------------------------------------------|

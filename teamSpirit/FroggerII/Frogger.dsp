@@ -944,7 +944,7 @@ SOURCE=.\resource.rc
 # End Group
 # Begin Source File
 
-SOURCE=.\bugs.txt
+SOURCE=X:\TeamSpirit\pcversion\buglist.txt
 # End Source File
 # Begin Source File
 
