@@ -694,6 +694,7 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 
 		register short	*mp0, *mp1, *mp2;
 		register int	r0,r1,r2, a0,a1,a2;
+		register int	shift = 12;
 
 		mp0 = &m0->m[0][0];
 		mp2 = &m2->m[0][0];
@@ -703,15 +704,15 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 		r2 = *mp0++;					// m0[0][2]
 
 		mp1 = &m1->m[0][0];
-		a0  = ((*mp1++ * r0) >>12);
-		a1  = ((*mp1++ * r0) >>12);
-		a2  = ((*mp1++ * r0) >>12);
-		a0 += ((*mp1++ * r1) >>12);
-		a1 += ((*mp1++ * r1) >>12);
-		a2 += ((*mp1++ * r1) >>12);
-		a0 += ((*mp1++ * r2) >>12);
-		a1 += ((*mp1++ * r2) >>12);
-		a2 += ((*mp1   * r2) >>12);
+		a0  = ((*mp1++ * r0) >>shift);
+		a1  = ((*mp1++ * r0) >>shift);
+		a2  = ((*mp1++ * r0) >>shift);
+		a0 += ((*mp1++ * r1) >>shift);
+		a1 += ((*mp1++ * r1) >>shift);
+		a2 += ((*mp1++ * r1) >>shift);
+		a0 += ((*mp1++ * r2) >>shift);
+		a1 += ((*mp1++ * r2) >>shift);
+		a2 += ((*mp1   * r2) >>shift);
 		*mp2++ = a0;
 		*mp2++ = a1;
 		*mp2++ = a2;
@@ -721,15 +722,15 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 		r2 = *mp0++;					// m0[1][2]
 
 		mp1 = &m1->m[0][0];
-		a0  = ((*mp1++ * r0) >>12);
-		a1  = ((*mp1++ * r0) >>12);
-		a2  = ((*mp1++ * r0) >>12);
-		a0 += ((*mp1++ * r1) >>12);
-		a1 += ((*mp1++ * r1) >>12);
-		a2 += ((*mp1++ * r1) >>12);
-		a0 += ((*mp1++ * r2) >>12);
-		a1 += ((*mp1++ * r2) >>12);
-		a2 += ((*mp1   * r2) >>12);
+		a0  = ((*mp1++ * r0) >>shift);
+		a1  = ((*mp1++ * r0) >>shift);
+		a2  = ((*mp1++ * r0) >>shift);
+		a0 += ((*mp1++ * r1) >>shift);
+		a1 += ((*mp1++ * r1) >>shift);
+		a2 += ((*mp1++ * r1) >>shift);
+		a0 += ((*mp1++ * r2) >>shift);
+		a1 += ((*mp1++ * r2) >>shift);
+		a2 += ((*mp1   * r2) >>shift);
 		*mp2++ = a0;
 		*mp2++ = a1;
 		*mp2++ = a2;
@@ -739,15 +740,15 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 		r2 = *mp0;						// m0[2][2]
 
 		mp1 = &m1->m[0][0];
-		a0  = ((*mp1++ * r0) >>12);
-		a1  = ((*mp1++ * r0) >>12);
-		a2  = ((*mp1++ * r0) >>12);
-		a0 += ((*mp1++ * r1) >>12);
-		a1 += ((*mp1++ * r1) >>12);
-		a2 += ((*mp1++ * r1) >>12);
-		a0 += ((*mp1++ * r2) >>12);
-		a1 += ((*mp1++ * r2) >>12);
-		a2 += ((*mp1   * r2) >>12);
+		a0  = ((*mp1++ * r0) >>shift);
+		a1  = ((*mp1++ * r0) >>shift);
+		a2  = ((*mp1++ * r0) >>shift);
+		a0 += ((*mp1++ * r1) >>shift);
+		a1 += ((*mp1++ * r1) >>shift);
+		a2 += ((*mp1++ * r1) >>shift);
+		a0 += ((*mp1++ * r2) >>shift);
+		a1 += ((*mp1++ * r2) >>shift);
+		a2 += ((*mp1   * r2) >>shift);
 		*mp2++ = a0;
 		*mp2++ = a1;
 		*mp2   = a2;
@@ -760,6 +761,7 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 		short			mat[9];
 		register short	*mp0, *mp1, *mp2;
 		register int	r0,r1,r2, a0,a1,a2;
+		register int	shift = 12;
 
 		mp0 = &m0->m[0][0];
 		mp2 = &m1->m[0][0];
@@ -772,15 +774,15 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 		r2 = *mp0++;					// m0[0][2]
 
 		mp1 = mat;
-		a0  = ((*mp1++ * r0) >>12);
-		a1  = ((*mp1++ * r0) >>12);
-		a2  = ((*mp1++ * r0) >>12);
-		a0 += ((*mp1++ * r1) >>12);
-		a1 += ((*mp1++ * r1) >>12);
-		a2 += ((*mp1++ * r1) >>12);
-		a0 += ((*mp1++ * r2) >>12);
-		a1 += ((*mp1++ * r2) >>12);
-		a2 += ((*mp1   * r2) >>12);
+		a0  = ((*mp1++ * r0) >>shift);
+		a1  = ((*mp1++ * r0) >>shift);
+		a2  = ((*mp1++ * r0) >>shift);
+		a0 += ((*mp1++ * r1) >>shift);
+		a1 += ((*mp1++ * r1) >>shift);
+		a2 += ((*mp1++ * r1) >>shift);
+		a0 += ((*mp1++ * r2) >>shift);
+		a1 += ((*mp1++ * r2) >>shift);
+		a2 += ((*mp1   * r2) >>shift);
 		*mp2++ = a0;
 		*mp2++ = a1;
 		*mp2++ = a2;
@@ -790,15 +792,15 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 		r2 = *mp0++;					// m0[1][2]
 
 		mp1 = mat;
-		a0  = ((*mp1++ * r0) >>12);
-		a1  = ((*mp1++ * r0) >>12);
-		a2  = ((*mp1++ * r0) >>12);
-		a0 += ((*mp1++ * r1) >>12);
-		a1 += ((*mp1++ * r1) >>12);
-		a2 += ((*mp1++ * r1) >>12);
-		a0 += ((*mp1++ * r2) >>12);
-		a1 += ((*mp1++ * r2) >>12);
-		a2 += ((*mp1   * r2) >>12);
+		a0  = ((*mp1++ * r0) >>shift);
+		a1  = ((*mp1++ * r0) >>shift);
+		a2  = ((*mp1++ * r0) >>shift);
+		a0 += ((*mp1++ * r1) >>shift);
+		a1 += ((*mp1++ * r1) >>shift);
+		a2 += ((*mp1++ * r1) >>shift);
+		a0 += ((*mp1++ * r2) >>shift);
+		a1 += ((*mp1++ * r2) >>shift);
+		a2 += ((*mp1   * r2) >>shift);
 		*mp2++ = a0;
 		*mp2++ = a1;
 		*mp2++ = a2;
@@ -808,15 +810,15 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 		r2 = *mp0;						// m0[2][2]
 
 		mp1 = mat;
-		a0  = ((*mp1++ * r0) >>12);
-		a1  = ((*mp1++ * r0) >>12);
-		a2  = ((*mp1++ * r0) >>12);
-		a0 += ((*mp1++ * r1) >>12);
-		a1 += ((*mp1++ * r1) >>12);
-		a2 += ((*mp1++ * r1) >>12);
-		a0 += ((*mp1++ * r2) >>12);
-		a1 += ((*mp1++ * r2) >>12);
-		a2 += ((*mp1   * r2) >>12);
+		a0  = ((*mp1++ * r0) >>shift);
+		a1  = ((*mp1++ * r0) >>shift);
+		a2  = ((*mp1++ * r0) >>shift);
+		a0 += ((*mp1++ * r1) >>shift);
+		a1 += ((*mp1++ * r1) >>shift);
+		a2 += ((*mp1++ * r1) >>shift);
+		a0 += ((*mp1++ * r2) >>shift);
+		a1 += ((*mp1++ * r2) >>shift);
+		a2 += ((*mp1   * r2) >>shift);
 		*mp2++ = a0;
 		*mp2++ = a1;
 		*mp2   = a2;
