@@ -440,6 +440,7 @@ void DrawSpecialFX()
 	if ( ( gameState.mode == INGAME_MODE ) || ( gameState.mode == PAUSE_MODE ) ||
 		 ( gameState.mode == CAMEO_MODE ) )
 	{
+		SwapFrame(0);
 		ProcessShadows();
 		
 		if( sfxList.count )
@@ -488,7 +489,7 @@ void ProcessShadows()
 	// process enemy shadows
 	for(nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next)
 	{
-		if( !nme->active || !nme->nmeActor )
+//		if( !nme->active || !nme->nmeActor )
 			continue;
 
 		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
@@ -506,7 +507,7 @@ void ProcessShadows()
 	// process platform shadows
 	for(plat = platformList.head.next; plat != &platformList.head; plat = plat->next)
 	{
-		if( !plat->active || !plat->pltActor )
+//		if( !plat->active || !plat->pltActor )
 			continue;
 
 		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
@@ -841,6 +842,8 @@ void DrawFXDecal( SPECFX *ripple )
 	tEntry = ((TEXENTRY *)ripple->tex);
 	if( tEntry && !zeroZ )
 	{
+		SwapFrame(0);
+
 		Clip3DPolygon( vT, tEntry->hdl );
 		Clip3DPolygon( &vT[2], tEntry->hdl );
 
@@ -1062,17 +1065,9 @@ void DrawFXLightning( SPECFX *fx )
 		return;
 
 	vT[0].specular = D3DRGB(0,0,0);
-	vT[0].tu = 0;
-	vT[0].tv = 0;
 	vT[1].specular = vT[0].specular;
-	vT[1].tu = 1;
-	vT[1].tv = 0;
 	vT[2].specular = vT[0].specular;
-	vT[2].tu = 1;
-	vT[2].tv = 1;
 	vT[3].specular = vT[0].specular;
-	vT[3].tu = 0;
-	vT[3].tv = 1;
 
 	// Additive mode
 	SwapFrame(3);
@@ -1091,6 +1086,8 @@ void DrawFXLightning( SPECFX *fx )
 			XfmPoint( &m, &tempVect );
 			vT[0].sx = m.v[X];
 			vT[0].sy = m.v[Y];
+			vT[0].tu = 0;
+			vT[0].tv = 0;
 			vT[0].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 			vT[0].color = D3DRGBA(fx->particles[i].r/255.0, fx->particles[i].g/255.0, fx->particles[i].b/255.0, fx->particles[i].a/255.0);
 
@@ -1100,6 +1097,8 @@ void DrawFXLightning( SPECFX *fx )
 			XfmPoint( &m, &tempVect );
 			vT[1].sx = m.v[X];
 			vT[1].sy = m.v[Y];
+			vT[1].tu = 1;
+			vT[1].tv = 0;
 			vT[1].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 			vT[1].color = vT[0].color;
 		}
@@ -1111,6 +1110,8 @@ void DrawFXLightning( SPECFX *fx )
 		XfmPoint( &m, &tempVect );
 		vT[2].sx = m.v[X];
 		vT[2].sy = m.v[Y];
+		vT[2].tu = 1;
+		vT[2].tv = 1;
 		vT[2].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 		vT[2].color = vT[0].color;
 
@@ -1120,6 +1121,8 @@ void DrawFXLightning( SPECFX *fx )
 		XfmPoint( &m, &tempVect );
 		vT[3].sx = m.v[X];
 		vT[3].sy = m.v[Y];
+		vT[3].tu = 0;
+		vT[3].tv = 1;
 		vT[3].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 		vT[3].color = vT[0].color;
 
