@@ -324,11 +324,11 @@ void GameProcessController(long pl)
 	}
 
 	// Croak and Croak Float
-	if(!(player[pl].frogState & FROGSTATUS_ISDEAD) && !(frog[pl]->action.isCroaking.time))
+	if(!(player[pl].frogState & FROGSTATUS_ISDEAD) && !(player[pl].isCroaking.time))
 	{
 		if((button[pl] & CONT_L) && !(lastbutton[pl] & CONT_L))
 		{
-			GTInit( &frog[pl]->action.isCroaking, 2 );
+			GTInit( &player[pl].isCroaking, 2 );
 			player[pl].frogState |= FROGSTATUS_ISCROAKING;
 //			PlayActorBasedSample(218,frog[pl]->actor,255,128);
 
@@ -808,10 +808,10 @@ void RunGameLoop (void)
 		if( frameCount > 15 )
 		{
 			for (i=0; i<NUM_FROGS; i++)
-				if( !frog[i]->action.dead.time && !(player[i].frogState & FROGSTATUS_ISDEAD) )
-					if ( frog[i]->action.stun.time)
+				if( !player[i].dead.time && !(player[i].frogState & FROGSTATUS_ISDEAD) )
+					if ( player[i].stun.time)
 					{
-						GTUpdate( &frog[i]->action.stun, -1 );
+						GTUpdate( &player[i].stun, -1 );
 					}
 					else
 					{
@@ -845,12 +845,12 @@ void RunGameLoop (void)
 			if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
 			{
 				frog[i]->draw = 1;
-				if (frog[i]->action.safe.time)
+				if (player[i].safe.time)
 				{
 					frog[i]->actor->xluOverride = 50;
 					
-					GTUpdate( &frog[i]->action.safe, -1 );
-					if( !frog[i]->action.safe.time )
+					GTUpdate( &player[i].safe, -1 );
+					if( !player[i].safe.time )
 						frog[i]->actor->xluOverride = 100;
 				}
 			}

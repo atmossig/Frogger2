@@ -34,28 +34,9 @@
 
 #include "general.h"
 
-typedef struct TAGACTION
-{	
-	TIMER safe;
-	TIMER stun;
-	TIMER dead;
-
-	TIMER isCroaking;
-	TIMER isOnFire;
-
-	char frogon;
-	char frogunder;
-
-	char healthPoints;
-	unsigned char deathBy;
-
-} ACTION;
-
-
 typedef struct TAGACTOR2
 {
 	ACTOR			*actor;
-	ACTION			action;	
 	
 	struct TAGACTOR2	*next,*prev;
 

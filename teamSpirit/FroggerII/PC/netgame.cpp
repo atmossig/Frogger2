@@ -453,7 +453,7 @@ int MPRemoveFrog( int i )
 	if( !frog[i]->draw ) // Already disabled
 		return 1;
 
-	frog[i]->action.healthPoints = 0;
+	player[i].healthPoints = 0;
 	player[i].lives = 0;
 
 	// Disable health sprites

@@ -142,11 +142,13 @@ void PickupCollectable(GARIB *garib, int pl)
 			break;
 
 		case EXTRAHEALTH_GARIB:
-			player[0].score += 100;
+			if( player[0].healthPoints < 3 )
+				player[0].healthPoints++;
 			break;
 
 		case EXTRALIFE_GARIB:
-			player[0].score += 500;
+			if( player[0].healthPoints < 3 )
+				player[0].healthPoints++;
 			break;
 
 		case AUTOHOP_GARIB:

@@ -111,7 +111,7 @@ void UpDateOnScreenInfo ( void )
 	{
 		if ( frog[0] )
 		{
-			if(frog[0]->action.healthPoints <= i)
+			if(player[0].healthPoints <= i)
 				sprHeart[i]->a = 64;
 			else
 				sprHeart[i]->a = 255;

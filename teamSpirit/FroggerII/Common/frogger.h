@@ -76,18 +76,25 @@ enum
 typedef struct _PLAYER
 {
 	char			name[3];
+
+	char			frogon;				// Which frog is on this one
+	char			frogunder;			// Which frog this one is on
+
 	unsigned long	score;
-	short			lives;
 	short			numSpawn;
 	short			numCredits;
+	unsigned char	lives;
+	unsigned char	healthPoints;
+
+	unsigned char	deathBy;
 
 	unsigned char	inputPause;			// used for controller input
 
 	short			spawnTimer;
 	short			spawnScoreLevel;
 
-	short		 	worldNum;
-	short			levelNum;
+	unsigned char 	worldNum;
+	unsigned char	levelNum;
 	unsigned long	frogState;
 	short			saveSlot;
 
@@ -103,6 +110,12 @@ typedef struct _PLAYER
 	unsigned char	isQuickHopping;
 
 	unsigned char	extendedHopDir;
+
+	TIMER			safe;
+	TIMER			stun;
+	TIMER			dead;
+	TIMER			isCroaking;
+	TIMER			isOnFire;
 
 	//	Parabolic curve variables
 	//	See frogmove.c for a longwinded and esoteric explanation

@@ -50,7 +50,7 @@ int UpdateCTF( )
 	else // Is anyone still alive?
 	{
 		for( i=0; i<NUM_FROGS; i++ )
-			if( frog[i]->action.healthPoints ) break;
+			if( player[i].healthPoints ) break;
 
 		if( i==NUM_FROGS )
 		{
@@ -108,7 +108,7 @@ int UpdateRace( )
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		if( !(frog[i]->action.safe.time) && (frameCount > 20))
+		if( !(player[i].safe.time) && (frameCount > 20))
 		if(!IsPointVisible(&frog[i]->actor->pos))
 		{
 			KillMPFrog(i);
@@ -176,22 +176,22 @@ void PickupBabyFrogMulti( ENEMY *baby, int pl )
 void KillMPFrog(int num)
 {
 	int i=0;
-	GTInit( &frog[num]->action.stun, 2 );
-	GTInit( &frog[num]->action.safe, 3 );
+	GTInit( &player[num].stun, 2 );
+	GTInit( &player[num].safe, 3 );
 	
-	if (frog[num]->action.healthPoints > 0)
+	if (player[num].healthPoints > 0)
 	{
-		i=num*3+(--frog[num]->action.healthPoints);
+		i=num*3+(--player[num].healthPoints);
 		if( sprHeart[i] ) sprHeart[i]->draw = 0;
 	}
 	else
 	{
-		frog[num]->action.deathBy = DEATHBY_NORMAL;
+		player[num].deathBy = DEATHBY_NORMAL;
 		player[num].frogState |= FROGSTATUS_ISDEAD;
 
 		if (frog[num]->actor)
 		{
-			if (frog[num]->action.healthPoints > 0)
+			if (player[num].healthPoints > 0)
 				frog[num]->draw = 1;
 			else
 				frog[num]->draw = 0;

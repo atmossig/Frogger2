@@ -907,7 +907,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			anim_hurt = MEMGETBYTE(p);
 			anim_die = MEMGETBYTE(p);
 
-			if ((--frog[player]->action.healthPoints) == 0)
+			if ((--player[player].healthPoints) == 0)
 				AnimateActor(frog[player], anim_hurt, NO, NO, 
 		}
 */

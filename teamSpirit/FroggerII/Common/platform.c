@@ -1008,9 +1008,9 @@ void UpdateStepOnActivatedPlatform(PLATFORM *plat)
 			if (!(player[0].frogState & FROGSTATUS_ISDEAD))
 			{
 				//AnimateActor(frog[0]->actor,FROG_ANIM_,NO,NO,0.5F,0,0);
-				frog[0]->action.deathBy = DEATHBY_DROWNING;
+				p;ayer[0].deathBy = DEATHBY_DROWNING;
 				player[0].frogState |= FROGSTATUS_ISDEAD;
-				frog[0]->action.dead = 50;
+				player[0].dead = 50;
 			}
 		}
 */

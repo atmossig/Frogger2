@@ -91,12 +91,12 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	currPlatform[p]	= NULL;
 	destPlatform[p]	= NULL;
 
-	frog[p]->action.healthPoints	= 3;
-	GTInit( &frog[p]->action.isCroaking, 0 );
-	GTInit( &frog[p]->action.isOnFire, 0 );
-	GTInit( &frog[p]->action.stun, 0 );
-	GTInit( &frog[p]->action.safe, 0 );
-	GTInit( &frog[p]->action.dead, 0 );
+	player[p].healthPoints	= 3;
+	GTInit( &player[p].isCroaking, 0 );
+	GTInit( &player[p].isOnFire, 0 );
+	GTInit( &player[p].stun, 0 );
+	GTInit( &player[p].safe, 0 );
+	GTInit( &player[p].dead, 0 );
 
 	// set frog action movement variables
 	ZeroVector(&frog[p]->actor->vel);
@@ -367,10 +367,10 @@ void UpdateFroggerPos(long pl)
 			AddToVector( &frog[pl]->actor->pos, &moveVec );
 
 			// Frog is dead
-			if( dist < -900 && !frog[pl]->action.dead.time )
+			if( dist < -900 && !player[pl].dead.time )
 			{
-				GTInit( &frog[pl]->action.dead, 3 );
-				frog[pl]->action.deathBy = DEATHBY_DROWNING;
+				GTInit( &player[pl].dead, 3 );
+				player[pl].deathBy = DEATHBY_DROWNING;
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
 				player[pl].isSinking = 0;
 				AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
@@ -430,7 +430,7 @@ void UpdateFroggerPos(long pl)
 	{
 		SPECFX *fx;
 
-		if( !(frog[pl]->action.isCroaking.time%2) )
+		if( !(player[pl].isCroaking.time%2) )
 		{
 			SetVector(&effectPos,&frog[pl]->actor->pos);
 			effectPos.v[Y] += 15;
@@ -440,8 +440,8 @@ void UpdateFroggerPos(long pl)
 			fx->b = 0;
 		}
 
-		GTUpdate( &frog[pl]->action.isCroaking, -1 );
-		if( !frog[pl]->action.isCroaking.time )
+		GTUpdate( &player[pl].isCroaking, -1 );
+		if( !player[pl].isCroaking.time )
 		{
 			player[pl].frogState &= ~FROGSTATUS_ISCROAKING;
 
@@ -467,10 +467,10 @@ void UpdateFroggerPos(long pl)
 	/* ---------------------------------------------------- */
 
 	// check if frog is on fire, etc.
-	if(frog[pl]->action.isOnFire.time)
+	if(player[pl].isOnFire.time)
 	{
-		GTUpdate( &frog[pl]->action.isOnFire, -1 );
-		if( !(frog[pl]->action.isOnFire.time%2) )
+		GTUpdate( &player[pl].isOnFire, -1 );
+		if( !(player[pl].isOnFire.time%2) )
 		{
 			SetVector(&effectPos,&frog[pl]->actor->pos);
 			effectPos.v[Y] += 25;
@@ -872,8 +872,8 @@ void CheckForFroggerLanding(long pl)
 	//if (pl == 0)
 	//	camFacing = nextCamFacing;
 
-	frog[pl]->action.deathBy = -1;
-	GTInit( &frog[pl]->action.dead, 0 );
+	player[pl].deathBy = -1;
+	GTInit( &player[pl].dead, 0 );
 
 	player[pl].canJump = 1;
 	player[pl].isSuperHopping = 0;
@@ -881,17 +881,17 @@ void CheckForFroggerLanding(long pl)
 	player[pl].jumpTime = -1;
 
 	// Assume for now that if we've landed after being on another frogs head then we're no longer on it.
-	if( frog[pl]->action.frogon != (char)-1 )
+	if( player[pl].frogon != (char)-1 )
 	{
-		int f = frog[pl]->action.frogon;
+		int f = player[pl].frogon;
 
 		player[f].canJump = 1;
-		frog[f]->action.frogunder = -1;
-		frog[pl]->action.frogon = -1;
+		player[f].frogunder = -1;
+		player[pl].frogon = -1;
 
 		player[pl].idleEnable = 1;
 
-		if( frog[f]->action.frogon == (char)-1 )
+		if( player[f].frogon == (char)-1 )
 		{
 			player[f].idleEnable = 1;
 			AnimateActor( frog[f]->actor, FROG_ANIM_BREATHE, YES, NO, 0.6, 0,0 );
@@ -951,14 +951,14 @@ void CheckForFroggerLanding(long pl)
 
 		if(player[pl].heightJumped < -125.0F)
 		{
-			if(!frog[pl]->action.dead.time)
+			if(!player[pl].dead.time)
 			{
 				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &destTile[pl]->centre, &destTile[pl]->normal, 25, 1, 0.1, 0.8 );
-				frog[pl]->action.deathBy = DEATHBY_NORMAL;
+				player[pl].deathBy = DEATHBY_NORMAL;
 				AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
 
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
-				GTInit( &frog[pl]->action.dead, 3 );
+				GTInit( &player[pl].dead, 3 );
 
 				//PlayActorBasedSample(2,frog[pl]->actor,255,128);
 			}
@@ -1000,24 +1000,24 @@ void CheckForFroggerLanding(long pl)
 		// check tile to see if frog has jumped onto a certain tile type
 		if((state == TILESTATE_DEADLY) || (player[pl].heightJumped < -125.0F))
 		{
-			if(!frog[pl]->action.dead.time)
+			if(!player[pl].dead.time)
 			{
 				if(state == TILESTATE_DEADLY)
 				{
 					SPECFX *fx;
 					CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 20, 0.8, 0.1, 0.6 );
-					frog[pl]->action.deathBy = DEATHBY_DROWNING;
+					player[pl].deathBy = DEATHBY_DROWNING;
 					AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 				}
 				else
 				{
 					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &tile->centre, &tile->normal, 25, 1, 0.1, 1 );
-					frog[pl]->action.deathBy = DEATHBY_NORMAL;
+					player[pl].deathBy = DEATHBY_NORMAL;
 					AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
 				}
 
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
-				GTInit( &frog[pl]->action.dead, 3 );
+				GTInit( &player[pl].dead, 3 );
 
 				//PlayActorBasedSample(2,frog[pl]->actor,255,128);
 			}
@@ -1087,24 +1087,24 @@ void CheckForFroggerLanding(long pl)
 				SetQuaternion( &frog[i]->actor->qRot, &frog[pl]->actor->qRot );
 				SitAndFace( frog[i], currTile[i], frogFacing[i] );
 
-				if( frog[i]->action.frogunder != (char)-1 ) continue;
+				if( player[i].frogunder != (char)-1 ) continue;
 
 				player[i].canJump = 0;
 
-				frog[pl]->action.frogon = i;
-				frog[i]->action.frogunder = pl;
+				player[pl].frogon = i;
+				player[i].frogunder = pl;
 
 				player[pl].idleEnable = 0;
 				player[i].idleEnable = 0;
 
 				StartAnimateActor( frog[pl]->actor, FROG_ANIM_PINLOOP, YES, NO, 0.5, 0,0 );
 
-				if( frog[i]->action.frogon != (char)-1 )
+				if( player[i].frogon != (char)-1 )
 				{
 					VECTOR up;
 					SetVector( &up, &currTile[i]->normal );
 					ScaleVector( &up, 10 );
-					AddVector( &frog[i]->actor->pos, &frog[frog[i]->action.frogon]->actor->pos, &up );
+					AddVector( &frog[i]->actor->pos, &frog[player[i].frogon]->actor->pos, &up );
 				}
 
 				SetVector( &frog[pl]->actor->pos, &frog[i]->actor->pos );
@@ -1178,8 +1178,8 @@ BOOL KillFrog(long pl)
 	float modifier;
 	int rVal;
 	
-	GTUpdate( &frog[pl]->action.dead, -1 );
-	if(!frog[pl]->action.dead.time || frog[pl]->action.deathBy == DEATHBY_INSTANT)
+	GTUpdate( &player[pl].dead, -1 );
+	if(!player[pl].dead.time || player[pl].deathBy == DEATHBY_INSTANT)
 	{
 		numHealth_TOTAL++;
 		// lose a life
@@ -1193,7 +1193,7 @@ BOOL KillFrog(long pl)
 
 		player[pl].frogState &= ~FROGSTATUS_ISDEAD;
 
-		if(frog[pl]->action.deathBy == DEATHBY_ELECTRICSHOCK)
+		if(player[pl].deathBy == DEATHBY_ELECTRICSHOCK)
 		{
 			// reset frog texture !
 #ifndef PC_VERSION
@@ -1209,7 +1209,7 @@ BOOL KillFrog(long pl)
 		return FALSE;
 	}
 
-	switch(frog[pl]->action.deathBy)
+	switch(player[pl].deathBy)
 	{
 		case DEATHBY_NORMAL:
 			// throw some stars about

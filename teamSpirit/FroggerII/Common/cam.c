@@ -226,7 +226,7 @@ void CameraLookAtFrog(void)
 		l = 0;
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			if (frog[i]->action.healthPoints > 0)
+			if( player[i].healthPoints )
 			{
 				afx += frog[i]->actor->pos.v[0];
 				afy += frog[i]->actor->pos.v[1];
@@ -355,7 +355,7 @@ void SlurpCamPosition(long cam)
 		
 			for (i=0; i<NUM_FROGS; i++)
 			{
-				if (frog[i]->action.healthPoints > 0)
+				if( player[i].healthPoints )
 				{
 					t.v[0]+=currTile[i]->normal.v[0];
 					t.v[1]+=currTile[i]->normal.v[1];
@@ -421,15 +421,11 @@ void UpdateCameraPosition(long cam)
 		l=0;
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			if (frog[i]->action.healthPoints > 0)
+			if( player[i].healthPoints )
 			{
 				afx += frog[i]->actor->pos.v[0];
 				afy += frog[i]->actor->pos.v[1];
 				afz += frog[i]->actor->pos.v[2];
-
-		//		afx += frog[i]->actor->pos.v[0];
-		//		afy += frog[i]->actor->pos.v[1];
-		//		afz += frog[i]->actor->pos.v[2];
 
 				if (fixedUp)
 				{

@@ -95,7 +95,7 @@ void DoEnemyCollision( ENEMY *cur )
 	{
 		if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION))
 		{
-			if (!frog[0]->action.dead.time && !frog[0]->action.safe.time &&
+			if (!player[0].dead.time && !player[0].safe.time &&
 				(DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos)<((frog[0]->radius+act->radius)*(frog[0]->radius+act->radius))) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
@@ -108,7 +108,7 @@ void DoEnemyCollision( ENEMY *cur )
 		}
 		else
 		{
-			if( (currTile[0] == cur->inTile) && !frog[0]->action.dead.time && !frog[0]->action.safe.time &&
+			if( (currTile[0] == cur->inTile) && !player[0].dead.time && !player[0].safe.time &&
 				(!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 				!currPlatform[0] && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE) )
 			{
@@ -125,7 +125,7 @@ void DoEnemyCollision( ENEMY *cur )
 	{
 		int i;
 		for (i=0; i<NUM_FROGS; i++)
-			if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[i]->action.safe.time &&
+			if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !player[i].safe.time &&
 				(DistanceBetweenPointsSquared(&frog[i]->actor->pos,&act->actor->pos)<((frog[i]->radius+act->radius)*(frog[i]->radius+act->radius))) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
@@ -134,7 +134,7 @@ void DoEnemyCollision( ENEMY *cur )
 				else
 					KillMPFrog(i);
 			}
-			else if( (currTile[i] == cur->inTile) && !frog[i]->action.safe.time && 
+			else if( (currTile[i] == cur->inTile) && !player[i].safe.time && 
 					(!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 					!(player[i].frogState & FROGSTATUS_ISFLOATING))
 			{
@@ -154,18 +154,18 @@ void NMEDamageFrog( int num, ENEMY *nme )
 
 	if( nme->flags & ENEMY_NEW_ONEHITKILL )
 	{
-		frog[num]->action.healthPoints = 0;
+		player[num].healthPoints = 0;
 	}
 	else
 	{
-		frog[num]->action.healthPoints--;
+		player[num].healthPoints--;
 
 		#ifdef N64_VERSION
 		StartRumble(120,1.5,5,ActiveController);
 		#endif
 	}
 	
-	if(frog[num]->action.healthPoints != 0)
+	if(player[num].healthPoints != 0)
 	{
 		/* 
 		Check for NME flags and do different effects
@@ -173,7 +173,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		AnimateActor(frog[num]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
 		CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[num]->actor->pos, &currTile[num]->normal, 30, 0, 0, 3.0 );
 //		PlaySample(42,NULL,192,128);
-		GTInit( &frog[num]->action.safe, 2 );
+		GTInit( &player[num].safe, 2 );
 		PlaySample(GEN_FROG_HURT,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
 	}
 	else
@@ -192,26 +192,26 @@ void NMEDamageFrog( int num, ENEMY *nme )
 			AnimateActor(frog[num]->actor,reactiveAnims[nme->reactiveNumber].animFrog, NO, NO, 0.25F, 0, 0);
 			AnimateActor(nme->nmeActor->actor,reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25F, 0, 0);
 
-			GTInit( &frog[num]->action.dead, 5 );
+			GTInit( &player[num].dead, 5 );
 		}
 		else
 		{
-			GTInit( &frog[num]->action.dead, 3 );
+			GTInit( &player[num].dead, 3 );
 		
 			AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
 		}
 
-		frog[num]->action.healthPoints = 3;
-		frog[num]->action.deathBy = DEATHBY_NORMAL;
+		player[num].healthPoints = 3;
+		player[num].deathBy = DEATHBY_NORMAL;
 		player[num].frogState |= FROGSTATUS_ISDEAD;
 
 		/* 
 		Check for NME flags and do different effects
 //		PlaySample(110,NULL,192,128);
 		AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
-		GTInit( &frog[num]->action.dead, 2 );
-		frog[num]->action.healthPoints = 3;
-		frog[num]->action.deathBy = DEATHBY_NORMAL;
+		GTInit( &player[num].dead, 2 );
+		player[num].healthPoints = 3;
+		player[num].deathBy = DEATHBY_NORMAL;
 		player[num].frogState |= FROGSTATUS_ISDEAD;
 		PlaySample(GEN_FROG_DEATH,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
 */
@@ -545,7 +545,7 @@ void UpdateSnapper( ENEMY *cur )
 		cur->isSnapping = 0;
 
 		if( (DistanceBetweenPointsSquared(&act->rotaim,&frog[0]->actor->pos)<900) && 
-			!frog[0]->action.dead.time && !frog[0]->action.safe.time ) // If frog is within hitting distance
+			!player[0].dead.time && !player[0].safe.time ) // If frog is within hitting distance
 		{
 			NMEDamageFrog(0,cur);
 		}
@@ -635,7 +635,7 @@ void UpdateTileSnapper( ENEMY *cur )
 		cur->isSnapping = 0;
 
 		// If the frog is on our current target tile
-		if( (path->nodes[path->fromNode].worldTile == currTile[0]) && (!frog[0]->action.dead.time) && (!frog[0]->action.safe.time) )
+		if( (path->nodes[path->fromNode].worldTile == currTile[0]) && (!player[0].dead.time) && (!player[0].safe.time) )
 			NMEDamageFrog(0,cur);
 		break;
 
@@ -770,7 +770,7 @@ void UpdateVent( ENEMY *cur )
 
 		// Check for collision with frog, and do damage
 		for( i=0; i < path->numNodes; i++ )
-			if( (path->nodes[i].worldTile == currTile[0]) && (!frog[0]->action.dead.time) && (!frog[0]->action.safe.time) )
+			if( (path->nodes[i].worldTile == currTile[0]) && (!player[0].dead.time) && (!player[0].safe.time) )
 				NMEDamageFrog(0,cur);
 
 		break;
@@ -1028,7 +1028,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 		path->nodes[2].worldTile = NULL;
 		return;
 	}
-	else if( dist < 33*33 && !frog[0]->action.dead.time && !frog[0]->action.safe.time ) // Trial and error value of 33
+	else if( dist < 33*33 && !player[0].dead.time && !player[0].safe.time ) // Trial and error value of 33
 	{
 		NMEDamageFrog(0,cur);
 	}
