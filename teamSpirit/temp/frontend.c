@@ -1623,6 +1623,7 @@ void RunLevelComplete()
 			if(oldBestText)
 				oldBestText->speed = 4096*75;
 
+#ifndef PC_DEMO
 			if(newBestText)
 				newBestText->speed = 4096*75;
 			if(nText)
@@ -1631,7 +1632,7 @@ void RunLevelComplete()
 
 				if(nText->xPos == nText->xPosTo)
 				{
-					levCompleteState = LEV_COMPLETE_ENTER_NAME;
+					levCompleteState = LEV_COMPLETE_MENU;
 					textEntry = NAME_LENGTH;
 				}
 			}
@@ -1648,6 +1649,17 @@ void RunLevelComplete()
 					}
 				}
 			}
+#else
+			if(eolTimer.time)
+			{
+				GTUpdate(&eolTimer,-1)
+				if((!eolTimer.time) || (padData.debounce[0] & PAD_CROSS))
+				{
+					levCompleteState = LEV_COMPLETE_MENU;
+					eolTimer.time = 0;
+				}
+			}
+#endif
 
 			break;
 
