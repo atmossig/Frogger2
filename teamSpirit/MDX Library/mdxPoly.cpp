@@ -171,6 +171,7 @@ unsigned long xluNoneRS[] =
 unsigned long xluEnableRS[] = 
 {
 	D3DRENDERSTATE_ALPHABLENDENABLE,1,
+	//D3DRENDERSTATE_STIPPLEDALPHA,1,
 
 	//
 	D3DRENDERSTATE_FORCE_DWORD,			NULL
@@ -201,6 +202,14 @@ unsigned long cullCCWRS[] =
 long dPoly = 1;
 unsigned long mPitch,cPitch,srcAddr,dstAddr;
 	
+
+/*  --------------------------------------------------------------------------------
+    Function      : CopySoftScreenToSurface
+	Purpose       :	copies the 320x240 software render to the screen at 640x480
+	Parameters    : -
+	Returns       : -
+	Info          : -
+*/
 void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
 {
 	DDSURFACEDESC2		ddsd;
@@ -212,7 +221,6 @@ void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
 	DDINIT(ddsd);
 	
 	while (srf->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
-	
 	
 	mPitch = ddsd.lPitch * 2;
 	cPitch = ddsd.lPitch;
@@ -259,7 +267,7 @@ void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
 		pop ebp
 	}
 
-	/*for (int y=0; y<480; y++)
+/*	for (int y=0; y<480; y++)
 		for (int x=0; x<640; x++)
 		{
 			d = softScreen[x+y*640];
@@ -273,7 +281,9 @@ void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
 
 
 			((short *)ddsd.lpSurface)[x+y*mPitch] = (r<<11 | g<<5 | b);
-		}*/
+			((short*)ddsd.lpSurface)[x+y*ddsd.lPitch/2] = d;
+		}
+*/
 	//for (int y=0; y<240; y++)
 	//	memcpy(&((short *)ddsd.lpSurface)[y*mPitch],&softScreen[y*640],640*sizeof(short));
 	
@@ -1190,6 +1200,54 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 }
 
+/*
+void softDrawTexturedRect(RECT r, D3DCOLOR colour, float u0, float v0, float u1, float v1)
+{
+	if ((r.left>clx1) || (r.top>cly1) || (r.right<clx0) || (r.bottom<cly0))
+		return;
+		
+	if (r.left<clx0)
+	{
+		u0 += ((clx0 - r.left)/((float)r.right-r.left)) * (u1-u0);
+		r.left = clx0;
+		
+	}
+
+	if (r.top<cly0)
+	{
+		v0 += ((cly0 - r.top)/((float)r.bottom-r.top)) * (v1-v0);
+		r.top = cly0;
+		
+	}
+
+	if (r.right>clx1)
+	{
+		u1 += ((clx1 - r.right)/((float)r.right-r.left)) * (u1-u0);
+		r.right = clx1;		
+	}
+
+	if (r.bottom>cly1)
+	{
+		v1 += ((cly1 - r.bottom)/((float)r.bottom-r.top))*(v1-v0);
+		r.bottom = cly1;		
+	}
+
+
+	int rd = RGBA_GETRED(colour);
+	int g = RGBA_GETGREEN(colour);
+	int b = RGBA_GETBLUE(colour);
+
+	TSSVertex v[4] = {
+		{ r.left, r.top, rd, g, b, u0, v0 },
+		{ r.left, r.bottom, rd, g, b, u0, v1 },
+		{ r.right, r.bottom, rd, g, b, u1, v1 },
+		{ r.right, r.top, rd, g, b, u1, v0 }
+	};
+
+	ssDrawPrimitive(v, 4);		
+}
+*/
+
 /*	--------------------------------------------------------------------------------
 	Function		: DrawFlatRect
 	Purpose			: draw a flat rectangle
@@ -1229,31 +1287,31 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 		r.bottom = cly1;		
 	}
 
-	D3DLVERTEX v[4] = {
-		{
-			r.left,r.top,0,0,
-			colour,D3DRGBA(0,0,0,1),
-			u0,v0
-		},
-		{
-			r.left,r.bottom,0,0,
-			colour,D3DRGBA(0,0,0,1),
-			u0,v1
-			},
-		{
-			r.right,r.bottom,0,0,
-			colour,D3DRGBA(0,0,0,1),
-			u1,v1
-		},
-		{
-			r.right,r.top,0,0,
-			colour,D3DRGBA(0,0,0,1),
-			u1,v0
-	}};
-
-
 	if (rHardware)
 	{
+		D3DLVERTEX v[4] = {
+			{
+				r.left,r.top,0,0,
+				colour,D3DRGBA(0,0,0,1),
+				u0,v0
+			},
+			{
+				r.left,r.bottom,0,0,
+				colour,D3DRGBA(0,0,0,1),
+				u0,v1
+				},
+			{
+				r.right,r.bottom,0,0,
+				colour,D3DRGBA(0,0,0,1),
+				u1,v1
+			},
+			{
+				r.right,r.top,0,0,
+				colour,D3DRGBA(0,0,0,1),
+				u1,v0
+			}
+		};
+
 		pDirect3DDevice->SetTexture(0,tex);
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
@@ -1278,7 +1336,7 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 		pDirect3DDevice->SetTexture(0,NULL);
-	}	
+	}
 }
 
 /*	--------------------------------------------------------------------------------
