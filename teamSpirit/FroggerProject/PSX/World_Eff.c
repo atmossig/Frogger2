@@ -880,7 +880,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 		}
 		// ENDFOR
 		
-		//utilPrintf("Jiggle Scenic!!!\n");
+		utilPrintf("Jiggle Scenic!!!\n");
 		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
 	}
 	else

@@ -817,15 +817,15 @@ void Actor2ClipCheck(ACTOR2* act)
 				//calculate local to screen coords for fma mesh.
 				//(camera matrix and objects' pos/rot matrix)
 
-				((FMA_MESH_HEADER*)(mesh))->posx = -act->actor->position.vx;
-				((FMA_MESH_HEADER*)(mesh))->posy = -act->actor->position.vy;
-				((FMA_MESH_HEADER*)(mesh))->posz = act->actor->position.vz;
+				(*mesh)->posx = -act->actor->position.vx;
+				(*mesh)->posy = -act->actor->position.vy;
+				(*mesh)->posz = act->actor->position.vz;
 
 				gte_SetRotMatrix(&GsWSMATRIX);
 				gte_SetTransMatrix(&GsWSMATRIX);
 
 				// Unnecessary maths for landscape segments, where pos is always zero.
-				gte_ldlvl( &((FMA_MESH_HEADER*)(mesh))->posx);
+				gte_ldlvl( &(*mesh)->posx);
 				gte_rtirtr();
 				gte_stlvl(&tx.t);
 
