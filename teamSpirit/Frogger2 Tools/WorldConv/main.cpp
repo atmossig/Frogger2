@@ -935,7 +935,7 @@ void WriteHeaders (FILE *fp)
 	
 	unsigned long i;
 
-	fprintf (fp,"\nGAMETILE *t_gTStart[4] = {%s%03i,%s%03i,%s%03i,%s%03i};\n",
+	fprintf (fp,"\nGAMETILE *t_gTStart[4] = {%s%i, %s%i, %s%i, %s%i};\n",
 		(frogs[0]==-1)?"":"tiles+",
 		(frogs[0]==-1)?0:frogs[0],
 
@@ -970,7 +970,7 @@ void WriteHeaders (FILE *fp)
 		fprintf(fp,"GAMETILE *t_bTStart[%i] = {",numBabys);	
 
 		for (i=0; i<numBabys; i++)
-			fprintf(fp,"tiles+%03i,",babys[i]);
+			fprintf(fp,"tiles+%i, ",babys[i]);
 		fprintf(fp,"};\n");
 	}
 
@@ -981,7 +981,7 @@ void WriteHeaders (FILE *fp)
 		{
 			fprintf(fp,"GAMETILE *t_bTSafe[%i] = {",numSafes);
 			for (i=0; i<numSafes; i++)
-				fprintf(fp,"tiles+%03i,",safes[i]);
+				fprintf(fp,"tiles+%i, ",safes[i]);
 			fprintf(fp,"};\n");
 		}
 		else
@@ -991,7 +991,7 @@ void WriteHeaders (FILE *fp)
 	{
 		fprintf(fp,"GAMETILE *t_bTSafe[%i] = {",numSafes);
 		for (i=0; i<numSafes; i++)
-			fprintf(fp,"tiles+%03i,",safes[i]);
+			fprintf(fp,"tiles+%i, ",safes[i]);
 		fprintf(fp,"};\n");
 	}
 
@@ -1002,7 +1002,7 @@ void WriteHeaders (FILE *fp)
 		{
 			fprintf(fp,"GAMETILE *t_gTpow[%i] = {",numPowers);
 			for (i=0; i<numPowers; i++)
-				fprintf(fp,"tiles+%03i,",powers[i]);
+				fprintf(fp,"tiles+%i, ",powers[i]);
 			fprintf(fp,"};\n");		
 		}
 		else
@@ -1012,7 +1012,7 @@ void WriteHeaders (FILE *fp)
 	{
 		fprintf(fp,"GAMETILE *t_gTpow[%i] = {",numPowers);
 		for (i=0; i<numPowers; i++)
-			fprintf(fp,"tiles+%03i,",powers[i]);
+			fprintf(fp,"tiles+%i, ",powers[i]);
 		fprintf(fp,"};\n");		
 	}
 	
