@@ -41,6 +41,7 @@ extern BYTE keyTable[256];
 extern unsigned rKeying;
 extern unsigned rPlaying;
 extern int checkMenuKeys;
+extern KEYENTRY keymap[56];
 
 /* ---------- Function prototypes ------------------- */
 

@@ -24,8 +24,9 @@
 #include "mdxPoly.h"
 #include "mdxddraw.h"
 #include "mdxpoly.h"
-#include <lang.h>		// yes yes yes yes yes yes yes yes . yes
-
+#include <language.h>		// yes yes yes yes yes yes yes yes . yes
+#include "controll.h"
+#include "layout.h"
 
 #define FONT_TEXTURE_SIZE		256
 #define FONT_TEMP_SURFACES		12
@@ -407,16 +408,16 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 				switch(*c)
 				{
 					case 'T':
-						str = GAMESTRING(STR_ESCAPE);
+						str = DIKStrings[keymap[6].key][gameTextLang];
 						break;
 					case 'X':
-						str = GAMESTRING(STR_RETURN);
+						str = DIKStrings[keymap[4].key][gameTextLang];
 						break;
 					case 'S':
-						str = GAMESTRING(STR_RIGHT_CONTROL);
+						str = DIKStrings[keymap[5].key][gameTextLang];
 						break;
 					case 'C':
-						str = GAMESTRING(STR_RIGHT_SHIFT);
+						str = DIKStrings[keymap[7].key][gameTextLang];
 						break;
 					default:
 						str = nullStr;
@@ -480,16 +481,16 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 				switch(*c)
 				{
 					case 'T':
-						str = GAMESTRING(STR_ESCAPE);
+						str = DIKStrings[keymap[6].key][gameTextLang];
 						break;
 					case 'X':
-						str = GAMESTRING(STR_RETURN);
+						str = DIKStrings[keymap[4].key][gameTextLang];
 						break;
 					case 'S':
-						str = GAMESTRING(STR_RIGHT_CONTROL);
+						str = DIKStrings[keymap[5].key][gameTextLang];
 						break;
 					case 'C':
-						str = GAMESTRING(STR_RIGHT_SHIFT);
+						str = DIKStrings[keymap[7].key][gameTextLang];
 						break;
 				}
 				width += CalcStringWidth(str,font,scale);
@@ -537,16 +538,16 @@ long WrapStringToArray(const char* str, long maxWidth, char* buffer, long buffer
 			switch(c)
 			{
 				case 'T':
-					charWidth = CalcStringWidth(GAMESTRING(STR_ESCAPE),font,1.0f);
+					charWidth = CalcStringWidth(DIKStrings[keymap[6].key][gameTextLang],font,1.0f);
 					break;
 				case 'X':
-					charWidth = CalcStringWidth(GAMESTRING(STR_RETURN),font,1.0f);
-					break;
-				case 'C':
-					charWidth = CalcStringWidth(GAMESTRING(STR_RIGHT_SHIFT),font,1.0f);
+					charWidth = CalcStringWidth(DIKStrings[keymap[4].key][gameTextLang],font,1.0f);
 					break;
 				case 'S':
-					charWidth = CalcStringWidth(GAMESTRING(STR_RIGHT_CONTROL),font,1.0f);
+					charWidth = CalcStringWidth(DIKStrings[keymap[5].key][gameTextLang],font,1.0f);
+					break;
+				case 'C':
+					charWidth = CalcStringWidth(DIKStrings[keymap[7].key][gameTextLang],font,1.0f);
 					break;
 			}
 		}

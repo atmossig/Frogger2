@@ -14,12 +14,15 @@
 
 #define NUM_LANGUAGES	5
 
+#include "lang.h"
 #ifdef __cplusplus
+
+
 extern "C"
 {
 #endif
 
-extern char *DIKStrings[256];
+extern char *DIKStrings[256][LANG_NUMLANGS];
 
 #ifdef __cplusplus
 }

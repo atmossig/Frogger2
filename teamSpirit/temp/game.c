@@ -321,7 +321,7 @@ void GameProcessController(long pl)
 
 		// ------------------- DOUBLE JUMP -------------------------
 
-		if( player[pl].isSuperHopping && !player[pl].hasDoubleJumped && destTile[pl]->state != TILESTATE_NOSUPER)
+		if( player[pl].isSuperHopping && destTile[pl] && !player[pl].hasDoubleJumped && destTile[pl]->state != TILESTATE_NOSUPER)
 		{
 			GAMETILE *old;
 			int oldCamFacing;

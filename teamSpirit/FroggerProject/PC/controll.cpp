@@ -69,7 +69,7 @@ struct CONTROLSETUP
 
 CONTROLSETUP controlDesc[NUM_CONTROLS] = 
 {
-	{ "Fowards",	0 },
+	{ "Forwards",	0 },
 	{ "Backwards",	1 },
 	{ "Left",		2 }, 
 	{ "Right",		3 },
@@ -110,8 +110,6 @@ unsigned rPlayOK = 0;
 long rEndFrame;
 
 // -------------------------------------------------
-
-extern KEYENTRY keymap[56];
 
 extern unsigned rKeying;
 extern unsigned rPlaying;
@@ -1225,7 +1223,7 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 			{
 				strcpy( itmTxt, controlDesc[i].name );
 				strcat( itmTxt, "\t" );
-				strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
+				strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key][gameTextLang] );
 				SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
 			}
 
@@ -1267,7 +1265,7 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 							{
 								strcpy( itmTxt, controlDesc[i].name );
 								strcat( itmTxt, "\t" );
-								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
+								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key][gameTextLang] );
 								SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
 							}
 

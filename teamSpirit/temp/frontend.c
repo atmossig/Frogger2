@@ -1094,6 +1094,7 @@ void StartLevelComplete()
 	ACTOR2 *c;
 	SPRITE *cur,*next;
 
+	arcadeHud.coinZoom->draw = 0;
 #ifdef PSX_VERSION
 	SpuSetKey(SPU_OFF,0xffffff);
 #endif
