@@ -447,12 +447,12 @@ void DrawTiledBackdrop()
 //	xScrollSpeed = sin((float)actFrameCount/60.0)*0.001;
 //	yScrollSpeed = cos((float)actFrameCount/81.0)*0.0006;
 
-	xScroll += (float)gameSpeed * xScrollSpeed;
+	xScroll += (float)gameSpeed * xScrollSpeed * (rXRes/640.0f);
 	if(xScroll > (xRes*4)/(float)xTile)
 		xScroll -= (xRes*4)/(float)xTile;
 	else if(xScroll < 0)
 		xScroll += (xRes*4)/(float)xTile;
-	yScroll += (float)gameSpeed * yScrollSpeed;
+	yScroll += (float)gameSpeed * yScrollSpeed * (rYRes/480.0f);
 	if(yScroll > (yRes*2)/(float)yTile)
 		yScroll -= (yRes*2)/(float)yTile;
 	else if(yScroll < 0)
