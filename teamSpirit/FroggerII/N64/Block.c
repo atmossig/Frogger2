@@ -1584,11 +1584,12 @@ static void RunIntro()
 {
 	static ACTOR2 *fAct = NULL,*lilly = NULL;
 	static TEXTOVERLAY *introTxt1 = NULL,*introTxt2 = NULL;
-	static SPRITE *fireSprite = NULL;
+	static SPRITE *fireSprite = NULL,*sOv;
 	static u16 button,lastbutton;
 	static float lillyRot = 0.0F,introSeed = 0.0F,fVal;
 	float rotMtxY[4][4];
-		
+	int i;
+			
 	if(frameCount == 1)
 	{
 		// load relevant texture and object banks
@@ -1639,6 +1640,10 @@ static void RunIntro()
 		fireSprite->scaleY = 256;
 		fireSprite->a = 160;
 		CreateAndAddProceduralTexture(fireSprite->texture,"prc_fire1");
+
+		sOv = AddNewSpriteToList(0,0,100,128,"prc_watrd.bmp",0);
+		fireSprite->a = 255;
+		CreateAndAddProceduralTexture(sOv->texture,"prc_watrd");
 		
 		// prepare music
 		PrepareSong(TRACK_LAB,0);
