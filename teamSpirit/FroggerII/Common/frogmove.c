@@ -1295,9 +1295,11 @@ void SpringFrogToTile(GAMETILE *tile, float height, float time, long pl)
 
 	player[pl].canJump = 0;
 	player[pl].frogState = FROGSTATUS_ISJUMPINGTOTILE;
+	
 	if (currPlatform[pl])
 	{
 		currPlatform[pl]->carrying = NULL;
+		currPlatform[pl]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
 		currPlatform[pl] = NULL;
 	}
 	destTile[pl] = tile;
