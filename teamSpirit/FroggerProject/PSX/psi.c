@@ -5,6 +5,10 @@
 
 ************************************************************************************/
 
+// JH: Define this so that we can turn on and off the dcache usage
+#define DCACHE_OPTIMISATION
+#define DCACHE 0x1f800000
+
 #include <stddef.h>
 #include <libgte.h>
 #include <libgpu.h>
@@ -22,10 +26,26 @@
 #include <islutil.h>
 #include "timer.h"
 
+extern ACTORSETANIM globalActors [ 50 ];
+
 typedef struct{
 	SHORT x,y,z,w;
 }SHORTQUAT;
 
+int totalObjs = 0;
+
+	#define GETX(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->x )
+	#define GETY(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->y )
+	#define GETV(n)(  tfv[n] )
+	#define GETD(n)(  tfd[n] )
+	#define GETN(n)( ((VERT *)( (int)(tfn) +(n<<1) )) )
+
+#define gte_stopz_cpu(r)\
+asm(\
+	"mfc2 %0, $24;"\
+	:\
+	: "r"(r)\
+)
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -120,6 +140,242 @@ int depthRange=0;
 
 static void (*customDrawFunction)(int) = 0;
 static void (*customDrawFunction2)(int) = 0;
+
+
+
+void dcachePsiCalcMaxMin ( PSIDATA *psiData, long *tfd )
+{
+	int		i;
+	long	localmaxDepth;
+	long	localminDepth;
+	ULONG *sortedIndexPtr;
+
+	sortCount = 0;
+	localmaxDepth = localminDepth = *tfd;
+	
+	i = tfTotal;
+
+	while (i)
+	{
+		if (*tfd < localminDepth)
+			localminDepth = *tfd;
+		if (*tfd > localmaxDepth)
+			localmaxDepth = *tfd;
+
+		tfd ++;
+		i --;
+	}
+
+	maxDepth = localmaxDepth;
+	minDepth = localminDepth;
+	depthRange = (localmaxDepth - localminDepth) + 1;
+
+	sortedIndexPtr = sortedIndex;
+	for ( i = depthRange; i != 0 ; i-- )
+	{
+		*(sortedIndexPtr++) = 0;
+	}
+
+
+
+	if (depthRange > maxDepthRange)
+	{
+		printf("PROGRAM HALTED. \nDEPTH RANGE EXCEEDED !\nINCREASE MAXDEPTHRANGE TO %d (=%d)\n\n",depthRange,maxDepthRange);
+// RFW: Jobe never filled in the object name anyway, and now I've altered actorCreate to use "modelName" to point to the MODEL
+// (Which gives much more useful information, (absent name included)
+//		printf("Object Mesh Name = >%s<\n",psiData->modelName);
+		for (;;);
+	}
+
+}
+
+void dcachePsiSortPrimitives ( long *tfv, long *tfd )
+{
+	register long clipflag asm("$20");
+//	register long *tfd asm("$19");
+//	register long *tfv  asm("$18");
+	register TMD_P_GT4I	*opcd;
+	int				*sl;
+	int localSortCount;
+
+	long deep;
+	int primsleft;
+	int localMinDepth = minDepth;
+
+	(TMD_P_GT3I*)sl = &sortedIndex[0];
+
+	primsleft = PSImodelctrl.PrimLeft;
+	opcd = (TMD_P_GT4I*)(PSImodelctrl.PrimTop);
+
+	localSortCount = sortCount;
+
+//	tfv =transformedVertices;
+//	tfd =transformedDepths;
+
+	while(primsleft)
+	{
+		switch (opcd->cd & (0xff - 2))
+		{
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define op ((TMD_P_FT3I*)opcd)
+			case GPU_COM_TF3:
+						
+				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+
+				gte_nclip();	// takes 8 cycles
+				
+				deep = (GETD(op->v2) - localMinDepth);
+
+				gte_stopz_cpu(clipflag);
+					
+				if ((clipflag < 0))	// || (op->dummy))
+				{
+//					op->next = sl[deep];
+//					sl[deep] = (int)op;
+//					localSortCount ++;
+				}
+				op ++;
+				break;
+
+#undef op			
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define op ((TMD_P_FT4I*)opcd)
+			case GPU_COM_TF4:
+			
+				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+
+				gte_nclip();	// takes 8 cycles
+				
+				deep = (GETD(op->v2) - localMinDepth);
+
+				gte_stopz_cpu(clipflag);
+				
+				if ((clipflag < 0))	// || (op->dummy))
+				{
+//					op->next = sl[deep];
+//					sl[deep] = (int)op;
+//					localSortCount ++;
+				}
+				op ++;
+				break;
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define op ((TMD_P_GT3I*)opcd)
+			case GPU_COM_TG3:
+				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+
+				gte_nclip();	// takes 8 cycles
+
+				deep = (GETD(op->v2) - localMinDepth);	// fill in that 8-cycle gap
+
+				gte_stopz_cpu(clipflag);
+					
+				if ((clipflag < 0) || (op->dummy))
+				{
+					op->next = sl[deep];
+					sl[deep] = (int)op;
+					localSortCount ++;
+				}
+				
+				op ++;
+				break;
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define op opcd
+			case GPU_COM_TG4:
+
+				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+
+				gte_nclip();	// takes 8 cycles
+
+				deep = (GETD(op->v2) - localMinDepth);
+			
+				gte_stopz_cpu(clipflag);
+						
+				if ((clipflag < 0) || (op->dummy))
+				{
+					op->next = sl[deep];
+					sl[deep] = (int)op;
+					localSortCount ++;
+				}
+
+				op ++;
+				break;
+#undef op
+
+/*-----------------------------------------------------------------------------------------------------------------*/
+
+#define op ((TMD_P_FT4I*)opcd)
+			case GPU_COM_TF4SPR :
+			
+				deep = (GETD(op->v0) - localMinDepth);
+
+//				op->next = sl[deep];
+//				sl[deep] = (int)op;
+//				localSortCount++;
+
+				op++;
+				break;
+#undef op
+
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define op ((TMD_P_FG4I*)opcd)
+			case GPU_COM_G4:
+			case GPU_COM_F4:
+   		
+				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+
+				gte_nclip();	// takes 8 cycles
+
+				deep = (GETD(op->v2) - localMinDepth);
+
+				gte_stopz_cpu(clipflag);
+				
+					
+				if ((clipflag<0))	// || (op->dummy))
+				{
+					op->next = sl[deep];
+					sl[deep] = (int)op;
+					localSortCount ++;
+				}
+				op ++;
+				break;
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define op ((TMD_P_FG3I*)opcd)
+			case GPU_COM_G3:
+			case GPU_COM_F3:
+
+				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+
+				gte_nclip();	// takes 8 cycles
+
+				deep = (GETD(op->v2) - localMinDepth);
+
+				gte_stopz_cpu(clipflag);
+				
+				if ((clipflag < 0))	// || (op->dummy))
+				{
+					op->next = sl[deep];
+					sl[deep] = (int)op;
+					localSortCount ++;
+				}
+				op ++;
+				break;
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+			default:
+				break;
+		}
+		primsleft --;
+	}
+	sortCount = localSortCount;
+}
+
+
+
+
+
 
 
 void *psiRegisterDrawFunction(void (*drawHandler)(int))
@@ -1122,7 +1378,7 @@ void psiAllocWorkspace()
 
 PSIMODEL *psiLoad(char *psiName)
 {
-	char *addr;
+	char *addr, *compare;
 	//PSIMESH *mesh;
 	int lastfilelength;//,i;
 	PSIMODEL *psiModel;
@@ -1137,6 +1393,7 @@ PSIMODEL *psiLoad(char *psiName)
 	{
 		//utilPrintf("Already loaded file %s\n",psiName);
 		//psiDisplay(psiModel);
+
 		return psiModel;
 
 	}
@@ -1156,7 +1413,11 @@ PSIMODEL *psiLoad(char *psiName)
 	if ( !addr )
 		return 0;
 	
-	return psiFixup(addr);
+	// JH: File is only loaded once.....  Here I can set a list of flags things, stuff, etc......
+
+	psiModel = psiFixup(addr);
+
+	return psiModel;
 }
 
 /**************************************************************************
@@ -2329,8 +2590,11 @@ void psiDrawPrimitives(int depth)
 
 void psiDrawSegments(PSIDATA *psiData)
 {
-	register long		*tfv = transformedVertices;
-	register long		*tfd = transformedDepths;
+	long		*tfvbase;
+	long		*tfdbase;
+
+	register long		*tfv;
+	register long		*tfd;
 	register PSIOBJECT	*world;
 	register SVECTOR	*np;
 	PSIMODELCTRL		*modctrl = &PSImodelctrl;
@@ -2347,23 +2611,52 @@ void psiDrawSegments(PSIDATA *psiData)
 
 	tfn = transformedNormals - 1;
 
+#ifdef DCACHE_OPTIMISATION
+	tfTotal = 0;
+	for (loop = 0; loop < obs; loop++)
+	{
+		world = (PSIOBJECT*)psiData->objectTable[loop];
+		tfTotal += world->meshdata->vern;
+	}
+
+	if(tfTotal <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
+	{
+		tfvbase = (void *)DCACHE;
+		tfdbase = (void *)(DCACHE + 512);
+	}
+	else if(tfTotal <= 255)	// Not 256. TransformVerts rounds up to nearest 3, remember
+	{
+		tfvbase = (void *)DCACHE;
+		tfdbase = transformedDepths;
+	}
+	else
+	{
+		tfvbase = transformedVertices;
+		tfdbase = transformedDepths;
+	}
+
+
+	tfv = tfvbase;
+	tfd = tfdbase;
+#else
+	tfv = transformedVertices;
+	tfd = transformedDepths;
+#endif
+
 	tfTotal = 0;
 
-TIMER_START0(TIMER_DRAW_WATER);
 	for (loop = 0; loop < obs; loop++)
 	{
 		world = (PSIOBJECT*)psiData->objectTable[loop];
 
 	 	gte_SetRotMatrix(&world->matrixscale);			 
-	   	gte_SetTransMatrix(&world->matrixscale);	
+   	gte_SetTransMatrix(&world->matrixscale);	
 
 		gte_ldv0(&world->meshdata->center);
 
 		gte_rtps();
 
 		modctrl->NormTop = world->meshdata->nortop;
-		np = (SVECTOR*)world->meshdata->nortop;
-		j = world->meshdata->norn;
 
 		gte_stszotz(&world->depth);
 
@@ -2375,7 +2668,9 @@ TIMER_START0(TIMER_DRAW_WATER);
 	   		//gte_SetTransMatrix(&world->matrix);	
 			
 			
-			for(i = 0; i < j; i ++)
+			np = (SVECTOR*)world->meshdata->nortop;
+
+			for(i = world->meshdata->norn; i != 0; i--)
 			{
 				gte_ldv0(&np[i]);
 				gte_rtv0();
@@ -2388,7 +2683,6 @@ TIMER_START0(TIMER_DRAW_WATER);
 		tfd += world->meshdata->vern;
 		tfTotal += world->meshdata->vern;
 	}
-TIMER_STOP_ADD0(TIMER_DRAW_WATER);
 
 
 	modctrl->PrimTop = (ULONG*)psiData->primitiveList;
@@ -2402,11 +2696,15 @@ TIMER_STOP_ADD0(TIMER_DRAW_WATER);
 	}
 	*/
 
-	TIMER_START0(TIMER_DRAW_SCENICS);
 
 	if (psiData->flags & ACTOR_DYNAMICSORT)
 	{
-	 	psiCalcMaxMin(psiData);
+
+#ifdef DCACHE_OPTIMISATION
+	 	dcachePsiCalcMaxMin ( psiData, tfdbase );
+#else
+	 	psiCalcMaxMin ( psiData );
+#endif
 
 		world = (PSIOBJECT*)psiData->objectTable[0];
 
@@ -2421,17 +2719,31 @@ TIMER_STOP_ADD0(TIMER_DRAW_WATER);
 		
 		modctrl->PrimLeft = psiData->noofPrims;
 		modctrl->VertTop = world->meshdata->vertop;
+
+#ifdef DCACHE_OPTIMISATION
+		dcachePsiSortPrimitives ( tfvbase, tfdbase );
+#else
 		psiSortPrimitives();
+#endif
+
 		modctrl->polysdrawn = sortCount;
 
-		if(customDrawFunction)
-			customDrawFunction(depth >> modctrl->depthShift);
-		else
-			psiDrawSortedPrimitives(depth >> modctrl->depthShift);
+		//if(customDrawFunction)
+			//customDrawFunction(depth >> modctrl->depthShift);
+		//else
+			//psiDrawSortedPrimitives(depth >> modctrl->depthShift);
+#ifdef DCACHE_OPTIMISATION
+		dcache_LSCAPE_DrawSortedPrimitives ( depth >> modctrl->depthShift, tfvbase );
+#else
+		LSCAPE_DrawSortedPrimitives ( depth >> modctrl->depthShift );
+#endif
 	}
 	else
 	{
 		char *compare;
+
+		totalObjs += obs;
+
 
 		for (loop = 0; loop < obs; loop++)
 		{
@@ -2450,19 +2762,20 @@ TIMER_STOP_ADD0(TIMER_DRAW_WATER);
 		 	modctrl->SortOffs = world->meshdata->sortlistptr[s];
 			modctrl->PrimLeft = world->meshdata->sortlistsize[s];
 
-			if ( ( compare = strstr ( psiData->modelName, "BACKDROP" ) ) )
+			/*if ( ( compare = strstr ( psiData->modelName, "BACKDROP" ) ) )
 			{
 				depth = 4095;
 				//modctrl->depthShift = 0;
-			}
+			}*/
 
-			if(customDrawFunction2)
-				customDrawFunction2(depth >> modctrl->depthShift);
-			else
-				psiDrawPrimitives(depth >> modctrl->depthShift);
+#ifdef DCACHE_OPTIMISATION
+			dcacheCustomDrawPrimitives2 ( depth >> modctrl->depthShift, tfvbase, tfdbase );
+#else
+			customDrawPrimitives2 ( depth >> modctrl->depthShift );
+#endif
+			//customDrawFunction2();
 		}
 	}
-	TIMER_STOP_ADD0(TIMER_DRAW_SCENICS);
 }
 
 
@@ -4120,4 +4433,5 @@ void DrawBoundingBox(ACTOR *actor)
 }
 
 */
+
 

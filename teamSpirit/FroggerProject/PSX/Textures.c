@@ -361,11 +361,14 @@ void CreateTextureAnimation ( char *fileName, TextureType *dummy, int numFrames 
 		utilPrintf("Counter : %d\n", counter );
 
 		if ( counter < 9 )
-			sprintf( type, "%s0%d\n", fileName, counter+1 );
+			sprintf( type, "%s%d\n", fileName, counter+1 );
 		else
 			sprintf( type, "%s%d\n", fileName, counter+1 );
 
-		textureAnim->animation->anim [ counter ] = textureFindCRCInAllBanks ( utilStr2CRC ( type ) );
+		utilPrintf("Trying To Load Texture : %s", type );
+//		textureAnim->animation->anim [ counter ] = textureFindCRCInAllBanks ( utilStr2CRC ( type ) );
+
+		textureAnim->animation->anim [ counter ] = FindTexture ( type );
 
 		if ( !textureAnim->animation->anim [ counter ] )
 			utilPrintf("Could Not Find Texture : %s", type );

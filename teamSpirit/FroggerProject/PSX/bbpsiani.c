@@ -26,7 +26,7 @@ void bb_psiSetKeyFrames(PSIOBJECT *world, ULONG frame)
 	bb_psiSetRotateKeyFrames(world, frame);
 }
 
-static void bb_psiSetRotateKeyFrames(PSIOBJECT *world, ULONG frame)
+void bb_psiSetRotateKeyFrames(PSIOBJECT *world, ULONG frame)
 {		  
 	MATRIX		rotmat1;
 	SQKEYFRAME	*tmprotatekeys,*tmprotatekeyslast;
@@ -235,7 +235,7 @@ static void bb_psiSetRotateKeyFrames(PSIOBJECT *world, ULONG frame)
 	}//end looping objects
 }
 
-static void bb_psiSetScaleKeyFrames(PSIOBJECT *world, ULONG frame)
+void bb_psiSetScaleKeyFrames(PSIOBJECT *world, ULONG frame)
 {
 	SVKEYFRAME	*tmpscalekeys,*tmpscalekeyslast;
 	USHORT		oldframe=frame;
@@ -446,7 +446,7 @@ static void bb_psiSetScaleKeyFrames(PSIOBJECT *world, ULONG frame)
 	}//end looping objects
 }
 
-static void bb_psiSetMoveKeyFrames(PSIOBJECT *world, ULONG frame)
+void bb_psiSetMoveKeyFrames(PSIOBJECT *world, ULONG frame)
 {
 	
 	register SVKEYFRAME	*workingkeys,*tmpmovekeys;
@@ -654,4 +654,5 @@ static void bb_psiSetMoveKeyFrames(PSIOBJECT *world, ULONG frame)
 
 	}//end looping objects
 }
+
 

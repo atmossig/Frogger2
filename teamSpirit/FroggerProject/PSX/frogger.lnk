@@ -98,6 +98,7 @@ bss     group   bss
 	include "objviewer.obj"
 	include "options.obj"
 	include "snapshot.obj"
+	include "training.obj"
 
 
 ;	include "ANIM.obj"

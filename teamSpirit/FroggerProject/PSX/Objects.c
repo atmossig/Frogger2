@@ -131,7 +131,6 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( PILfileName, "OBJECTS\\LAB\\LABBOSS.PIL" );
 			break;
 
-//		case LABORATORYMULTI_OBJ_BANK:
 		case LABORATORYMULTI1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\LAB\\LABMULTI.BFF" );
 				sprintf ( PILfileName, "OBJECTS\\LAB\\LABMULTI.PIL" );
@@ -213,9 +212,53 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
-
 		case RETROMULTI1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+			break;
+
+		case RETROMULTI2_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI2.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+			break;
+
+		case RETROMULTI3_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI3.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+			break;
+
+		case RETROMULTI4_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI4.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+			break;
+
+		case RETROMULTI5_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI5.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+			break;
+
+		case RETROMULTI6_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI6.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+			break;
+
+		case RETROMULTI7_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI7.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+			break;
+
+		case RETROMULTI8_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI8.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+			break;
+
+		case RETROMULTI9_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI9.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+			break;
+
+		case RETROMULTI10_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI10.BFF" );
 				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
@@ -236,7 +279,7 @@ void LoadObjectBank ( int objectBank )
 			break;
 
 		default:
-				utilPrintf ( "Not a valid Object Bank type..............." );
+				utilPrintf ( "Not a valid Object Bank type...............\n" );
 				return;
 			break;
 	}
@@ -255,10 +298,13 @@ void LoadObjectBank ( int objectBank )
 			utilPrintf("Loading BFF World %s \n", BFFfileName);
 					//GetWorldFrom_BFF(fileName);
 			objectBanks [ numObjectBanks++ ] = BFF_LoadFile ( BFFfileName );
-			fma_world = (void *)BFF_FindObject(BFF_FMA_WORLD_ID,utilStr2CRC("world.psi"));	// Should only be one world in the BFF
+			fma_world = (void *)BFF_FindObject(BFF_FMA_WORLD_ID,utilStr2CRC("WORLD.PSI"));	// Should only be one world in the BFF
 
 			if ( !fma_world )
-				return 0;
+			{
+				utilPrintf("World Object Not Found\n");
+				return;
+			}
 
 			mesh = ADD2POINTER(fma_world,sizeof(FMA_WORLD));
 			

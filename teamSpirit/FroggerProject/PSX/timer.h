@@ -142,7 +142,7 @@ enum {
 
 
 
-//*** TIMER SET 3 - actorDraw ***//
+//*** TIMER SET 3 - Game Loop ***//
 #ifdef TIMER_SET_3
 enum {
 	TIMER_TOTAL,

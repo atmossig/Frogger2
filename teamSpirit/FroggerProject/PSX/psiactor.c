@@ -136,7 +136,7 @@ static void actorSetTree(PSIOBJECT *obj,PSIMESH *mesh)
 	RETURNS:	ACTOR*
 **************************************************************************/
 
-ACTOR *actorCreate(PSIMODEL *psiModel)
+ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel )
 {
 
 	ULONG len,parts,i;
@@ -266,17 +266,23 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 	// ENDIF
 
 
-	if ( ( psiCheck ( actor->psiData.modelName ) ) &&
-		   ( ( compare = strstr ( actor->psiData.modelName, "ROLL" ) ) ||
-		   ( ( compare = strstr ( actor->psiData.modelName, "BEE" ) ) ||
-		    ( compare = strstr ( actor->psiData.modelName, "MOA" ) )
-			 ) ) ) 		// already loaded ?
+	if ( checkForModel )
 	{
-		utilPrintf("Found It................................................................\n");
-		sprintf ( globalActors [ globalCount ].modelName, psiModel->name );
-		globalActors [ globalCount ].actor	= actor;
-		globalActors [ globalCount ].done		= 0;
-		globalCount++;
+		if ( ( psiCheck ( actor->psiData.modelName ) ) &&
+			 ( ( compare = strstr ( actor->psiData.modelName, "ROLL" ) )  ||
+		     ( compare = strstr ( actor->psiData.modelName, "BEE" ) ) ||
+		     ( compare = strstr ( actor->psiData.modelName, "WARTHOG" ) ) ||
+	  	   ( compare = strstr ( actor->psiData.modelName, "MOA" ) ) ) )
+			 			// already loaded ?
+
+		{
+			utilPrintf("Found It................................................................\n");
+			sprintf ( globalActors [ globalCount ].modelName, psiModel->name );
+			globalActors [ globalCount ].actor	= actorCreate ( psiModel, 0 );
+			globalActors [ globalCount ].done		= 0;
+			globalCount++;
+		}
+		// ENDIF
 	}
 	// ENDIF
 
@@ -1542,9 +1548,14 @@ void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src )
 	
 	while ( dest )
 	{
-		for ( i = 0; i < 3; i++ )
+/*		for ( i = 0; i < 3; i++ )
 			for ( j = 0; j < 3; j++ )
-				dest->matrix.m[i][j] = src->matrix.m[i][j];
+				dest->matrix.m[i][j] = src->matrix.m[i][j];*/
+
+			dest->matrix = src->matrix;
+			
+			dest->rotate = src->rotate;
+			
 /*		for ( i = 0; i < 3; i++ )
 			for ( j = 0; j < 3; j++ )
 				dest->matrixscale.m[i][j] = src->matrixscale.m[i][j];
@@ -1556,21 +1567,21 @@ void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src )
 
 		dest->scale.vx = src->scale.vx;
 		dest->scale.vy = src->scale.vy;
-		dest->scale.vz = src->scale.vz;
+		dest->scale.vz = src->scale.vz;*/
 
-		dest->rotate.vx = src->rotate.vx;
+		/*dest->rotate.vx = src->rotate.vx;
 		dest->rotate.vy = src->rotate.vy;
 		dest->rotate.vz = src->rotate.vz;*/
 
-		dest->meshdata->center.vx = src->meshdata->center.vx;
+/*		dest->meshdata->center.vx = src->meshdata->center.vx;
 		dest->meshdata->center.vy = src->meshdata->center.vy;
 		dest->meshdata->center.vz = src->meshdata->center.vz;
-
-		if((src->rotate.vx) || (src->rotate.vy) || (src->rotate.vz))
+*/
+	/*	if((src->rotate.vx) || (src->rotate.vy) || (src->rotate.vz))
 		{
 			RotMatrixYXZ_gte(&src->rotate,&rotmat1);
 			gte_MulMatrix0(&rotmat1,&src->matrix,&dest->matrix);
-		}
+		}*/
 
 //		RotMatrixYXZ_gte ( &dest->rotate, &rotmat1 );
 //		gte_MulMatrix0 ( &rotmat1, &dest->matrix, &dest->matrix );

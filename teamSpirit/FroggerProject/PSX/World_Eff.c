@@ -81,7 +81,7 @@ asm(\
 
 #define MIN_MAP_DEPTH (10)
 	
-#define MAX_MAP_DEPTH (1000<<3)
+#define MAX_MAP_DEPTH (1000)
 
 
 
@@ -113,8 +113,25 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
 	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
 
-	tfv = (long*)transformedVertices;
-	tfd = (long*)transformedDepths;
+	//tfv = (long*)transformedVertices;
+	//tfd = (long*)transformedDepths;
+
+	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
+	{
+		tfv = (void *)0x1f800000;
+		tfd = (void *)(0x1f800000 + 512);
+	}
+	else if(mesh->n_verts <= 255)	// Not 256. TransformVerts rounds up to nearest 3, remember
+	{
+		tfv = (void *)0x1f800000;
+		tfd = transformedDepths;
+	}
+	else
+	{
+		tfv = transformedVertices;
+		tfd = transformedDepths;
+	}
+
 
 	if ( max_depth > 1024 - mesh->extra_depth )
 		max_depth = 1024 - mesh->extra_depth;
@@ -418,35 +435,19 @@ void CreateAndAddScenicObject(SCENIC *sc)
 
 	AddScenicObj ( newItem );
 
-//	newItem->position = sc.pos;
 	newItem->flags = 0;
-	//rot
-
-	
 
 	utilPrintf("SCENIC %s, ROT %d %d %d %d\n", sc->name, sc->rot.x, sc->rot.y, sc->rot.z, sc->rot.w);
 
 	QuatToPSXMatrix(&sc->rot, &newItem->matrix);
 
-	
-
-
-
-	//scale
-// 	newItem->matrix.m[0][0] = FMul(newItem->matrix.m[0][0], sc->scale);
-// 	newItem->matrix.m[1][1] = FMul(newItem->matrix.m[1][1], sc->scale);
-// 	newItem->matrix.m[2][2] = FMul(newItem->matrix.m[2][2], sc->scale);
-	//pos
 	newItem->matrix.t[0] =  sc->pos.vx;
 	newItem->matrix.t[1] =  sc->pos.vy;
 	newItem->matrix.t[2] =  sc->pos.vz;
 	
 	utilPrintf("Creating Scenic Object : %s\n", sc->name);
-//	utilUpperStr ( name );
 
 	newItem->fmaObj = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( sc->name ) );
-
-//	utilPrintf("Creating Scenic Object : %lu\n", utilStr2CRC ( name ));
 
 	if ( newItem->fmaObj )
 	{
@@ -486,8 +487,8 @@ void DrawScenicObjList ( void )
 			{
 //bb dont need this, they don't move/rotate, just animate.
 //				MapDraw_SetMatrix ( *mesh, *-mesh->posx, *mesh->posy, *mesh->posz );
-//				MapDraw_SetMatrix ( *mesh, -cur->matrix.t[0], cur->matrix.t[1], cur->matrix.t[2] );
-				MapDraw_SetScenicMatrix(*mesh, cur);
+				MapDraw_SetMatrix ( *mesh, -cur->matrix.t[0], cur->matrix.t[1], cur->matrix.t[2] );
+				//MapDraw_SetScenicMatrix(*mesh, cur);
 
 //				MATRIX temp;
 //				MulMatrix0(&GsWSMATRIX, &cur->matrix, &temp);
@@ -497,11 +498,9 @@ void DrawScenicObjList ( void )
 
 //				gte_SetRotMatrix(&cur->matrix);
 //				gte_SetTransMatrix(&cur->matrix);
-
-
-
 				if ( MapDraw_ClipCheck ( *mesh ) )
 				{
+					//utilPrintf("Drawing Scenic Object...................................................\n");
 					DrawScenicObj ( *mesh, cur->flags );
 				}
 				// ENDIF
@@ -620,11 +619,27 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	int i;
 
-	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
-	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
+	int min_depth = MIN_MAP_DEPTH;// + mesh->extra_depth;
+	int max_depth = MAX_MAP_DEPTH;// + mesh->extra_depth;
 
-	tfv = (long*)transformedVertices;
-	tfd = (long*)transformedDepths;
+	//tfv = (long*)transformedVertices;
+	//tfd = (long*)transformedDepths;
+
+	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
+	{
+		tfv = (void *)0x1f800000;
+		tfd = (void *)(0x1f800000 + 512);
+	}
+	else if(mesh->n_verts <= 255)	// Not 256. TransformVerts rounds up to nearest 3, remember
+	{
+		tfv = (void *)0x1f800000;
+		tfd = transformedDepths;
+	}
+	else
+	{
+		tfv = transformedVertices;
+		tfd = transformedDepths;
+	}
 
 	if ( max_depth > 1024 - mesh->extra_depth )
 		max_depth = 1024 - mesh->extra_depth;

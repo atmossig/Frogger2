@@ -16,8 +16,8 @@
 #include <islutil.h>
 
 void bb_psiSetKeyFrames(PSIOBJECT *world, ULONG frame);
-static void bb_psiSetRotateKeyFrames(PSIOBJECT *world, ULONG frame);
-static void bb_psiSetScaleKeyFrames(PSIOBJECT *world, ULONG frame);
-static void bb_psiSetMoveKeyFrames(PSIOBJECT *world, ULONG frame);
+void bb_psiSetRotateKeyFrames(PSIOBJECT *world, ULONG frame);
+void bb_psiSetScaleKeyFrames(PSIOBJECT *world, ULONG frame);
+void bb_psiSetMoveKeyFrames(PSIOBJECT *world, ULONG frame);
 
 #endif

@@ -152,5 +152,6 @@ typedef struct {
 #define psiTRANSPAR		2
 //#define GOURAUD     	512
 
+void dcachePsiCalcMaxMin ( PSIDATA *psiData, long *tfd );
 
 #endif //__PSITYPES_H__

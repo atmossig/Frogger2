@@ -264,7 +264,7 @@ void RunBankView ( void )
 	// ENDIF
 
 	actorUpdateAnimations(objViewerActorList[0]->actor);
-	actorSetAnimation(objViewerActorList[0]->actor, objViewerActorList[0]->actor->animation.frame);
+	actorSetAnimation(objViewerActorList[0]->actor, objViewerActorList[0]->actor->animation.frame, 1);
 
 
 	//convert qRot to matrix

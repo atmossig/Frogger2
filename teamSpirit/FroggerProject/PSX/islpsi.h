@@ -28,7 +28,6 @@ enum
 #define PSIACTOR_TRANSPARENT 16
 
 
-
 // keyframe data structures
 typedef struct
 {
@@ -196,6 +195,16 @@ typedef struct
 
 } PSIMODELCTRL;
 
+
+typedef struct
+{
+	char *modelName;
+	int done;
+	void *actor;
+} ACTORSETANIM;
+
+extern int globalCount;
+extern ACTORSETANIM globalActors [ 50 ];
 
 // control variables
 

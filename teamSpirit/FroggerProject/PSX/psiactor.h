@@ -11,6 +11,8 @@
 
 #include "fixed.h"
 
+#include "map_draw.h"
+
 
 #define ANIM_QUEUE_LENGTH	8
 #define ANIMSHIFT			8
@@ -91,6 +93,8 @@ USHORT			*animSegments;			// list of start-end frames (shorts)
 	unsigned short clutOverride;
 	unsigned long flags;
 
+	MATRIX bffMatrix;
+
 } ACTOR;
 
 
@@ -130,7 +134,8 @@ void actorSub(ACTOR *actor);
 
 void actorFree(ACTOR *actor);
 
-ACTOR *actorCreate(PSIMODEL *psiModel);
+//ACTOR *actorCreate(PSIMODEL *psiModel);
+ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel );
 
 void actorInitAnim(ACTOR *actor);
 
