@@ -1173,12 +1173,12 @@ void StartControllerView()
 		ctv->control[ctrl] = CreateAndAddTextOverlay(
 			450, ctrl*150+800,
 			controlDesc[ctrl],
-			NO, 255, fontSmall, 0, 0);
+			NO, 255, fontSmall, 0);
 
 		ctv->button[ctrl] =  CreateAndAddTextOverlay(
 			2500, ctrl*150+800,
 			DIKStrings[keymap[ctrl].key],
-			NO, 255, fontSmall, 0, 0);
+			NO, 255, fontSmall, 0);
 	}
 }
 
