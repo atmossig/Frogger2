@@ -176,10 +176,7 @@ int StartNetworkGame(HWND hwnd, int flag)
 		SaveNetgameSetup();
 
 		SetupNetPlayerList();
-		if (RunNetChatWindow(hwnd))
-			return 1;
-		else
-			return -1;
+		return 1;
 	}
 
 	// otherwise, fail

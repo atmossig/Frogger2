@@ -45,6 +45,8 @@ typedef struct _NETPLAYER
 	char	start;		// starttile index to use for this player
 	char	name[16];
 
+	int		score;
+
 	unsigned long lastUpdateMsg;	// the tick count of the last update msg
 	
 	struct _NETPLAYER *next, *prev;

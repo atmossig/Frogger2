@@ -277,6 +277,10 @@ void NetgameGameloop()
 			if( !endTimer.time )
 			{
 				multiHud.centreText->draw = 0;
+
+				if (matchWinner >= 0)
+					netPlayerList[matchWinner].score++;	// yay!
+
 				StartMultiWinGame( );
 			}
 

@@ -220,11 +220,22 @@ void UpdateChatWindow()
 	{
 		if (netPlayerList[pl].dpid)
 		{
-			char name[256];
+			char dpname[256], name[256];
 			DWORD size = 256;
 
-			if (DP_OK == dplay->GetPlayerName(netPlayerList[pl].dpid, &name, &size));
-				SendMessage(hlist, LB_ADDSTRING, 0, (DWORD)((DPNAME*)name)->lpszShortNameA);
+			if (DP_OK == dplay->GetPlayerName(netPlayerList[pl].dpid, &dpname, &size));
+			{
+				strcpy(name, ((DPNAME*)dpname)->lpszShortNameA);
+
+				if (netPlayerList[pl].score)
+					sprintf(name+strlen(name), " (%d win%s!)",
+						netPlayerList[pl].score,
+						netPlayerList[pl].score==1?"":"s");
+
+				SendMessage(hlist, LB_ADDSTRING, 0, (DWORD)name);
+
+				//SendMessage(hlist, LB_ADDSTRING, 0, (DWORD)((DPNAME*)dpname)->lpszShortNameA);
+			}
 
 			count++;
 		}
@@ -360,6 +371,29 @@ int RunNetChatWindow(HWND parent)
 
 int ChatHandler(void *data, unsigned long size, NETPLAYER *player)
 {
+	bool wasHost = false;
+
+	if (isHost && !wasHost)
+	{
+		DWORD dwSize = 0;
+		HRESULT res = dplay->GetSessionDesc(NULL, &dwSize);
+
+		UBYTE *buffer = new UBYTE[dwSize];
+		res = dplay->GetSessionDesc(buffer, &dwSize);
+
+		if (res == DP_OK)
+		{
+			DPSESSIONDESC2 *dpsd = (DPSESSIONDESC2*)buffer;
+
+			dpsd->dwFlags &= ~(DPSESSION_NEWPLAYERSDISABLED|DPSESSION_JOINDISABLED);
+			res = dplay->SetSessionDesc(dpsd, 0);
+			if (res)
+				utilPrintf("Net: couldn't set session desc: %s\n", GetDirectPlayError(res));
+		}
+		else
+			utilPrintf("Net: couldn't get session desc: %s\n", GetDirectPlayError(res));
+	}
+
 	switch (*(unsigned char*)data)
 	{
 	case APPMSG_LEVELSEL:
@@ -394,6 +428,8 @@ int ChatHandler(void *data, unsigned long size, NETPLAYER *player)
 		}
 		return 0;
 	}
+
+	wasHost = isHost;
 
 	return 1;
 }
