@@ -360,6 +360,8 @@ void UpdateFroggerPos(long pl)
 
 	//--------------------------------------------------------------------------------------------
 
+	player[pl].frogState &= ~FROGSTATUS_ISSAFE;
+
 	if( currTile[pl]->state == TILESTATE_SINK )
 	{
 		if( player[pl].frogState & (FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR) )
@@ -399,6 +401,10 @@ void UpdateFroggerPos(long pl)
 			return;
 		}
 
+	}
+	else if ( currTile[pl]->state == TILESTATE_SAFE )
+	{
+		player[pl].frogState |= FROGSTATUS_ISSAFE;
 	}
 
 	/*!(player[pl].canJump) && !(player[pl].frogState & (FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR))*/

@@ -56,7 +56,7 @@ ENEMY *GetEnemyFromUID (long uid)
 
 void NMEDamageFrog( int num, ENEMY *nme )
 {
-	if( !nme || num < 0 || num > 2) 
+	if( !nme || (player[num].frogState & FROGSTATUS_ISSAFE))
 		return;
 
 	if( nme->flags & ENEMY_NEW_ONEHITKILL )
