@@ -30,11 +30,6 @@
 #include "mdxFont.h"
 #include "gelf.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 extern MDX_TEXENTRY *cDispTexture;
 
 MDX_WININFO mdxWinInfo;
@@ -46,6 +41,9 @@ unsigned long textureDraw = 0;
 long displayDebugInfo = 0;
 char winAppName[128];
 long windowActive;
+
+long (*AppLoop)() = 0;
+
 
 long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 {
@@ -202,7 +200,7 @@ int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
     return 1;
 }
 
-void RunWindowsLoop(long (*AppLoop)())
+void RunWindowsLoop()
 {
 	MSG msg;
 	long ok = 1;
@@ -239,6 +237,3 @@ WNDPROC mdxSetUserWndProc(WNDPROC proc)
 	return oldWndProc;
 }
 
-#ifdef __cplusplus
-}
-#endif

@@ -29,9 +29,10 @@ extern unsigned long timerDraw;
 extern unsigned long textureDraw;
 extern long windowActive;
 extern long displayDebugInfo;
+extern long (*AppLoop)();
 
 int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode);
-void RunWindowsLoop(long (*AppLoop)());
+void RunWindowsLoop();
 WNDPROC mdxSetUserWndProc(WNDPROC);
 
 #ifdef __cplusplus

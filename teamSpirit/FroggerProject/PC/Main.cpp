@@ -1172,7 +1172,10 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	SPRITECLIPRIGHT	= clx1;
 	SPRITECLIPBOTTOM = cly1;
 	
-	RunWindowsLoop(&LoopFunc);
+	// tell MDX what callback function to use
+	AppLoop = LoopFunc;
+
+	RunWindowsLoop();
 
 	SaveGame();
 
