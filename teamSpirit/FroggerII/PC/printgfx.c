@@ -931,7 +931,7 @@ void DrawFXTrail( SPECFX *trail )
 	D3DTLVERTEX vT[4], vTPrev[2];
 	TEXENTRY *tEntry;
 
-	if( trail->deadCount )
+	if( trail->deadCount || (trail->start == trail->end) )
 		return;
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);

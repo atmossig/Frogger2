@@ -61,6 +61,32 @@ void InitTongues( )
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: FreeTongues
+	Purpose			: Delete allocated data
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void FreeTongues( )
+{
+	long i;
+
+	for( i=0; i<4; i++ )
+	{
+		tongue[i].flags = TONGUE_NONE | TONGUE_IDLE;
+		tongue[i].thing = NULL;
+		tongue[i].radius = TONGUE_RADIUSNORMAL;
+
+		if( tongue[i].sprite ) JallocFree( (UBYTE **)&tongue[i].sprite );
+		tongue[i].sprite = NULL;
+		tongue[i].tex = NULL;
+		tongue[i].type = 0;
+		tongue[i].canTongue = 1;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: StartTongue
 	Purpose			: initialises Frogger's tongue for picking up, throwing, etc.
 	Parameters		: char, dest, player
@@ -130,9 +156,9 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 				tongue[pl].sprite[i].offsetX		= -16;
 				tongue[pl].sprite[i].offsetY		= -16;
 #endif
+				AddSprite( &tongue[pl].sprite[i], NULL );
 			}
 
-			AddSprite( &tongue[pl].sprite[i], NULL );
 		}
 		else
 		{

@@ -801,6 +801,7 @@ void RunGameLoop (void)
 			UpdateRace( );
 			break;
 		case WORLDID_SUBTERRANEAN:
+		case WORLDID_HALLOWEEN:
 			UpdateCTF( );
 			break;
 		}
