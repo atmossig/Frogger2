@@ -122,7 +122,7 @@ void InitFont()
 
 	bigFont->width		= 32;
 	bigFont->height		= 32;
-	bigFont->data		= GetGelfBmpDataAsShortPtr(filenameBuffer);
+	bigFont->data		= (unsigned char*)GetGelfBmpDataAsShortPtr(filenameBuffer);
 
 	for(i=0; i<MAX_FONT_CHARS; i++)
 	{
@@ -174,7 +174,7 @@ void InitFont()
 
 	smallFont->width	= 16;
 	smallFont->height	= 16;
-	smallFont->data		= GetGelfBmpDataAsShortPtr(filenameBuffer);
+	smallFont->data		= (unsigned char*)GetGelfBmpDataAsShortPtr(filenameBuffer);
 
 	for(i=0; i<MAX_FONT_CHARS; i++)
 	{
@@ -215,10 +215,10 @@ void InitFont()
 	
 	dprintf"Initialising font texture surfaces\n"));
 
-	bigFont->srf		= CreateTextureSurface (256,256,bigFont->data,1,0xf81f,0);
+	bigFont->srf		= CreateTextureSurface (256,256,(short*)bigFont->data,1,0xf81f,0);
 	bigFont->hdl		= ConvertSurfaceToTexture (bigFont->srf);
 
-	smallFont->srf		= CreateTextureSurface (256,256,smallFont->data,1,0,0);
+	smallFont->srf		= CreateTextureSurface (256,256,(short*)smallFont->data,1,0,0);
 	smallFont->hdl	= ConvertSurfaceToTexture (smallFont->srf);
 
 	//smallFont = bigFont;
