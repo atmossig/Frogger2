@@ -11,12 +11,24 @@
 #ifndef MDBREPORT_H_INCLUDED
 #define MDBREPORT_H_INCLUDED
 
+extern char debugFile[MAX_PATH];
+
 // A value, string pair for reporting purposes!
 struct VALUESTRING
 {
 	unsigned long value;
 	char *string;
 };
+
+/*	--------------------------------------------------------------------------------
+	Function	: dp
+	Purpose		: Print debug message
+	Parameters	: same as printf
+	Returns		: 
+	Info		: 
+*/
+
+void dp(char *format, ...);
 
 /*	--------------------------------------------------------------------------------
 	Function	: rptShowBitfields

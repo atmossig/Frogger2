@@ -38,6 +38,8 @@ void PCRenderObject(OBJECT *obj);
 void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4]);
 long useNear = 0;
 
+ACTOR2 *hat[MAX_FROGS];
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -677,6 +679,8 @@ void XformActor(ACTOR *actor)
 	Info 		:
 */
 QUATERNION	tempQuat,morphFromQuat,morphToQuat,morphResultQuat;
+MATRIX hatMat[4];
+
 void TransformObject(OBJECT *obj, float time)
 {
 	VECTOR translation,scale;
@@ -686,6 +690,7 @@ void TransformObject(OBJECT *obj, float time)
 	short i, j;
 	short	fromKey, toKey;
 	short	xluVal;
+	unsigned long wasHed;
 
 //handle position keyframes
 	if((obj->numMoveKeys > 1) && (currentDrawActor->animation))
@@ -776,11 +781,14 @@ void TransformObject(OBJECT *obj, float time)
 		QuaternionToMatrix(&obj->rotateKeys[0].quat, (MATRIX *)rotmat);
 	}
 
+
+	wasHed = 0;
 	if (strncmp(obj->name,"fghed",5) == 0)
 	{
 		float rotmat2[4][4];
 		QUATERNION quat, rot = {0,1,0,0};
-		VECTOR actVec;
+		VECTOR actVec = {0,0,0};
+		wasHed = 1;
 
 		if(player[0].canJump)
 		{
@@ -828,7 +836,20 @@ void TransformObject(OBJECT *obj, float time)
 	guScaleF(scalemat, scale.v[X] * actorScale->v[X], scale.v[Y] * actorScale->v[Y], scale.v[Z] * actorScale->v[Z]);
 
 	PushMatrix(scalemat);
-	
+
+	if (wasHed)
+	{
+		if (hat[0])
+		{
+			guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], 0, 0, 0,
+									&(hat[0]->actor->pos.v[X]),&(hat[0]->actor->pos.v[Y]),&(hat[0]->actor->pos.v[Z]));
+			SetVector(&(hat[0]->actor->scale),&scale);
+			hat[0]->actor->scale.v[X] *= actorScale->v[X];
+			hat[0]->actor->scale.v[Y] *= actorScale->v[Y];
+			hat[0]->actor->scale.v[Z] *= actorScale->v[Z];
+			MatrixToQuaternion (matrixStack.stack[matrixStack.stackPosition],&(hat[0]->actor->qRot));
+		}
+	}
 
 	//if the object has a collision sphere
 /*	if(obj->collSphere)

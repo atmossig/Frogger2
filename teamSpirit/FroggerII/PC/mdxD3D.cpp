@@ -1,6 +1,23 @@
+#include <windows.h>
+#include <ddraw.h>
+#include <d3d.h>
+#include <crtdbg.h>
+#include <stdio.h>
 
-unsigned long d3DInit(hardware)
+#include "mgeReport.h"
+#include "mdxInfo.h"
+#include "mdxDDraw.h"
+
+LPDIRECT3D2				pDirect3D;
+LPDIRECT3DDEVICE2		pDirect3DDevice;
+LPDIRECT3DVIEWPORT2		pDirect3DViewport;
+
+unsigned long d3DInit(void)
 {
+	D3DVIEWPORT				viewport;
+	D3DFINDDEVICERESULT		result;
+	D3DFINDDEVICESEARCH		search;
+
 	if (pDirectDraw->QueryInterface(IID_IDirect3D2, (LPVOID *)&pDirect3D) != S_OK)
 	return FALSE;
 
@@ -16,7 +33,7 @@ unsigned long d3DInit(hardware)
 		return FALSE;
 
 	// Create the D3D device
-	if (pDirect3D->CreateDevice(result.guid, surface[HIDDEN_SRF], &pDirect3DDevice) != D3D_OK)
+	if (pDirect3D->CreateDevice(result.guid, surface[RENDER_SRF], &pDirect3DDevice) != D3D_OK)
 	 return FALSE;
 
 	// Create a viewport onto the device

@@ -1004,6 +1004,42 @@ SOURCE=.\N64\Zbuffer.c
 # Begin Group "PC"
 
 # PROP Default_Filter ""
+# Begin Group "m"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\Pc\mdxD3D.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\mdxDDraw.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\mdxDDraw.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\mdxDrivers.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\mdxInfo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\mdxInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\mgeReport.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\mgeReport.h
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=.\Pc\3DText.c

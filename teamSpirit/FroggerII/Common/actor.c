@@ -49,6 +49,7 @@ ACTOR2 *globalLevelActor = NULL;	// ptr to actor representing level
 
 int uniqueActorCRC[MAX_UNIQUE_ACTORS];
 char numUniqueActors = 0;
+extern ACTOR2 *hat[MAX_FROGS];
 
 /* --------------------------------------------------------------------------------	
 	Programmer	: Matthew Cloy
@@ -244,11 +245,17 @@ void DrawActorList()
 		cur = cur->next;
 	}
 	
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+//	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+
+	if (hat[0])
+	{
+		XformActor(hat[0]->actor);
+		DrawActor(hat[0]->actor);	
+	}
 
 	DrawBatchedPolys();
 	BlankFrame("Fresh crispy side salad");
@@ -422,88 +429,75 @@ void DrawActorList()
 	Parameters	: (void)
 	Returns		: void 
 */
+
+void FreeActor(ACTOR2 *c)
+{
+	ACTOR2 *cur = c;
+
+	if (!cur)
+		return;
+
+	if((cur->actor->objectController) && (cur->actor->objectController->object))
+	{
+	 	FreeObjectSprites(cur->actor->objectController->object);
+
+		// NEW
+		if(cur->actor->objectController->drawList)
+		{
+			JallocFree((UBYTE **)&cur->actor->objectController->vtx[0]);
+			JallocFree((UBYTE **)&cur->actor->objectController->drawList);
+		}
+
+		// NEW
+		RemoveUniqueObject(cur->actor->objectController->object);
+		JallocFree((UBYTE **)&cur->actor->objectController);
+	}
+
+	if(cur->actor->LODObjectController)
+		JallocFree((UBYTE **)&cur->actor->LODObjectController);
+
+	if(cur->actor->matrix)
+		JallocFree((UBYTE **)&cur->actor->matrix);
+
+	if(cur->actor->animation)
+		JallocFree((UBYTE **)&cur->actor->animation);
+
+	if(cur->actor->shadow)
+		JallocFree((UBYTE **)&cur->actor->shadow);
+
+	JallocFree((UBYTE**)&cur->actor);
+	JallocFree((UBYTE**)&cur);
+}
+
+
+/* --------------------------------------------------------------------------------
+	Programmer	: Matthew Cloy
+	Function	: FreeActorList
+
+	Purpose		:
+	Parameters	: (void)
+	Returns		: void 
+*/
 void FreeActorList()
 {
-	ACTOR2 *next,*cur;
-
+	ACTOR2 *cur,*next;
+	
 	dprintf"Freeing linked list : ACTOR2\n"));
+	
 	cur = actList;
 	while (cur)
 	{
 		next = cur->next;
-
-		if((cur->actor->objectController) && (cur->actor->objectController->object))
-		{
-		 	FreeObjectSprites(cur->actor->objectController->object);
-
-			// NEW
-			if(cur->actor->objectController->drawList)
-			{
-				JallocFree((UBYTE **)&cur->actor->objectController->vtx[0]);
-				JallocFree((UBYTE **)&cur->actor->objectController->drawList);
-			}
-
-			// NEW
-			RemoveUniqueObject(cur->actor->objectController->object);
-			JallocFree((UBYTE **)&cur->actor->objectController);
-		}
-
-		if(cur->actor->LODObjectController)
-			JallocFree((UBYTE **)&cur->actor->LODObjectController);
-
-		if(cur->actor->matrix)
-			JallocFree((UBYTE **)&cur->actor->matrix);
-
-		if(cur->actor->animation)
-			JallocFree((UBYTE **)&cur->actor->animation);
-
-		if(cur->actor->shadow)
-			JallocFree((UBYTE **)&cur->actor->shadow);
-
-		JallocFree((UBYTE**)&cur->actor);
-		JallocFree((UBYTE**)&cur);
-		
+		FreeActor(cur);		
 		cur = next;
 	}
-	
 	actList = NULL;
 
-	if (backGnd)
-	{
-		cur = backGnd;
-		backGnd = NULL;
+	FreeActor(backGnd);		
+	backGnd = NULL;
 
-		if((cur->actor->objectController) && (cur->actor->objectController->object))
-		{
-	 		FreeObjectSprites(cur->actor->objectController->object);
-
-			// NEW
-			if(cur->actor->objectController->drawList)
-			{
-				JallocFree((UBYTE **)&cur->actor->objectController->vtx[0]);
-				JallocFree((UBYTE **)&cur->actor->objectController->drawList);
-			}
-
-			// NEW
-			RemoveUniqueObject(cur->actor->objectController->object);
-			JallocFree((UBYTE **)&cur->actor->objectController);
-		}
-
-		if(cur->actor->LODObjectController)
-			JallocFree((UBYTE **)&cur->actor->LODObjectController);
-
-		if(cur->actor->matrix)
-			JallocFree((UBYTE **)&cur->actor->matrix);
-
-		if(cur->actor->animation)
-			JallocFree((UBYTE **)&cur->actor->animation);
-
-		if(cur->actor->shadow)
-			JallocFree((UBYTE **)&cur->actor->shadow);
-
-		JallocFree((UBYTE**)&cur->actor);
-		JallocFree((UBYTE**)&cur);
-	}
+	FreeActor(hat[0]);		
+	hat[0] = NULL;
 }
 
 /* --------------------------------------------------------------------------------

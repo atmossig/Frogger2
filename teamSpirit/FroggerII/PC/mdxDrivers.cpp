@@ -1,3 +1,13 @@
+#include <windows.h>
+#include <ddraw.h>
+#include <d3d.h>
+#include <crtdbg.h>
+#include <stdio.h>
+
+#include "mgeReport.h"
+#include "mdxInfo.h"
+#include "mdxDDraw.h"
+
 struct DDDEVICE
 {
 	GUID *guid;
@@ -39,23 +49,23 @@ static BOOL FAR PASCAL EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR
 	if (lpDD->QueryInterface(IID_IDirectDraw4, (LPVOID *)&lpDD4)!=DD_OK)
 		return DDENUMRET_OK;
 
-	// Ande get an ID for it!
+	// And get an ID for it!
 	if (lpDD4->GetDeviceIdentifier(&ddId,0)!=DD_OK)
 		return DDENUMRET_OK;
 	
 	// Get the caps for the device
 	DDINIT(ddCaps);													
- 	if ((result = lpDD4->GetCaps(&ddCaps, NULL))!=DD_OK)			
+ 	if ((result = lpDD4->GetCaps(&ddCaps, NULL))!=DD_OK)
 	{
 		// Oops couldn't get it
-		ddShowError(capsResult);
+		ddShowError(result);
 
 		// Release both surfaces
-		lpDD->Release();		
-		lpDD4->Release();		
+		lpDD->Release();
+		lpDD4->Release();
 
 		// Continue looking.
-		return DDENUMRET_OK;	
+		return DDENUMRET_OK;
 	}
 	
 	// If we get here, then we have a device we can possibly use, so add it to the list.
@@ -65,7 +75,7 @@ static BOOL FAR PASCAL EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR
 	// Implicit structure copy.
 	devices.list[devices.num].caps = ddCaps;						
 
-    // If we are not the primary device, (Ie, not NULL for the guid)
+	// If we are not the primary device, (Ie, not NULL for the guid)
 	if (lpGUID)
 	{
 		// Make a copy of the guid

@@ -8,12 +8,48 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include <windows.h>
+#include <crtdbg.h>
+#include <stdio.h>
+
+#include "mgeReport.h"
+
 //TODO: rename from mli to mge (Library -> Generic)
 
 //TODO: move following out
 // mge - Generic
-// mdb - Debugging
 // mdx - DirectX
+
+char debugFile[MAX_PATH] = "c:\\mdebug.log";
+
+/*	--------------------------------------------------------------------------------
+	Function	: dp
+	Purpose		: Print debug message
+	Parameters	: same as printf
+	Returns		: 
+	Info		: 
+*/
+
+void dp(char *format, ...)
+{
+	va_list			argp;
+	FILE *f;
+
+	static char		debugprintfbuffer[2048];
+
+	va_start(argp, format);
+	vsprintf(debugprintfbuffer, format, argp);
+	va_end(argp);
+
+	_CrtDbgReport(_CRT_WARN, NULL, NULL, "A3Ddemo", debugprintfbuffer);
+
+	f = fopen(debugFile, "a+");
+	if (f)
+	{
+		fputs(debugprintfbuffer, f);
+		fclose(f);
+	}
+}
 
 /*	--------------------------------------------------------------------------------
 	Function	: rptShowBitfields
@@ -37,7 +73,7 @@ long rptShowBitfields(unsigned long value, VALUESTRING *me)
 		me++;
 	}
 
-	return matching;
+	return matched;
 }
 
 /*	--------------------------------------------------------------------------------

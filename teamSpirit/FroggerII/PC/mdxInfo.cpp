@@ -9,6 +9,12 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include <windows.h>
+#include <ddraw.h>
+#include <d3d.h>
+#include <crtdbg.h>
+#include <stdio.h>
+
 #include "mgeReport.h"
 
 // General Device Capabilities
@@ -30,7 +36,7 @@ VALUESTRING dwCaps[] =
 	DDCAPS_BLTSTRETCH ,                     "DDCAPS_BLTSTRETCH						Indicates that display hardware is capable of stretching during blit operations. \n",
 	DDCAPS_CANBLTSYSMEM ,                   "DDCAPS_CANBLTSYSMEM					Indicates that display hardware is capable of blitting to or from system memory. \n",
 	DDCAPS_CANCLIP ,                        "DDCAPS_CANCLIP							Indicates that display hardware is capable of clipping with blitting. \n",
-	DDCAPS_CANCLIPSTRETCHED                 "DDCAPS_CANCLIPSTRETCHED				Indicates that display hardware is capable of clipping while stretch blitting. \n",
+	DDCAPS_CANCLIPSTRETCHED,                "DDCAPS_CANCLIPSTRETCHED				Indicates that display hardware is capable of clipping while stretch blitting. \n",
 	DDCAPS_COLORKEY ,                       "DDCAPS_COLORKEY						Supports some form of color key in either overlay or blit operations. More specific color key capability information can be found in the dwCKeyCaps member. \n",
 	DDCAPS_COLORKEYHWASSIST ,               "DDCAPS_COLORKEYHWASSIST				Indicates that the color key is partially hardware assisted. This means that other resources (CPU or video memory) might be used. If this bit is not set, full hardware support is in place. \n",
 	DDCAPS_GDI ,                            "DDCAPS_GDI								Indicates that display hardware is shared with GDI. \n",
@@ -74,7 +80,7 @@ VALUESTRING dwCaps2[] =
 	DDCAPS2_VIDEOPORT ,						"DDCAPS2_VIDEOPORT :					Indicates that display hardware supports live video. \n",
 	DDCAPS2_WIDESURFACES ,					"DDCAPS2_WIDESURFACES :					Indicates that the display surfaces supports surfaces wider than the primary surface. \n",
 	0,0,
-}
+};
 
 // Devices Color Keying Abilities
 VALUESTRING dwCKeyCaps[] = 
@@ -174,7 +180,7 @@ VALUESTRING dwPalCaps[] =
 // DirectDraw Error strings
 VALUESTRING ddErrors[] = 
 {
-	DD_OK,									"DD_OK:			No error.\0",
+	DD_OK,									"DD_OK:									No error.\0",
 	DDERR_ALREADYINITIALIZED,				"DDERR_ALREADYINITIALIZED:				This object is already initialized.\0",
 	DDERR_BLTFASTCANTCLIP,					"DDERR_BLTFASTCANTCLIP:					Return if a clipper object is attached to the source surface passed into a BltFast call.\0",
 	DDERR_CANNOTATTACHSURFACE,				"DDERR_CANNOTATTACHSURFACE:				This surface can not be attached to the requested surface.\0",
@@ -289,10 +295,10 @@ void ddShowCaps(DDCAPS *me)
 }
 
 /*	--------------------------------------------------------------------------------
-	Function	: ddErrorToString
-	Purpose		: Converts a DirectDraw Error to a string describing the error
+	Function	: ddShowError
+	Purpose		: Converts a DirectDraw Error to a string describing the error, and prints it
 	Parameters	: error value
-	Returns		: string 
+	Returns		: 
 	Info		: 
 */
 
