@@ -39,7 +39,8 @@ void fxFreeBlur(void)
 	vList = NULL;
 
 	for (int i=0; i<numRequired; i++)
-		tList[i]->Release( );
+		if( tList[i] )
+			tList[i]->Release( );
 
 	delete [] tList;
 	tList = NULL;
