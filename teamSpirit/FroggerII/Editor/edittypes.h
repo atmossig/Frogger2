@@ -1,0 +1,5 @@
+#ifndef _EDITTYPES_H_INCLUDED
+#define _EDITTYPES_H_INCLUDED
+
+
+#endif
