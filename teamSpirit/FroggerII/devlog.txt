@@ -1134,7 +1134,14 @@ Chris Wilson:
 
 Matt Cloy:
 ------------------------------------------------
-
+Spent most of today catching up, got together with alex all morning, decided on the progression
+and to drop the new world. Typed this up in word, gave a copy to everyone, no problems, no surprises.
+Had a meeting in the afternoon, andrew took notes. Spent my "lunch" getting Joffs present at about 3:30,
+twisted my ancle but it didn't hurt too much,  the rest of the day I spent getting things to compile on
+my big box. And putting in a frog position and level indication on the pause screen. 
+Then, down the pub in the evening,my ankle got worse, to the point when I collapsed [twice] in satchwells.
+Oops. went to casualty, waited an hour, was told I would have to wait another 5 (hours) and decided to go home.
+Got to sleep at around 6:00. Poo.
 
 Andy Eder:
 ------------------------------------------------
@@ -1192,7 +1199,9 @@ Chris Wilson:
 
 Matt Cloy:
 ------------------------------------------------
-
+Yes Naughty people. Was off with my fucked up anckle this morning, and this 
+afternoon I'm sorting reactive animations. Will fill out more later. 
+Andy eders off all day, and kevins ill too. Oh dear. winter blues I guess.
 
 Andy Eder:
 ------------------------------------------------
