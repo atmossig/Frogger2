@@ -399,7 +399,7 @@ void Rectangle2Twiddled(char *Rectangle, char *Twiddled, int Dimension, int Bits
    Function : LoadTextureFile
    Purpose  : load a texture from the gdrom
    Parameters : texture filename
-   Returns : 
+   Returns : texture map pointer
    Info :
 */
 
