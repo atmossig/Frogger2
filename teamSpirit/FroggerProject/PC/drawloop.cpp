@@ -204,6 +204,7 @@ long DrawLoop(void)
 		
 		StartTimer(1,"Actors and Shadows");
 		// Draw Actors before shadows
+		D3DSetupRenderstates(normalZRS);
 		ActorListDraw(0);
 
 		if(!backdrop)
