@@ -272,15 +272,16 @@ void GameProcessController(long pl)
 			else
 			{
 				player[pl].isSuperHopping = 1;
-				if (MoveToRequestedDestination( (dir+2)%3, pl )) // Try to backflip
+				if (MoveToRequestedDestination( (dir+2)&3, pl )) // Try to backflip
 				{
-					dir = (dir+2)%3;
+					dir = (dir+2)&3;
 					player[pl].hasDoubleJumped = 1;
 					player[pl].canJump = 0;
 
 					nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing[pl]) &3;
 					player[pl].extendedHopDir = dir;
 					Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &old->normal/*&currTile[pl]->normal*/ );
+					AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
 					// TODO: Play backflip animation
 				}
 				else

@@ -575,10 +575,17 @@ void ToolbarSelect(int command)
 		FreeBufSampleList();
 //		FreeSampleList();
 
-		FreeGaribList( );
+		FreeSpecFXList( );
+		InitSpecFXList( );
+		FreePlatformList();
+		FreeEnemyList();
+		FreeGaribList();
 		InitGaribList();
-		FreeEnemyList( );
-		FreePlatformList( );
+		FreeTransCameraList();
+		FreePathList();
+		KillAllTriggers( );
+		FreeSpriteList( );
+		InitSpriteList( );
 		RemoveEntities( CREATE_ENEMY );
 		RemoveEntities( CREATE_PLATFORM );
 		RemoveEntities( CREATE_CAMERACASE );
