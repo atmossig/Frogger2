@@ -40,7 +40,8 @@ extern void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportTy
 extern BOOL IsATeleportTile(GAMETILE *tile);
 extern void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl);
 
-// THIS IS A FUDGE - MOVE TO PRINTGFX.H EVENTUALLY
+// THIS IS A FUDGE - MOVE TO PRINTGFX.H (N64) EVENTUALLY *****************************************
 char IsPointVisible(VECTOR *p);
+
 
 #endif
