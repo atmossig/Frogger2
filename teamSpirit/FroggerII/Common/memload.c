@@ -139,14 +139,8 @@ int MemLoadEntities(const void* data, long size)
 				break;
 
 			case CREATE_PLATFORM:
-				platform = CreateAndAddPlatform(type);
-				platform->uid = ID;
-				AssignPathToPlatform(platform, flags, path, 0);
-
-/* NEWER VERSION - PLEASE LEAVE - SHARKY ---------------------------------------
-s				platform = CreateAndAddPlatform(type,flags,ID,path);
+				platform = CreateAndAddPlatform(type,flags,ID,path);
 				act = platform->pltActor;
-------------------------------------------------------------------------------*/
 
 #ifdef PLATFORM_NEW_SHAKABLESCENIC
 				// check for platforms that are 'shakable' scenics - TESTING - ANDYE
