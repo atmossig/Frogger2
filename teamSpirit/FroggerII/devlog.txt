@@ -1089,6 +1089,15 @@ James Hubbard:
 	Then I decided to implement all the character stuff I was planning yesterday. Going well so far, I've got
 	all the basic stuctures done, all the list management, most of the create functions and the top level update
 	function. After lunch I'm going to try a few basic commands and see if I can get the bugger to work at all.
+
+	Afternoon:
+		Wrote a best-first search function as part of a route finder.
+		Wrote IssueAICommand and StartAICommand functions to queue and activate commands, respecively.
+
+		Search is tricky, my head hurts. And I'm going to have to wait till next year to test this too.
+		God damn.
+
+	See you Byron, have a good Christmas!
 	
 
 James Healey:
