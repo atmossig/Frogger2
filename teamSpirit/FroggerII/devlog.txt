@@ -848,7 +848,7 @@ Chris Wilson:
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
-00/00/00 - Thursday
+15/12/99 - Thursday
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
 Matt Cloy:
@@ -873,6 +873,13 @@ David Swift:
 James Hubbard:
 ------------------------------------------------
 
+	Mad a silly effect where five flying saucers spin around each other, with motion
+	trails. Tried to make effects more sparkly with a new sprite, but I can't seem to
+	produce the required shininess.
+
+	Has anyone SEEN the code for animated sprites? I've said this before, but it's
+	bloody awful!
+
 
 James Healey:
 ------------------------------------------------
@@ -891,7 +898,7 @@ Chris Wilson:
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
-00/00/00 - Friday
+16/12/99 - Friday
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
 Matt Cloy:
@@ -906,6 +913,48 @@ David Swift:
 ------------------------------------------------
 	Didn't get a lot done, surprise surprise. Mostly experimenting with intro
 	sequences. Created a simple collision mesh and did a few things with it.
+
+
+James Hubbard:
+------------------------------------------------
+
+	Controversially, I did some work today. Not much, but some. The camera interpolation
+	function (Not Slerp cos it's not a quaternion) is now faster on slower machines,
+	and is properly frame rate independent. Tried to take out demo mode, but I didn't really
+	succeed. Code that refuses to die is scary. Played with special effects a bit but didn't
+	do much.
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
+Chris Wilson:
+------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+20/12/99 - Monday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
 
 
 James Hubbard:
