@@ -198,7 +198,7 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 		SPECFX *fx;
 		VECTOR pos;
 
-		GTInit( &player[pl].safe, 2 );
+		GTInit( &player[pl].safe, 5 );
 
 		if( (fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 35, 0, 0, 2 )) )
 		{
