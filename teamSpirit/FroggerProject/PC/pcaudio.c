@@ -548,7 +548,7 @@ void InitVoices( char *path, int len )
 	{
 		path[len] = '\0';
 
-		strcat( path, frogPool[player[i].character].name );
+		strcat( path, frogPool[player[i].character].fileName );
 		strcat( path, "\\" );
 
 		// Load files from a directory
