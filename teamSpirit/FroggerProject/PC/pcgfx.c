@@ -464,7 +464,7 @@ void DrawFXRing( SPECFX *fx )
 				MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
 				guMtxXFMF( dMtrx, vT[j].sx, vT[j].sy, vT[j].sz, &tempVect.vx, &tempVect.vy, &tempVect.vz );
 
-				if( j==2 ) SetVectorSR( &fxpos, &tempVect );
+				if( j==3 ) SetVectorSR( &fxpos, &tempVect );
 
 				XfmPoint( &m, &tempVect, NULL );
 
