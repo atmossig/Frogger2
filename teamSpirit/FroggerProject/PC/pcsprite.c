@@ -155,7 +155,7 @@ void PrintSpriteOverlays(long num)
 		if(cur->draw)
 		{
 			// Go to destination, if specified
-			float spd = FMul(cur->speed,gameSpeed)>>12;
+			float spd = (float)FMul(cur->speed,gameSpeed)/4096;
 			
 			if (Fabs(spd)>0)
 			{
@@ -174,7 +174,7 @@ void PrintSpriteOverlays(long num)
 							cur->xPos = cur->xPosTo;
 						}
 
-						spd = FMul(cur->speed,gameSpeed)>>12;
+						spd = (float)FMul(cur->speed,gameSpeed)/4096;
 //						spd = cur->speed * gs;
 					}
 				}
@@ -196,7 +196,7 @@ void PrintSpriteOverlays(long num)
 								cur->yPos = cur->yPosTo;
 							}
 
-							spd = cur->speed * gameSpeed;
+							spd = (float)FMul(cur->speed, gameSpeed)/4096;
 						}
 					}
 			}
