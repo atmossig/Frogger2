@@ -189,15 +189,12 @@ void NMEDamageFrog( int num, ENEMY *nme )
 	if(player[num].healthPoints != 0)
 	{
 		GTInit( &player[num].safe, 2 );
-//		PlaySample(GEN_FROG_HURT,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
 
-		if (nme->reactiveNumber!=-1)
-		{
-			// Special damage type
-			if( reactiveAnims[nme->reactiveNumber].type == 0xFF )
-				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog] (num);
-		}
-		else deathAnims[0] (num); // Normal damage
+		// Special death anim
+		if( (nme->reactiveNumber != -1) && (reactiveAnims[nme->reactiveNumber].type == 0xFF) )
+			deathAnims[reactiveAnims[nme->reactiveNumber].animFrog] (num);
+		else
+			deathAnims[0] (num); // Normal damage
 	}
 	else
 	{
@@ -458,6 +455,7 @@ void UpdateSlerpPathNME( ENEMY *cur )
 
 	// Skewer a line to rotate around, and make a rotation
 	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
+	MakeUnit((VECTOR *)&q3);
 	t = DotProduct(&inVec,&fwd);
 	if (t<-0.999)
 		t=-0.999;
@@ -1323,6 +1321,7 @@ void UpdateFlappyThing( ENEMY *nme )
 
 	// Skewer a line to rotate around, and make a rotation
 	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
+	MakeUnit( (VECTOR *)&q3 );
 	t = DotProduct(&inVec,&fwd);
 	if (t<-0.999)
 		t=-0.999;
