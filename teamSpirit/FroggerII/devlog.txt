@@ -1917,6 +1917,10 @@ James Healey:
 		Actors now have the distance from frog check and a ".0f" was taken
 		and killed, floating point emulation, nasty stuff.
 
+	Afternoon:
+
+		Got all enemys in and scaled up for the garden.
+
 Mike Movel:
 ------------------------------------------------
 
