@@ -90,7 +90,9 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					//bb - crashes actorAnimate() when null actor
 					if(theActor)
 					{
-						if ( ( compare = strstr ( cur->name,"BACKDROP" ) ) )
+						if( (compare=strstr( cur->name,"backdrop" )) || 
+							(compare=strstr( cur->name,"boulder" )) ||
+							(compare=strstr( cur->name, "riser" )) )
 						{
 							theActor->flags |= ACTOR_DRAW_ALWAYS;
 							theActor->depthShift = 0;
@@ -563,8 +565,7 @@ void Actor2ClipCheck(ACTOR2* act)
 	int distTop, distRight, distBott, distLeft;
 	int radius, FOV;
 
-//	int CLIP_FAR = fog.max;//worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
-	int CLIP_FAR = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
+//	int CLIP_FAR = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
 
 	SVECTOR pos = act->actor->position;
 	pos.vx = -pos.vx;
@@ -607,11 +608,11 @@ void Actor2ClipCheck(ACTOR2* act)
 		}
 		else if ( act->bffActor )
 		{
-				QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
+			QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
 
-				act->actor->bffMatrix.t[0] = -act->actor->position.vx;
-				act->actor->bffMatrix.t[1] = act->actor->position.vy;
-				act->actor->bffMatrix.t[2] = act->actor->position.vz;
+			act->actor->bffMatrix.t[0] = -act->actor->position.vx;
+			act->actor->bffMatrix.t[1] = act->actor->position.vy;
+			act->actor->bffMatrix.t[2] = act->actor->position.vz;
 		}
 
 
@@ -622,82 +623,82 @@ void Actor2ClipCheck(ACTOR2* act)
 
 	//bb if boulder draw, increase far clipping
 	//change this to draw always
-	if( ( strstr(act->actor->psiData.modelName, "BOULDER") ) || ( strstr(act->actor->psiData.modelName, "PATHFALL") ) )
-	{
-		if(act->draw)
-		{
-			act->clipped = 0;
-			act->milesAway = 0;
+//	if( ( strstr(act->actor->psiData.modelName, "BOULDER") ) || ( strstr(act->actor->psiData.modelName, "PATHFALL") ) )
+//	{
+//		if(act->draw)
+//		{
+//			act->clipped = 0;
+//			act->milesAway = 0;
 
 //it's not animated (is it?)
 /*			TIMER_START1(TIMER_UPANI);
 //			oldStackPointer = SetSp(0x1f800400);
- 			actorUpdateAnimations(cur->actor);
+// 			actorUpdateAnimations(cur->actor);
 //			SetSp(oldStackPointer);
-			TIMER_STOP_ADD1(TIMER_UPANI);
+//			TIMER_STOP_ADD1(TIMER_UPANI);
 
-			TIMER_START1(TIMER_SETANI);
+//			TIMER_START1(TIMER_SETANI);
 //			oldStackPointer = SetSp(0x1f800400);
-			actorSetAnimation ( cur->actor, cur->actor->animation.frame, 1 );
+//			actorSetAnimation ( cur->actor, cur->actor->animation.frame, 1 );
 //			SetSp(oldStackPointer);
-			TIMER_STOP_ADD1(TIMER_SETANI);
+//			TIMER_STOP_ADD1(TIMER_SETANI);
 */
-			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
+//			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
 // 			act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
 // 			act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
 // 			act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
-			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
-			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
-			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
+//			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
+//			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
+//			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
 
-			return;
-		}
-		else
-		{
-			act->clipped = 1;
-			act->milesAway = 1;
-			return;
-		}
-	}
+//			return;
+//		}
+//		else
+//		{
+//			act->clipped = 1;
+//			act->milesAway = 1;
+//			return;
+//		}
+//	}
 
-	if( strstr(act->actor->psiData.modelName, "RISER") )
-	{
-		if(act->draw)
-		{
-			act->clipped = 0;
-			act->milesAway = 0;
+//	if( strstr(act->actor->psiData.modelName, "RISER") )
+//	{
+//		if(act->draw)
+//		{
+//			act->clipped = 0;
+//			act->milesAway = 0;
 
 //it's not animated (is it?)
 /*			TIMER_START1(TIMER_UPANI);
 //			oldStackPointer = SetSp(0x1f800400);
- 			actorUpdateAnimations(cur->actor);
+// 			actorUpdateAnimations(cur->actor);
 //			SetSp(oldStackPointer);
-			TIMER_STOP_ADD1(TIMER_UPANI);
+//			TIMER_STOP_ADD1(TIMER_UPANI);
 
-			TIMER_START1(TIMER_SETANI);
+//			TIMER_START1(TIMER_SETANI);
 //			oldStackPointer = SetSp(0x1f800400);
-			actorSetAnimation ( cur->actor, cur->actor->animation.frame, 1 );
+//			actorSetAnimation ( cur->actor, cur->actor->animation.frame, 1 );
 //			SetSp(oldStackPointer);
-			TIMER_STOP_ADD1(TIMER_SETANI);
+//			TIMER_STOP_ADD1(TIMER_SETANI);
 */
 
-			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
+//			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
 //			act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
 //			act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
 //			act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
-			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
-			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
-			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
+//			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
+//			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
+//			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
 
-			return;
-		}
-		else
-		{
-			act->clipped = 1;
-			act->milesAway = 1;
-			return;
-		}
-	}
+//			return;
+//		}
+//		else
+//		{
+//			act->clipped = 1;
+//			act->milesAway = 1;
+//			return;
+//		}
+//	}
 
 
 
@@ -729,7 +730,7 @@ void Actor2ClipCheck(ACTOR2* act)
 
 
 	//not too close/far
-	if(sz>0 && sz<CLIP_FAR)
+	if(sz>0 && sz<fog.max)
 	{
 		sx = (short)(sxy&0xffff);
 		sy = (short)(sxy>>16);
@@ -764,8 +765,7 @@ void Actor2ClipCheck(ACTOR2* act)
 
 
 			//clip?
-			if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0)  )
-	//		if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (sz>CLIP_FAR) )
+			if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (sz>fog.max) )
 			{
 				act->clipped = 1;
 			}
