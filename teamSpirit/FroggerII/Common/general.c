@@ -110,4 +110,40 @@ GAMETILE* FindNearestTile(VECTOR v)
 	return closest;
 }
 
+GAMETILE* FindNearestJoinedTile( GAMETILE *tile, VECTOR *pos )
+{
+	GAMETILE *t, *closest = tile;
+	int i, j;
+	float dist,
+		closestDist = DistanceBetweenPointsSquared(pos,&tile->centre); // Closest is current tile initially
+
+	for( i=0; i<4; i++ )
+	{
+		t = tile->tilePtrs[i];
+		if( t )
+		{
+			dist = DistanceBetweenPointsSquared(pos, &t->centre);
+			if (dist < closestDist)
+			{
+				closest = t;
+				closestDist = dist;
+			}
+
+			for( j=0; j<4; j++ )
+			{
+				if( t->tilePtrs[j] )
+				{
+					dist = DistanceBetweenPointsSquared(pos, &t->tilePtrs[j]->centre);
+					if (dist < closestDist)
+					{
+						closest = t->tilePtrs[j];
+						closestDist = dist;
+					}
+				}
+			}
+		}
+	}
+
+	return closest;
+}
 

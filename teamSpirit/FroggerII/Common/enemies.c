@@ -219,10 +219,6 @@ void UpdateEnemies()
 			}
 		}
 
-//		if ( cur->isIdle )
-//			cur->isIdle--;
-		// ENDIF
-
 		if(cur->flags & ENEMY_NEW_FOLLOWPATH)
 		{
 			// process enemies that follow a path (>1 node in path)
@@ -799,35 +795,69 @@ void UpdateFlappyThing( ENEMY *nme )
 	ACTOR *act = nme->nmeActor->actor;
 	VECTOR fwd;
 	QUATERNION q1, q2, q3;
-	float t;
+	float t, best = 10000000;
+	unsigned long i;
 		
 	// If nme is very close to destination (stored in nmeactor->actor->rotaim) then choose a new destination.
 	if( (DistanceBetweenPointsSquared(&act->pos,&act->rotaim) < 300) || !Magnitude(&act->rotaim) ) // 10 units apart
 	{
-		VECTOR p1, p2;
-		int dX, dY, dZ;
+		VECTOR up;
 
-		SetVector( &up, &path->nodes[0].worldTile->normal );
-		ScaleVector( &up, path->nodes[0].offset );
-		AddVector( &p1, &path->nodes[0].worldTile->centre, &up );
+		// If just got to the special node we're aiming for, wait at it
+		if( path->startNode )
+		{
+			path->startFrame = actFrameCount + (path->nodes[path->startNode].waitTime*60);
+			nme->isWaiting = 1;
+			path->startNode = 0;
+			return;
+		}
 
-		SetVector( &up, &path->nodes[1].worldTile->normal );
-		ScaleVector( &up, path->nodes[1].offset );
-		AddVector( &p2, &path->nodes[1].worldTile->centre, &up );
+		// On a random chance, aim at the closest special node (DOESN'T INCLUDE OFFSET!)
+		if( Random(100)>95 )
+			for( i=2; i<path->numNodes; i++ )
+			{
+				t = DistanceBetweenPointsSquared( &act->pos, &path->nodes[i].worldTile->centre );
+				if( t < best )
+				{
+					best = t;
+					path->startNode = i;
+				}
+			}
 
-		// Get dimensions of the box we can move in.
-		dX = Fabs(p2.v[0] - p1.v[0]);
-		dY = Fabs(p2.v[1] - p1.v[1]);
-		dZ = Fabs(p2.v[2] - p1.v[2]);
+		// If we just found a node to aim at, go there
+		if( path->startNode )
+		{
+			SetVector( &up, &path->nodes[path->startNode].worldTile->normal );
+			ScaleVector( &up, path->nodes[path->startNode].offset );
+			AddVector( &act->rotaim, &up, &path->nodes[path->startNode].worldTile->centre );
+		}
+		else // Else pick a random point in space
+		{
+			VECTOR p1, p2;
+			int dX, dY, dZ;
 
-		p1.v[0] = min(p2.v[0], p1.v[0]);
-		p1.v[1] = min(p2.v[1], p1.v[1]);
-		p1.v[2] = min(p2.v[2], p1.v[2]);
+			SetVector( &up, &path->nodes[0].worldTile->normal );
+			ScaleVector( &up, path->nodes[0].offset );
+			AddVector( &p1, &path->nodes[0].worldTile->centre, &up );
 
-		// Random destination within the valid box
-		act->rotaim.v[0] = p1.v[0]+Random(dX);
-		act->rotaim.v[1] = p1.v[1]+Random(dY);
-		act->rotaim.v[2] = p1.v[2]+Random(dZ);
+			SetVector( &up, &path->nodes[1].worldTile->normal );
+			ScaleVector( &up, path->nodes[1].offset );
+			AddVector( &p2, &path->nodes[1].worldTile->centre, &up );
+
+			// Get dimensions of the box we can move in.
+			dX = Fabs(p2.v[0] - p1.v[0]);
+			dY = Fabs(p2.v[1] - p1.v[1]);
+			dZ = Fabs(p2.v[2] - p1.v[2]);
+
+			p1.v[0] = min(p2.v[0], p1.v[0]);
+			p1.v[1] = min(p2.v[1], p1.v[1]);
+			p1.v[2] = min(p2.v[2], p1.v[2]);
+
+			// Random destination within the valid box
+			act->rotaim.v[0] = p1.v[0]+Random(dX);
+			act->rotaim.v[1] = p1.v[1]+Random(dY);
+			act->rotaim.v[2] = p1.v[2]+Random(dZ);
+		}
 	}
 
 	// Store current orientation
@@ -849,11 +879,11 @@ void UpdateFlappyThing( ENEMY *nme )
 	GetQuaternionFromRotation(&q2,&q3);
 
 	// Slerp between current and desired orientation
-	QuatSlerp( &q1, &q2, path->nodes[0].speed, &act->qRot );
+	QuatSlerp( &q1, &q2, path->nodes[0].speed*gameSpeed, &act->qRot );
 
 	// Move forwards a bit in direction of facing
 	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
-	ScaleVector( &fwd, path->nodes[1].speed );
+	ScaleVector( &fwd, path->nodes[1].speed*gameSpeed );
 	AddVector( &act->pos, &fwd, &act->pos );
 
 	nme->flags |= ENEMY_NEW_NODAMAGE;
