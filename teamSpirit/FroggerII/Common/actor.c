@@ -192,8 +192,33 @@ void DrawActorList()
 		   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 		   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
-			if(cur->draw)
+			if(cur->draw && !(cur->flags & ACTOR_DRAW_LAST) )
+			{
 				DrawActor(cur->actor);
+			}
+		}
+	
+		cur = cur->next;
+	} 
+}
+
+void DrawCameraSpaceActorList()
+{
+	ACTOR2	*cur;
+
+	vtxPtr = &(objectsVtx[draw_buffer][0]);
+
+	cur = actList;
+	while(cur)
+	{
+		if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
+		   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
+		   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
+		{
+			if(cur->draw && (cur->flags & ACTOR_DRAW_LAST) )
+			{
+				DrawActor(cur->actor);
+			}
 		}
 	
 		cur = cur->next;

@@ -644,9 +644,14 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 //	firstObject = 1;
 
-	levelTrophy = CreateAndAddActor("trophy.obe",0,0,0,0,0,0);
+	levelTrophy = CreateAndAddActor("trophy.obe",0,0,100.0,0,0,0);
 	levelTrophy->draw = 0;
-	levelTrophy->flags |= DRAW_LAST;
+	levelTrophy->flags |= ACTOR_DRAW_LAST;
+	levelTrophy->flags &= ~ACTOR_DRAW_ALWAYS;
+	levelTrophy->flags &= ~ACTOR_DRAW_CULLED;
+	levelTrophy->actor->scale.v[0] = 0.2;
+	levelTrophy->actor->scale.v[1] = 0.2;
+	levelTrophy->actor->scale.v[2] = 0.2;
 	actCount++;
 
 	dprintf"\n\n** ADDED %d ACTORS **\n\n",actCount));	
@@ -927,6 +932,7 @@ void RunGameLoop (void)
 
 				if( pauseMode != PM_ENDLEVEL )
 				{
+					levelTrophy->flags |= ACTOR_DRAW_ALWAYS;
 					darkenedLevel = 0;
 					pauseMode = PM_ENDLEVEL;
 				}
@@ -948,6 +954,9 @@ void RunGameLoop (void)
 					SaveGame(); // Write save games into eeprom
 #endif
 				}
+
+				levelTrophy->flags &= ~ACTOR_DRAW_ALWAYS;
+				pauseMode = 0;
 
 				FreeAllLists();
 
