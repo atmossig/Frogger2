@@ -37,7 +37,7 @@ TEXTURE *txtrElectric	= NULL;
 TEXTURE *txtrFlare		= NULL;
 
 
-void UpdateFXRipple( SPECFX *fx );
+void UpdateFXDecal( SPECFX *fx );
 void UpdateFXRing( SPECFX *fx );
 void UpdateFXBolt( SPECFX *fx );
 void UpdateFXSmoke( SPECFX *fx );
@@ -103,9 +103,8 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		AddToVector(&effect->origin,&effect->normal);
 
 		effect->tex = txtrRipple;
-		effect->Update = UpdateFXRipple;
-		effect->Draw = DrawFXRipple;
-		effect->sprites->flags = XLU_ADD;
+		effect->Update = UpdateFXDecal;
+		effect->Draw = DrawFXDecal;
 		break;
 	case FXTYPE_GARIBCOLLECT:
 		effect->b = 0;
@@ -117,19 +116,30 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->origin.v[Z] += (effect->normal.v[Z] * 5);
 
 		effect->tex = txtrStar;
-		effect->Update = UpdateFXRipple;
-		effect->Draw = DrawFXRipple;
+		effect->Update = UpdateFXDecal;
+		effect->Draw = DrawFXDecal;
 
 		break;
-	case FXTYPE_DECAL:
+	case FXTYPE_WAKE:
 		effect->a = 255;
 		effect->fade = effect->a / life;
 
 		AddToVector(&effect->origin,&effect->normal);
 
 		effect->tex = txtrRipple;
-		effect->Update = UpdateFXRipple;
-		effect->Draw = DrawFXRipple;
+		effect->Update = UpdateFXDecal;
+		effect->Draw = DrawFXDecal;
+		break;
+
+	case FXTYPE_DECAL:
+		effect->a = 255;
+		effect->fade = effect->a / life;
+
+		AddToVector(&effect->origin,&effect->normal);
+
+		effect->tex = txtrRing;
+		effect->Update = UpdateFXDecal;
+		effect->Draw = DrawFXDecal;
 
 		break;
 	case FXTYPE_FROGSHIELD:
@@ -597,13 +607,13 @@ void UpdateSpecialEffects( )
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: UpdateFXRipples
+	Function		: UpdateFXDecal
 	Purpose			: Grow and fade
 	Parameters		: 
 	Returns			: 
 	Info			: 
 */
-void UpdateFXRipple( SPECFX *fx )
+void UpdateFXDecal( SPECFX *fx )
 {
 	int fo;
 
@@ -1344,7 +1354,7 @@ void InitSpecFXList( )
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: FreeFXRippleLinkedList
+	Function		: FreeSpecFXList
 	Purpose			: frees the fx linked list
 	Parameters		: 
 	Returns			: void
@@ -1560,11 +1570,11 @@ void ProcessAttachedEffects( void *entity, int type )
 			SetVector( &rPos, &act->actor->pos );
 			rPos.v[Y] = tile->centre.v[Y];
 			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &rPos, &normal, 10, 0.3, 0.1, 0.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &rPos, &normal, 10, 0.3, 0.1, 0.5 );
 			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &rPos, &normal, 20, 0.1, 0.05, 0.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &rPos, &normal, 20, 0.1, 0.05, 0.5 );
 			else
-				fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &rPos, &normal, 20, 0.2, 0.1, 0.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &rPos, &normal, 20, 0.2, 0.1, 0.5 );
 
 			SetAttachedFXColour( fx, act->effects );
 		}

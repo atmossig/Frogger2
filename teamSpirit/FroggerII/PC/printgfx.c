@@ -751,7 +751,7 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 
 
 
-void DrawFXRipple( SPECFX *ripple )
+void DrawFXDecal( SPECFX *ripple )
 {
 	VECTOR tempVect, m, fwd;
 	D3DTLVERTEX vT[5];
@@ -840,21 +840,24 @@ void DrawFXRipple( SPECFX *ripple )
 	tEntry = ((TEXENTRY *)ripple->tex);
 	if( tEntry && !zeroZ )
 	{
-		SwapFrame(4);
-
 		Clip3DPolygon( vT, tEntry->hdl );
 		Clip3DPolygon( &vT[2], tEntry->hdl );
 
-		for( i=0; i<4; i++ )
+		if( ripple->type == FXTYPE_WAKE || ripple->type == FXTYPE_WATERRIPPLE )
 		{
-			vT[i].sx +=3;
-			vT[i].color = D3DRGBA(ripple->r/255.0,ripple->g/255.0,ripple->b/255.0,ripple->a/255.0);
-		}
-		
-		Clip3DPolygon( vT, tEntry->hdl );
-		Clip3DPolygon( &vT[2], tEntry->hdl );
+			for( i=0; i<4; i++ )
+			{
+				vT[i].sx +=3;
+				vT[i].color = D3DRGBA(ripple->r/255.0,ripple->g/255.0,ripple->b/255.0,ripple->a/255.0);
+			}
 
-		SwapFrame(0);
+			SwapFrame(3);
+
+			Clip3DPolygon( vT, tEntry->hdl );
+			Clip3DPolygon( &vT[2], tEntry->hdl );
+
+			SwapFrame(0);
+		}
 	}
 
 	PopMatrix( ); // Rotation

@@ -67,7 +67,7 @@ void DrawRandomPolyList( );
 void TransformAndDrawPolygon( POLYGON *p );
 
 void DrawSpecialFX();
-void DrawFXRipple( SPECFX *ripple );
+void DrawFXDecal( SPECFX *ripple );
 void DrawFXRing( SPECFX *ring );
 void DrawFXTrail( SPECFX *trail );
 void DrawFXLightning( SPECFX *fx );
