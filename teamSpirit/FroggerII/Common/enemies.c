@@ -1529,9 +1529,13 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	{
 		newItem->isSnapping = -2;
 		newItem->Update = UpdateVent;
+		Orientate( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 	}
 	else if( (newItem->flags & ENEMY_NEW_MOVEUP) || (newItem->flags & ENEMY_NEW_MOVEDOWN) )
+	{
 		newItem->Update = UpdateMoveVerticalNME;
+		Orientate( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+	}
 	else if( (newItem->flags & ENEMY_NEW_ROTATEPATH_XZ ) || (newItem->flags & ENEMY_NEW_ROTATEPATH_XY) || (newItem->flags & ENEMY_NEW_ROTATEPATH_ZY) )
 	{
 		newItem->Update = UpdateRotatePathNME;
