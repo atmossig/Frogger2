@@ -107,42 +107,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 				else if ( ( compare = strstr ( cur->name, "xx_" ) ) || ( compare = strstr ( cur->name, "lea_" ) ) ||
 									( compare = strstr ( cur->name, "xxa_" ) ) || ( compare = strstr ( cur->name, "spl_" ) ) || ( compare = strstr ( cur->name, "wh" ) ) || ( compare = strstr ( cur->name, "wat_" ) )|| ( compare = strstr ( cur->name, "slu_" ) ))
 				{
-					flags = 0;
-
-					if ( ( gstrcmp ( cur->name, "wat_" ) != 0 ) )
-						flags |= TRANSPARENT;
-					// ENDIF
-
-					if ( ( gstrcmp ( cur->name, "xx_gflo.psi" ) != 0 ) )
-						flags |= TRANSPARENT | ADDATIVE;
-					// ENDIF
-
-					if ( ( gstrcmp ( cur->name, "xx_g_flake.psi" ) == 0 ) )
-						flags |= SHIFT_DEPTH;
-					// ENDIF
-					if ( ( gstrcmp ( cur->name, "xx_g_fblake.psi" ) == 0 ) )
-						flags |= SHIFT_DEPTH;
-					// ENDIF
-					if ( ( gstrcmp ( cur->name, "xx_g_fcroc.psi" ) == 0 ) )
-						flags |= SHIFT_DEPTH;
-					// ENDIF
-
-					if ( ( gstrcmp ( cur->name, "xxa_whlite.psi" ) == 0 ) )
-						flags |= SHIFT_DEPTH;
-					// ENDIF
-
-					if ( ( compare = strstr ( cur->name, "_g" ) ) )
-					{
-						flags |= 0;
-					}
-					// ENDIF
-
-					if ( ( compare = strstr ( cur->name, "_f" ) ) )
-					{
-						flags |= ACTOR_SLIDYTEX;
-					}
-					// ENDIF
-
 					CreateAndAddScenicObject ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, flags );
 				}
 				else

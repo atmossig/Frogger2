@@ -172,6 +172,10 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( BFFfileName, "OBJECTS\\TITLE\\LEVEL.BFF" );
 			break;
 
+		case FRONTEND4_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\TITLE\\MULTISEL.BFF" );
+			break;
+
 		default:
 				utilPrintf ( "Not a valid Object Bank type..............." );
 				return;
