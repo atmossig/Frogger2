@@ -36,6 +36,8 @@ bool blitVideo = 0;
 
 long (*oldLoop)() = 0;
 
+LPDIRECTDRAWSURFACE7 tmpSrf;
+
 #define videoSurface surface[PRIMARY_SRF]
 long RunVideoPlayback()
 {
@@ -99,24 +101,24 @@ long RunVideoPlayback()
 				r.bottom += r.top;
 			}
 
-			if ((res = surface[RENDER_SRF]->Lock(NULL, &ddsd, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR|DDLOCK_WRITEONLY, 0)) != DD_OK)
+			if ((res = tmpSrf->Lock(NULL, &ddsd, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR|DDLOCK_WRITEONLY, 0)) != DD_OK)
 			{
-				utilPrintf("RunVideoPlayback(): Failed locking device surface\n");
+				utilPrintf("RunVideoPlayback(): Failed locking temporary surface\n");
 				return 1;
 			}
 
-			BinkCopyToBuffer(bink, ddsd.lpSurface, ddsd.lPitch, rYRes,//bink->Height,
+			BinkCopyToBuffer(bink, ddsd.lpSurface, ddsd.lPitch, bink->Height,
 				0, 0, surfacetype);
 
 			RECT sr;
 			sr.left = 0;
-			sr.right = rXRes;//bink->Width;
+			sr.right = bink->Width;
 			sr.top = 0;
-			sr.bottom = rYRes;//bink->Height;
+			sr.bottom = bink->Height;
 
-			surface[RENDER_SRF]->Unlock(NULL);
+			tmpSrf->Unlock(NULL);
 
-			surface[PRIMARY_SRF]->Blt(&r, surface[RENDER_SRF], &sr, DDBLT_WAIT, 0);
+			surface[PRIMARY_SRF]->Blt(&r, tmpSrf, &sr, DDBLT_WAIT, 0);
 		}
 		else
 		{
@@ -139,6 +141,8 @@ long RunVideoPlayback()
 		{
 			// end playback mode..
 			BinkClose(bink); bink=NULL;
+
+			tmpSrf->Release();
 
 			if(padData.debounce[0] & PAD_START)
 				quitAllVideo = YES;
@@ -165,6 +169,8 @@ DWORD CALLBACK VideoThreadProc(LPVOID foo)
 long StartVideoPlayback(int num)
 {
 	char path[MAX_PATH];
+	HRESULT res;
+	DDSURFACEDESC2	ddsd;
 
 	if (!cdromDrive[0])
 	{
@@ -185,6 +191,21 @@ long StartVideoPlayback(int num)
 	else
 	{
 		utilPrintf("StartVideoPlayback(): Starting video: '%s'\n", path);
+	}
+
+	DDINIT(ddsd);
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
+	if (rHardware)
+		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
+	else
+		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
+	ddsd.dwWidth = bink->Width;
+	ddsd.dwHeight = bink->Height;
+	if ((res = pDirectDraw7->CreateSurface(&ddsd, &tmpSrf, NULL))!= DD_OK)
+	{
+		dp("Failed creating temporary surface\n");
+		ddShowError(res);
+		return 0;
 	}
 
 	surfacetype = BinkDDSurfaceType(videoSurface);
