@@ -1396,6 +1396,34 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 
 void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, float alpha)
 {
+	float x2 = x + xs, y2 = y + ys;
+
+	if (x < 0)
+	{
+		u1 += (u2-u1) * (-x/xs);	// clip u
+		xs += x; x = 0;
+	}
+	if (x2 > SCREEN_WIDTH)
+	{
+		u2 += (u2-u1) * (SCREEN_WIDTH-x2)/xs;	// clip u
+		xs -= (x-SCREEN_WIDTH);
+		x2 = SCREEN_WIDTH;
+	}
+	if (xs < 0) return;
+
+	if (y < 0)
+	{
+		v1 += (v2-v1) * (-y/(ys));	// clip v
+		ys += y; y = 0;
+	}
+	if (y2 > SCREEN_HEIGHT)
+	{
+		v2 += (v2-v1) * (SCREEN_HEIGHT-y2)/ys;	// clip v
+		ys -= (y-SCREEN_HEIGHT);
+		y2 = SCREEN_HEIGHT;
+	}
+	if (ys < 0) return;
+
 	D3DTLVERTEX v[4] = {
 		{
 			x,y,z,0,
@@ -1403,17 +1431,17 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 			u1,v1
 		},
 		{
-			x+xs,y,z,0,
+			x2,y,z,0,
 			D3DRGBA(1,1,1,alpha),0,
 			u2,v1
 		},
 		{
-			x+xs,y+ys,z,0,
+			x2,y2,z,0,
 			D3DRGBA(1,1,1,alpha),0,
 			u2,v2
 		},
 		{
-			x,y+ys,z,0,
+			x,y2,z,0,
 			D3DRGBA(1,1,1,alpha),0,
 			u1,v2
 	}};
