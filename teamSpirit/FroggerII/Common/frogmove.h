@@ -112,6 +112,7 @@ void HopFrogToTile(GAMETILE *tile, long pl);
 void SpringFrogToTile(GAMETILE *tile, float height, float time, long pl);
 void ThrowFrogAtScreen(long pl);
 
+void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float height, long time, long player);
 
 
 #endif
