@@ -541,7 +541,7 @@ int main ( )
 			worldPolyCount = 0;
 
 			//restore the frog's depthshifts
-			for(i=0; i<MAX_FROGS; i++)
+			for(i=0; i<NUM_FROGS; i++)
 			{
 //				frog[i]->depthShift=0;
 				frog[i]->depthShift=-10;

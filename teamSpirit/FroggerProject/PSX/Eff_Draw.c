@@ -695,6 +695,9 @@ void DrawFXLightning( SPECFX *fx )
 	if( !(tEntry = (fx->tex)) )
 		return;
 
+	if(gameState.mode == LEVELCOMPLETE_MODE)
+		return;
+
 	gte_SetTransMatrix(&GsWSMATRIX);
 	gte_SetRotMatrix(&GsWSMATRIX);
 

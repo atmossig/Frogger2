@@ -643,6 +643,9 @@ void DrawFXLightning( SPECFX *fx )
 	if( !(tEntry = ((MDX_TEXENTRY *)fx->tex)) )
 		return;
 
+	if(gameState.mode == LEVELCOMPLETE_MODE)
+		return;
+
 	// Additive mode
 	SwapFrame(3);
 
