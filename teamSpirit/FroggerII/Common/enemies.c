@@ -1057,16 +1057,21 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	VECTOR up, fwd;
 	PATH *path = cur->path;
 	ACTOR2 *act = cur->nmeActor;
-	float length;
+	float length, dist;
 
 	if( path->numNodes < 3 )
 		return;
 
-	if( DistanceBetweenPointsSquared(&act->actor->pos, &frog[0]->actor->pos) > (act->radius*act->radius) )
+	dist = DistanceBetweenPointsSquared(&act->actor->pos, &frog[0]->actor->pos);
+	if( dist > (act->radius*act->radius) )
 	{
 		cur->isIdle = 0;
 		path->nodes[2].worldTile = NULL;
 		return;
+	}
+	else if( dist < 33*33 && !frog[0]->action.dead.time && !frog[0]->action.safe.time )
+	{
+		NMEDamageFrog(0,cur);
 	}
 
 	if( !cur->isSnapping )
@@ -1084,12 +1089,9 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	{
 		if( actFrameCount > path->endFrame )
 		{
+			cur->inTile = path->nodes[2].worldTile;
 			path->nodes[1].worldTile = path->nodes[2].worldTile;
 			path->nodes[2].worldTile = NULL;
-		}
-		else if( actFrameCount > path->startFrame+((1-cur->speed)*(path->endFrame-path->startFrame)) )
-		{
-			cur->inTile = path->nodes[2].worldTile;
 		}
 	}
 
