@@ -449,22 +449,8 @@ void RunPauseMenu( )
 		DisableTextOverlay ( pauseTitle );
 		DisableTextOverlay ( continueText );
 		DisableTextOverlay ( quitText );
-		testPause = 0;
+		pauseMode = 0;
 
-		/*
-		if(backPanel)
-		{
-			backPanel->xPos		= 50;
-			backPanel->yPos		= 83;
-			backPanel->width	= 220;
-			backPanel->height	= 50;
-			backPanel->r		= 15;
-			backPanel->g		= 63;
-			backPanel->b		= 255;
-			backPanel->a		= 127;
-			backPanel->draw		= 0;
-		}
-		*/
 		switch (currentSelection)
 		{
 			case 0:   // Continue Game

@@ -20,8 +20,6 @@ char scoreText[32]	= "10000000";
 char livesText[8]	= "xxxx";
 char timeText[32]	= "00:00";
 
-char timeTemp[6];
-
 char countdownTimer	= 1;
 char displayFullScreenPoly = 0;
 
@@ -40,23 +38,14 @@ TEXTOVERLAY	*gameOver1;
 TEXTOVERLAY	*gameOverScore;
 TEXTOVERLAY	*babySavedText;
 
-TEXTOVERLAY	*levelComplete1,
-			*levelComplete2,
-			*levelComplete3;
-
 TEXTOVERLAY *keyCollected;
 
 TEXTOVERLAY *pauseTitle;
 
 TEXTOVERLAY *continueText;
 TEXTOVERLAY *quitText;
-TEXTOVERLAY *spawnCollected;
-TEXTOVERLAY *time;
 TEXTOVERLAY *nextLev1;
 TEXTOVERLAY *nextLev2;
-
-SPRITEOVERLAY *clock = NULL;
-SPRITEOVERLAY *spawn = NULL;
 
 TEXTOVERLAY *wholeKeyText = NULL;
 
@@ -160,68 +149,16 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	DisableTextOverlay(babySavedText);
 	babySaved = 0;
 
-	levelComplete1 = CreateAndAddTextOverlay(60,80,"",YES,NO,255,255,255,0,bigFont,0,0,0);
-	DisableTextOverlay(levelComplete1);
-	levelComplete2 = CreateAndAddTextOverlay(0,120,"Level complete !",YES,NO,255,255,255,0,smallFont,TEXTOVERLAY_WAVECHARS,6,0);
-	DisableTextOverlay(levelComplete2);
-	levelComplete3 = CreateAndAddTextOverlay(0,145,"********************",YES,NO,255,255,255,0,smallFont,0,6,0);
-	DisableTextOverlay(levelComplete3);
-	  
 //	keyCollected = CreateAndAddTextOverlay(0,100,"",YES,NO,255,255,255,255,bigFont,TEXTOVERLAY_LIFE,0,0);
 //	DisableTextOverlay(keyCollected);
 
 
 	//  Awards screen
-
-	levelComplete1 = CreateAndAddTextOverlay ( 0, 20, "level", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
-	DisableTextOverlay(levelComplete1);
-	levelComplete2 = CreateAndAddTextOverlay ( 0, 38, "complete", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
-	DisableTextOverlay(levelComplete2);
-
-	spawnCollected = CreateAndAddTextOverlay ( 100, 130, "", NO, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
-	sprintf ( spawnCollected->text, "%d", player[0].numSpawn );
-	DisableTextOverlay ( spawnCollected );
-
-	time = CreateAndAddTextOverlay ( 100, 160, timeTemp, NO, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
-	DisableTextOverlay ( time );
-
 	nextLev1 = CreateAndAddTextOverlay ( 0, 180, "next", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
 	DisableTextOverlay ( nextLev1 );
 
 	nextLev2 = CreateAndAddTextOverlay ( 0, 200, worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum+1 ].description, YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
 	DisableTextOverlay ( nextLev2 );
-
-	clock = CreateAndAddSpriteOverlay(50,160,"clock001.bmp",32,32,255,255,255,192,ANIMATION_FORWARDS | ANIMATION_PINGPONG );
-	AddFrameToSpriteOverlay(clock,"clock002.bmp");
-	AddFrameToSpriteOverlay(clock,"clock003.bmp");
-	AddFrameToSpriteOverlay(clock,"clock004.bmp");
-	AddFrameToSpriteOverlay(clock,"clock005.bmp");
-	AddFrameToSpriteOverlay(clock,"clock006.bmp");
-	AddFrameToSpriteOverlay(clock,"clock007.bmp");
-	AddFrameToSpriteOverlay(clock,"clock008.bmp");
-	SetSpriteOverlayAnimSpeed(clock,0.5F);
-	clock->draw = 0;
-
-	spawn = CreateAndAddSpriteOverlay(50,120,"spa01.bmp",32,32,255,255,255,192,ANIMATION_FORWARDS | ANIMATION_CYCLE );
-	AddFrameToSpriteOverlay(spawn,"spa02.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa03.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa04.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa05.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa06.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa07.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa08.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa09.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa10.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa11.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa12.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa13.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa14.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa15.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa16.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa17.bmp");
-	SetSpriteOverlayAnimSpeed(spawn,0.5F);
-	spawn->draw = 0;
-		  
 
 	wholeKeyText = CreateAndAddTextOverlay ( 0, 110, "World Open", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );;
 	wholeKeyText->draw = 0;

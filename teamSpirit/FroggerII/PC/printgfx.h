@@ -41,7 +41,7 @@ extern void DrawFXRipples();
 extern void ProcessShadows();
 extern void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,Vtx *vert,VECTOR *lightDir);
 
-extern void DrawPauseFX();
+extern void DrawSwirlFX();
 extern void ScreenFade(UBYTE dir,UBYTE step);
 
 extern void DrawDarkenedLevel();

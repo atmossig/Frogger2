@@ -107,7 +107,7 @@ extern char	fadeDir;
 extern short fadeOut;
 extern short fadeStep;
 
-extern char testPause;
+extern char pauseMode;
 extern UBYTE testR,testG,testB,testA;
 
 

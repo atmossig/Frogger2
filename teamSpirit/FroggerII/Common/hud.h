@@ -17,7 +17,6 @@ extern char scoreText[32];
 extern char livesText[8];
 extern char timeText[32];
 
-extern char timeTemp[6];
 
 //extern long timeMin,timeSec;
 //extern long score,lives;
@@ -33,26 +32,15 @@ extern TEXTOVERLAY	*livesTextOver,*timeTextOver,*scoreTextOver;
 extern TEXTOVERLAY	*gameOver1;
 extern TEXTOVERLAY	*gameOverScore;
 extern TEXTOVERLAY	*babySavedText;
-
-extern TEXTOVERLAY	*levelComplete1,
-					*levelComplete2,
-					*levelComplete3;
-
 extern TEXTOVERLAY  *keyCollected;
 
 extern TEXTOVERLAY *pauseTitle;
 
 extern TEXTOVERLAY *continueText;
 extern TEXTOVERLAY *quitText;
-extern TEXTOVERLAY *spawnCollected;
-extern TEXTOVERLAY *time;
 
 extern TEXTOVERLAY *nextLev1;
 extern TEXTOVERLAY *nextLev2;
-
-
-extern SPRITEOVERLAY *clock;
-extern SPRITEOVERLAY *spawn;
 
 extern TEXTOVERLAY *wholeKeyText;
 

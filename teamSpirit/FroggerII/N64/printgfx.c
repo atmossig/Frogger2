@@ -730,8 +730,8 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,V
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: DrawPauseFX
-	Purpose			: draws the pause FX screen when the game is paused (obviously...)
+	Function		: DrawSwirlFX
+	Purpose			: Draws a swirling black overlay
 	Parameters		: 
 	Returns			: void
 	Info			: 
@@ -739,7 +739,7 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,V
 
 short testDim = 7;
 
-void DrawPauseFX()
+void DrawSwirlFX()
 {
 	TEXTURE *theTexture;
 	float d;
@@ -913,7 +913,7 @@ SPRITE *PrintSpritesOpaque()
 	gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
 	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
 
-	if(!testPause)
+	if(!pauseMode)
 	{
 		for(cur = spriteList.head.next; (cur != &spriteList.head) && ((cur->flags & SPRITE_TRANSLUCENT) == 0); cur = next)
 		{
@@ -949,7 +949,7 @@ void PrintSpritesTranslucent(SPRITE *sprite)
 	gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
 	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
 
-	if(!testPause)
+	if(!pauseMode)
 	{
 		for(; sprite != &spriteList.head; sprite = sprite->next)
 		{
