@@ -13,6 +13,8 @@
 
 #include "incs.h"
 
+#define storeListLength  16
+
 SCREENSPAWN *spawnList = NULL;
 
 unsigned long autoHop			= 0;
@@ -24,7 +26,7 @@ unsigned long croakFloat		= 0;
 unsigned long babiesSaved		= 0;
 extern long carryOnBabies;
 
-unsigned char garibStoreList [4][16 ];
+unsigned char garibStoreList [4][storeListLength ];
 
 unsigned char garibListPos = 0;
 
@@ -545,7 +547,7 @@ void InitGaribLinkedList()
 
 	if ( !reset )
 	{
-		memset ( garibStoreList, 0xff, 16*4 );
+		memset ( garibStoreList, 0xff, storeListLength*4 );
 		reset = 1;
 	}
 	// ENDIF

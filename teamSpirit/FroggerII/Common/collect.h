@@ -29,6 +29,7 @@
 
 #define GARIB_SCALE			64
 
+#define GARIB_DROP_BOUNCE	( 1 << 0 )
 
 typedef struct TAGGARIB
 {
@@ -40,7 +41,9 @@ typedef struct TAGGARIB
 	SPRITE				sprite;
 	ACTOR_SHADOW		shadow;
 	float				distanceFromFrog;
-
+	unsigned long		flags;
+	GAMETILE			*gameTile;
+	float				dropSpeed;
 } GARIB;
 
 typedef struct TAGGARIBLIST
@@ -116,7 +119,7 @@ extern void AddGarib(GARIB *garib);
 extern void SubGarib(GARIB *garib);
 
 extern void InitGaribSprite(GARIB *garib);
-extern GARIB *CreateNewGarib(VECTOR pos,int type);
+extern GARIB *CreateNewGarib(VECTOR pos,int type, GAMETILE* gameTile, float dropSpeed );
 extern void UpdateGaribs();
 
 extern void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType);
