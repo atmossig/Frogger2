@@ -35,6 +35,12 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 	lastBabySaved	= NULL;
 	babiesSaved		= 0;
 	
+	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == MULTI_PART )
+	{
+		numBabies = 5;
+	}
+	// ENDIF
+
 	if ( createActors )
 	{
 		for (i=0; i<numBabies; i++)
@@ -64,12 +70,6 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 
 	if ( createOverlays )
 	{
-		if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == MULTI_PART )
-		{
-			numBabies = 5;
-		}
-		// ENDIF
-
 		for(i=0; i<numBabies; i++)
 		{
 			switch(i)
