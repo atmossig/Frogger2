@@ -60,14 +60,14 @@ void customDrawPrimitives2(int depth)
 	USHORT				*sorts;
 //	long				*tfd = transformedDepths;
 	
-	//utilPrintf("Bugger\n");
-
 	int						gteH;
 
 
 	depth=depth>>2;
-
 	depth += actorShiftDepth;
+
+///bb this was missing!
+	gte_ReadGeomScreen(&gteH);
 
 	prims = (int)modctrl->PrimTop;
 	sorts = modctrl->SortOffs;
@@ -105,10 +105,6 @@ void customDrawPrimitives2(int depth)
 			
 				//no lighting
 				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
-
-//  				si->r0 = op->r0 >> 1;
-//  				si->g0 = op->g0 >> 1;
-//  				si->b0 = op->b0 >> 1;
 
 				setPolyFT3(si);
 				if ( globalClut )
@@ -149,9 +145,6 @@ void customDrawPrimitives2(int depth)
 
 				//no lighting
 				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
-//  				si->r0 = op->r0 >> 1;
-//  				si->g0 = op->g0 >> 1;
-//  				si->b0 = op->b0 >> 1;
 
 				*(u_long *)  (&si->u2) = *(u_long *) (&op->tu2);
 				*(u_long *)  (&si->u3) = *(u_long *) (&op->tu3);
@@ -199,18 +192,6 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
 				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
-
-//  				si->r0 = op->r0 >> 1;
-//  				si->g0 = op->g0 >> 1;
-//  				si->b0 = op->b0 >> 1;
-  
-//  				si->r1 = op->r1 >> 1;
-//  				si->g1 = op->g1 >> 1;
-//  				si->b1 = op->b1 >> 1;
-  
-//  				si->r2 = op->r2 >> 1;
-//  				si->g2 = op->g2 >> 1;
-//  				si->b2 = op->b2 >> 1;
 
 				setPolyGT3(si);
 				if ( globalClut )
@@ -262,23 +243,6 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-//  				si->r0 = op->r0 >> 1;
-//  				si->g0 = op->g0 >> 1;
-//  				si->b0 = op->b0 >> 1;
-  
-//  				si->r1 = op->r1 >> 1;
-//  				si->g1 = op->g1 >> 1;
-//  				si->b1 = op->b1 >> 1;
-  
-//  				si->r2 = op->r2 >> 1;
-//  				si->g2 = op->g2 >> 1;
-//  				si->b2 = op->b2 >> 1;
-  
-//  				si->r3 = op->r3 >> 1;
-//  				si->g3 = op->g3 >> 1;
-//  				si->b3 = op->b3 >> 1;
-
-		
 				modctrl->polysdrawn++;
 			
 				setPolyGT4(si);
@@ -297,7 +261,7 @@ void customDrawPrimitives2(int depth)
 #define op ((TMD_P_FT4I*)opcd)
 			case GPU_COM_TF4SPR :
 
-		/*		if((tfd[op->v0] > modctrl->nearclip) && (tfd[op->v0] < modctrl->farclip))
+//				if((tfd[op->v0] > modctrl->nearclip) && (tfd[op->v0] < modctrl->farclip))
 				{
 					int			width, height;
 
@@ -309,15 +273,11 @@ void customDrawPrimitives2(int depth)
 		so we have to do the scaling based on the distance ourselves.
 	*/
 
-		/*			width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
+					width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
 					height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
 
 					// JH : Temp Fix
-//					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
-
-					si->r0 = ( op->r0 << 7 ) >> 8;			// Texture coords / colors
-					si->g0 = ( op->g0 << 7 ) >> 8;			// Texture coords / colors
-					si->b0 = ( op->b0 << 7 ) >> 8;			// Texture coords / colors
+					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
 
 					*(u_long *)&si->u0 = *(u_long *)&op->tu0;
 					*(u_long *)&si->u1 = *(u_long *)&op->tu1;
@@ -326,16 +286,15 @@ void customDrawPrimitives2(int depth)
 
 					si->x1 = si->x3 = ((DVECTOR *)tfv)[op->v0].vx + width;
 					si->x0 = si->x2 = ((DVECTOR *)tfv)[op->v0].vx - width;
-			 	
 					si->y2 = si->y3 = ((DVECTOR *)tfv)[op->v0].vy + height;
 					si->y0 = si->y1 = ((DVECTOR *)tfv)[op->v0].vy - height;
-					setPolyFT4(si);
 
+					setPolyFT4(si);
 					si->code |= modctrl->semitrans;
 			
-	 				ENDPRIM(si, depth & 1023, POLY_FT4);
-				}*/
-					op = op->next;
+	 				ENDPRIM(si, depth, POLY_FT4);
+				}
+				op = op->next;
 				break;
 #undef si
 #undef op
@@ -362,36 +321,21 @@ void customDrawPrimitives2(int depth)
 				gte_stsxy3_g4(si);
 
 
-//bbxx - NO NO NO (i think) - F4's have only 1 rgb
-//it's drawing all F4's as G4's.
+//bbxx - it's drawing all F4's as G4's.
+//bbopt - perhaps a separate case for the F4's
+//will be faster, cos of less rgtb copies
 				//no lighting
 				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
 				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-//  				si->r0 = op->r0 >> 1;
-//  				si->g0 = op->g0 >> 1;
-//  				si->b0 = op->b0 >> 1;
-  
-//  				si->r1 = op->r1 >> 1;
-//  				si->g1 = op->g1 >> 1;
-//  				si->b1 = op->b1 >> 1;
-  
-//  				si->r2 = op->r2 >> 1;
-//  				si->g2 = op->g2 >> 1;
-//  				si->b2 = op->b2 >> 1;
-  
-//  				si->r3 = op->r3 >> 1;
-//  				si->g3 = op->g3 >> 1;
-//  				si->b3 = op->b3 >> 1;
-
-
 				setPolyG4(si);
-				if ( globalClut )
-				{
+//				if ( globalClut )
+//				{
 //					si->clut	= globalClut;
-				}
+//				}
+
 				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
 
@@ -426,31 +370,21 @@ void customDrawPrimitives2(int depth)
 				gte_stsxy3_g3(si);
 
 
-//bbxx - NO NO NO (I think) - F3's only have 1 rgb
+//bbxx - F3's only have 1 rgb
+//bbopt - perhaps a separate case for the F4's
+//will be faster, cos of less rgtb copies
 				//no lighting
 				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 
-
-//				si->g0 = op->g0 >> 1;
-// 				si->b0 = op->b0 >> 1;
-  
-//  				si->r1 = op->r1 >> 1;
-//  				si->g1 = op->g1 >> 1;
-//  				si->b1 = op->b1 >> 1;
-  
-//  				si->r2 = op->r2 >> 1;
-//  				si->g2 = op->g2 >> 1;
-//  				si->b2 = op->b2 >> 1;
-
-
 				modctrl->polysdrawn++;
 
 				setPolyG3(si);
-				if ( globalClut )
-				{
+//				if ( globalClut )
+//				{
 //					si->clut	= globalClut;
-				}
+//				}
+
 				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
 
@@ -1594,47 +1528,35 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 #define op ((TMD_P_FT4I*)opcd)
 
 			case GPU_COM_TF4SPR :
+			{
+				int			width, height;
 
-				if((tfd[op->v0] > modctrl->nearclip-80) && (tfd[op->v0] < modctrl->farclip))
-				{
-					int			width, height;
+				BEGINPRIM(si, POLY_FT4);
+/*
+	We can't use the "quick" scaling method in skinned objects, since we don't know which
+	bone the sprite is attached to, hence we can't rtps the vertex and get the scaled width/height,
+	so we have to do the scaling based on the distance ourselves.
+*/
+				width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
+				height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
 
-					BEGINPRIM(si, POLY_FT4);
+ 				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
+				*(u_long *)&si->u0 = *(u_long *)&op->tu0;
+				*(u_long *)&si->u1 = *(u_long *)&op->tu1;
+				*(u_long *)&si->u2 = *(u_long *)&op->tu2;
+				*(u_long *)&si->u3 = *(u_long *)&op->tu3;
 
-	/*
-		We can't use the "quick" scaling method in psi objects, since we don't know which
-		bone the sprite is attached to, hence we can't rtps the vertex and get the scaled width/height,
-		so we have to do the scaling based on the distance ourselves.
-	*/
-
-					width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
-					height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
-
-					// JH : Temp Fix
-					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
-
-// 					si->r0 = ( op->r0 << 7 ) >> 8;			// Texture coords / colors
-// 					si->g0 = ( op->g0 << 7 ) >> 8;			// Texture coords / colors
-// 					si->b0 = ( op->b0 << 7 ) >> 8;			// Texture coords / colors
-
-					*(u_long *)&si->u0 = *(u_long *)&op->tu0;
-					*(u_long *)&si->u1 = *(u_long *)&op->tu1;
-					*(u_long *)&si->u2 = *(u_long *)&op->tu2;
-					*(u_long *)&si->u3 = *(u_long *)&op->tu3;
-
-					si->x1 = si->x3 = ((DVECTOR *)tfv)[op->v0].vx + width;
-					si->x0 = si->x2 = ((DVECTOR *)tfv)[op->v0].vx - width;
-			 	
-					si->y2 = si->y3 = ((DVECTOR *)tfv)[op->v0].vy + height;
-					si->y0 = si->y1 = ((DVECTOR *)tfv)[op->v0].vy - height;
-					setPolyFT4(si);
-
-					si->code |= modctrl->semitrans;
-			
-	 				ENDPRIM(si, depth & 1023, POLY_FT4);
-					op = op->next;
-				}
-				break;
+				si->x1 = si->x3 = ((DVECTOR *)tfv)[op->v0].vx + width;
+				si->x0 = si->x2 = ((DVECTOR *)tfv)[op->v0].vx - width;
+				si->y2 = si->y3 = ((DVECTOR *)tfv)[op->v0].vy + height;
+				si->y0 = si->y1 = ((DVECTOR *)tfv)[op->v0].vy - height;
+				
+				setPolyFT4(si);
+				si->code = op->cd | modctrl->semitrans;
+ 				ENDPRIM(si, depth, POLY_FT4);
+				op = op->next;
+			}
+			break;
 #undef si
 #undef op
 			default:
