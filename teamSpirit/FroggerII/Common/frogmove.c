@@ -1206,14 +1206,12 @@ BOOL KillFrog(long pl)
 		}
 		else
 		{
-*/			player[pl].lives--;
-			if(!player[pl].lives)
-			{
-				gameState.mode = GAMEOVER_MODE;
-				GTInit( &modeTimer, 10 );
-				return FALSE;
-			}
-//		}
+*/		
+		if(--player[pl].lives == 0)
+		{
+			StartGameOver();
+			return FALSE;
+		}
 
 		player[pl].frogState &= ~FROGSTATUS_ISDEAD;
 

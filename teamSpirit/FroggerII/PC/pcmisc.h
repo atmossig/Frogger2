@@ -11,6 +11,7 @@
 #ifndef PCMISC_H_INCLUDED
 #define PCMISC_H_INCLUDED
 
+#pragma warning( disable: 4761 )	// disable spurious type conversion warnings!
 
 #ifdef __cplusplus
 extern "C"

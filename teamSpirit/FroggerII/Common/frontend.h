@@ -36,6 +36,14 @@ extern void GameLoop();
 extern void RunLevelSelect();
 extern void RunTitleScreen();
 
+// Init routines
+extern void	StartLevelComplete( );
+extern void	StartWorldComplete( );
+extern void	StartGameComplete( );
+extern void StartGameIntro( );
+extern void StartGameOver();
+
+// Run routines
 extern void	RunLevelComplete( );
 extern void	RunWorldComplete( );
 extern void	RunGameComplete( );

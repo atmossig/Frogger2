@@ -763,13 +763,37 @@ void RunGameLoop (void)
 	pointOfInterest = NULL;
 
 	// Take this out for release
+#ifdef SHOW_ME_THE_TILE_NUMBERS
 	if( frameCount==1 )
 	{
-#ifdef SHOW_ME_THE_TILE_NUMBERS
 		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,255,bigFont,0,0);
-#endif
-//		faceNum = CreateAndAddTextOverlay(0,35,faceString,YES,255,smallFont,0,0);
 	}
+
+	// displays the tile numbers
+	cur = &firstTile[0];
+	currTileNum = 0;
+	while(cur)
+	{
+		cur = cur->next;
+		if(cur == currTile[0])
+		{
+			currTileNum++;
+			break;
+		}
+		currTileNum++;
+	}
+//	if (faceNum)
+//		if (faceNum->text)
+//			sprintf(faceNum->text,"%d",camFacing);
+	if (tileNum)
+		if (tileNum->text)
+		{
+			if (displayingTile)
+				sprintf(tileNum->text,"%d",currTileNum);
+			else
+				sprintf(tileNum->text,"",currTileNum);
+		}
+#endif
 
 #ifdef PC_VERSION
 	if (player[0].worldNum == WORLDID_FRONTEND)
@@ -931,34 +955,6 @@ void RunGameLoop (void)
 		if( controllerdata[0].button == 0 || (controllerdata[0].button != controllerdata[0].lastbutton) )
 			SendUpdateMessage( );
 #endif
-
-	// Take this out for release
-#ifdef SHOW_ME_THE_TILE_NUMBERS
-	// displays the tile numbers
-	cur = &firstTile[0];
-	currTileNum = 0;
-	while(cur)
-	{
-		cur = cur->next;
-		if(cur == currTile[0])
-		{
-			currTileNum++;
-			break;
-		}
-		currTileNum++;
-	}
-//	if (faceNum)
-//		if (faceNum->text)
-//			sprintf(faceNum->text,"%d",camFacing);
-	if (tileNum)
-		if (tileNum->text)
-		{
-			if (displayingTile)
-				sprintf(tileNum->text,"%d",currTileNum);
-			else
-				sprintf(tileNum->text,"",currTileNum);
-		}
-#endif
 }
 
 
@@ -983,15 +979,6 @@ void RunLevelCompleteSequence()
 			award = 0;
 	}
 
-#ifdef PC_VERSION
-	clock->draw = 1;
-	spawn->draw = 1;
-	time->draw = 1;
-#endif
-
-	nextLev1->draw = 1;
-	nextLev2->draw = 1;
-
 	if (NUM_FROGS == 1)
 	{
 		for ( i = 0; i < 3; i++ )
@@ -1000,8 +987,6 @@ void RunLevelCompleteSequence()
 
 	scoreTextOver->xPos -= ((float)scoreTextOver->xPos - (100.0F)) / 15.0F;
 	scoreTextOver->yPos -= ((float)scoreTextOver->yPos - (110.0F)) / 16.0F;
-
-	sprintf ( timeTemp, "%i secs", 90-scoreTimer.time );
 
 	i = numBabies;
 	while(i--)

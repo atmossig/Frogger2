@@ -29,13 +29,7 @@ char displayFullScreenPoly = 0;
 ANIM_STRUCTURE *livesIcon;
 
 TEXTOVERLAY	*livesTextOver,*timeTextOver,*scoreTextOver;
-TEXTOVERLAY	*gameOver1;
-TEXTOVERLAY	*gameOverScore;
 TEXTOVERLAY	*babySavedText;
-
-TEXTOVERLAY	*levelComplete1,
-			*levelComplete2,
-			*levelComplete3;
 
 TEXTOVERLAY *keyCollected;
 
@@ -45,11 +39,6 @@ TEXTOVERLAY *continueText;
 TEXTOVERLAY *quitText;
 TEXTOVERLAY *garibCount, *creditCount;
 TEXTOVERLAY *time;
-TEXTOVERLAY *nextLev1;
-TEXTOVERLAY *nextLev2;
-
-SPRITEOVERLAY *clock = NULL;
-SPRITEOVERLAY *spawn = NULL;
 
 TEXTOVERLAY *wholeKeyText = NULL;
 
@@ -66,9 +55,9 @@ void UpDateOnScreenInfo ( void )
 	}
 	else
 	{
-*/		sprintf(livesText,"*%lu",player[0].lives);	
+*/		sprintf(livesText,"%lu",player[0].lives);	
 		sprintf(scoreText,"%lu",player[0].score);
-		sprintf(garibText,"*%lu",player[0].numSpawn);	
+		sprintf(garibText,"%lu",player[0].numSpawn);	
 		sprintf(creditText,"%lu",player[0].numCredits);
 //	}
 
@@ -161,12 +150,16 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
 	currFont = currFont;
 
+	/* PAUSE menu */
+
 //	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, currFont, 0, 0, 0 );
 	continueText	= CreateAndAddTextOverlay ( 50, 110, "continue", YES, 255, currFont, 0,0 );
 	quitText		= CreateAndAddTextOverlay ( 50, 130, "quit", YES, 255, currFont, 0,0 );
 //	DisableTextOverlay ( pauseTitle );
 	DisableTextOverlay ( continueText );
 	DisableTextOverlay ( quitText );
+
+	/* Lives and score */
 
 	if (NUM_FROGS == 1)
 	{
@@ -175,104 +168,16 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	}
 	timeTextOver	= CreateAndAddTextOverlay(25,20,timeText,NO,255,currFont,0,0);
 
-	gameOver1 = CreateAndAddTextOverlay(60,239,"game over",NO,255,currFont,TEXTOVERLAY_WAVECHARS,6);
-	DisableTextOverlay(gameOver1);
-	gameOverScore = CreateAndAddTextOverlay(110,0,gameOverText,YES,255,currFont,0,0);
-	DisableTextOverlay(gameOverScore);
-
-	babySavedText = CreateAndAddTextOverlay(0,110,"BABY SAVED",YES,255,currFont,TEXTOVERLAY_WAVECHARS,4);
-	DisableTextOverlay(babySavedText);
-	babySaved = 0;
-
-	levelComplete1 = CreateAndAddTextOverlay(60,80,"",YES,0,currFont,0,0);
-	DisableTextOverlay(levelComplete1);
-	levelComplete2 = CreateAndAddTextOverlay(0,120,"Level complete !",YES,0,currFont,TEXTOVERLAY_WAVECHARS,6);
-	DisableTextOverlay(levelComplete2);
-	levelComplete3 = CreateAndAddTextOverlay(0,145,levelCompleteText,YES,0,currFont,0,6);
-	DisableTextOverlay(levelComplete3);
-	  
-//	keyCollected = CreateAndAddTextOverlay(0,100,"",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_LIFE,0,0);
-//	DisableTextOverlay(keyCollected);
-
-
-	//  Awards screen
-
-	levelComplete1 = CreateAndAddTextOverlay ( 0, 20, "level", YES, 255, currFont, 0, 0 );
-	DisableTextOverlay(levelComplete1);
-	levelComplete2 = CreateAndAddTextOverlay ( 0, 38, "complete", YES, 255, currFont, 0, 0 );
-	DisableTextOverlay(levelComplete2);
+	/* Garib and Credit counters */
 
 	garibCount = CreateAndAddTextOverlay ( 100, 205, garibText, NO, 255, currFont, 0, 0 );
 	creditCount = CreateAndAddTextOverlay ( 150, 205, creditText, NO, 255, currFont, 0, 0 );
 
-	time = CreateAndAddTextOverlay ( 100, 160, timeTemp, NO, 255, currFont, 0, 0 );
-	DisableTextOverlay ( time );
+	/* Baby display */
 
-	nextLev1 = CreateAndAddTextOverlay ( 0, 180, "next", YES, 255, currFont, 0, 0 );
-	DisableTextOverlay ( nextLev1 );
-
-	nextLev2 = CreateAndAddTextOverlay ( 0, 200, worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum+1].description, YES, 255, currFont, 0, 0 );
-	DisableTextOverlay ( nextLev2 );
-
-	clock = CreateAndAddSpriteOverlay(50,160,"clock001.bmp",32,32,192,ANIMATION_FORWARDS | ANIMATION_PINGPONG );
-	AddFrameToSpriteOverlay(clock,"clock002.bmp");
-	AddFrameToSpriteOverlay(clock,"clock003.bmp");
-	AddFrameToSpriteOverlay(clock,"clock004.bmp");
-	AddFrameToSpriteOverlay(clock,"clock005.bmp");
-	AddFrameToSpriteOverlay(clock,"clock006.bmp");
-	AddFrameToSpriteOverlay(clock,"clock007.bmp");
-	AddFrameToSpriteOverlay(clock,"clock008.bmp");
-	SetSpriteOverlayAnimSpeed(clock,0.5F);
-	clock->draw = 0;
-
-	spawn = CreateAndAddSpriteOverlay(50,120,"spa01.bmp",32,32,192,ANIMATION_FORWARDS | ANIMATION_CYCLE );
-//	AddFrameToSpriteOverlay(spawn,"spa02.bmp");
-//	AddFrameToSpriteOverlay(spawn,"spa03.bmp");
-//	AddFrameToSpriteOverlay(spawn,"spa04.bmp");
-//	SetSpriteOverlayAnimSpeed(spawn,0.5F);
-	spawn->draw = 0;
-		  
-
-	wholeKeyText = CreateAndAddTextOverlay ( 0, 110, "World Open", YES, 255, currFont, 0, 0 );
-	wholeKeyText->draw = 0;
+	babySavedText = CreateAndAddTextOverlay(0,110,"BABY SAVED",YES,255,currFont,TEXTOVERLAY_WAVECHARS,4);
+	DisableTextOverlay(babySavedText);
+	babySaved = 0;
 }
-
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: RunGameOverSequence
-	Purpose			: runs the game over sequence
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void RunGameOverSequence ( void )
-{
-	if(!gameOver1->draw)
-	{
-		sprintf(gameOverScore->text,"you scored %s !!",scoreText);
-		EnableTextOverlay(gameOver1);
-		EnableTextOverlay(gameOverScore);
-	}
-
-	if((gameOverScore->yPos < 120) && (modeTimer.time > 7))
-		gameOverScore->yPos += 8;
-	else if(modeTimer.time < 3)
-	{
-		gameOverScore->centred = 0;
-		gameOverScore->xPos += 8;
-	}
-
-	if((gameOver1->yPos > 80) && (modeTimer.time > 1))
-	{
-		gameOver1->yPos -= 5;
-	}
-	else if(modeTimer.time < 1)
-	{
-		gameOver1->centred = 0;
-		gameOver1->xPos -= 4;
-	}
-}
-
 
 

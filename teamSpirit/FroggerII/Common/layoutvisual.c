@@ -732,6 +732,57 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: FreeAllGameLists
+	Purpose			: Frees all in-game lists but NOT textures, objects etc.
+	Parameters		: 
+	Returns			: 
+*/
+void FreeAllGameLists()
+{
+	dprintf"-- freeing in-game lists <--\n"));
+
+#ifdef N64_VERSION
+	MusHandleStop(audioCtrl.musicHandle[0],0);
+	audioCtrl.currentTrack[0] = 0;
+#endif
+
+#ifdef PC_VERSION
+	StopSong( );
+	FreeSampleList();
+#endif
+
+	KillAllTriggers();
+	FreeAmbientSoundList();
+	ResetBabies( );
+	FreeTransCameraList();
+	FreeTongues();
+
+	// Entities and collision
+
+	FreeGaribLinkedList();
+	FreeEnemyLinkedList();
+	FreePlatformLinkedList();
+	FreePathList();
+	FreeLevelScript();
+
+	// Graphics-related
+
+	FreeSpecFXList( );
+	FreeSpriteFrameLists();
+	Free3DTextList();
+	FreeTextOverlayLinkedList();
+	FreeSpriteOverlayLinkedList();
+	FreeSpriteLinkedList();
+
+	InitTextOverlayLinkedList();
+	InitSpriteOverlayLinkedList();
+	InitSpriteLinkedList();
+
+	dprintf"-->\n"));
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: FreeAllLists
 	Purpose			: 
 	Parameters		: 
@@ -744,31 +795,9 @@ void FreeAllLists()
 
 	StopDrawing("FREELIST");
 
-#ifdef N64_VERSION
-	MusHandleStop(audioCtrl.musicHandle[0],0);
-	audioCtrl.currentTrack[0] = 0;
-#endif
-
-#ifdef PC_VERSION
-	StopSong( );
-	FreeSampleList();
-#endif
-
-	FreeAmbientSoundList();
-
-	KillAllTriggers();
-
-	ResetBabies( );
-	FreeSpecFXList( );
-	FreeSpriteFrameLists();
-	FreeGaribLinkedList();
-	FreeTextOverlayLinkedList();
-	FreeSpriteOverlayLinkedList();
-	FreeSpriteLinkedList();
-	FreeEnemyLinkedList();
-	FreePlatformLinkedList();
-	FreePathList();
-	Free3DTextList();
+	FreeAllGameLists();
+	
+	FreeMapBank();
 	FreeAnimationList();
 	FreeProcTextures( );
 #ifdef PC_VERSION
@@ -777,14 +806,10 @@ void FreeAllLists()
 	FreeTextureList();
 	FreeAllObjectBanks();
 	FreeAllTextureBanks();
-	FreeTransCameraList();
 #ifndef PC_VERSION
 	FreeN64WaterResources();
 	FreeN64ModgyTexResources();
 #endif
-	FreeLevelScript();
-	FreeMapBank();
-	FreeTongues();
 
 	FreeActorList();
 
@@ -796,10 +821,6 @@ void FreeAllLists()
 
 	pOIDistance = 50000.0;
 	pointOfInterest = NULL;
-
-	InitTextOverlayLinkedList();
-	InitSpriteOverlayLinkedList();
-	InitSpriteLinkedList();
 
 	//fog.r = fog.g = fog.b = 0;
 	fog.mode = 0;

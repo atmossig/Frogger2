@@ -174,7 +174,7 @@ void PickupCollectable(GARIB *garib, int pl)
 			longTongue = 150;
 			break;
 		case WHOLEKEY_GARIB:
-			wholeKeyText->draw = 1;
+//			wholeKeyText->draw = 1;
 //			keyFound = 85;
 			break;
 		case HALFLKEY_GARIB:

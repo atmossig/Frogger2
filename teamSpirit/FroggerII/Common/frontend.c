@@ -191,19 +191,6 @@ void RunLevelComplete( )
 	if( showEndLevelScreen )
 	{
 		RunLevelCompleteSequence();
-
-		if(!levelComplete1->draw)
-		{
-			darkenedLevel = 0;
-			pauseMode = 1;
-			EnableTextOverlay(levelComplete1);
-			EnableTextOverlay(levelComplete2);
-			scoreTextOver->a = 255;
-			EnableTextOverlay(scoreTextOver);
-		}
-
-		levelComplete1->a -= (levelComplete1->a - 255) / 20.0F;
-		levelComplete2->a -= (levelComplete2->a - 255) / 20.0F;			
 	}
 
 	GTUpdate( &modeTimer, -1 );
@@ -276,15 +263,15 @@ void RunGameComplete( )
 */
 void RunGameOver( )
 {
-	if (NUM_FROGS == 1)
+/*	if (NUM_FROGS == 1)
 	{
 		DisableTextOverlay(livesTextOver);
 		DisableTextOverlay(scoreTextOver);
 	}
 
 	DisableTextOverlay(timeTextOver);
+*/
 
-	RunGameOverSequence();
 	GTUpdate( &modeTimer, -1 );
 	if(!modeTimer.time)
 	{
@@ -302,6 +289,17 @@ void RunGameOver( )
 	}
 }
 
+
+void StartGameOver()
+{
+	gameState.mode = GAMEOVER_MODE;
+	GTInit( &modeTimer, 10 );
+
+	FreeAllGameLists();
+
+	CreateAndAddTextOverlay(0, 120, "Game over screen", YES, 255, currFont, 0, 0);
+	CreateAndAddTextOverlay(0, 140, "goes here", YES, 255, currFont, 0, 0);
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: RunGameIntro
