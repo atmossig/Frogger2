@@ -2260,14 +2260,17 @@ void RunOptionsMenu(void)
 			{
 #ifdef PSX_VERSION
 				SsSetMute( 1 );
+#else
+				PauseAudio();
 #endif
 				StartVideoPlayback(options.fmvNum + 3);
 #ifdef PSX_VERSION
 				SsSetMute( 0 );
+#else
+				UnPauseAudio( );
 #endif
 				playingFMV = NO;
-				UnPauseAudio( );
-//				PrepareSong(WORLDID_FRONTEND,YES);
+				PrepareSong(WORLDID_FRONTEND,YES);
 				ScreenFade(0,255,30);
 				keepFade = 0;
 			}
@@ -3110,7 +3113,6 @@ void FMVSelect(void)
 	ScreenFade(255,0,30);
 	playingFMV = YES;
 	keepFade = 0;
-	PauseAudio();
 //	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
