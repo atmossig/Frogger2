@@ -156,6 +156,7 @@ Unassigned tasks
 - TIDY UP ! ! !
 - check all 4055 checks, look to use 4088 (1-0.001 instead of 1-0.01)
 - globalFrogScale
+- 'GsSetViewRef2' and 2L
 
 
 
