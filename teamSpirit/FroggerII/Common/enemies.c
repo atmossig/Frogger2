@@ -120,7 +120,7 @@ void UpdateEnemies()
 			SubVector( &moveVec, &cur->nmeActor->actor->pos, &frog[0]->actor->pos );
 			MakeUnit( &moveVec );
 			angle = acos(DotProduct( &currTile[0]->dirVector[frogFacing[0]], &moveVec ));
-			if( angle < 0.7 )
+			if( angle < 0.9 )
 			{
 				pOIDistance = cur->nmeActor->distanceFromFrog;
 				pointOfInterest = &cur->nmeActor->actor->pos;
@@ -1115,7 +1115,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path )
 	else
 		newItem->nmeActor->radius = 0.0F;	// set radius to zero - not used for collision detection
 
-	AnimateActor(newItem->nmeActor->actor,0,YES,NO,newItem->nmeActor->animSpeed, 0, 0);
+	AnimateActor(newItem->nmeActor->actor,0,YES,NO,0.5/*newItem->nmeActor->animSpeed*/, 0, 0);
 	newItem->nmeActor->actor->scale.v[X] = 1.5F;
 	newItem->nmeActor->actor->scale.v[Y] = 1.5F;
 	newItem->nmeActor->actor->scale.v[Z] = 1.5F;
