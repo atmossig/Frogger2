@@ -34,7 +34,9 @@
 #define ANI_FACE		(1 << 0)
 #define ANI_CENTRE		(1 << 1)
 #define ANI_FIXED		(1 << 2)
-#define ANI_REACTIVE	(1 << 3)
+#define ANI_ANTIFACE	(1 << 3)
+
+#define ANI_REACTIVE	(1 << 31)
 
 
 // lookup arrays for reactive and non-reactive deaths
@@ -220,6 +222,13 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 		{
 			if (reactiveAnims[nme->reactiveNumber].type & ANI_FACE)
 				SetQuaternion(&(frog[pl]->actor->qRot),&(nme->nmeActor->actor->qRot));
+			else if( reactiveAnims[nme->reactiveNumber].type & ANI_ANTIFACE )
+			{
+				QUATERNION q;
+				GetRotationFromQuaternion( &q, &nme->nmeActor->actor->qRot );
+				q.w = PI2 - q.w;
+				GetQuaternionFromRotation( &frog[pl]->actor->qRot, &q );
+			}
 			
 			if (reactiveAnims[nme->reactiveNumber].type & ANI_CENTRE)
 				SetVector(&(frog[pl]->actor->pos),&(nme->nmeActor->actor->pos));
