@@ -147,7 +147,7 @@ long DrawLoop(void)
 	pDirect3DDevice->BeginScene();
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
-	
+
 	if (world)
 		DrawLandscape(world);
 
@@ -196,16 +196,19 @@ long LoopFunc(void)
 	c = actList;
 	while (c)
 	{
-		((MDX_ACTOR *)(c->actor->actualActor))->pos.vx = c->actor->position.vx / 10.0;
-		((MDX_ACTOR *)(c->actor->actualActor))->pos.vy = c->actor->position.vy / 10.0;
-		((MDX_ACTOR *)(c->actor->actualActor))->pos.vz = c->actor->position.vz / 10.0;
-
-		if (c->actor->qRot.w || c->actor->qRot.x || c->actor->qRot.y || c->actor->qRot.z)
+		if (c->actor->actualActor)
 		{
-			((MDX_ACTOR *)(c->actor->actualActor))->qRot.x = c->actor->qRot.x / 4096.0;
-			((MDX_ACTOR *)(c->actor->actualActor))->qRot.y = c->actor->qRot.y / 4096.0;
-			((MDX_ACTOR *)(c->actor->actualActor))->qRot.z = c->actor->qRot.z / 4096.0;
-			((MDX_ACTOR *)(c->actor->actualActor))->qRot.w = c->actor->qRot.w / 4096.0;
+			((MDX_ACTOR *)(c->actor->actualActor))->pos.vx = c->actor->position.vx / 10.0;
+			((MDX_ACTOR *)(c->actor->actualActor))->pos.vy = c->actor->position.vy / 10.0;
+			((MDX_ACTOR *)(c->actor->actualActor))->pos.vz = c->actor->position.vz / 10.0;
+
+			if (c->actor->qRot.w || c->actor->qRot.x || c->actor->qRot.y || c->actor->qRot.z)
+			{
+				((MDX_ACTOR *)(c->actor->actualActor))->qRot.x = c->actor->qRot.x / 4096.0;
+				((MDX_ACTOR *)(c->actor->actualActor))->qRot.y = c->actor->qRot.y / 4096.0;
+				((MDX_ACTOR *)(c->actor->actualActor))->qRot.z = c->actor->qRot.z / 4096.0;
+				((MDX_ACTOR *)(c->actor->actualActor))->qRot.w = c->actor->qRot.w / 4096.0;
+			}
 		}
 
 		c = c->next;
