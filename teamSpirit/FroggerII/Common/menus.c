@@ -191,7 +191,7 @@ void RunTitleScreen()
 					lastbutton = 0;
 					NUM_FROGS = numPlayers;
 					break;
-			
+#ifdef N64_VERSION
 				case 3:
 					// develepoment mode
 					FreeMenuItems();
@@ -199,6 +199,7 @@ void RunTitleScreen()
 					frameCount = 0;
 					lastbutton = 0;
 					break;
+#endif
 			}
 
 			return;		// DON'T try to do any menu stuff! Duh
