@@ -193,6 +193,8 @@ void KillAllTriggers( )
 {
 	TRIGGER *trigger, *tmp;
 
+	if (!triggerList.numEntries) return;
+
 	for( trigger = triggerList.head.next; trigger != &triggerList.head; )
 	{
 		if( trigger != NULL )
