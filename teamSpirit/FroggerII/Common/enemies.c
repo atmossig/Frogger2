@@ -181,7 +181,7 @@ void DoEnemyCollision( ENEMY *cur )
 
 void NMEDamageFrog( int pl, ENEMY *nme )
 {
-	if( !nme || (player[pl].frogState & FROGSTATUS_ISSAFE) || (nme->flags & ENEMY_NEW_NODAMAGE) )
+	if( !nme || (player[pl].frogState & FROGSTATUS_ISSAFE) || (nme->flags & ENEMY_NEW_NODAMAGE) && !(nme->flags & ENEMY_NEW_MOVEONMOVE) )
 		return;
 
 	if( nme->flags & ENEMY_NEW_ONEHITKILL )
@@ -1135,7 +1135,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	{
 		VECTOR frogVec;
 		SubVector( &frogVec, &currTile[0]->centre, &act->actor->pos ); 
-		path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &frogVec );
+		path->nodes[2].worldTile = FindJoinedTileByDirectionAndType( path->nodes[1].worldTile, &frogVec, TILESTATE_NORMAL );
 		if( path->nodes[2].worldTile )
 		{
 			if( path->nodes[2].worldTile->state == TILESTATE_OCCUPIED )
