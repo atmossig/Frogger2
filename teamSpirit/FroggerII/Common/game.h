@@ -33,7 +33,7 @@ extern long levelIsOver;
 
 extern unsigned short screenNum;
 
-extern unsigned long iceMoveDir;
+extern unsigned long iceMoveDir[];
 extern unsigned long autoPlaying;
 extern unsigned long recordKeying;
 

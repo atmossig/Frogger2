@@ -36,7 +36,7 @@ GAMETILE **gTStart;
 float rZ = 0,rX = 0 ,rY = 0;
 long hopAmt = 10;
 
-unsigned long iceMoveDir = -1;
+unsigned long iceMoveDir[4] = {-1,-1,-1,-1};
 
 
 float seed = 0.0F;
@@ -230,7 +230,7 @@ void GameProcessController(long pl)
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_UP, frameCount );
-			iceMoveDir = MOVE_UP;
+			iceMoveDir[pl] = MOVE_UP;
 //			if(!autoHop)
 //				playerInputPause = INPUT_POLLPAUSE;
 		}
@@ -249,7 +249,7 @@ void GameProcessController(long pl)
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_RIGHT, frameCount );
-			iceMoveDir = MOVE_RIGHT;
+			iceMoveDir[pl] = MOVE_RIGHT;
 //			if(!autoHop)
 //				playerInputPause = INPUT_POLLPAUSE;
 		}
@@ -268,7 +268,7 @@ void GameProcessController(long pl)
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_DOWN, frameCount );
-			iceMoveDir = MOVE_DOWN;
+			iceMoveDir[pl] = MOVE_DOWN;
 //			if(!autoHop)
 //				playerInputPause = INPUT_POLLPAUSE;
 		}
@@ -287,7 +287,7 @@ void GameProcessController(long pl)
 			
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_LEFT, frameCount );
-			iceMoveDir = MOVE_LEFT;
+			iceMoveDir[pl] = MOVE_LEFT;
 //			if(!autoHop)
 //				playerInputPause = INPUT_POLLPAUSE;
 		}
@@ -306,10 +306,10 @@ void GameProcessController(long pl)
 		{
 			isLong		= 1;
 			longSpeed	= 30.0f;
-			jumpAmt		= 0;
+			jumpAmt[pl]		= 0;
 			landRadius	= 41.0f;
 			speedTest	= 12.0f;
-			switch(iceMoveDir)
+			switch(iceMoveDir[pl])
 			{
 				case MOVE_UP:
 					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPU;
@@ -328,16 +328,16 @@ void GameProcessController(long pl)
 		}
 		else
 		{
-			if(!isJump)
+			if(!isJump[pl])
 			{
 				// frog is wanting superhop
 				superHop = 5;
 
-				isJump = 1;
-				jumpSpeed = startJumpSpeed;
-				jumpAmt = 0;
+				isJump[pl] = 1;
+				jumpSpeed[pl] = startJumpSpeed;
+				jumpAmt[pl] = 0;
 
-				switch(iceMoveDir)
+				switch(iceMoveDir[pl])
 				{
 					case MOVE_UP:
 						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPU;
@@ -534,10 +534,25 @@ void CameraLookAtFrog(void)
 	if(frog[0])
 	{
 	
+		float afx,afy,afz;
+		int i;
+		afx = afy = afz = 0;
+
+		for (i=0; i<2; i++)
 		{
-			camTarget[0].v[0] = frog[0]->actor->pos.v[0]+currTile[0]->dirVector[camFacing].v[0]*camLookOfs + currTile[0]->normal.v[0]*upVal;	
-			camTarget[0].v[1] = frog[0]->actor->pos.v[1]+currTile[0]->dirVector[camFacing].v[1]*camLookOfs + currTile[0]->normal.v[1]*upVal;	
-			camTarget[0].v[2] = frog[0]->actor->pos.v[2]+currTile[0]->dirVector[camFacing].v[2]*camLookOfs + currTile[0]->normal.v[2]*upVal;
+			afx += frog[i]->actor->pos.v[0];
+			afy += frog[i]->actor->pos.v[1];
+			afz += frog[i]->actor->pos.v[2];
+		}
+		
+		afx/=2;
+		afy/=2;
+		afz/=2;
+
+		{
+			camTarget[0].v[0] = afx+currTile[0]->dirVector[camFacing].v[0]*camLookOfs + currTile[0]->normal.v[0]*upVal;	
+			camTarget[0].v[1] = afy+currTile[0]->dirVector[camFacing].v[1]*camLookOfs + currTile[0]->normal.v[1]*upVal;	
+			camTarget[0].v[2] = afz+currTile[0]->dirVector[camFacing].v[2]*camLookOfs + currTile[0]->normal.v[2]*upVal;
 		}
 		
 	}

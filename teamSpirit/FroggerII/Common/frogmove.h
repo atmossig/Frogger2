@@ -122,8 +122,8 @@ extern void CheckForFroggerLanding(int whereTo,long pl);
 extern void CheckForFroggerLanding2(int whereTo);
 extern void SlideFroggerPosition ( ACTOR2 *actor2 );
 
-extern BOOL GameTileTooHigh(GAMETILE *tile);
-extern BOOL GameTileTooLow(GAMETILE *tile);
+extern BOOL GameTileTooHigh(GAMETILE *tile,long pl);
+extern BOOL GameTileTooLow(GAMETILE *tile,long pl);
 
 extern BOOL KillFrog(ACTOR2 *frogAct,long pl);
 

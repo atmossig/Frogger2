@@ -40,9 +40,9 @@ extern PLAYER player[4];
 extern float CROAK_SOUND_RANGE;
 
 /**/
-extern long isJump;
-extern float jumpSpeed;
-extern float jumpAmt;
+extern long isJump[];
+extern float jumpSpeed[];
+extern float jumpAmt[];
 
 extern float changeJumpSpeed;
 extern float bounceJumpSpeed;
