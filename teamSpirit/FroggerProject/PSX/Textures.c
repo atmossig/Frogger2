@@ -161,10 +161,9 @@ void LoadTextureAnimBank ( int textureBank )
 	long crc;
 	char fileName[256];
 	char titFileName[256];
-	unsigned char *p, *textureAnims;
+	unsigned long *p, *textureAnims;
 
 	TEXTUREANIM *textureAnim;
-
 	short numAnimations = 0;
 
 	switch ( textureBank )
@@ -211,24 +210,24 @@ void LoadTextureAnimBank ( int textureBank )
 	}
 	// ENDSWITCH - textureBank
 
-	textureAnims = (unsigned char *)fileLoad ( titFileName, &fileLength );
+	textureAnims = (unsigned long *)fileLoad ( titFileName, &fileLength );
 
 	if ( !textureAnims )
 		return;
 	
-	p = ( unsigned char* ) textureAnims;
-	numAnimations = (short)*p; p += 2;
+	p = textureAnims;
+	numAnimations = *p; p++;
 
 	for ( counter = 0; counter < numAnimations; counter++ )
 	{
-		numframes = *(short*)p;	p += 2;
-		crc = *(long*)p; p += 4;
+		numframes = *p;	p++;
+		crc = *p; p++;
 		
 		textureAnim = CreateTextureAnimation( crc, numframes );
 		for ( counter1 = 0; counter1 < numframes; counter1++ )
 		{
-			crc = *(long*)p; p+=4;
-			waitTime = *(short*)p; p+=2;
+			crc = *p; p++;
+			waitTime = *p; p++;
 
 			AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
 		}

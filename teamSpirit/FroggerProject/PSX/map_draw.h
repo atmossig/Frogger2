@@ -13,8 +13,6 @@
 #include "bff_load.h"
 
 
-
-
 #define DRAW_SEGMENT  ( 1 << 0 )
 
 
@@ -122,6 +120,7 @@ typedef struct FMA_WORLD
 }FMA_WORLD;
 
 
+#include "world_eff.h"
 #include "water.h"
 
 // =========== Hurrah... Some functions! =========

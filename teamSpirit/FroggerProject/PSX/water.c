@@ -1,29 +1,37 @@
 #include "sonylibs.h"
-#include "Types.h"
+#include <islutil.h>
+#include <isltex.h>
+#include "shell.h"
+#include "types.h"
+
 #include "Main.h"
 #include "Map_Draw.h"
 #include "Water.h"
 
 WATERLIST waterList;
 
-void CreateAndAddWaterObject ( char *name, short posx, short posy, short posz, int newFlags )
+void CreateAndAddWaterObject ( SCENIC *water )
 {
 	WATER *newItem;
 
 	newItem = ( WATER* ) MALLOC0 ( sizeof ( WATER ) );
 
+	newItem->flags = 0;
+
 	AddWater ( newItem );
 
-	newItem->position.vx = posx;
-	newItem->position.vy = posy;
-	newItem->position.vz = posz;
+	QuatToPSXMatrix ( &water->rot, &newItem->matrix );
 
-	newItem->flags = newFlags;
+	newItem->position.vx = water->pos.vx;
+	newItem->position.vy = water->pos.vy;
+	newItem->position.vz = water->pos.vz;
+
+//	newItem->flags = newFlags;
 	
-	utilPrintf("Creating water object : %s\n", name);
+	utilPrintf("Creating water object : %s\n", water->name);
 //	utilUpperStr ( name );
 
-	newItem->fma_water = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( name ) );
+	newItem->fma_water = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( water->name ) );
 
 	if ( newItem->fma_water )
 	{

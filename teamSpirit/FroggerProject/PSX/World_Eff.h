@@ -9,10 +9,9 @@
 
 
 #include "sonylibs.h"
-#include "map_draw.h"
-#include "actor2.h"
 
 #include "ptexture.h"
+#include "map.h"
 
 void DrawWater ( FMA_MESH_HEADER *mesh, int flags );
 

@@ -14,6 +14,8 @@
 #include "frogger.h"
 #include "objviewer.h"
 
+#include "world.h"
+
 int worldSelect = 0;
 int levelSelect = 0;
 

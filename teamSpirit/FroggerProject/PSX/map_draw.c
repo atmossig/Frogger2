@@ -770,6 +770,32 @@ int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
 	gte_SetTransMatrix(&tx);
 }*/
 
+void MapDraw_SetWaterMatrix ( FMA_MESH_HEADER* mesh, WATER* sc )
+{
+	MATRIX tx, rY;
+
+	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&GsWSMATRIX);
+
+	mesh->posx = -sc->matrix.t[0];
+	mesh->posy = sc->matrix.t[1];
+	mesh->posz = sc->matrix.t[2];
+
+	// Unnecessary maths for landscape segments, where pos is always zero.
+	gte_ldlvl( &mesh->posx);
+	gte_rtirtr();
+	gte_stlvl(&tx.t);
+
+	
+	gte_MulMatrix0(&GsWSMATRIX, &sc->matrix, &tx);
+	rY.m[0][0] = rY.m[1][1] = rY.m[2][2] = 4096;
+	rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
+	RotMatrixY(2048, &rY);
+	gte_MulMatrix0(&tx, &rY, &tx);
+	gte_SetRotMatrix(&tx);
+	gte_SetTransMatrix(&tx);
+}
+
 void MapDraw_DrawFMA_Water ( WATER *cur )
 {
 
@@ -783,7 +809,9 @@ void MapDraw_DrawFMA_Water ( WATER *cur )
 
 	for ( i = waterObj->n_meshes; i != 0; i--, mesh++ )
 	{
-		MapDraw_SetMatrix ( *mesh, -cur->position.vx, cur->position.vy, cur->position.vz );
+		//MapDraw_SetMatrix ( *mesh, -cur->position.vx, cur->position.vy, cur->position.vz );
+
+		MapDraw_SetWaterMatrix(*mesh, cur);
 
 		if ( MapDraw_ClipCheck ( *mesh ) )
 		{

@@ -494,6 +494,9 @@ static void fontDispSprite(TextureType *tex, short x,short y)
 	si->v3 = tex->v3;
 	si->tpage = tex->tpage;
 	si->clut = tex->clut;
+	si->code  |= 2;
+ 	si->tpage |= 32;
+
 	setPolyFT4(si);
 	ENDPRIM(si, 0, POLY_FT4);
 }

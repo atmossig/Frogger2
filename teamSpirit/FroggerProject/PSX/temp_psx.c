@@ -1,5 +1,5 @@
+#include "map_draw.h"
 #include "world_eff.h"
-#include "temp_psx.h"
 #include <islpad.h>
 #include <isltex.h>
 #include <islcard.h>
@@ -7,7 +7,9 @@
 #include "layout.h"
 #include "frogger.h"
 #include "savegame.h"
-
+#include "water.h"
+#include "actor2.h"
+#include "temp_psx.h"
 
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
@@ -45,7 +47,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 //					CreateAndAddScenicObject(cur);
 					utilUpperStr ( cur->name );
-					CreateAndAddWaterObject ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, flags );
+					CreateAndAddWaterObject ( cur );
 
 				}
 				else if ( ( compare = strstr ( cur->name, "xx_" ) ) || ( compare = strstr ( cur->name, "lea_" ) ) ||
@@ -68,7 +70,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "wart" ) )|| ( compare = strstr ( cur->name, "twee" ) )||
 									( compare = strstr ( cur->name, "swampy" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
 									( compare = strstr ( cur->name, "glass" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
-									( compare = strstr ( cur->name, "ancnt2" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
+									( compare = strstr ( cur->name, "ancnt2" ) )|| ( compare = strstr ( cur->name, "vs" ) )||
 									( compare = strstr ( cur->name, "window" ) )|| ( compare = strstr ( cur->name, "anspike" ) )  ) 
 				{
 					utilUpperStr ( cur->name );
@@ -568,7 +570,7 @@ void Actor2ClipCheck(ACTOR2* act)
 	pos.vy = -pos.vy;
 
 	//bb e3 - if boulder draw, increase far clipping
-	if( strstr(act->actor->psiData.modelName, "BOULDER") )
+	if( ( strstr(act->actor->psiData.modelName, "BOULDER") ) || ( strstr(act->actor->psiData.modelName, "PATHFALL") ) )
 //	if( strstr(act->actor->psiData.modelName, "boulder") )
 	{
 		if(act->draw)
