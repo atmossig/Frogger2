@@ -527,17 +527,32 @@ void UpdateTextureAnimations( void )
 
 	for ( cur = textureAnimList.head.next; cur != &textureAnimList.head; cur = cur->next )
 	{
-		while( cur->lastTime + cur->animation->waitTimes[cur->frame] < frame )
+		if( cur->numFrames > 1 )
 		{
-			cur->lastTime += cur->animation->waitTimes[cur->frame];
-			
-			cur->frame++;
-			if( cur->frame >= cur->numFrames )
-				cur->frame = 0;
-		}
+			// If special waitTime then advance frame by 1
+			if( cur->animation->waitTimes[cur->frame] == -1 )
+			{
+				cur->lastTime++;
 
-		// JH: Copy the required texture into vram.
-		CopyTexture ( cur->animation->dest, cur->animation->anim[cur->frame], 0 );
+				cur->frame++;
+				if( cur->frame >= cur->numFrames )
+					cur->frame = 0;
+			}
+			else
+			{
+				while( cur->lastTime + cur->animation->waitTimes[cur->frame] < frame )
+				{
+					cur->lastTime += cur->animation->waitTimes[cur->frame];
+					
+					cur->frame++;
+					if( cur->frame >= cur->numFrames )
+						cur->frame = 0;
+				}
+			}
+
+			// JH: Copy the required texture into vram.
+			CopyTexture ( cur->animation->dest, cur->animation->anim[cur->frame], 0 );
+		}
 	}
 }
 
