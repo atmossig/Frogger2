@@ -23,7 +23,4 @@ extern void SetAnimationSpeed(ACTOR *myActor, float speed);
 extern void InitActorAnim(ACTOR *tempActor);
 extern BOOL QueryAnimTime(ACTOR *actor, float time);
 
-extern float AngleToNearestNME( int fNum );
-extern void CalculateFrogLookAt( int fNum );
-
 #endif
