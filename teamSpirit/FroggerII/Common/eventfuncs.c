@@ -372,7 +372,7 @@ void TeleportFrog( EVENT *event )
 {
 	int fNum = (int)event->data[0],
 		tNum = (int)event->data[1];
-	GAMETILE *tile = GetTileFromNumber(tNum);
+	GAMETILE *tile = (GAMETILE*)GetTileFromNumber(tNum);
 
 	TeleportActorToTile(frog[fNum],tile,fNum);
 	fadeDir		= FADE_IN;

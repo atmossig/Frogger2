@@ -621,7 +621,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 #endif
 
 #ifdef USE_AUDIO
-	PrepareSongForLevel(worldID,levelID);
+	PrepareSongForLevel((short)worldID,(short)levelID);
 #endif
 
 #ifdef PC_VERSION // TEMPORARY
