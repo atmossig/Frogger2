@@ -515,6 +515,8 @@ BOOL InitJoystickControl()
 			return FALSE;
 
 		lpJoystick[j] = lpJoy;
+
+		controllers[j] = GAMEPAD + j;
 	}
 
 	return TRUE;
