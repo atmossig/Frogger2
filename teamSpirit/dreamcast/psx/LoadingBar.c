@@ -7,11 +7,11 @@
 #include "backdrop.h"
 
 int barProgress = 0;
-int barLength = 560;
+int barLength = 200;
 
-#define	LOADBAR_XPOS	40
-#define	LOADBAR_YPOS	430
-#define	LOADBAR_XD		560
+#define	LOADBAR_XPOS	410 //40
+#define	LOADBAR_YPOS	435
+#define	LOADBAR_XD		200//560
 #define	LOADBAR_YD		20
 
 KMSURFACEDESC	barSurface;

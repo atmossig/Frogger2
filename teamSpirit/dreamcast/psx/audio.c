@@ -92,6 +92,42 @@ AMBIENT_SOUND_LIST	ambientSoundList;
 
 int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol);
 
+int byteToDecibelLUT[256] = 
+{
+	//0-15
+      -10000,-7992,-6992,-6407,-5992,-5670,-5407,-5185,-4992,-4823,-4671,-4533,-4408,-4292,-4185,-4086,
+	//16-31
+	-3993,-3905,-3823,-3745,-3671,-3601,-3533,-3470,-3408,-3350,-3293,-3239,-3186,-3135,-3086,-3039,
+	//32-47
+	-2993,-2949,-2906,-2864,-2823,-2784,-2745,-2708,-2671,-2636,-2601,-2567,-2534,-2501,-2470,-2439,
+	//48-63
+	-2408,-2378,-2349,-2321,-2293,-2265,-2238,-2212,-2186,-2160,-2135,-2111,-2086,-2063,-2039,-2016,
+	//64-79
+	-1993,-1971,-1949,-1927,-1906,-1885,-1864,-1844,-1823,-1804,-1785,-1765,-1745,-1727,-1708,-1690,
+	//80-95
+	-1671,-1654,-1636,-1618,-1601,-1584,-1567,-1550,-1534,-1518,-1502,-1486,-1470,-1454,-1439,-1424,
+	//96-111
+	-1408,-1394,-1379,-1364,-1350,-1335,-1321,-1307,-1293,-1279,-1266,-1252,-1239,-1225,-1212,-1199,
+	//112-127
+	-1186,-1173,-1161,-1148,-1136,-1123,-1111,-1099,-1087,-1075,-1063,-1051,-1039,-1028,-1016,-1005,
+	//128-143
+	-994,-982,-971,-960,-950,-938,-928,-917,-906,-896,-885,-875,-864,-854,-844,-834,
+	//144-159
+	-824,-814,-804,-794,-784,-774,-765,-755,-746,-736,-727,-718,-708,-699,-690,-681,
+	//160-175
+	-672,-663,-654,-645,-636,-627,-619,-610,-601,-593,-585,-576,-568,-560,-551,-543,
+	//176-191
+	-535,-527,-518,-510,-502,-494,-486,-478,-471,-463,-455,-447,-440,-432,-424,-417,
+	//192-207
+	-409,-402,-394,-387,-380,-372,-365,-358,-350,-343,-336,-329,-322,-315,-308,-301,
+	//208-223
+	-294,-287,-280,-273,-266,-260,-253,-246,-240,-233,-226,-220,-213,-206,-200,-193,
+	//224-239
+	-187,-181,-174,-168,-161,-155,-149,-142,-136,-130,-124,-118,-112,-106,100,-93,
+	//240-255
+	-87,-81,-75,-70,-64,-58,-52,-46,-40,-34,-28,-22,-17,-11,-5,0
+};
+
 int UpdateLoopingSample(AMBIENT_SOUND *sample)
 {
 	int vl,vr,vs;
@@ -232,6 +268,7 @@ int	numSoundBanks = 0;
 CurrentData			current[24];
 
 int					sfxGlobalVolume,sfxOutputOn;
+int					oldSfxGlobalVolume;
 
 int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *count)
 {
@@ -701,7 +738,7 @@ XAFileType	*adxtestCur;
 void PrepareSong(short worldID,int loop)
 {
 	KTU32	memfreeBefore,memfreeAfter;
-	int 	chan;
+	int 	chan,vol;
 	int 	xaNum = 0;
 	char	buffer[32];
 	float	newVolume;
@@ -726,8 +763,11 @@ void PrepareSong(short worldID,int loop)
 	XAplayChannel(adxtestCur, 1, 1, 64);
 
 	// set global volume
-	newVolume = (100 - globalMusicVol) * -10;
-	ADXT_SetOutVol(adxtestCur->adxt,newVolume);
+	newVolume = (float)globalMusicVol * 2.55;
+	vol = (int)newVolume;
+	vol = byteToDecibelLUT[vol] / 10;
+	ADXT_SetOutVol(curXA->adxt,vol);
+
 
 	return;
 }
@@ -826,25 +866,50 @@ void StopSample(SAMPLE *sample)
 void PauseAudio( )
 {
 	ADXT_Pause(curXA->adxt,1);
+	oldSfxGlobalVolume = sfxGlobalVolume;
+	sfxGlobalVolume = 0;
 }
 
 void UnPauseAudio( )
 {
 	ADXT_Pause(curXA->adxt,0);
+	sfxGlobalVolume = oldSfxGlobalVolume;
+
 }
 
 void SpuSetCommonCDVolume(int volume, int volume2)
 {
+	int		vol;
 	float	newVolume;
 	
-	newVolume = (100 - globalMusicVol) * -10;
-	ADXT_SetOutVol(curXA->adxt,newVolume);
+	if(!curXA)
+		return;
+
+	if(!curXA->adxt)
+		return;
+
+	newVolume = (float)globalMusicVol * 2.55;
+	vol = (int)newVolume;
+	vol = byteToDecibelLUT[vol] / 10;
+	ADXT_SetOutVol(curXA->adxt,vol);
 }
 
 int IsSongPlaying()
 {
-	if(bpAmStreamDone(gStream))
-		return TRUE;
+	if(curXA)
+	{
+		if(curXA->adxt)
+		{
+			if(ADXT_GetStat(curXA->adxt) == ADXT_STAT_PLAYEND)
+			{
+				if(curXA->loop)
+					ADXT_StartFname(curXA->adxt, curXA->fileInfo);	// Start playing the XDA using the middlware
+			}
+		}
+	}
+
+//	if(bpAmStreamDone(gStream))
+//		return TRUE;
 		
 	return	FALSE;
 }
