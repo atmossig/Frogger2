@@ -830,8 +830,6 @@ void ProcessUserInput()
 	if (windowActive)
 		ProcessKeyboardInput();
 
-	if (!keysEnabled | showSounds) return;
-
 #ifdef JOYPADTHREAD
 	// Joypad must have been polled at least once, so wait for it just in case
 	WaitForSingleObject(hJoyEvent, 1000);
@@ -846,8 +844,11 @@ void ProcessUserInput()
 
 	for (i = 0; i<4; i++)
 	{
-		padData.digital[i] |= joypadButtons[i];
-		padData.debounce[i] |= ((~oldDigital[i]) & padData.digital[i]) | joypadDebounce[i];
+		if (keysEnabled && !showSounds)
+		{
+			padData.digital[i] |= joypadButtons[i];
+			padData.debounce[i] |= ((~oldDigital[i]) & padData.digital[i]) | joypadDebounce[i];
+		}
 
 		// recordkeys
 		if ((rKeyOK) && (padData.digital[i] != oldDigital[i]))
