@@ -23,8 +23,8 @@ CHARACTER *hubChar = NULL;
 CHARACTER *characterList = NULL;
 
 
-void FreeAICommandList( AICOMMAND *cl );
-void FreeAIPathNodeList( AIPATHNODE *pl );
+void FreeAICommandList( AICOMMAND **cl );
+void FreeAIPathNodeList( AIPATHNODE **pl );
 void SubAIPathNode( AIPATHNODE *p );
 void NextAICommand( AICOMMAND **c );
 void StartAICommand( CHARACTER *ch );
@@ -66,6 +66,8 @@ CHARACTER *CreateAndAddCharacter( char *name, GAMETILE *start, float offset, uns
 
 	// create the actor
 	ch->act = CreateAndAddActor( name, pos.v[X], pos.v[Y], pos.v[Z], INIT_ANIMATION | INIT_SHADOW );
+
+	AnimateActor( ch->act->actor, 0, YES, NO, 0.25, 0, 0 );
 
 	ch->type = type;
 	ch->inTile = start;
@@ -123,7 +125,8 @@ void IssueAICommand( CHARACTER *ch, AICOMMAND *command )
 	else if( command->flags & AICOMFLAG_INTERRUPT )
 	{
 		// Free any existing command queue and start the new one
-		FreeAICommandList( ch->command );
+		FreeAIPathNodeList( &ch->path );
+		FreeAICommandList( &ch->command );
 		ch->command = command;
 		StartAICommand( ch );
 	}
@@ -186,7 +189,8 @@ void StartAICommand( CHARACTER *ch )
 		break;
 
 	case AICOM_STOP:
-		FreeAICommandList( ch->command );
+		FreeAIPathNodeList( &ch->path );
+		FreeAICommandList( &ch->command );
 		ch->Update = NULL;
 		break;
 	}
@@ -215,7 +219,7 @@ void ProcessCharacters( )
 			else if( c->command->flags & AICOMFLAG_FAILED )
 				dprintf"Type %i: Command %i failed\n",c->type, c->command->type));
 
-			FreeAIPathNodeList( c->path );
+			FreeAIPathNodeList( &c->path );
 			NextAICommand( &c->command );
 			StartAICommand( c );
 		}
@@ -282,7 +286,57 @@ void CharWalkToTile( CHARACTER *ch )
 // Creature can fly, so skip join tiles and swoop round corners
 void CharFlyToTile( CHARACTER *ch )
 {
+	QUATERNION q1, q2, q3;
+	VECTOR fwd, to;
+	ACTOR *act = ch->act->actor;
+	float t, speed;
 
+	LocateAIPathNode( &to, ch->node, ch->command->offset );
+
+	// Set target node
+	if( DistanceBetweenPointsSquared(&act->pos,&to) < 10 )
+		ch->node = ch->node->next;
+
+	// We have arrived - command is finished
+	if( !ch->node )
+	{
+		ch->command->flags |= AICOMFLAG_COMPLETE;
+		return;
+	}
+	else
+		ch->inTile = ch->node->tile;
+
+	LocateAIPathNode( &to, ch->node, ch->command->offset );
+
+	// Store current orientation
+	SetQuaternion( &q1, &act->qRot );
+
+	// Vector to target
+	SubVector( &fwd, &to, &act->pos );
+	MakeUnit( &fwd );
+
+	// Skewer a line to rotate around, and make a rotation
+	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
+	t = DotProduct(&inVec,&fwd);
+	if (t<-0.999)
+		t=-0.999;
+	if (t>0.999)
+		t = 0.999;
+	if(t<0.001 && t>-0.001) // If its trying to move backwards, make it turn
+		t = 0.1;
+	q3.w=acos(t);
+
+	GetQuaternionFromRotation(&q2,&q3);
+
+	// Slerp between current and desired orientation
+	speed = 0.15 * gameSpeed;
+	if( speed > 0.999 ) speed = 0.999;
+	QuatSlerp( &q1, &q2, speed, &act->qRot );
+
+	// Move forwards a bit in direction of facing
+	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
+	ScaleVector( &fwd, ch->command->speed*gameSpeed );
+	AddVector( &act->pos, &fwd, &act->pos );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -337,36 +391,39 @@ void FreeCharacterList( )
 	}
 
 	characterList = NULL;
+	hubChar = NULL;
 }
 
-void FreeAICommandList( AICOMMAND *cl )
+void FreeAICommandList( AICOMMAND **cl )
 {
 	AICOMMAND *c, *next;
 
-	for( c = cl; c; c = next )
+	for( c = *cl; c; c = next )
 	{
 		next = c->next;
 		JallocFree( (UBYTE **)&c );
 	}
 
-	cl = NULL;
+	*cl = NULL;
 }
 
-void FreeAIPathNodeList( AIPATHNODE *pl )
+void FreeAIPathNodeList( AIPATHNODE **pl )
 {
 	AIPATHNODE *p, *next;
 
-	for( p = pl; p; p = next )
+	for( p = *pl; p; p = next )
 	{
 		next = p->next;
 		JallocFree( (UBYTE **)&p );
 	}
+
+	*pl = NULL;
 }
 
 void SubCharacter( CHARACTER *ch )
 {
-	FreeAICommandList( ch->command );
-	FreeAIPathNodeList( ch->path );
+	FreeAICommandList( &ch->command );
+	FreeAIPathNodeList( &ch->path );
 
 	JallocFree( (UBYTE **)&ch );
 }
@@ -400,7 +457,7 @@ void TestPath( )
 			fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &node->tile->centre, &node->tile->normal, 64, 0, 0, 5 );
 	}
 
-	FreeAIPathNodeList( path );
+	FreeAIPathNodeList( &path );
 }
 
 
