@@ -580,7 +580,7 @@ void ProcessUserInput()
 
 	if (!keysEnabled) return;
 
-/*
+
 #ifdef _DEBUG
 	if (KEYPRESS(DIK_NUMPAD7))
 	{
@@ -595,11 +595,8 @@ void ProcessUserInput()
 		horizClip/=1.2;
 		vertClip/=1.2;
 	}
-
-	if (KEYPRESS(DIK_Z))
-		ShowJalloc();
 #endif
-*/
+
 
 	if (rPlayOK)
 	{
