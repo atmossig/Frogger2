@@ -38,15 +38,6 @@ extern char					rVideoDevice[256];
 
 extern LPDIRECTDRAWSURFACE7	backdrop;
 
-struct MDX_DXDEVICE
-{
-	GUID *guid;
-	DDCAPS caps;
-	char *desc;
-	char *name;
-	long idx;
-};
-
 /*	--------------------------------------------------------------------------------
 	Function	: DDrawInitObject
 	Purpose		: Initialise Directdraw objects

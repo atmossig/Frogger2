@@ -29,6 +29,7 @@
 #include "mdxWindows.h"
 #include "mdxFont.h"
 #include "gelf.h"
+#include "resource.h"
 
 extern MDX_TEXENTRY *cDispTexture;
 
@@ -162,7 +163,7 @@ int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
     wc.cbClsExtra		= 0;
     wc.cbWndExtra		= 0;
     wc.hInstance		= hInstance;
-    wc.hIcon			= NULL;
+    wc.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FROGGER2));
     wc.hCursor			= LoadCursor(NULL, IDC_ARROW);		// *ASL* 12/06/2000
     wc.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
     wc.lpszMenuName		= NULL;
@@ -178,8 +179,7 @@ int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
 		0,
         appName,
         appName,
-		//WS_OVERLAPPED | (rFullscreen? WS_POPUP : WS_SYSMENU|WS_THICKFRAME),//_POPUP,
-		WS_OVERLAPPED | WS_SYSMENU | WS_THICKFRAME,
+		WS_OVERLAPPEDWINDOW,
 		0,
 		0,
 		640,//GetSystemMetrics(SM_CXSCREEN), 
@@ -199,11 +199,16 @@ int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
 	ShowWindow(mdxWinInfo.hWndMain,SW_HIDE);
 	UpdateWindow(mdxWinInfo.hWndMain);
 	
+	/*
+	This is a *really bad idea* - it can cause important things like the network
+	threads and disk caching to not run properly - ds
+
 	if (!debugMode)
 	{
 		SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS);
 		SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);
 	}
+	*/
 
     return 1;
 }

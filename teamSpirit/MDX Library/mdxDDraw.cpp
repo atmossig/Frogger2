@@ -53,7 +53,16 @@ WNDPROC SetUserVideoProc(WNDPROC proc)
 	return oldDlgProc;
 }
 
-MDX_DXDEVICE dxDeviceList[100];
+struct MDX_DXDEVICE
+{
+	GUID *guid;
+	DDCAPS caps;
+	char *desc;
+	char *name;
+	DWORD idx;
+};
+
+MDX_DXDEVICE dxDeviceList[10];
 unsigned long dxNumDevices = 0;
 
 BOOL WINAPI  EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverName, LPVOID lpContext, HMONITOR mon)
@@ -153,7 +162,7 @@ HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
 //			if (testdim[m].cx==desc->dwWidth&&testdim[m].cy==desc->dwHeight) break;
 //		if (m==4) return DDENUMRET_OK;
 
-		int bytes = (desc->dwWidth*desc->dwHeight*2)*3;
+		DWORD bytes = (desc->dwWidth*desc->dwHeight*2)*3;
 		dp("%d x %d, ~%d bytes (%0.3fMB)\n", desc->dwWidth, desc->dwHeight, bytes, bytes*(1.0f/(1024*1024)));
 
 		if (bytes < info->totalVidMem)
@@ -179,6 +188,7 @@ BOOL FillVideoModes(HWND hdlg, GUID *lpGUID, DWORD resolution)
     LPDIRECTDRAW7	lpDD;
 	DWORD total, free;
 	DDSCAPS2 ddsc;
+	DDCAPS ddc;
 	HRESULT res;
 	VIDEOMODEINFO info;
 
@@ -228,6 +238,22 @@ BOOL FillVideoModes(HWND hdlg, GUID *lpGUID, DWORD resolution)
 		lpDD->EnumDisplayModes(0, &ddsd, (LPVOID)&info, VideoModeCallback);
 	}
 
+	ZeroMemory(&ddc, sizeof(ddc));
+	ddc.dwSize = sizeof(ddc);
+	lpDD->GetCaps(&ddc, NULL);
+
+	hctrl = GetDlgItem(hdlg, IDC_WINDOW);
+	
+	if (ddc.dwCaps2 & DDCAPS2_CANRENDERWINDOWED)
+	{
+		EnableWindow(hctrl, 1);
+	}
+	else
+	{
+		SendMessage(hctrl, BM_SETCHECK, BST_UNCHECKED, 0);
+		EnableWindow(hctrl, 0);
+	}
+
 	dp("-------------------------------\n");
 
 	lpDD->Release();
@@ -272,7 +298,6 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	static int	initFlag;
 	static DWORD resolution;
 	unsigned	i,lastIdx;
-	char		text[32];
 	HWND		list;
 
 
@@ -371,7 +396,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	
 				case IDOK:
 				{
-					for (i=0; i<SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMCOUNT,0,0); i++)
+					for (i=0; (long)i<SendMessage(GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMCOUNT,0,0); i++)
 						if (SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMSTATE,i,LVIS_SELECTED))
 							selIdx = i;
 
@@ -460,7 +485,7 @@ unsigned long DDrawInitObject (int showDialog, DWORD resolution)
 {
 	HRESULT		res;
 	DDCAPS		ddCaps;
-	int i;
+	DWORD i;
 
 	if (dxNumDevices == 0)
 	{
@@ -992,7 +1017,6 @@ void mdxLoadBackdrop(const char* filename)
 {
 	DDSURFACEDESC2 ddsd; DDINIT(ddsd);
 	HRESULT res;
-	DDCAPS ddcaps;
 
 	int xDim,yDim,gelf;
 	int pptr = -1;
@@ -1118,7 +1142,7 @@ void ScreenShot()
 	FILE *file;
 	short *screen;
 	long pitch;
-	int x, y;
+	DWORD x, y;
 	unsigned short pixel;
 	unsigned char	col;
 	unsigned char	line[1280 * 4];
