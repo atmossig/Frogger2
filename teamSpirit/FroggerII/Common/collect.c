@@ -363,7 +363,6 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	{
 		// initialise garib sprite
 		garib->sprite = (SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"garspr");
-
 		SetVector(&garib->sprite->pos,&pos);
 		InitSpriteAnimation( garib->sprite, &garibAnimation[garib->type], 0 );
 		garib->sprite->r = 255;
@@ -374,8 +373,8 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 
 		// ok - make the spawn garib a rotating sprite - ANDYE
 		garib->sprite->flags	|= SPRITE_FLAGS_ROTATE;
-		garib->sprite->angle	= 0;
-		garib->sprite->angleInc = 0.025f;
+		garib->sprite->angle	= 1 / (1 + (rand() % 10));
+		garib->sprite->angleInc = 0.1f;
 		
 #ifndef PC_VERSION
 		garib->sprite->offsetX = -garib->sprite->texture->sx / 2;
