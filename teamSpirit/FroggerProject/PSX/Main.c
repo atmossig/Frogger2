@@ -531,7 +531,13 @@ int main ( )
 
 		actFrameCount = 0;
 
-		InitBackdrop("FR2LEGAL");
+#if PALMODE==1
+		InitBackdrop("TITLESEURO");
+#endif
+#if PALMODE==0
+		InitBackdrop("TITLESUS");
+#endif
+
 		ScreenFade(0,255,30);
 		while(actFrameCount < 180)
 		{
