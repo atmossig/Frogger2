@@ -98,19 +98,19 @@ PATHNODE debug_lawnWaspNodes11[] =
 	550,30,0,5,0,	549,30,0,5,0,	548,30,0,5,0,	543,30,0,5,0
 };
 
-PATH debug_lawnWasp1 = { 8,0,0,0,debug_lawnWaspNodes1 };
-PATH debug_lawnWasp2 = { 8,0,0,0,debug_lawnWaspNodes2 };
-PATH debug_lawnWasp3 = { 8,0,0,0,debug_lawnWaspNodes3 };
-PATH debug_lawnWasp4 = { 8,0,0,0,debug_lawnWaspNodes4 };
-PATH debug_lawnWasp5 = { 8,0,0,0,debug_lawnWaspNodes5 };
+PATH debug_lawnWasp1 = { 8,0,0,0,0,debug_lawnWaspNodes1 };
+PATH debug_lawnWasp2 = { 8,0,0,0,0,debug_lawnWaspNodes2 };
+PATH debug_lawnWasp3 = { 8,0,0,0,0,debug_lawnWaspNodes3 };
+PATH debug_lawnWasp4 = { 8,0,0,0,0,debug_lawnWaspNodes4 };
+PATH debug_lawnWasp5 = { 8,0,0,0,0,debug_lawnWaspNodes5 };
 
-PATH debug_lawnWasp6 = { 8,0,0,1,debug_lawnWaspNodes6 };
-PATH debug_lawnWasp7 = { 8,0,0,3,debug_lawnWaspNodes7 };
-PATH debug_lawnWasp8 = { 8,0,0,5,debug_lawnWaspNodes8 };
-PATH debug_lawnWasp9 = { 8,0,0,6,debug_lawnWaspNodes9 };
+PATH debug_lawnWasp6 = { 8,0,0,1,0,debug_lawnWaspNodes6 };
+PATH debug_lawnWasp7 = { 8,0,0,3,0,debug_lawnWaspNodes7 };
+PATH debug_lawnWasp8 = { 8,0,0,5,0,debug_lawnWaspNodes8 };
+PATH debug_lawnWasp9 = { 8,0,0,6,0,debug_lawnWaspNodes9 };
 
-PATH debug_lawnWasp10 = { 13,0,0,4,debug_lawnWaspNodes10 };
-PATH debug_lawnWasp11 = { 8,0,0,4,debug_lawnWaspNodes11 };
+PATH debug_lawnWasp10 = { 13,0,0,4,0,debug_lawnWaspNodes10 };
+PATH debug_lawnWasp11 = { 8,0,0,4,0,debug_lawnWaspNodes11 };
 
 
 PATHNODE debug_lawnRollNodes1[] =
@@ -152,18 +152,18 @@ PATHNODE debug_lawnRollNodes6[] =
 };
 
 
-PATH debug_lawnRoll1a = { 17,0,0,5,debug_lawnRollNodes1 };
-PATH debug_lawnRoll1b = { 17,0,0,12,debug_lawnRollNodes1 };
+PATH debug_lawnRoll1a = { 17,0,0,5,0,debug_lawnRollNodes1 };
+PATH debug_lawnRoll1b = { 17,0,0,12,0,debug_lawnRollNodes1 };
 
-PATH debug_lawnRoll2a = { 17,0,0,5,debug_lawnRollNodes2 };
-PATH debug_lawnRoll2b = { 17,0,0,10,debug_lawnRollNodes2 };
-PATH debug_lawnRoll2c = { 17,0,0,15,debug_lawnRollNodes2 };
+PATH debug_lawnRoll2a = { 17,0,0,5,0,debug_lawnRollNodes2 };
+PATH debug_lawnRoll2b = { 17,0,0,10,0,debug_lawnRollNodes2 };
+PATH debug_lawnRoll2c = { 17,0,0,15,0,debug_lawnRollNodes2 };
 
-PATH debug_lawnRoll3 = { 8,0,0,5,debug_lawnRollNodes3 };
+PATH debug_lawnRoll3 = { 8,0,0,5,0,debug_lawnRollNodes3 };
 
-PATH debug_lawnRoll4 = { 7,0,0,2,debug_lawnRollNodes4 };
-PATH debug_lawnRoll5 = { 7,0,0,3,debug_lawnRollNodes5 };
-PATH debug_lawnRoll6 = { 7,0,0,2,debug_lawnRollNodes6 };
+PATH debug_lawnRoll4 = { 7,0,0,2,0,debug_lawnRollNodes4 };
+PATH debug_lawnRoll5 = { 7,0,0,3,0,debug_lawnRollNodes5 };
+PATH debug_lawnRoll6 = { 7,0,0,2,0,debug_lawnRollNodes6 };
 
 
 
@@ -189,14 +189,14 @@ PATHNODE debug_lawnMowNodes2[] =
 };
 
 
-PATH debug_lawnMow1a = { 17,0,0,2,debug_lawnMowNodes1 };
-PATH debug_lawnMow1b = { 17,0,0,9,debug_lawnMowNodes1 };
+PATH debug_lawnMow1a = { 17,0,0,2,0,debug_lawnMowNodes1 };
+PATH debug_lawnMow1b = { 17,0,0,9,0,debug_lawnMowNodes1 };
 
-PATH debug_lawnMow2a = { 59,0,0,3,debug_lawnMowNodes2 };
-PATH debug_lawnMow2b = { 59,0,0,13,debug_lawnMowNodes2 };
-PATH debug_lawnMow2c = { 59,0,0,23,debug_lawnMowNodes2 };
-PATH debug_lawnMow2d = { 59,0,0,33,debug_lawnMowNodes2 };
-PATH debug_lawnMow2e = { 59,0,0,43,debug_lawnMowNodes2 };
+PATH debug_lawnMow2a = { 59,0,0,3,0,debug_lawnMowNodes2 };
+PATH debug_lawnMow2b = { 59,0,0,13,0,debug_lawnMowNodes2 };
+PATH debug_lawnMow2c = { 59,0,0,23,0,debug_lawnMowNodes2 };
+PATH debug_lawnMow2d = { 59,0,0,33,0,debug_lawnMowNodes2 };
+PATH debug_lawnMow2e = { 59,0,0,43,0,debug_lawnMowNodes2 };
 
 
 /**************************************************************************************************************/
