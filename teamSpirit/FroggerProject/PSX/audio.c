@@ -248,6 +248,8 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_BABYREPLY] = FindSample(utilStr2CRC("babyreply"));
 	genSfx[GEN_TELEPORT] = FindSample(utilStr2CRC("teleport"));
 	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("powerup"));
+	genSfx[GEN_CLOCKTICK] = FindSample(utilStr2CRC("clocktick"));
+	genSfx[GEN_POWERTICK] = FindSample(utilStr2CRC("puptick"));
 
 	genSfx[GEN_FROGBELCH1] = FindSample(utilStr2CRC("frogbelch2"));
 	genSfx[GEN_FROGBELCH2] = FindSample(utilStr2CRC("frogbelch2"));
@@ -264,7 +266,8 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_DEATHCRUSH] = FindSample(utilStr2CRC("frogcrush"));
 	genSfx[GEN_DEATHEXPLODE] = FindSample(utilStr2CRC("frogexplode"));
 	genSfx[GEN_DEATHFALL] = FindSample(utilStr2CRC("frogfall"));
-	genSfx[GEN_DEATHGIB] = FindSample(utilStr2CRC("frogmowed"));
+	genSfx[GEN_DEATHMOWED] = FindSample(utilStr2CRC("frogmowed"));
+	genSfx[GEN_DEATHGIB] = FindSample(utilStr2CRC("frog_gib"));
 	genSfx[GEN_DEATHCHOP] = FindSample(utilStr2CRC("frogchop"));
 	genSfx[GEN_DEATHELECTRIC] = FindSample(utilStr2CRC("electrocute"));
 	genSfx[GEN_DEATHFIRE] = FindSample(utilStr2CRC("burnbum"));

@@ -184,12 +184,15 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_BABYREPLY] = FindSample(UpdateCRC("babyreply"));
 	genSfx[GEN_TELEPORT] = FindSample(UpdateCRC("teleport"));
 	genSfx[GEN_POWERUP] = FindSample(UpdateCRC("powerup"));
+	genSfx[GEN_CLOCKTICK] = FindSample(UpdateCRC("clocktick"));
+	genSfx[GEN_POWERTICK] = FindSample(UpdateCRC("puptick"));
 
 	genSfx[GEN_DEATHDROWN] = FindSample(UpdateCRC("frogdrown1"));
 	genSfx[GEN_DEATHCRUSH] = FindSample(UpdateCRC("frogcrush"));
 	genSfx[GEN_DEATHEXPLODE] = FindSample(UpdateCRC("frogexplode"));
 	genSfx[GEN_DEATHFALL] = FindSample(UpdateCRC("frogfall"));
-	genSfx[GEN_DEATHGIB] = FindSample(UpdateCRC("frogmowed"));
+	genSfx[GEN_DEATHMOWED] = FindSample(UpdateCRC("frogmowed"));
+	genSfx[GEN_DEATHGIB] = FindSample(UpdateCRC("frog_gib"));
 	genSfx[GEN_DEATHCHOP] = FindSample(UpdateCRC("frogchop"));
 	genSfx[GEN_DEATHELECTRIC] = FindSample(UpdateCRC("electrocute"));
 	genSfx[GEN_DEATHFIRE] = FindSample(UpdateCRC("burnbum"));
