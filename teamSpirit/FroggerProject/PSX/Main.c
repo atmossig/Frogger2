@@ -483,8 +483,8 @@ int main ( )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-		RAMsize = (0x1fff00 - RAMstart)-8192;
-		//RAMsize = 6291264;
+		//RAMsize = (0x1fff00 - RAMstart)-8192;
+		RAMsize = 6291264;
 #endif
 
 		memset((void *)0x1f8000,0,0x8000);
@@ -1033,8 +1033,8 @@ void MainReset ( void )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-	RAMsize = (0x1fff00 - RAMstart)-8192;
-	//RAMsize = 6291264;
+	//RAMsize = (0x1fff00 - RAMstart)-8192;
+	RAMsize = 6291264;
 #endif
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
