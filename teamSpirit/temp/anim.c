@@ -495,7 +495,10 @@ void DeathLightning( int pl )
 		SetFXColour( fx, 220, 60, 60 );
 	}
 
-	PlaySample( genSfx[GEN_DEATHELECTRIC], NULL, 0, SAMPLE_VOLUME, -1 );
+	if((player[0].worldNum == WORLDID_SUBTERRANEAN) && (player[0].levelNum == LEVELID_SUBTERRANEAN3))
+		PlaySample( genSfx[GEN_DEATHEXPLODE], NULL, 0, SAMPLE_VOLUME, -1 );
+	else
+		PlaySample( genSfx[GEN_DEATHELECTRIC], NULL, 0, SAMPLE_VOLUME, -1 );
 
 	player[pl].frogState |= FROGSTATUS_ISDEAD;
 	GTInit( &player[pl].dead, 3 );
