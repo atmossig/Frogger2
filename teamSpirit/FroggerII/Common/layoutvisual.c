@@ -555,7 +555,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	LoadVisualBanksForWorld(worldID,levelID);
 
 	InitSpriteFrameLists();
-	InitFXLinkedLists();
+	InitSpecFXList();
 
 	player[0].worldNum = worldID;
 	player[0].levelNum = levelID;
@@ -626,10 +626,7 @@ void FreeAllLists()
 
 	KillAllTriggers();
 
-	FreeFXSmokeLinkedList();
-	FreeFXRippleLinkedList();
-	FreeFXExplodeParticleLinkedList();
-	FreeFXObjectBlurLinkedList();
+	FreeSpecFXList( );
 	FreeSpriteFrameLists();
 	FreeGaribLinkedList();
 	FreeTextOverlayLinkedList();
