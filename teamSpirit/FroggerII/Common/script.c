@@ -445,9 +445,9 @@ BOOL ExecuteCommand(UBYTE *buffer)
 		{
 			TRIGGER *t;
 			EVENT *e;
-			int fNum = MEMGETINT(p),
+			int fNum = MEMGETBYTE(p),
 				tNum = MEMGETINT(p),
-				time = actFrameCount+25;
+				time = (MEMGETFLOAT(p) * 60) + actFrameCount;
 			VECTOR telePos;
 			void **param;
 
@@ -486,7 +486,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 		{
 			TRIGGER *t;
 			EVENT *e;
-			int fNum = MEMGETINT(p),
+			int fNum = MEMGETBYTE(p),
 				tNum = MEMGETINT(p),
 				ht = MEMGETINT(p),
 				time = MEMGETINT(p);

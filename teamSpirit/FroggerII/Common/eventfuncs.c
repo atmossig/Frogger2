@@ -381,10 +381,11 @@ void TeleportFrog( EVENT *event )
 void SpringFrog( EVENT *event )
 {
 	int fNum = (int)event->data[0],
-		tNum = (int)event->data[1],
-		time = (int)event->data[2];
+		tNum = (int)event->data[1];
 
-	float t, ht = (int)event->data[3] / (float)0x10000;
+	float t,
+		ht = (int)event->data[3] / (float)0x10000,
+		time = ((int)event->data[2] / (float)0x10000) * 60;
 
 	TRIGGER *trigger = (TRIGGER *)event->data[4];
 
@@ -397,7 +398,7 @@ void SpringFrog( EVENT *event )
 	if( !end )
 	{
 		start = actFrameCount;
-		end = start + ((time / (float)0x10000) * 60 );
+		end = start + time;
 
 		// Calculate frog position from height, tile positions and actFrameCount.
 		SubVector( &D, &tile->centre, &currTile[fNum]->centre );
