@@ -37,6 +37,9 @@ int InitBackdrop(const char *filename)
 	mdxLoadBackdrop(path);
 
 	utilPrintf("ok!\n");
+
+	UpdateTiming();
+	
 	return 1;
 }
 

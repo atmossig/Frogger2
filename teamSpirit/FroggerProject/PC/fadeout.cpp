@@ -14,7 +14,7 @@
 #include <mdx.h>
 #include "fadeout.h"
 #include "layout.h"
-
+#include "islutil.h"
 #include "controll.h"
 
 long fadeoutStart, fadeoutLength;
