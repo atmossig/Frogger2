@@ -1029,11 +1029,11 @@ void CheckForFroggerLanding(long pl)
 		frogFacing[pl] = nextFrogFacing[pl];
 
 		state = tile->state;
-
+/*
 		frog[pl]->actor->scale.v[X] = globalFrogScale;	//0.09F;
 		frog[pl]->actor->scale.v[Y] = globalFrogScale;	//0.09F;	// wtf?
 		frog[pl]->actor->scale.v[Z] = globalFrogScale;	//0.09F;
-
+*/
 		player[pl].frogState &= ~(FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
 			FROGSTATUS_ISONMOVINGPLATFORM | FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISFLOATING);
 
@@ -1134,7 +1134,7 @@ void CheckForFroggerLanding(long pl)
 						&frog[pl]->actor->pos, &destTile[pl]->centre, &tile->normal, 
 						0, conveyorFrames[speed], pl);
 
-				player[pl].jumpTime = jump_overrun - 1;
+				//player[pl].jumpTime = jump_overrun - 1;
 			}
 		}
 		else if (state == TILESTATE_ICE)
@@ -1155,7 +1155,7 @@ void CheckForFroggerLanding(long pl)
 				StartAnimateActor(frog[pl]->actor, FROG_ANIM_ICE3, YES, NO, 0.2f, NO, NO);
 
 				player[pl].canJump = FALSE;
-				player[pl].jumpTime = jump_overrun - 1;
+				//player[pl].jumpTime = jump_overrun - 1;
 			}
 		}
 
@@ -1534,17 +1534,17 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 
 	if (diff > 0) height += diff;		// When we're jumping UP, add height
 
-	// Up vector
-	SetVector(&V, normal);
-	ScaleVector(&V, height);
-	SetVector(&pl->jumpUpVector, &V);
-
 	// Multiplier
 	// Set to zero if we don't actually want to do the vertical bit.
-	if (height > 0.1 || height < 0.1)
+	if (height > 0)
 	{
+		// Up vector
+		SetVector(&V, normal);
+		ScaleVector(&V, height);
+		SetVector(&pl->jumpUpVector, &V);
+
 		m = 0.5f * (1 + sqrtf(1 - diff/height));
-		pl->jumpSpeed = 1.0f/(m*(float)time); //1/(float)time; 
+		pl->jumpSpeed = 1.0f/(m*(float)time); //1.0f/(float)time; 
 		//- longer jumps take longer, kind of thing
 	}
 	else
