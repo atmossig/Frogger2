@@ -41,6 +41,7 @@ typedef struct TAG_MDX_ACTOR
 	MDX_ACTOR_ANIMATION			*animation;
 	unsigned char				visible;
 
+	
 } MDX_ACTOR;
 
 #define	INIT_ANIMATION	(1 << 0)
@@ -51,6 +52,7 @@ extern MDX_VECTOR parentScaleStack[10];
 extern int	  parentScaleStackLevel;
 extern MDX_VECTOR *actorScale;
 extern MDX_ACTOR *actorList;
+extern void (*StartAnim)(TAG_MDX_ACTOR *me);
 
 MDX_ACTOR *CreateActor(char *name, unsigned long flags);
 void Animate(MDX_ACTOR *actor, int animNum, char loop, char queue, float speed);

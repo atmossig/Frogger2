@@ -45,6 +45,7 @@ MDX_ACTOR *actorList = NULL;
 #define MAX_UNIQUE_ACTORS	50
 int uniqueActorCRC[MAX_UNIQUE_ACTORS];
 char numActorsUniqe = 0;
+void (*StartAnim)(TAG_MDX_ACTOR *me) = NULL;
 
 
 unsigned long AddActorToList(MDX_ACTOR *me)
@@ -161,6 +162,8 @@ void Animate(MDX_ACTOR *actor, int animNum, char loop, char queue, float speed)
 			actorAnim->animTime = anim->animStart;
 		QueueFlush(actor);
 
+		if (StartAnim)
+			StartAnim(actor);
 //		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] )
 //			PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 	}
@@ -240,6 +243,8 @@ void UpdateAnims(MDX_ACTOR *actor)
 				*actorAnim->queueAnimationSpeed = -1;
 			}
 
+			if (StartAnim)
+				StartAnim(actor);
 			//if( actorAnim->sfxMapping )
 			//	PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 		}
@@ -253,6 +258,8 @@ void UpdateAnims(MDX_ACTOR *actor)
 		{
 			actorAnim->animTime -= (anim->animEnd - anim->animStart);
 
+			if (StartAnim)
+				StartAnim(actor);
 //			if( actorAnim->sfxMapping )
 //				PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 		}
