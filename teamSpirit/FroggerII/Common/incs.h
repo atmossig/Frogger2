@@ -35,7 +35,7 @@
 #include <assert.h>
 #include <pr/os.h>
 #include <pr/gu.h>
-#include <pr/gs2dex.h>
+//#include <pr/gs2dex.h>
 
 #include <inttypes.h>
 #include <stdio.h>
