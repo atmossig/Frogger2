@@ -484,6 +484,8 @@ void DrawFXTrail( SPECFX *fx )
 	vT[3].tu = 1;
 	vT[3].tv = 0;
 
+	SwapFrame(3);
+
 	do
 	{
 		/*********-[ First 2 points ]-********/
@@ -506,6 +508,8 @@ void DrawFXTrail( SPECFX *fx )
 		if( ++i >= fx->numP ) i=0;
 
 	} while( i != fx->end );
+
+	SwapFrame(0);
 }
 
 
