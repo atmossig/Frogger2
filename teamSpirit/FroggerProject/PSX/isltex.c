@@ -961,6 +961,7 @@ TextureType *textureFindCRCInAllBanks(unsigned long crc)
 				return txPtr;
 		}
 	}
+	utilPrintf("Cannot find texture %d\n",crc);
 	return txPtr;
 }
 
