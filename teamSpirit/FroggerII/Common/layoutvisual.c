@@ -424,7 +424,6 @@ void FreeLevel(void)
 
 	FreeAnimationList();
 	FreeTextureList();
-	FreeBackdrop(myBackdrop);
 	FreeAllObjectBanks();
 	FreeAllTextureBanks();
 	FreeCameoList();
@@ -435,8 +434,6 @@ void FreeLevel(void)
 	InitSpriteOverlayLinkedList();
 	InitSpriteLinkedList();
 	
-	myBackdrop	= NULL;
-
 //	pauseMode		= 0;
 	darkenedLevel	= 0;
 }
@@ -454,8 +451,6 @@ void FreeAllLists ( void )
 {
 	FreeLevel();
 	
-	myBackdrop	= NULL;
-
 	pauseMode		= 0;
 	darkenedLevel	= 0;
 }

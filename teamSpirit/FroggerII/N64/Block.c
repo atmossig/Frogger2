@@ -1436,8 +1436,8 @@ void DrawGraphics(void *arg)
 									
 					StartTimer(1,"GRAPHICS");
 
-					if(myBackdrop)
-						PrintBackdrop(myBackdrop);
+					//if(myBackdrop)
+					//	PrintBackdrop(myBackdrop);
 
 					CleanupAndSendDisplayList(UCODE_SPRITE2D,0);
 					InitDisplayLists();

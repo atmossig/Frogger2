@@ -464,8 +464,6 @@ void RunSndView ( void )
 		LoadTextureBank(TITLES_TEX_BANK);
 		LoadTextureBank ( SNDVIEW_TEX_BANK );
 
-		myBackdrop = CreateAndInitBackdrop("objvscrn.bmp");
-
 		currFont = bigFont;
 
 		title[0]  = CreateAndAddTextOverlay ( 30, 15, "S", NO,NO, 255, 255, 255, 250, currFont,0,2,0);

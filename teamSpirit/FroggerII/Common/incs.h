@@ -50,7 +50,6 @@
 #include "levelplaying.h"
 #include "jalloc.h"
 #include "sprite.h"
-#include "backdrops.h"
 #include "overlays.h"
 #include "textoverlays.h"
 #include "frogger.h"

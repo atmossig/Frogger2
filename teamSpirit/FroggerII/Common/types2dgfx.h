@@ -19,18 +19,6 @@
 
 //----- [ DATA STRUCTURES ] --------------------------------------------------------------------//
 
-typedef struct TAGBACKDROP
-{
-	uSprite		N64Spr;
-	TEXTURE		*texture;
-	int			xPos,yPos;
-	short		scaleX,scaleY;
-	short		flipX,flipY;
-	short		draw;
-	UBYTE		r,g,b,a;
-} BACKDROP;
-
-
 typedef struct TAGTEXTOVERLAY
 {
 	struct		TAGTEXTOVERLAY *next,*prev;
