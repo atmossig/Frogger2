@@ -35,7 +35,9 @@ SAMPLE *CreateAndAddSample ( char *lpFile )
 
 	newItem->lpDSound = lpDS;
 
-	LoadWav		( lpFile, newItem );
+	if ( !lpDS )
+		LoadWav		( lpFile, newItem );
+	// ENDIF
 
 	AddSampleToList ( newItem );
 	dprintf"LEAVING : CreateAndAddSample\n"));
