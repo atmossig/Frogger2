@@ -43,6 +43,7 @@ void RunTitleScreen( )
 	static TEXTOVERLAY *startText;
 	static TEXTOVERLAY *selectText;
 	static TEXTOVERLAY *multiText;
+	static TEXTOVERLAY *devText;
 	static long numPlayers = 1;
 
 	int i = 0,xPos,j;
@@ -61,6 +62,7 @@ void RunTitleScreen( )
 		startText = CreateAndAddTextOverlay(100,112,"Start Game",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
 		selectText = CreateAndAddTextOverlay(100,132,"Level Select",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
 		multiText = CreateAndAddTextOverlay(100,152,mpText,YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
+		devText = CreateAndAddTextOverlay(100,172,"develope",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
 
 		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
 		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
@@ -74,6 +76,7 @@ void RunTitleScreen( )
 	startText->a = 100;
 	selectText->a = 100;
 	multiText->a = 100;
+	devText->a = 100;
 	sprintf(mpText,"Multiplayer %i",numPlayers);
 	button = controllerdata [ ActiveController ].button;
 
@@ -88,7 +91,7 @@ void RunTitleScreen( )
 	    
 	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
     {
-		if( currentSelection < 2 )
+		if( currentSelection < 3 )
 		{
 			currentSelection++;
 			PlaySample ( 237, NULL, 255, 128 );
@@ -118,7 +121,6 @@ void RunTitleScreen( )
 				FreeAllLists();
 				worldNum = 0;
 				levelNum = 0;
-				//osMotorStop ( &rumble );
 				InitLevel ( 0, 0 );
 
 				gameState.oldMode = FRONTEND_MODE;
@@ -151,6 +153,14 @@ void RunTitleScreen( )
 				PlaySample ( 2,NULL,255,128);
 				NUM_FROGS = numPlayers;
 				break;
+			case 3:
+				FreeAllLists();
+				gameState.oldMode = FRONTEND_MODE;
+				gameState.mode = DEVELOPMENTMENU_MODE;
+				frameCount = 0;
+				lastbutton = 0;
+				PlaySample ( 2,NULL,255,128);
+				break;
 			}
 		}			
 	
@@ -159,6 +169,7 @@ void RunTitleScreen( )
 			case 0: startText->a = 255; break;
 			case 1: selectText->a = 255; break;
 			case 2: multiText->a = 255; break;
+			case 3: devText->a = 255; break;
 		}
 	}
 

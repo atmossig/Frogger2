@@ -17,7 +17,8 @@ enum frontEndModes
 	//  Frontend / Title screen Modes
 	TITLE_MODE,
 	LEVELSELECT_MODE,
-	OBJVIEW_MODE
+	OBJVIEW_MODE,
+	DEVELOPMENTMENU_MODE
 };
 
 struct frontEndStateStruct
