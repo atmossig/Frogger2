@@ -4,12 +4,17 @@
 //
 #define IDOK2                           3
 #define ID_SETUP                        3
+#define ID_DEFAULT                      4
 #define IDD_VIDEODEVICE                 101
 #define IDB_SPLASH                      103
 #define IDD_CONNECTION                  104
+#define IDD_MULTI_CONNECT               104
 #define IDD_KEYMAPBOX                   105
 #define IDI_FROGGER2                    105
+#define IDD_MULTI_GAMES                 107
+#define IDD_MULTI_START                 108
 #define IDD_CONTROLS                    109
+#define IDD_MULTI_CREATE                110
 #define IDD_KEYPRESS                    112
 #define IDC_LIST2                       1001
 #define IDC_WINDOW                      1002
@@ -28,9 +33,24 @@
 #define IDC_1280                        1024
 #define IDC_320                         1025
 #define IDC_TXT_VIDEO                   1027
-#define IDC_TXT_RESOLUTION              1028
 #define IDC_TXT_CONTROLS                1029
 #define IDC_PRESSKEY                    1030
+#define IDC_PLAYERNAME                  1031
+#define IDC_CONNECTIONLIST              1032
+#define IDC_JOIN                        1033
+#define IDC_CREATE                      1034
+#define IDC_GAMELIST                    1037
+#define IDC_RICHCHAT                    1038
+#define IDC_PLAYERLIST                  1039
+#define IDC_CHATENTER                   1040
+#define IDC_LEVEL                       1042
+#define IDC_DESCRIPTION                 1043
+#define IDC_START                       1046
+#define IDC_SEARCH                      1047
+#define IDC_NAME                        1048
+#define ID_SEND                         1049
+#define IDC_TXT_RESOLUTION              1050
+#define IDC_SCREENRES                   1051
 #define IDC_PLAYER1                     1100
 #define IDC_PLAYER2                     1101
 #define IDC_PLAYER3                     1102
@@ -40,9 +60,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        106
+#define _APS_NEXT_RESOURCE_VALUE        112
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1031
+#define _APS_NEXT_CONTROL_VALUE         1052
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
