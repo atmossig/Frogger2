@@ -95,6 +95,7 @@ void XformActorList()
 
 		cur = cur->next;
 	}
+	
 }
 
 void DrawActorList()
@@ -116,7 +117,7 @@ void DrawActorList()
 			if (cur->actor->objectController)
 					if (!(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU))
 					{
-						//cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
+						cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
 						if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
 						{
 							StartTimer(6,"GameLoop");
@@ -125,8 +126,10 @@ void DrawActorList()
 								TestDistanceFromFrog = 1;
 							else
 								TestDistanceFromFrog = 0;
+							
+							if (cur->flags & ~ACTOR_DRAW_NEVER)
+								DrawActor(cur->actor);
 
-							DrawActor(cur->actor);
 							EndTimer(6);
 						}
 					}
@@ -149,8 +152,8 @@ void DrawActorList()
 				if (cur->actor->objectController)
 					if (cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU)
 					{
-						cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
-						if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
+					//	cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
+					//	if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
 						{
 							StartTimer(6,"GameLoop");
 							DrawActor(cur->actor);

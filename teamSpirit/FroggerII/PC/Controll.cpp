@@ -288,12 +288,7 @@ void ProcessUserInput(HWND hWnd)
 		// Quit
 		PostMessage(hWnd,WM_CLOSE,0,0);
 	}
-
-	if(KEYPRESS(DIK_ESCAPE))
-	{
-		// Quit
-		PostMessage(hWnd,WM_CLOSE,0,0);
-	}
+	
 	controllerdata[0].button = 0;
 	controllerdata[1].button = 0;
 	controllerdata[2].button = 0;
@@ -314,13 +309,13 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_RIGHT))// | (joy.lX > DEAD_ZONE))
 		controllerdata[0].button |= CONT_RIGHT;
 	
-	if (KEYPRESS(DIK_INSERT ))// | (joy.rgbButtons[0]))
+	if (KEYPRESS(DIK_RETURN ))// | (joy.rgbButtons[0]))
 		controllerdata[0].button |= CONT_A;
 	
 	if (KEYPRESS(DIK_DELETE))
 		controllerdata[0].button |= CONT_B;
 	
-	if (KEYPRESS(DIK_S))
+	if (KEYPRESS(DIK_ESCAPE))
 		controllerdata[0].button |= CONT_START;
 
 	if (KEYPRESS(DIK_NUMPAD4))

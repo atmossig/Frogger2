@@ -455,6 +455,7 @@ void DrawGraphics()
 	
 	StartTimer(1,"Draw Actor List");
 
+//	XformActorList();
 	DrawActorList();	
 	
 	EndTimer(1);

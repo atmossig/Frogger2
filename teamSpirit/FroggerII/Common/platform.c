@@ -1095,6 +1095,8 @@ BOOL PlatformHasArrivedAtNode(PLATFORM *pform)
 
 	if (actFrameCount>path->endFrame)
 	{
+		if (pform->flags & PLATFORM_NEW_CARRYINGFROG)
+			CheckTileForCollectable(path->nodes[path->toNode].worldTile);
 		return TRUE;
 	}
 	// check if path node is reached
