@@ -71,6 +71,7 @@ enum
 	CMD_SET = 0,
 	CMD_CLS,
 	CMD_EXIT,
+	CMD_SHOWOBJECTS,
 	CMD_NUMCOMMANDS,
 };
 
@@ -79,6 +80,7 @@ char *commandNames[] =
 	"set",
 	"cls",
 	"exit",
+	"showobjects",
 };
 
 typedef struct TAG_SETDATA
@@ -186,6 +188,24 @@ void ProcessCommand(void)
 			case CMD_EXIT:
 				PostQuitMessage(0);
 				break;
+			case CMD_SHOWOBJECTS:
+				{
+					char tString[150] = "";
+					MDX_ACTOR *cur = actorList;
+					while (cur)
+					{
+						strcat(tString,(const char *)cur->objectController->object->name);
+						strcat(tString," : ");
+						if (strlen(tString)>100)
+						{
+							cp("%s",tString);
+							strcpy(tString,"");
+						}
+						cur = cur->next;
+					}
+				}
+				break;
+			
 			default:
 				cp("Unrecognised command.");
 				break;

@@ -11,7 +11,7 @@
 
 
 #define F3DEX_GBI_2
-
+#define LEAVEOUT_MATH
 //#include "ultra64.h"
 //#include <assert.h>
 //#include <stdio.h>
@@ -23,12 +23,16 @@
 //#endif
 //#include "crc32.h"
 
+extern "C"
+{
 #include "actor.h"
 #include "frogger.h"
 #include "block.h"
 #include "game.h"
 
 #include "Types.h"
+
+
 
 #include "maths.h"
 //#include "subcube.h"
@@ -39,7 +43,6 @@
 
 
 #include <islutil.h>
-
 
 //#define MAX_UNIQUE_ACTORS	50
 
@@ -1187,4 +1190,6 @@ void actorSetAnimation(ACTOR *actor, ULONG frame)
 void actorUpdateAnimations(ACTOR *actor)			
 {
 	return;
+}
+
 }

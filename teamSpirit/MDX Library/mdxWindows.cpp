@@ -27,6 +27,7 @@
 #include "mdxDText.h"
 #include "mdxProfile.h"
 #include "mdxWindows.h"
+#include "mdxFont.h"
 #include "fxBlur.h"
 #include "gelf.h"
 
@@ -56,6 +57,8 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
             break;
 		case WM_KEYDOWN:
 		{
+			HiliteUp(2);
+
 			switch ((int)wParam)
 			{
 				case VK_F3:

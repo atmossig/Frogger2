@@ -13,7 +13,7 @@ extern "C"
 {
 #endif
 
-#include "crc32.h"
+#include "mdxCRC.h"
 #include <string.h>
 
 #define POLYNOMIAL 0x04c11db7L

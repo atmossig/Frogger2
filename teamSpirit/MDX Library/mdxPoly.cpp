@@ -243,6 +243,36 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 
 void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1)
 {
+
+	if ((r.left>clx1) || (r.top>cly1) || (r.right<clx0) || (r.bottom<cly0))
+		return;
+		
+	if (r.left<clx0)
+	{
+		u0 += ((clx0 - r.left)/((float)r.right-r.left)) * (u1-u0);
+		r.left = clx0;
+		
+	}
+
+	if (r.top<cly0)
+	{
+		v0 += ((cly0 - r.top)/((float)r.bottom-r.top)) * (v1-v0);
+		r.top = cly0;
+		
+	}
+
+	if (r.right>clx1)
+	{
+		u1 += ((clx1 - r.right)/((float)r.right-r.left)) * (u1-u0);
+		r.right = clx1;		
+	}
+
+	if (r.bottom>cly1)
+	{
+		v1 += ((cly1 - r.bottom)/((float)r.bottom-r.top))*(v1-v0);
+		r.bottom = cly1;		
+	}
+
 	D3DLVERTEX v[4] = {
 		{
 			r.left,r.top,0,0,
@@ -265,7 +295,7 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 			u1,v0
 	}};
 
-
+	
 	pDirect3DDevice->SetTexture(0,tex);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);

@@ -145,7 +145,7 @@ void LoadScenics ( int collBank )
 
 	c = 0;
 
-	firstScenic = ( SCENIC* ) scenicFile;
+	firstScenic = ( SCENIC* )p;// scenicFile;
 	cur = firstScenic;
 
 	utilPrintf("%d\n\n\n\n", sizeof(SCENIC));
@@ -314,21 +314,21 @@ void LoadCollision ( int collBank )
 	p = (unsigned char*) collisionFile;
 
 	// Get a pointer to the addr and get tile count from it...
-	ptrAddr		= ( int* ) firstTile;
+	ptrAddr		= ( int* ) p;//firstTile;
 	tileCount = ( int ) *ptrAddr;
 
 	// Move on 4 bytes so that we can get the start tile.
 	p += 4;
 
 	// Get a pointer to the addr and get a temp pointer to the Frogger startTile.....
-	ptrAddr = ( int* ) firstTile;
+	ptrAddr = ( int* ) p;//firstTile;
 	start		= ( int ) *ptrAddr;
 
 	// Move on 4 bytes so that we can get the number of babies.
 	p += 4;
 
 	// Get a pointer to the addr and get the number of babies.....
-	ptrAddr		= ( int* ) firstTile;
+	ptrAddr		= ( int* ) p;//firstTile;
 	numBabies	= ( int ) *ptrAddr;
 
 	// Move on 4 bytes so that we can get the first baby game tile....

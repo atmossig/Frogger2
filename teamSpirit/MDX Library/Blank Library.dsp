@@ -82,14 +82,6 @@ LIB32=link.exe -lib
 # Name "Blank Library - Win32 Debug"
 # Begin Source File
 
-SOURCE=.\fxBlur.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\fxBlur.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\mdx.h
 # End Source File
 # Begin Source File

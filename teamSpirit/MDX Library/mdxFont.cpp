@@ -42,6 +42,35 @@ extern "C"
 float tCoords32[FONT_NUM32][FONT_NUM32][2];
 char symbolChars[] = "!\"£$%^&*()-_+=[]{};'#:@~\\/,.<>?";
 
+float charHilite = 0;
+float hiliteSpeed = 0.015;
+char toHilite,toHilite2,toHilite3;
+float hR = 0.5, hG = 1, hB = 0;
+float cR = 1, cG = 1, cB = 1;
+
+
+void UpdateFontHilite(void)
+{
+	if (charHilite>1)
+	{
+		toHilite = 26+((float)rand()/RAND_MAX)*26;
+		toHilite2 = 26+((float)rand()/RAND_MAX)*26;
+		toHilite3 = 26+((float)rand()/RAND_MAX)*26;
+		charHilite = 1;
+	}
+	else
+	{
+		charHilite -= hiliteSpeed*timeInfo.speed;			
+
+		if (charHilite<0)
+			charHilite = 0;
+
+		cR = 1-(charHilite*hR);
+		cG = 1-(charHilite*hG);
+		cB = 1-(charHilite*hB);
+	}
+}
+
 void InitFontSystem(void)
 {
 	for (int i=0; i<FONT_NUM32; i++)
@@ -188,7 +217,18 @@ long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,
 			c = 26+26+9;
 			
 	}
-	
+
+	if (charHilite)
+	{
+		if ((c==toHilite) || (c==toHilite2)|| (c==toHilite3))
+		{
+			float r = RGB_GETRED(color)/256.0;
+			float g = RGB_GETGREEN(color)/256.0;
+			float b = RGB_GETBLUE(color)/256.0;
+			color = D3DRGB(r*cR,g*cG,b*cB) | (color & 0xff000000);
+		}
+	}
+
 	m.left = x;
 	m.top = y;
 	m.bottom = y+(32*scale);

@@ -1,6 +1,11 @@
 #ifndef _ISLTEX_H_INCLUDE
 #define _ISLTEX_H_INCLUDE
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "ultra64.h"
 
 #define textureFindInAllBanks(n)	(0)
@@ -28,5 +33,9 @@ void textureDownloadBank(TextureBankType *bank);
 void textureDestroyBank(TextureBankType *bank);
 TextureType *textureFindCRCInBank(TextureBankType *bank, unsigned long crc);
 TextureAnimType *textureCreateAnimation(TextureType *dummy, TextureType **anim, int numFrames);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

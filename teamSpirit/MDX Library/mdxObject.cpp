@@ -494,7 +494,7 @@ BOOL MungeFPCW( WORD *pwOldCW )
 	return ret;
 } 
 
-void LoadObjectBank(char *bank, char *baseDir)
+void LoadObjBank(char *bank, char *baseDir)
 {
 	char    file[MAX_PATH]; 
 	char	*objectBank = NULL;

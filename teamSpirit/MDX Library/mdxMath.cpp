@@ -35,7 +35,8 @@ MDX_MATRIXSTACK	matrixStack;
 
 void Normalise(MDX_VECTOR *vect)
 {
-	float m = Magnitude(vect);
+	float m = mdxMagnitude(vect);
+	
 
 	if(m != 0)
 	{

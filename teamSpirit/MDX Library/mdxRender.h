@@ -21,6 +21,7 @@ extern float globalXLU;
 extern MDX_MATRIX vMatrix;
 extern unsigned long drawingSwampy;
 extern unsigned long numObjDrawn;
+extern float clx0, cly0, clx1, cly1;
 
 void InitOneOverTable(void);
 void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh);

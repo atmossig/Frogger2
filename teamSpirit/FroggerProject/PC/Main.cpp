@@ -67,13 +67,38 @@ MDX_FONT *pcFont;
 
 extern char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
+float camY = 100,camZ = 100;
+extern "C" {MDX_LANDSCAPE *world;}
+
 long DrawLoop(void)
 {
+	POINT t;
 	D3DSetupRenderstates(D3DDefaultRenderstates);
 	
+	// Just to get functionality... ;)
+	StartTimer (2,"DrawActorList (old)");
+	DrawActorList();
+	EndTimer(2);
+
+	if (world)
+		world = world;
+
+	guLookAtF (vMatrix.matrix,0,0,0, 0,camY,camZ, 0,1,0);
 	pDirect3DDevice->BeginScene();
+	BlankAllFrames();
+	SwapFrame(MA_FRAME_NORMAL);
+	
+	if (world)
+		DrawLandscape(world);
+
+	StartTimer(1,"Actors");
+	ActorListDraw();
+	EndTimer(1);
+
+	DrawAllFrames();
 	PrintTextOverlays();
 	pDirect3DDevice->EndScene();
+
 
 	EndTimer(0);
 	if (consoleDraw)
@@ -85,12 +110,39 @@ long DrawLoop(void)
 	
 	DDrawFlip();
 	D3DClearView();
+
+	GetCursorPos(&t);
+	camZ = t.x*8;
+	camY = t.y*8;
+
+	
 	return 0;
 }
 
 long LoopFunc(void)
 {
+	ACTOR2 *c;
+
+	actFrameCount += timeInfo.frameCount;
+	gameSpeed = 4096*timeInfo.speed;
+
 	GameLoop();
+
+	c = actList;
+	while (c)
+	{
+		((MDX_ACTOR *)(c->actor->actualActor))->pos.vx = c->actor->position.vx / 10.0;
+		((MDX_ACTOR *)(c->actor->actualActor))->pos.vy = c->actor->position.vy / 10.0;
+		((MDX_ACTOR *)(c->actor->actualActor))->pos.vz = c->actor->position.vz / 10.0;
+
+		//((MDX_ACTOR *)(c->actor->actualActor))->qRot.x = c->actor->qRot.x / 4096.0;
+		//((MDX_ACTOR *)(c->actor->actualActor))->qRot.y = c->actor->qRot.y / 4096.0;
+		//((MDX_ACTOR *)(c->actor->actualActor))->qRot.z = c->actor->qRot.z / 4096.0;
+		//((MDX_ACTOR *)(c->actor->actualActor))->qRot.w = (c->actor->qRot.w / 4096.0) * 6.28;
+
+		c = c->next;
+	}
+
 	DrawLoop();
 	ProcessUserInput();
 	return 0;
@@ -146,6 +198,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	CommonInit();
 
 	pcFont = InitFont("FontA",baseDirectory);
+
+	InitTiming(60.0);
 
 	RunWindowsLoop(&LoopFunc);
 

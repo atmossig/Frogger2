@@ -67,6 +67,9 @@ void DrawAllFrames(void);
 
 extern unsigned long drawLighting;
 extern unsigned long drawPhong;
+unsigned long xluSubRS[]; 
+unsigned long xluAddRS[];
+unsigned long xluSemiRS[]; 
 
 
 #else

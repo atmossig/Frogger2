@@ -257,7 +257,7 @@ typedef struct
 
 
 void FindObject(MDX_OBJECT_CONTROLLER **objCPtr, int objID, char *name);
-void LoadObjectBank(char *bank, char *baseDir);
+void LoadObjBank(char *bank, char *baseDir);
 void TransformObject(MDX_OBJECT *obj, float time);
 extern WORD fpuState;
 

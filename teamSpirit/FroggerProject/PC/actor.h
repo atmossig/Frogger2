@@ -14,6 +14,11 @@
 
 #define ANIM_QUEUE_LENGTH	8
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "ultra64.h"
 #include "libgte.h"
 
@@ -59,6 +64,7 @@ typedef struct
 
 	//bb - temp to compile
 	//pc
+	void *actualActor;
 	char* name;
 
 } ACTOR;
@@ -69,6 +75,10 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 void actorDraw(ACTOR *actor);
 void actorSetAnimation(ACTOR *actor, ULONG frame);
 void actorUpdateAnimations(ACTOR *actor);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

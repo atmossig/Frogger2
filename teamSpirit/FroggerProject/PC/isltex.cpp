@@ -1,5 +1,10 @@
 #include <isltex.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 TextureBankType *textureLoadBank(char *sFile)
 {
 	return NULL;
@@ -29,3 +34,7 @@ TextureAnimType *textureCreateAnimation(TextureType *dummy, TextureType **anim, 
 {
 	return NULL;
 }
+
+#ifdef __cplusplus
+}
+#endif

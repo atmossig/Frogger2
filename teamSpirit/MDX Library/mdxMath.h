@@ -58,8 +58,8 @@ void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float
 #define HALFPI		((float)1.570796326794895)
 
 #define DotProduct(v1,v2)	((((v1)->vx)*((v2)->vx)) + (((v1)->vy)*((v2)->vy)) + (((v1)->vz)*((v2)->vz)))
-#define MagnitudeSquared(vect) ((vect)->vx*(vect)->vx + (vect)->vy*(vect)->vy + (vect)->vz*(vect)->vz)
-#define Magnitude(vect) (sqrtf((vect)->vx*(vect)->vx + (vect)->vy*(vect)->vy + (vect)->vz*(vect)->vz))
+#define mdxMagnitudeSquared(vect) ((vect)->vx*(vect)->vx + (vect)->vy*(vect)->vy + (vect)->vz*(vect)->vz)
+#define mdxMagnitude(vect) ((float)sqrt((vect)->vx*(vect)->vx + (vect)->vy*(vect)->vy + (vect)->vz*(vect)->vz))
 #define CrossProduct(result,operand1,operand2) {(result)->vx = (operand1)->vy * (operand2)->vz - (operand1)->vz * (operand2)->vy; (result)->vy = (operand1)->vz * (operand2)->vx - (operand1)->vx * (operand2)->vz; (result)->vz = (operand1)->vx * (operand2)->vy - (operand1)->vy * (operand2)->vx;}
 #define SetQuaternion(q1,q2) (*(q1)) = (*(q2))
 #define ZeroQuaternion(quat) SetQuaternion(quat,&zeroQuat)
