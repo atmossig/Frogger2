@@ -11,8 +11,6 @@
 #define MEMLOAD_ENTITY_VERSION 11
 #define MEMLOAD_SCRIPT_VERSION 2
 
-int MemLoadTrigger(UBYTE** p, long size);
-
 typedef enum { CREATE_ENEMY, CREATE_PLATFORM, CREATE_GARIB, CREATE_CAMERACASE } CREATETYPE;
 
 /*	-------------------------------------------------------------------------------- */

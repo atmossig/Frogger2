@@ -1493,7 +1493,7 @@ void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned l
 	nme->flags		|= enemyFlags;
 	nme->path		= path;
 
-	dprintf"Add enemy path : "));
+	//dprintf"Add enemy path : "));
 
 	// check if pathnode indices need converting to game tile pointers
 	if(pathFlags & PATH_MAKENODETILEPTRS)
@@ -1501,7 +1501,7 @@ void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned l
 		for(i=0; i<path->numNodes; i++)
 		{
 			// convert integer to a valid game tile
-			dprintf"%d, ",(unsigned long)path->nodes[i].worldTile));
+			//dprintf"%d, ",(unsigned long)path->nodes[i].worldTile));
 			nme->path->nodes[i].worldTile = &firstTile[(unsigned long)path->nodes[i].worldTile];
 		}
 	}
@@ -1548,7 +1548,7 @@ void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned l
 
 	CalcEnemyNormalInterps(nme);
 
-	dprintf"\n"));
+	//dprintf"\n"));
 }
 
 

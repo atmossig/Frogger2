@@ -360,6 +360,10 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 
 	InitEventsForLevel(worldID, levelID);
 
+#ifdef PC_VERSION
+	LoadLevelScript(worldID, levelID);
+#endif
+
 	//LoadTextureBank ( SYSTEM_TEX_BANK );
 	switch ( worldID )
 	{

@@ -4,6 +4,7 @@
 #include "incs.h"
 #include "codes.h"
 #include "stdio.h"
+#include "script.h"
 
 /* --------------------------------------------------------------------------------- */
 
@@ -60,14 +61,14 @@ ACTOR2 *GetActorFromUID(int UID)
 	return NULL;
 }
 
-/*
+
 GAMETILE *GetTileFromNumber(int number)
 {
 	GAMETILE *tile;
 	for (tile = firstTile; number; number--, tile = tile->next);
 	return tile;
 }
-*/
+
 
 /*	--------------------------------------------------------------------------------
     Function		: InterpretEvent
