@@ -62,11 +62,11 @@ float		  lillySpeedPath8[]  = { 14,	4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,
 	   
 PLATFORMLIST platformList;					// the platform list
 
-PLATFORM *destPlatform		= NULL;			// platform that frog is about to attempt to jump to
-PLATFORM *currPlatform		= NULL;			// platform that frog is currently on
-PLATFORM *nearestPlatform	= NULL;			// platform nearest to the frog
+PLATFORM *destPlatform[4];					// platform that frog is about to attempt to jump to
+PLATFORM *currPlatform[4];					// platform that frog is currently on
+PLATFORM *nearestPlatform[4];				// platform nearest to the frog
 
-GAMETILE		*oldTile = NULL;
+GAMETILE *oldTile[4];
 
 // test platforms
 PLATFORM *locPlatform1		= NULL;
@@ -110,7 +110,8 @@ PLATFORM *bus1		= NULL;
 PLATFORM *bus2		= NULL;
 PLATFORM *bus3		= NULL;
 
-PLATFORM *devPlat	= NULL;
+PLATFORM *devPlat1	= NULL;
+PLATFORM *devPlat2	= NULL;
 
 
 
@@ -183,8 +184,10 @@ float			devPathSpeed[]	= { 6,		4,4,4,4,4,4 };
 
 
 PATHNODE debug_pathNodes1[] = { 20,20,0, 21,50,0, 22,20,0, 23,50,0 };
-PATH debug_path1 = { 4,0,1,0,debug_pathNodes1 };
+PATH debug_path1 = { 4,0,0,0,debug_pathNodes1 };
 
+PATHNODE debug_pathNodes2[] = { 14,5,45 };
+PATH debug_path2 = { 1,0,0,0,debug_pathNodes2 };
 
 
 static void	GetActiveTile(PLATFORM *pform);
@@ -207,9 +210,13 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 	{
 		if(levelID == LEVELID_GARDENLAWN)
 		{
-//			devPlat = NEW_CreateAndAddPlatform("pltlilly.ndo");
-//			devPlat->currSpeed = 2.0F;
-//			NEW_AssignPathToPlatform(devPlat,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path1,PATH_MAKENODETILEPTRS);
+			devPlat1 = NEW_CreateAndAddPlatform("pltlilly.ndo");
+			devPlat1->currSpeed = 2.0F;
+			NEW_AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path1,PATH_MAKENODETILEPTRS);
+
+			devPlat2 = NEW_CreateAndAddPlatform("pltlilly.ndo");
+			devPlat2->currSpeed = 1.0F;
+			NEW_AssignPathToPlatform(devPlat2,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path2,PATH_MAKENODETILEPTRS);
 		}
 
 		if ( levelID == LEVELID_GARDENMAZE )
@@ -849,12 +856,6 @@ void UpdatePlatforms()
 				}
 			}
 
-			if(cur->flags & PLATFORM_CARRYINGFROG)
-			{
-				frog[0]->actor->pos.v[X] += (cur->moveSpeed[cur->path->toNode] * fwd.v[X]);
-			}
-			// endif
-
 			if(cur->flags & PLATFORM_FLATLEVEL)
 			{
 				// orientate the actor to face the direction of movement....
@@ -1206,6 +1207,8 @@ void UpdatePlatforms()
 
 		if(cur->flags & PLATFORM_NEW_FOLLOWPATH)
 		{
+			// process platforms that follow a path (>1 node in path)
+
 			// first, update the platform position
 			GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
 			SubVector(&fwd,&toPosition,&cur->pltActor->actor->pos);
@@ -1219,6 +1222,20 @@ void UpdatePlatforms()
 			if(NEW_PlatformHasArrivedAtNode(cur))
 			{
 				NEW_UpdatePlatformPathNodes(cur);
+			}
+		}
+		else
+		{
+			// process platforms that are based on a single node
+
+			// check if this platform is moving up or down
+			if(cur->flags & PLATFORM_NEW_MOVEUP)
+			{
+				// update the platform position
+			}
+			else if(cur->flags & PLATFORM_NEW_MOVEDOWN)
+			{
+				// update the platform position
 			}
 		}
 	}
@@ -1241,10 +1258,10 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 	float t;
 
 	// check if jumping to a platform
-	nearestPlatform = NULL;
+	nearestPlatform[0] = NULL;
 
 	if(platformList.numEntries == 0)
-		return;
+		return NULL;
 
 	// go thru platform list and check for platform in the specified tile
 	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
@@ -1252,14 +1269,14 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 		next = cur->next;
 
 		// process only the platforms that are visible
-		if((!cur->pltActor->draw) || (cur == currPlatform))
+		if((!cur->pltActor->draw) || (cur == currPlatform[0]))
 			continue;
 
 		t = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->pltActor->actor->pos);
 		if(t < (distance * distance))
 		{
 			distance = t;
-			nearestPlatform = cur;
+			nearestPlatform[0] = cur;
 		}
 
 		if(cur->inTile == tile)
@@ -1284,10 +1301,10 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 	}
 
 	// if we get here then no platform was in the specified tile - check for nearest platform
-	if(nearestPlatform)
+	if(nearestPlatform[0])
 	{
 		// determine if the nearest platform is moving 'into' the specified tile
-		if(nearestPlatform->path->nodes[nearestPlatform->path->toNode].worldTile == tile)
+		if(nearestPlatform[0]->path->nodes[nearestPlatform[0]->path->toNode].worldTile == tile)
 		{
 			// this platform is about to move into the specified tile
 			if(distance < (PLATFORM_GENEROSITY * PLATFORM_GENEROSITY))
@@ -1295,7 +1312,7 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 				player[0].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
 				player[0].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
 			
-				return nearestPlatform;
+				return nearestPlatform[0];
 			}
 		}
 	}
@@ -1305,69 +1322,6 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 	player[0].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 
 	return NULL;
-
-	
-/* **** PLEASE LEAVE THIS CODE FOR A WHILE - ANDYE !!!! *******
-
-	// check if jumping to a platform
-	nearestPlatform = NULL;
-
-	if(platformList.numEntries == 0)
-		return;
-
-	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
-	{
-		next = cur->next;
-
-		// process only the platforms that are visible
-		if(!cur->pltActor->draw)
-			continue;
-
-		if(cur != currPlatform)
-		{
-			t = DistanceBetweenPoints(&frog->actor->pos,&cur->pltActor->actor->pos);
-			if(t < distance)
-			{
-				distance = t;
-				nearestPlatform = cur;
-			}
-		}
-
-		if(cur->inTile == tile)
-		{
-			// check if this platform can be walked under
-			if(cur->flags & PLATFORM_CANWALKUNDER)
-			{
-				// check height of platform
-				if(fabs(cur->pltActor->actor->pos.v[Y] - frog->actor->pos.v[Y]) > 25.0F)
-				{
-					frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-					frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-					return NULL;
-				}
-			}
-
-			frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-			frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
-
-			return cur;
-		}
-	}
-
-	// if we get to this point then check for the nearest platform
-	if(nearestPlatform && (distance < 50.0F))
-	{
-		frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-		frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
-		return nearestPlatform;
-	}
-
-	// if we get here then frog is jumping to a tile
-	frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-	frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-
-	return NULL;
-*/
 }
 
 
@@ -1389,16 +1343,16 @@ void GetNextLocalPlatform(unsigned long direction)
 	
 	for(i=0; i<4; i++)
 	{
-		if(currPlatform->pltPtrs[i])
+		if(currPlatform[0]->pltPtrs[i])
 		{
-			SubVector(&cDir,&currPlatform->pltPtrs[i]->pltActor->actor->pos,&currPlatform->pltActor->actor->pos);
+			SubVector(&cDir,&currPlatform[0]->pltPtrs[i]->pltActor->actor->pos,&currPlatform[0]->pltActor->actor->pos);
 			MakeUnit(&cDir);
 			
 			distance = -10000;
 			
 			for(j=0; j<4; j++)
 			{	
-				float t = DotProduct(&cDir,&currPlatform->dirVector[j]);
+				float t = DotProduct(&cDir,&currPlatform[0]->dirVector[j]);
 				if(t > distance)
 				{
 					distance = t;
@@ -1408,7 +1362,7 @@ void GetNextLocalPlatform(unsigned long direction)
 		}
 	}
 
-	destPlatform = NULL;
+	destPlatform[0] = NULL;
 		
 	for(i=0; i<4; i++)
 	{
@@ -1416,11 +1370,11 @@ void GetNextLocalPlatform(unsigned long direction)
 		{
 			distance = -10000;
 			
-			destPlatform = currPlatform->pltPtrs[i];
+			destPlatform[0] = currPlatform[0]->pltPtrs[i];
 
 			for(j=0; j<4; j++)
 			{
-				float t = DotProduct(&destPlatform->dirVector[j],&currPlatform->dirVector[camFacing]);
+				float t = DotProduct(&destPlatform[0]->dirVector[j],&currPlatform[0]->dirVector[camFacing]);
 				if(t > distance)
 				{
 					distance = t;
@@ -1444,23 +1398,24 @@ void GetNextLocalPlatform(unsigned long direction)
 */
 PLATFORM *GetPlatformFrogIsOn()
 {
+/*
 	PLATFORM *cur,*next;
 
 	if(platformList.numEntries == 0)
-		return;
+		return NULL;
 
 	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
 	{
 		next = cur->next;
 
-		// process only the platforms that are visible
+		// process only the platforms that are active
 		if(!cur->pltActor->draw)
 			continue;
 
 		if(cur->flags & PLATFORM_CARRYINGFROG)
 			return cur;
 	}
-
+*/
 	return NULL;
 }
 
@@ -1477,7 +1432,7 @@ PLATFORM *GetPlatformForTile(GAMETILE *tile)
 	PLATFORM *cur,*next;
 
 	if(platformList.numEntries == 0)
-		return;
+		return NULL;
 
 	// search through platform list until required platform is found
 	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
@@ -1822,6 +1777,16 @@ void NEW_AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *
 		pform->flags			|= PLATFORM_NEW_FOLLOWPATH;
 		pform->path->fromNode	= GET_PATHLASTNODE(path);
 		pform->path->toNode		= GET_PATHLASTNODE(path) - 1;
+	}
+	else if(platformFlags & PLATFORM_NEW_MOVEUP)
+	{
+		// this platform moves up
+		pform->path->fromNode = pform->path->toNode = 0;
+	}
+	else if(platformFlags & PLATFORM_NEW_MOVEDOWN)
+	{
+		// this platform moves down
+		pform->path->fromNode = pform->path->toNode = 0;
 	}
 
 	// set platform position to relevant point on path

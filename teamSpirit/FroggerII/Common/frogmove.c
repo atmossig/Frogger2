@@ -126,8 +126,8 @@ void SetFroggerStartPos(GAMETILE *startTile,ACTOR2 *act, long p)
 	currTile2		= startTile;
 
 	destTile[p]		= NULL;
-	currPlatform	= NULL;
-	destPlatform	= NULL;
+	currPlatform[0]	= NULL;
+	destPlatform[0]	= NULL;
 
 	act->action.lives		= 3;
 	act->action.isCroaking	= 0;
@@ -203,7 +203,7 @@ void UpdateFroggerPos(long pl)
 
 	if(player[pl].frogState & FROGSTATUS_ISFLOATING)
 	{
-		if ( ( destPlatform ) && ( destPlatform->inTile != currTile[pl] ) )
+		if ( ( destPlatform[pl] ) && ( destPlatform[pl]->inTile != currTile[pl] ) )
 		{
 			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
@@ -254,7 +254,7 @@ void UpdateFroggerPos(long pl)
 				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
 				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 
-				if ( currPlatform )
+				if ( currPlatform[pl] )
 					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 				else
 					player[pl].frogState |= FROGSTATUS_ISSTANDING;			
@@ -284,7 +284,7 @@ void UpdateFroggerPos(long pl)
 				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
 				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 
-				if ( currPlatform )
+				if ( currPlatform[pl] )
 					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 				else
 					player[pl].frogState |= FROGSTATUS_ISSTANDING;			
@@ -314,7 +314,7 @@ void UpdateFroggerPos(long pl)
 				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
 				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 
-				if ( currPlatform )
+				if ( currPlatform[pl] )
 					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 				else
 					player[pl].frogState |= FROGSTATUS_ISSTANDING;			
@@ -344,7 +344,7 @@ void UpdateFroggerPos(long pl)
 				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
 				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 
-				if ( currPlatform )
+				if ( currPlatform[pl] )
 					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 				else
 					player[pl].frogState |= FROGSTATUS_ISSTANDING;			
@@ -375,7 +375,7 @@ void UpdateFroggerPos(long pl)
 			
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGLONGHOPU;
 
-			if ( currPlatform )
+			if ( currPlatform[pl] )
 				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 			else
 				player[pl].frogState |= FROGSTATUS_ISSTANDING;			
@@ -400,7 +400,7 @@ void UpdateFroggerPos(long pl)
 			
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGLONGHOPD;
 
-			if ( currPlatform )
+			if ( currPlatform[pl] )
 				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 			else
 				player[pl].frogState |= FROGSTATUS_ISSTANDING;			
@@ -425,7 +425,7 @@ void UpdateFroggerPos(long pl)
 			
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGLONGHOPL;
 
-			if ( currPlatform )
+			if ( currPlatform[pl] )
 				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 			else
 				player[pl].frogState |= FROGSTATUS_ISSTANDING;			
@@ -450,7 +450,7 @@ void UpdateFroggerPos(long pl)
 			
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGLONGHOPR;
 
-			if ( currPlatform )
+			if ( currPlatform[pl] )
 				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 			else
 				player[pl].frogState |= FROGSTATUS_ISSTANDING;			
@@ -775,7 +775,7 @@ void GetNextTile(unsigned long direction,long pl)
 		player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
 		// check if a platform is in the destination tile
-		destPlatform = JumpingToTileWithPlatform(destTile[pl]);
+		destPlatform[pl] = JumpingToTileWithPlatform(destTile[pl]);
 	}
 
 	if(destTile[pl])
@@ -1169,14 +1169,14 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		RemoveFrogTongue();
 
 	// see if frog is currently on a moving platform (i.e. platform that follows a path)
-	if(currPlatform = GetPlatformFrogIsOn())
+	if(currPlatform[pl] = GetPlatformFrogIsOn())
 	{
-		currTile[pl] = currPlatform->inTile;
+		currTile[pl] = currPlatform[pl]->inTile;
 
-		if(currPlatform->flags & PLATFORM_HASPATH)
+		if(currPlatform[pl]->flags & PLATFORM_HASPATH)
 		{
 			// frog is on a platform that follows a path
-			if(currPlatform->flags & PLATFORM_SEGMENT)
+			if(currPlatform[pl]->flags & PLATFORM_SEGMENT)
 			{
 				// frog is on a platform that follows a path and has local platform segments
 
@@ -1185,7 +1185,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				{
 					case MOVE_UP:
 						GetNextLocalPlatform(0);
-						if(destPlatform != NULL)
+						if(destPlatform[pl] != NULL)
 						{
 							if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPU)
 							{
@@ -1196,7 +1196,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 					case MOVE_LEFT:
 						GetNextLocalPlatform(1);
-						if(destPlatform != NULL)
+						if(destPlatform[pl] != NULL)
 						{
 							if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPL)
 							{
@@ -1207,7 +1207,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 					case MOVE_DOWN:
 						GetNextLocalPlatform(2);
-						if(destPlatform != NULL)
+						if(destPlatform[pl] != NULL)
 						{
 							if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPD)
 							{
@@ -1218,7 +1218,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 					case MOVE_RIGHT:
 						GetNextLocalPlatform(3);
-						if(destPlatform != NULL)
+						if(destPlatform[pl] != NULL)
 						{
 							if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPR)
 							{
@@ -1228,10 +1228,10 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 						break;
 				}
 
-				if(destPlatform)
+				if(destPlatform[pl])
 				{
 					// frog is jumping to local platform
-					destTile[pl] = destPlatform->inTile;
+					destTile[pl] = destPlatform[pl]->inTile;
 					moveLocal = 1;
 				}
 			}
@@ -1307,19 +1307,19 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	// check if jumping to a valid tile
 	if(destTile[pl])
 	{
-		if(currPlatform)
-			currPlatform->flags &= ~PLATFORM_CARRYINGFROG;
+		if(currPlatform[pl])
+			currPlatform[pl]->flags &= ~PLATFORM_CARRYINGFROG;
 
-		if(destPlatform)
+		if(destPlatform[pl])
 		{
 			// check if platform is too high to reach
-			if(PlatformTooHigh(destPlatform))
+			if(PlatformTooHigh(destPlatform[pl]))
 			{
 				// platform too high
 				dprintf"Platform TOO HIGH\n"));
 
 				destTile[pl] = NULL;
-				destPlatform = NULL;
+				destPlatform[pl] = NULL;
 				isJump[pl] = 0;
 				superHop = 0;
 
@@ -1329,7 +1329,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 				return FALSE;
 			}
-			else if(PlatformTooLow(destPlatform))
+			else if(PlatformTooLow(destPlatform[pl]))
 			{
 				// platform too far below
 				dprintf"Platform TOO LOW\n"));
@@ -1352,7 +1352,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 		// check if gametile is too high to reach
 		
-		if ( !destPlatform )
+		if ( !destPlatform[pl] )
 		{
 			if( GameTileTooHigh ( destTile[pl],pl ) )
 			{			
@@ -1360,7 +1360,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 					dprintf"GameTile TOO HIGH\n"));
 
 					destTile[pl] = NULL;
-					destPlatform = NULL;
+					destPlatform[pl] = NULL;
 					isJump[pl] = 0;
 					superHop = 0;
 
@@ -1462,7 +1462,7 @@ void SlurpFroggerPosition(int whereTo,long pl)
 	{
 		player[pl].frogState &= ~FROGSTATUS_ISSTANDING;
 
-		SubVector(&fwd,&destPlatform->pltActor->actor->pos,&frog[pl]->actor->pos);
+		SubVector(&fwd,&destPlatform[pl]->pltActor->actor->pos,&frog[pl]->actor->pos);
 		MakeUnit(&fwd);
 		frog[pl]->actor->pos.v[X] += (fwd.v[X] * speedTest);
 		frog[pl]->actor->pos.v[Y] += (fwd.v[Y] * speedTest);
@@ -1528,7 +1528,7 @@ void SlurpFroggerPosition(int whereTo,long pl)
 				frog[pl]->actor->animation->animTime = 9;
 
 		if(whereTo == JUMPING_TOPLATFORM)
-			frog[pl]->actor->pos.v[Y] = destPlatform->pltActor->actor->pos.v[Y] + jumpAmt[pl];
+			frog[pl]->actor->pos.v[Y] = destPlatform[pl]->pltActor->actor->pos.v[Y] + jumpAmt[pl];
 		else
 		{
 			frog[pl]->actor->pos.v[Y] = destTile[pl]->centre.v[Y] + jumpAmt[pl];
@@ -1550,7 +1550,7 @@ void SlurpFroggerPosition(int whereTo,long pl)
 				frog[pl]->actor->animation->animTime = 10;
 
 		if(whereTo == JUMPING_TOPLATFORM)
-			frog[pl]->actor->pos.v[Y] = destPlatform->pltActor->actor->pos.v[Y] + longAmt;
+			frog[pl]->actor->pos.v[Y] = destPlatform[pl]->pltActor->actor->pos.v[Y] + longAmt;
 		else
 		{
 			frog[pl]->actor->pos.v[Y] = destTile[pl]->centre.v[Y] + longAmt;
@@ -1593,7 +1593,7 @@ void SlurpFroggerPosition2(int whereTo)
 	{
 		player[0].frogState &= ~FROGSTATUS_ISSTANDING;
 
-		SubVector(&fwd,&destPlatform->pltActor->actor->pos,&frog[0]->actor->pos);
+		SubVector(&fwd,&destPlatform[0]->pltActor->actor->pos,&frog[0]->actor->pos);
 		MakeUnit(&fwd);
 		frog[0]->actor->pos.v[X] += (fwd.v[X] * 16.0F);
 		frog[0]->actor->pos.v[Y] += (fwd.v[Y] * 16.0F);
@@ -1627,12 +1627,12 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 	if(whereTo == JUMPING_TOPLATFORM)
 	{
-		distance = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&destPlatform->pltActor->actor->pos);
+		distance = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&destPlatform[pl]->pltActor->actor->pos);
 
 		if(distance < (landRadius * landRadius))
 		{
 			// Okay - Frogger has landed - snap him to the centre of the platform
-			SetVector(&frog[pl]->actor->pos,&destPlatform->pltActor->actor->pos);
+			SetVector(&frog[pl]->actor->pos,&destPlatform[pl]->pltActor->actor->pos);
 			isJump[pl] = 0;
 			superHop = 0;
 			if(player[pl].frogState & FROGSTATUS_ISDEAD)
@@ -1647,15 +1647,15 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				frog[pl]->action.deathBy = -1;
 			}
 
-			destPlatform->flags |= PLATFORM_CARRYINGFROG;
-			player[pl].frogState			|= FROGSTATUS_ISONMOVINGPLATFORM;
-			player[pl].frogState			|= FROGSTATUS_ISSTANDING;
+			destPlatform[pl]->flags |= PLATFORM_CARRYINGFROG;
+			player[pl].frogState	|= FROGSTATUS_ISONMOVINGPLATFORM;
+			player[pl].frogState	|= FROGSTATUS_ISSTANDING;
 			
 			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
 			player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
 			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 			player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
-			currPlatform = destPlatform;
+			currPlatform[pl] = destPlatform[pl];
 		}
 	}
 	else
@@ -2015,7 +2015,7 @@ void GetNextTileLongHop ( unsigned long direction )
 		player[0].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
 		// check if a platform is in the destination tile
-		destPlatform = JumpingToTileWithPlatform(destTile[0]);
+		destPlatform[0] = JumpingToTileWithPlatform(destTile[0]);
 	}
 
 	if(destTile[0])
@@ -2138,7 +2138,7 @@ void GetNextTileLongHop ( unsigned long direction )
 			player[0].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
 			// check if a platform is in the destination tile
-			destPlatform = JumpingToTileWithPlatform(longHopDestTile);
+			destPlatform[0] = JumpingToTileWithPlatform(longHopDestTile);
 		}
 
 		if(longHopDestTile)

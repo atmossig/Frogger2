@@ -82,10 +82,10 @@ typedef struct TAGPLATFORMLIST
 extern PLATFORMLIST platformList;
 
 
-extern PLATFORM *destPlatform;			// platform that frog is about to attempt to jump to
-extern PLATFORM *currPlatform;			// platform that frog is currently on
+extern PLATFORM *destPlatform[4];		// platform that frog is about to attempt to jump to
+extern PLATFORM *currPlatform[4];		// platform that frog is currently on
 
-extern GAMETILE	*oldTile;
+extern GAMETILE	*oldTile[4];
 
 extern void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID);
 extern PLATFORM *CreateAndAddPlatform(char *pActorName,unsigned long *pathIndex,unsigned long *highIndex,float offset,float offset2,int startNode,float *moveSpeed,float riseSpeed,unsigned long pFlags);
@@ -110,10 +110,13 @@ extern BOOL PlatformTooLow(PLATFORM *plat);
 //------------------------------------------------------------------------------------------------
 
 #define PLATFORM_NEW_NONE				0
-#define PLATFORM_NEW_FOLLOWPATH			(1 << 0)
-#define PLATFORM_NEW_FORWARDS			(1 << 1)
-#define PLATFORM_NEW_BACKWARDS			(1 << 2)
-#define PLATFORM_NEW_PINGPONG			(1 << 3)
+#define PLATFORM_NEW_FOLLOWPATH			(1 << 0)	// platform follows a path (>1 node)
+#define PLATFORM_NEW_FORWARDS			(1 << 1)	// platform moves forwards thru path nodes
+#define PLATFORM_NEW_BACKWARDS			(1 << 2)	// platform moves backwards thru path nodes
+#define PLATFORM_NEW_PINGPONG			(1 << 3)	// platform moves back and forth thru nodes
+#define PLATFORM_NEW_MOVEUP				(1 << 4)	// platform moves up (1 node paths only)
+#define PLATFORM_NEW_MOVEDOWN			(1 << 5)	// platform moves down (1 node paths only)
+#define PLATFORM_NEW_STEPONACTIVATED	(1 << 6)	// platform is activated when frog is on it
 
 
 PLATFORM *NEW_CreateAndAddPlatform(char *pActorName);
