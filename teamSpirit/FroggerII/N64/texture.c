@@ -94,70 +94,235 @@ void LoadTextureBank(int num)
 			sprintf(message,"GEN_TB");
 			break;
 
-		case GARDEN_TEX_BANK:
-			bankRomStart	= (u32)&_texBank3SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank3SegmentRomEnd;
-			sprintf(message,"GARD_TB");
+		case GENERIC_GARDEN_TEX_BANK:
+				bankRomStart	= (u32)&_texBank3SegmentRomStart;
+				bankRomEnd		= (u32)&_texBank3SegmentRomEnd;
+				sprintf ( message, "GEN_GAR_TB" );
+			break;
+		case LEVEL1_GARDEN_TEX_BANK:
+				sprintf ( message, "LEV1_GAR_TB" );
+			break;
+		case LEVEL2_GARDEN_TEX_BANK:
+				sprintf ( message, "LEV2_GAR_TB" );
+			break;
+		case LEVEL3_GARDEN_TEX_BANK:
+				sprintf ( message, "LEV3_GAR_TB" );
+			break;
+		case BOSSA_GARDEN_TEX_BANK:
+				bankRomStart	= (u32)&_texBank7SegmentRomStart;
+				bankRomEnd		= (u32)&_texBank7SegmentRomEnd;
+				sprintf ( message, "BOA_GAR_TB" );
+			break;
+		case BOSSB_GARDEN_TEX_BANK:
+				sprintf ( message, "BOB_GAR_TB" );
+			break;
+		case BONUS_GARDEN_TEX_BANK:
+				sprintf ( message, "BON_GAR_TB" );
+			break;
+		case MULTI_GARDEN_TEX_BANK:
+				sprintf ( message, "MUL_GAR_TB" );
 			break;
 
-		case ANCIENT_TEX_BANK:
-			bankRomStart	= (u32)&_texBank4SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank4SegmentRomEnd;
-			sprintf(message,"ANC_TB");
+
+
+		case GENERIC_ANCIENT_TEX_BANK:
+				sprintf ( message, "GEN_ANC_TB" );
+			break;
+		case LEVEL1_ANCIENT_TEX_BANK:
+				sprintf ( message, "LEV1_ANC_TB" );
+			break;
+		case LEVEL2_ANCIENT_TEX_BANK:
+				sprintf ( message, "LEV2_ANC_TB" );
+			break;
+		case LEVEL3_ANCIENT_TEX_BANK:
+				sprintf ( message, "LEV3_ANC_TB" );
+			break;
+		case BOSSA_ANCIENT_TEX_BANK:
+				sprintf ( message, "BOSA_ANC_TB" );
+			break;
+		case BOSSB_ANCIENT_TEX_BANK:
+				sprintf ( message, "BOSB_ANC_TB" );
+			break;
+		case BOSSC_ANCIENT_TEX_BANK:
+				sprintf ( message, "BOSC_ANC_TB" );
+			break;
+		case BOSSD_ANCIENT_TEX_BANK:
+				sprintf ( message, "BOSD_ANC_TB" );
+			break;
+		case BOSSE_ANCIENT_TEX_BANK:
+				sprintf ( message, "BOSE_ANC_TB" );
+			break;
+		case BONUS_ANCIENT_TEX_BANK:
+				sprintf ( message, "BON_ANC_TB" );
+			break;
+		case MULTI_ANCIENT_TEX_BANK:
+				sprintf ( message, "MUL_ANC_TB" );
 			break;
 
-/*		case SUPERRETRO_TEX_BANK:
-			bankRomStart	= (u32)&_texBank3SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank3SegmentRomEnd;
-			sprintf(message,"SUPER_TB");
+
+		case GENERIC_SPACE_TEX_BANK:
+				sprintf ( message, "GEN_SPA_TB" );
+			break;
+		case LEVEL1_SPACE_TEX_BANK:
+				sprintf ( message, "LEV1_SPA_TB" );
+			break;
+		case LEVEL2_SPACE_TEX_BANK:
+				sprintf ( message, "LEV2_SPA_TB" );
+			break;
+		case LEVEL3_SPACE_TEX_BANK:
+				sprintf ( message, "LEV3_SPA_TB" );
+			break;
+		case BOSSA_SPACE_TEX_BANK:
+				sprintf ( message, "BOSA_SPA_TB" );
+			break;
+		case BONUS_SPACE_TEX_BANK:
+				sprintf ( message, "BON_SPA_TB" );
+			break;
+		case MULTI_SPACE_TEX_BANK:
+				sprintf ( message, "MUL_SPA_TB" );
 			break;
 
-		case HALLOWEEN_TEX_BANK:
-			bankRomStart	= (u32)&_texBank4SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank4SegmentRomEnd;
-			sprintf(message,"HOLLW_TB");
+
+		case GENERIC_CITY_TEX_BANK:
+				sprintf ( message, "GEN_CIT_TB" );
+			break;
+		case LEVEL1_CITY_TEX_BANK:
+				sprintf ( message, "LEV1_CIT_TB" );
+			break;
+		case LEVEL2_CITY_TEX_BANK:
+				sprintf ( message, "LEV2_CIT_TB" );
+			break;
+		case LEVEL3_CITY_TEX_BANK:
+				sprintf ( message, "LEV3_CIT_TB" );
+			break;
+		case BOSSA_CITY_TEX_BANK:
+				sprintf ( message, "BOSA_CIT_TB" );
+			break;
+		case BONUS_CITY_TEX_BANK:
+				sprintf ( message, "BON_CIT_TB" );
+			break;
+		case MULTI_CITY_TEX_BANK:
+				sprintf ( message, "MUL_CIT_TB" );
 			break;
 
-		case SPACE_TEX_BANK:
-			bankRomStart	= (u32)&_texBank5SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank5SegmentRomEnd;
-			sprintf(message,"SPACE_TB");
+
+		case GENERIC_SUBTERRANEAN_TEX_BANK:
+				sprintf ( message, "GEN_SUB_TB" );
+			break;
+		case LEVEL1_SUBTERRANEAN_TEX_BANK:
+				sprintf ( message, "LEV1_SUB_TB" );
+			break;
+		case LEVEL2_SUBTERRANEAN_TEX_BANK:
+				sprintf ( message, "LEV2_SUB_TB" );
+			break;
+		case LEVEL3_SUBTERRANEAN_TEX_BANK:
+				sprintf ( message, "LEV3_SUB_TB" );
+			break;
+		case BOSSA_SUBTERRANEAN_TEX_BANK:
+				sprintf ( message, "BOSA_SUB_TB" );
+			break;
+		case BONUS_SUBTERRANEAN_TEX_BANK:
+				sprintf ( message, "BON_SUB_TB" );
+			break;
+		case MULTI_SUBTERRANEAN_TEX_BANK:
+				sprintf ( message, "MUL_SUB_TB" );
 			break;
 
-		case CITY_TEX_BANK:
-			bankRomStart	= (u32)&_texBank6SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank6SegmentRomEnd;
-			sprintf(message,"CITY_TB");
+
+		case GENERIC_LABORATORY_TEX_BANK:
+				sprintf ( message, "GEN_LAB_TB" );
+			break;
+		case LEVEL1_LABORATORY_TEX_BANK:
+				sprintf ( message, "LEV1_LAB_TB" );
+			break;
+		case LEVEL2_LABORATORY_TEX_BANK:
+				sprintf ( message, "LEV2_LAB_TB" );
+			break;
+		case LEVEL3_LABORATORY_TEX_BANK:
+				sprintf ( message, "LEV3_LAB_TB" );
+			break;
+		case BOSSA_LABORATORY_TEX_BANK:
+				sprintf ( message, "BOSA_LAB_TB" );
+			break;
+		case BONUS_LABORATORY_TEX_BANK:
+				sprintf ( message, "BON_LAB_TB" );
+			break;
+		case MULTI_LABORATORY_TEX_BANK:
+				sprintf ( message, "MUL_LAB_TB" );
 			break;
 
-		case ANCIENT_TEX_BANK:
-			bankRomStart	= (u32)&_texBank7SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank7SegmentRomEnd;
-			sprintf(message,"ANCIENT_TB");
+
+		case GENERIC_TOYSHOP_TEX_BANK:
+				sprintf ( message, "GEN_TOY_TB" );
+			break;
+		case LEVEL1_TOYSHOP_TEX_BANK:
+				sprintf ( message, "LEV1_TOY_TB" );
+			break;
+		case LEVEL2_TOYSHOP_TEX_BANK:
+				sprintf ( message, "LEV2_TOY_TB" );
+			break;
+		case LEVEL3_TOYSHOP_TEX_BANK:
+				sprintf ( message, "LEV3_TOY_TB" );
+			break;
+		case BOSSA_TOYSHOP_TEX_BANK:
+				sprintf ( message, "BOSA_TOY_TB" );
+			break;
+		case BONUS_TOYSHOP_TEX_BANK:
+				sprintf ( message, "BON_TOY_TB" );
+			break;
+		case MULTI_TOYSHOP_TEX_BANK:
+				sprintf ( message, "MUL_TOY_TB" );
 			break;
 
-		case TITLES_TEX_BANK:
-			bankRomStart	= (u32)&_texBank8SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank8SegmentRomEnd;
-			sprintf(message,"TITLE_TB");
+
+		case GENERIC_HALLOWEEN_TEX_BANK:
+				sprintf ( message, "GEN_HAL_TB" );
+			break;
+		case LEVEL1_HALLOWEEN_TEX_BANK:
+				sprintf ( message, "LEV1_HAL_TB" );
+			break;
+		case LEVEL2_HALLOWEEN_TEX_BANK:
+				sprintf ( message, "LEV2_HAL_TB" );
+			break;
+		case LEVEL3_HALLOWEEN_TEX_BANK:
+				sprintf ( message, "LEV3_HAL_TB" );
+			break;
+		case BOSSA_HALLOWEEN_TEX_BANK:
+				sprintf ( message, "BOSA_HAL_TB" );
+			break;
+		case BONUS_HALLOWEEN_TEX_BANK:
+				sprintf ( message, "BON_HAL_TB" );
+			break;
+		case MULTI_HALLOWEEN_TEX_BANK:
+				sprintf ( message, "MUL_HAL_TB" );
 			break;
 
-		case OLDEFROG_TEX_BANK:
-			bankRomStart	= (u32)&_texBank9SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank9SegmentRomEnd;
-			sprintf(message,"OLDE_TB");
+
+		case GENERIC_RETRO_TEX_BANK:
+				sprintf ( message, "GEN_RET_TB" );
+			break;
+		case LEVEL1_RETRO_TEX_BANK:
+				sprintf ( message, "LEV1_RET_TB" );
+			break;
+		case LEVEL2_RETRO_TEX_BANK:
+				sprintf ( message, "LEV2_RET_TB" );
+			break;
+		case LEVEL3_RETRO_TEX_BANK:
+				sprintf ( message, "LEV3_RET_TB" );
+			break;
+		case BOSSA_RETRO_TEX_BANK:
+				sprintf ( message, "BOSA_RET_TB" );
+			break;
+		case BONUS_RETRO_TEX_BANK:
+				sprintf ( message, "BON_RET_TB" );
+			break;
+		case MULTI_RETRO_TEX_BANK:
+				sprintf ( message, "MUL_RET_TB" );
 			break;
 
-		case FRONT_TEX_BANK:
-			bankRomStart	= (u32)&_texBank10SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank10SegmentRomEnd;
-			sprintf(message,"FRONT_TB");
-			break;
-		case SNDVIEW_TEX_BANK:
-			bankRomStart	= (u32)&_texBank11SegmentRomStart;
-			bankRomEnd		= (u32)&_texBank11SegmentRomEnd;
-			sprintf(message,"SNDVIEW_TB");
-			break;*/
+
+
+
 		default:
 			dprintf"Invalid texture bank!\n"));
 			for(;;);

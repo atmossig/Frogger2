@@ -15,6 +15,10 @@
 
 #include "incs.h"
 
+#define FONT32_DATACHUNK_OFFSET		40 + 0
+#define FONT16_DATACHUNK_OFFSET		40 + 21024
+#define FONT8_DATACHUNK_OFFSET		40 + 21024 + 9600
+
 
 // ----- [ FONT PRINTING DATA ] ----- //
 

@@ -344,6 +344,14 @@ void DrawActor(ACTOR *actor)
 	int col;
 	float animTime;
 
+	vtxPtr = &(objectsVtx[draw_buffer][0]);
+
+	if(fog.mode)
+	{
+	   gDPSetFogColor(glistp++, fog.r, fog.g, fog.b, 255);
+
+	   gSPFogPosition(glistp++, fog.min, fog.max);
+	}
 
 //	if(actor->visible == FALSE)
 //		return;
@@ -373,23 +381,8 @@ void DrawActor(ACTOR *actor)
 	else
 		animTime = 0;
 
-//	if(objectC->objectSize == 1)
-//	{
-//		SetupRenderModeForObject(objectC->object);
-//		gSPDisplayList(glistp++, objectC->object->drawList);
-//	}
-//	else
-//	{
-/*		if(objectC->drawList)	//if object is skinned, draw mesh now
- 		{
-			gSPSegment(glistp++, 1, objectC->Vtx[objectC->vtxBuf]);
-			DrawObject(objectC->object, objectC->drawList, TRUE);
-		}
-		else
-			DrawObject(objectC->object, objectC->object->drawList, FALSE);*/
-//	}
 	//quick draw
-	/*if(objectC->objectSize == 1)
+	if(objectC->objectSize == 1)
 	{
 		SetupRenderModeForObject(objectC->object);
 		gSPDisplayList(glistp++, objectC->object->drawList);
@@ -398,17 +391,17 @@ void DrawActor(ACTOR *actor)
 	{
 		if(objectC->drawList)	//if object is skinned, draw mesh now
  		{
-			gSPSegment(glistp++, 1, objectC->Vtx[objectC->vtxBuf]);
+			gSPSegment(glistp++, 1, objectC->vtx[objectC->vtxBuf]);
 			DrawObject(objectC->object, objectC->drawList, TRUE);
 		}
 		else
 			DrawObject(objectC->object, objectC->object->drawList, FALSE);
-	} */
-	if(objectC->drawList)	//if object is skinned, draw mesh now
- 		DrawObject(objectC->object, objectC->drawList, TRUE);
-	else
-		DrawObject(objectC->object, objectC->object->drawList, FALSE);
-  
+	} 
+	//if(objectC->drawList)	//if object is skinned, draw mesh now
+ 	//	DrawObject(objectC->object, objectC->drawList, TRUE);
+	//else
+//		DrawObject(objectC->object, objectC->object->drawList, FALSE);
+	gDPPipeSync(glistp++);
 }
 
 

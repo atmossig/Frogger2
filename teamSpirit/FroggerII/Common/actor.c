@@ -286,10 +286,25 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	if ( gstrcmp ( name, "a_rushes.obe" ) == 0 )
 		MakeUniqueActor(newItem->actor,0);
 	// ENDIF
+	if ( gstrcmp ( name, "conetreeleav.obe" ) == 0 )
+		MakeUniqueActor(newItem->actor,0);
+	// ENDIF
 	if ( gstrcmp ( name, "froglet.obe" ) == 0 )
 		MakeUniqueActor(newItem->actor,0);
 	// ENDIF
 	if ( gstrcmp ( name, "frogger.obe" ) == 0 )
+		MakeUniqueActor(newItem->actor,0);
+	// ENDIF
+	if ( gstrcmp ( name, "mole.obe" ) == 0 )
+		MakeUniqueActor(newItem->actor,0);
+	// ENDIF
+	if ( gstrcmp ( name, "roto.obe" ) == 0 )
+		MakeUniqueActor(newItem->actor,0);
+	// ENDIF
+	if ( gstrcmp ( name, "pltlilly.obe" ) == 0 )
+		MakeUniqueActor(newItem->actor,0);
+	// ENDIF
+	if ( gstrcmp ( name, "appltree.obe" ) == 0 )
 		MakeUniqueActor(newItem->actor,0);
 	// ENDIF
 		
@@ -538,7 +553,7 @@ int CalculateSizeOfDrawlist(Gfx *dl)
 
 void MakeUniqueVtx(OBJECT_CONTROLLER *objC)
 {
-	short i;
+/*	short i;
 	Vtx *vtxa;
 	Vtx *vtxb;
 	Vtx *oldVtxa, *oldVtxb;
@@ -559,7 +574,30 @@ void MakeUniqueVtx(OBJECT_CONTROLLER *objC)
 	objC->vtx[0] = vtxa;
 	objC->vtx[1] = vtxb;
 	offset = (int)oldVtxa - (int)vtxa;// - objC->Vtx[0];
-	AddOffsetToVertexLoads(-offset, objC->drawList);  
+	AddOffsetToVertexLoads(-offset, objC->drawList); */
+	
+	short i;
+	Vtx *vtxa;
+	Vtx *vtxb;
+	Vtx *oldVtxa, *oldVtxb;
+	int offset;
+
+
+	oldVtxa = objC->vtx[0];
+	oldVtxb = objC->vtx[1];
+
+	vtxa = (Vtx *)JallocAlloc(sizeof(Vtx) * objC->numVtx * 2, NO, "unqVtx");
+	vtxb = vtxa + objC->numVtx;
+
+	memcpy(vtxa, oldVtxa, sizeof(Vtx) * objC->numVtx);
+	memcpy(vtxb, oldVtxb, sizeof(Vtx) * objC->numVtx);
+
+
+	//controller now references new vtx's, must also make sure that drawlist is updated
+	objC->vtx[0] = vtxa;
+	objC->vtx[1] = vtxb;
+
+
 	
 }
 
@@ -595,9 +633,42 @@ void MakeUniqueDrawlist(OBJECT_CONTROLLER *objC)
 OBJECT *MakeUniqueObject(OBJECT *object)
 {
 
-
-
 	OBJECT	*obj;	
+	OBJECTSPRITE **spr, *tempSpr;
+	int		i;
+		
+	obj = object;
+	object = (OBJECT *)JallocAlloc(sizeof(OBJECT), YES, "UniqObj");
+	memcpy(object, obj, sizeof(OBJECT));
+
+	if(obj->numSprites)
+	{
+		spr = &object->sprites;
+		tempSpr = (OBJECTSPRITE *)JallocAlloc(sizeof(OBJECTSPRITE) * obj->numSprites, YES, "UniqSpr");
+		memcpy(tempSpr, *spr, sizeof(OBJECTSPRITE) * obj->numSprites);
+		*spr = tempSpr;
+/*		for(i = 0; i < obj->numSprites; i++)
+		{
+			spr = &object->sprites;
+			spr += i;
+			tempSpr = (OBJECTSPRITE *)JallocAlloc(sizeof(OBJECTSPRITE), YES, "UniqSpr");
+			memcpy(tempSpr, *spr, sizeof(OBJECTSPRITE));
+			*spr = tempSpr;
+		}
+ */
+	}
+
+
+	if(object->children)
+		object->children = MakeUniqueObject(object->children);
+
+	if(object->next)
+		object->next = MakeUniqueObject(object->next);
+		
+	return object;
+
+
+/*	OBJECT	*obj;	
 	OBJECTSPRITE **spr, *tempSpr;
 	int		i;
 		
@@ -623,13 +694,13 @@ OBJECT *MakeUniqueObject(OBJECT *object)
 /*	}*/
 
 
-	if(object->children)
+/*	if(object->children)
 		object->children = MakeUniqueObject(object->children);
 
 	if(object->next)
 		object->next = MakeUniqueObject(object->next);
 		
-	return object; 
+	return object;*/ 
 }
 
 
@@ -644,7 +715,7 @@ OBJECT *MakeUniqueObject(OBJECT *object)
 void MakeUniqueActor(ACTOR *actor,int type)
 {
 
-	OBJECT_CONTROLLER	*objCont;
+/*	OBJECT_CONTROLLER	*objCont;
 
 	objCont = actor->objectController;
 	actor->objectController = (OBJECT_CONTROLLER *)JallocAlloc(sizeof(OBJECT_CONTROLLER), YES, "UniqObjC");
@@ -658,7 +729,53 @@ void MakeUniqueActor(ACTOR *actor,int type)
 		MakeUniqueVtx(actor->objectController);
 		XformActor(actor);
 		SwapVtxReferencesInDrawlist(actor->objectController);
+	}		  */
+
+	OBJECT_CONTROLLER	*objCont;
+	short	unique = TRUE;
+	short	i;
+	int		CRC = UpdateCRC(actor->objectController->object->name);
+
+	//check all crc's to see if actor is among them
+	for(i = 0; i < numUniqueActors; i++)
+	{
+		if(uniqueActorCRC[i] == CRC)
+		{
+			//if it is, actor is not unique and must have seperate stuff
+			dprintf"found duplicate actor %s\n", actor->objectController->object->name));
+			unique = FALSE;
+			break;
+		}
 	}
+	//if actor is not in list
+	if(unique == TRUE)
+	{
+		uniqueActorCRC[numUniqueActors++] = CRC;
+	}	
+
+	objCont = actor->objectController;
+	actor->objectController = (OBJECT_CONTROLLER *)JallocAlloc(sizeof(OBJECT_CONTROLLER), YES, "UniqObjC");
+	memcpy(actor->objectController, objCont, sizeof(OBJECT_CONTROLLER));
+	actor->objectController->object = MakeUniqueObject(actor->objectController->object);
+
+	if(unique == FALSE)
+	{
+		//if actor is skinned, duplicate Vtx's
+		if(actor->objectController->drawList)
+		{
+			MakeUniqueVtx(actor->objectController);
+			XformActor(actor);
+		}
+	}
+
+/*	objCont = actor->LODObjectController;
+	if(objCont)
+	{
+		actor->LODObjectController = (OBJECT_CONTROLLER *)JallocAlloc(sizeof(OBJECT_CONTROLLER), YES, "UniqObjC");
+		memcpy(actor->LODObjectController, objCont, sizeof(OBJECT_CONTROLLER));
+		actor->LODObjectController->object = MakeUniqueObject(actor->LODObjectController->object);
+	} */
+
 }
 
 

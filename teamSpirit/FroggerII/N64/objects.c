@@ -60,13 +60,13 @@ void RestoreDrawList(Gfx *dl, u32 offset)
 		{
 			//loadvertices
 			case 0x04:
-				//if(offsetVtx)
-				//{
+				if(offsetVtx)
+				{
 					addrP = (u32 *)(temp + 4);
 					address = *addrP;
 					address = Rom2Ram(address, offset);
 					*addrP = address;
-				//}
+				}
 				// ENDIF
 				temp += 8;
 				break;
@@ -96,7 +96,8 @@ void RestoreDrawList(Gfx *dl, u32 offset)
 							}
 							else
 								temp += 16;
-									
+										 
+			
 							break;
 
 
@@ -236,8 +237,8 @@ void DoubleBufferSkinVtx ( void )
 	{
 		if ( cur->actor->objectController )
 			if ( cur->actor->objectController->drawList )
-				SwapVtxReferencesInDrawlist ( cur->actor->objectController );
-//				cur->actor->objectController->vtxBuf = 1 - cur->actor->objectController->vtxBuf;
+//				SwapVtxReferencesInDrawlist ( cur->actor->objectController );
+				cur->actor->objectController->vtxBuf = 1 - cur->actor->objectController->vtxBuf;
 			// ENDIF
 		// ENDIF
 		cur = cur->next;
@@ -465,96 +466,96 @@ void LoadObjectBank(int num)
 	switch(num)
 	{
 
-		case GARDENMASTER_OBJ_BANK:
+		case GENERIC_GARDEN_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank1SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank1SegmentRomEnd;
 			sprintf(message, "GAR_MAS");
 			break;
 
-		case GARDENLEV1_OBJ_BANK:
+		case LEVEL1_GARDEN_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank2SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank2SegmentRomEnd;
 			sprintf(message, "GAR_LEV1");
 			break;
 
-		case GARDENLEV2_OBJ_BANK:
+		case LEVEL2_GARDEN_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank3SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank3SegmentRomEnd;
 			sprintf(message, "GAR_LEV2");
 			break;
 
-		case GARDENLEV3_OBJ_BANK:
+		case LEVEL3_GARDEN_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank4SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank4SegmentRomEnd;
 			sprintf(message, "GAR_LEV3");
 			break;
 
-		case GARDENBOSSA_OBJ_BANK:
+		case BOSSA_GARDEN_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank5SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank5SegmentRomEnd;
 			sprintf(message, "GAR_BOSA");
 			break;
 
-		case GARDENBOSSB_OBJ_BANK:
+		case BOSSB_GARDEN_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank6SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank6SegmentRomEnd;
 			sprintf(message, "GAR_BOSB");
 			break;
 
-		case GARDENBONUS_OBJ_BANK:
+		case BONUS_GARDEN_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank7SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank7SegmentRomEnd;
 			sprintf(message, "GAR_BON");
 			break;
 
-		case GARDENMULTI_OBJ_BANK:
+		case MULTI_GARDEN_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank8SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank8SegmentRomEnd;
 			sprintf(message, "GAR_MUL");
 			break;
 
-		case ANCIENTMASTER_OBJ_BANK:
+		case GENERIC_ANCIENT_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank9SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank9SegmentRomEnd;
 			sprintf(message, "ANC_MAS");
 			break;
 
-		case ANCIENTLEV1_OBJ_BANK:
+		case LEVEL1_ANCIENT_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank10SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank10SegmentRomEnd;
 			sprintf(message, "ANC_LEV1");
 			break;
 
-		case ANCIENTLEV2_OBJ_BANK:
+		case LEVEL2_ANCIENT_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank11SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank11SegmentRomEnd;
 			sprintf(message, "ANC_LEV2");
 			break;
 
-		case ANCIENTLEV3_OBJ_BANK:
+		case LEVEL3_ANCIENT_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank12SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank12SegmentRomEnd;
 			sprintf(message, "ANC_LEV3");
 			break;
 
-		case ANCIENTBOSSA_OBJ_BANK:
+		case BOSSA_ANCIENT_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank13SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank13SegmentRomEnd;
 			sprintf(message, "ANC_BOSA");
 			break;
 
-		case ANCIENTBONUS_OBJ_BANK:
+		case BONUS_ANCIENT_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank14SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank14SegmentRomEnd;
 			sprintf(message, "ANC_BON");
 			break;
 
-		case ANCIENTMULTI_OBJ_BANK:
+		case MULTI_ANCIENT_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank15SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank15SegmentRomEnd;
 			sprintf(message, "ANC_MUL");
 			break;
-
+				   
 		default:
 			dprintf"ERROR: no object bank specified....\n"));
 			for(;;);
@@ -626,16 +627,16 @@ void LoadObjectBank(int num)
 		RestoreObjectPointers(objCont->object, (u32)objectBank);
 		if(objCont->drawList)
 		{
-			/*objCont->drawList = (Gfx *)Rom2Ram((u32)objCont->drawList, (u32)objectBank);
+			objCont->drawList = (Gfx *)Rom2Ram((u32)objCont->drawList, (u32)objectBank);
 			if(objCont->drawList)
 				offsetVtx = FALSE;
 			else
 				offsetVtx = TRUE;		
 			RestoreDrawList(objCont->drawList, (u32)objectBank);
 			offsetVtx = TRUE;
-  			*/
-			objCont->drawList = (Gfx *)Rom2Ram((u32)objCont->drawList, (u32)objectBank);
-			RestoreDrawList(objCont->drawList, (u32)objectBank);
+  			
+			//objCont->drawList = (Gfx *)Rom2Ram((u32)objCont->drawList, (u32)objectBank);
+			//RestoreDrawList(objCont->drawList, (u32)objectBank);
 		}
 		if(objCont->vtx[0])
 			objCont->vtx[0] = (Vtx *)Rom2Ram((u32)objCont->vtx[0], (u32)objectBank);

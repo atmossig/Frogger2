@@ -400,7 +400,11 @@ oBank15  incbin  "objects/ancientmulti.nob",objBank15.data,64
 
 
 
+;-------------------------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------------------------
 ;----- [ TEXTURES ] ------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------------------------
 
 
 ; [ SYSTEM ] >>>>>
@@ -429,7 +433,7 @@ _texBank2SegmentRomEnd          alias   _texBank2_orgend
 tBank2  incbin  "textures/generic.fla",texBank2.data,64
 
 
-; [ GARDEN ] >>>>>
+; [ GENERIC GARDEN ] >>>>>
 
 texBank3        group   obj()
 texBank3bss     group   obj(),bss
@@ -439,9 +443,9 @@ _texBank3SegmentRomEnd          alias   _texBank3_orgend
 
         section.16      texBank3.data,texBank3
 
-tBank3  incbin  "textures/garden.fla",texBank3.data,64
+tBank3  incbin  "textures/generic_garden.fla",texBank3.data,64
 
-; [ ANCIENT ] >>>>>
+; [ LEVEL 1 GARDEN ] >>>>>
 
 texBank4        group   obj()
 texBank4bss     group   obj(),bss
@@ -451,7 +455,96 @@ _texBank4SegmentRomEnd          alias   _texBank4_orgend
 
         section.16      texBank4.data,texBank4
 
-tBank4  incbin  "textures/ancients.fla",texBank4.data,64
+tBank4  incbin  "textures/level1_garden.fla",texBank4.data,64
+
+; [ LEVEL 2 GARDEN ] >>>>>
+
+texBank5        group   obj()
+texBank5bss     group   obj(),bss
+
+_texBank5SegmentRomStart        alias   _texBank5_org
+_texBank5SegmentRomEnd          alias   _texBank5_orgend
+
+        section.16      texBank5.data,texBank5
+
+tBank5  incbin  "textures/level2_garden.fla",texBank5.data,64
+
+; [ LEVEL 3 GARDEN ] >>>>>
+
+texBank6        group   obj()
+texBank6bss     group   obj(),bss
+
+_texBank6SegmentRomStart        alias   _texBank6_org
+_texBank6SegmentRomEnd          alias   _texBank6_orgend
+
+        section.16      texBank6.data,texBank6
+
+tBank6  incbin  "textures/level3_garden.fla",texBank6.data,64
+
+; [ BOSS A GARDEN ] >>>>>
+
+texBank7        group   obj()
+texBank7bss     group   obj(),bss
+
+_texBank7SegmentRomStart        alias   _texBank7_org
+_texBank7SegmentRomEnd          alias   _texBank7_orgend
+
+        section.16      texBank7.data,texBank7
+
+tBank7  incbin  "textures/bossa_garden.fla",texBank7.data,64
+
+; [ BOSS B GARDEN ] >>>>>
+
+texBank8        group   obj()
+texBank8bss     group   obj(),bss
+
+_texBank8SegmentRomStart        alias   _texBank8_org
+_texBank8SegmentRomEnd          alias   _texBank8_orgend
+
+        section.16      texBank8.data,texBank8
+
+tBank8  incbin  "textures/bossb_garden.fla",texBank8.data,64
+
+; [ BONUS GARDEN ] >>>>>
+
+texBank9        group   obj()
+texBank9bss     group   obj(),bss
+
+_texBank9SegmentRomStart        alias   _texBank9_org
+_texBank9SegmentRomEnd          alias   _texBank9_orgend
+
+        section.16      texBank9.data,texBank9
+
+tBank9  incbin  "textures/bonus_garden.fla",texBank9.data,64
+
+; [ MULTI GARDEN ] >>>>>
+
+texBank10        group   obj()
+texBank10bss     group   obj(),bss
+
+_texBank10SegmentRomStart        alias   _texBank10_org
+_texBank10SegmentRomEnd          alias   _texBank10_orgend
+
+        section.16      texBank10.data,texBank10
+
+tBank10  incbin  "textures/multi_garden.fla",texBank10.data,64
+
+
+
+
+
+
+; [ ANCIENT ] >>>>>
+
+;texBank4        group   obj()
+;texBank4bss     group   obj(),bss
+
+;_texBank4SegmentRomStart        alias   _texBank4_org
+;_texBank4SegmentRomEnd          alias   _texBank4_orgend
+
+;        section.16      texBank4.data,texBank4
+
+;tBank4  incbin  "textures/ancients.fla",texBank4.data,64
 
 
 ;----- [ MUSIC ] ------------------------------------------------------------------------------
