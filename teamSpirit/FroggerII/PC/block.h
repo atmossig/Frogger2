@@ -15,7 +15,7 @@
 #define COLLISION_BASE	"collision\\"
 #define SCENIC_BASE		"scenic\\"
 #define OBJECT_BASE		"object\\"
-#define TEXTURE_BASE	"texture\\"
+#define TEXTURE_BASE	"textures\\"
 
 #define sinf(x)			((float)sin(x))
 #define cosf(x)			((float)cos(x))

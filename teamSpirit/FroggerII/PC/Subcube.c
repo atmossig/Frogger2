@@ -48,7 +48,6 @@ char	staticObj;
 void DrawObject(OBJECT *obj);
 
 short texture[256*256];
-extern long screenNum;
 
 long InitTex(void)
 {
@@ -468,71 +467,6 @@ void XformActor(ACTOR *ptr)
 	QUATERNION tempQ;
 	UpdateAnimations(ptr);	
 	return;
-	vtxPtr = &(objectsVtx[draw_buffer][0]);	
-		
-	if(dispFrameCount == 1)
-	{
-		ptr->matrix = NULL;
-	}
-	else
-	{
-		calcMtx = FALSE;	//use precalculated matrix
-	}
-
-
-	staticObjectMtx = ptr->matrix;
-	if((staticObjectMtx) && (calcMtx == FALSE))
-		staticObj = TRUE;
-	else
-		staticObj = FALSE;
-
-	UpdateAnimations(ptr);
-
-	if(ptr->xluOverride == 0)
-		return;
-
-	matrixStackCount = 0;
-	//create matrix for actors position rotation and scale
-
-	// MATT!
-	staticObj = FALSE;
-
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-	/*	guTranslateF(transmat, ptr->pos.v[X], ptr->pos.v[Y], ptr->pos.v[Z]);
-
-		PushMatrix(&transmat[0][0]);
-
-		QuaternionToMatrix(&ptr->qRot,(MATRIX *)rotmat);
-		PushMatrix(&rotmat[0][0]);
-*/
-		actorScale.v[X] = ptr->scale.v[X];
-		actorScale.v[Y] = ptr->scale.v[Y];
-		actorScale.v[Z] = ptr->scale.v[Z];
-
-		parentScaleStackLevel = 0;
-		parentScaleStack[parentScaleStackLevel].v[X] = parentScaleStack[parentScaleStackLevel].v[Y] = parentScaleStack[parentScaleStackLevel].v[Z] = 1;
-
-		if((ptr->animation) && (ptr->animation->anims))
-			animTime = ptr->animation->animTime;
-		else
-			animTime = 0;
-	}
-
-	xluOverride = ptr->xluOverride;
-
-	currentDrawActor = ptr;
-	if(ptr->objectController->object)
-	{
-		TransformAndDrawObject(ptr->objectController->object, animTime, 0, 0);
-	}
-
-	/*
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-		PopMatrix();
-		PopMatrix();
-	}*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -920,88 +854,17 @@ void DrawObject(OBJECT *obj)
 	float	tempFloat;
 
 	changeRenderMode = 0;
-	if(!aiSurf)
-	{
-		if(obj->flags & OBJECT_FLAGS_TRANSPARENT)
-		{
-			if(transparentSurf == FALSE)
-			{
-				transparentSurf = TRUE;
-				changeRenderMode = TRUE;
-			}
-		}
-		else
-		{
-			if(transparentSurf == TRUE)
-			{
-				transparentSurf = FALSE;
-				changeRenderMode = TRUE;
-			}
-		}
-		if(obj->flags & OBJECT_FLAGS_XLU)
-		{
-			if(xluSurf == FALSE)
-			{
-				xluSurf = TRUE;
-				changeRenderMode = 1;
-			}
-			if(obj->drawList == 0)
-				xluSurf = TRUE;
-			tempFloat = (float)xluOverride / 100;
-			tempFloat *= (float)obj->xlu;
-			if(tempFloat > 255)
-				tempFloat = 255;
-			if((int)tempFloat != xluFact)
-				changeRenderMode = 1;
-			xluFact = tempFloat;
-		}
-		else
-		{
-			if(xluSurf == TRUE)
-			{
-				xluSurf = FALSE;
-				changeRenderMode = 1;
-			}
-		}
-
-		if(changeRenderMode)
-			SetRenderMode();
-	}
-	else
-	{
-//		gDPSetPrimColor(glistp++,0,0,/*r*/255,/*g*/255,/*b*/255,obj->xlu);
-	}
-
 	
 	PushMatrix(&obj->myMatrix);
-		ComputeResultMatrix();	
-		
-//->		guMtxF2L(matrixStack.result, &dynamicp->modeling4[objectMatrix]);
-		//	SetMatrix (&dynamicp->modeling4[objectMatrix],(float *)matrixStack.result);
-	
-	//	SetMatrix (&dynamicp->modeling4[objectMatrix],(float *)&obj->myMatrix);
-	//	guMtxCatL(t, dynamicp->modeling4[objectMatrix], dynamicp->modeling4[objectMatrix]);
-	
+	ComputeResultMatrix();	
 	PopMatrix();
-
-//->	gSPMatrix(glistp++, 
-//		 OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-//		 G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-		
-		matrixStackCount++;
+	matrixStackCount++;
 	
-
-	if(obj->drawList)
-	{
-//		gSPDisplayList(glistp++, obj->drawList);
-	}
-	else if(obj->mesh->numFaces)
+	if(obj->mesh->numFaces)
 	{
 		PCDrawObject(obj,(float *)matrixStack.result);
 	}
 
-		
-//	gSPPopMatrix(glistp++, G_MTX_MODELVIEW);
 	matrixStackCount--;
 
 	if(obj->children)
@@ -1009,47 +872,9 @@ void DrawObject(OBJECT *obj)
 	
 	if(obj->next)
 		DrawObject(obj->next);
-	
 }
 
 
-/*
-void DrawActor(ACTOR *ptr)
-{
-	float rotmat[4][4], scalemat[4][4], transmat[4][4];
-	float	animTime = 0;
-
-	QUATERNION tempQ;
-
-	vtxPtr = &(objectsVtx[draw_buffer][0]);			
-	staticObj = FALSE;
-	if(ptr->xluOverride == 0)
-		return;
-	matrixStackCount = 0;	
-
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-		guTranslateF(transmat, ptr->pos.v[X], ptr->pos.v[Y], ptr->pos.v[Z]);
-
-		PushMatrix(&transmat[0][0]);
-
-		QuaternionToMatrix(&ptr->qRot,(MATRIX *)rotmat);
-		PushMatrix(&rotmat[0][0]);
-	}
-
-	xluOverride = ptr->xluOverride;
-	currentDrawActor = ptr;
-	if(ptr->objectController->object)
-		DrawObject(ptr->objectController->object);		
-
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-		PopMatrix();
-		PopMatrix();
-	}
-
-}
-*/
 void DrawActor(ACTOR *ptr)
 {
 	float rotmat[4][4], scalemat[4][4], transmat[4][4];
@@ -1492,9 +1317,6 @@ void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short anim
 					changeRenderMode = 1;
 				}
 			}
-
-			if(changeRenderMode)
-				SetRenderMode();
 		}
 		else
 		{
