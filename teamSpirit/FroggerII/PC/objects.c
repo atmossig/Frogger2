@@ -165,10 +165,10 @@ void LoadObjectBank(int num)
 			strcat (file,"gardenmaster");
 			break;
 		case GARDENBOSSA_OBJ_BANK:
-			strcat (file,"gardenboss");
+			strcat (file,"gardenbossa");
 			break;
 		case GARDENBOSSB_OBJ_BANK:
-			strcat (file,"gardentreetop");
+			strcat (file,"gardenbossb");
 			break;
 		case GARDENLEV1_OBJ_BANK:
 			strcat (file,"garden1");

@@ -78,10 +78,10 @@ void LoadCollision (int num)
 	switch(num)
 	{
 		case GARDENMASTERA_COL:
-			strcat(file,"gardenmaster");
+			strcat(file,"gardenbossa");
 			break;
 		case GARDENMASTERB_COL:
-			strcat(file,"gardentreetop");
+			strcat(file,"gardenbossb");
 			break;
 		case GARDENLEV1_COL:
 			strcat(file,"garden1");
@@ -325,10 +325,10 @@ void LoadScenics (int num)
 	switch(num)
 	{
 		case GARDENMASTERA_COL:
-			strcat(file,"gardenmaster");
+			strcat(file,"gardenbossa");
 			break;
 		case GARDENMASTERB_COL:
-			strcat(file,"gardentreetop");
+			strcat(file,"gardenbossb");
 			break;
 		case GARDENLEV1_COL:
 			strcat(file,"garden1");
