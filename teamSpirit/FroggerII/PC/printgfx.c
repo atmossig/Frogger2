@@ -341,16 +341,19 @@ void ProcessShadows()
 	while(i--)
 	{
 		if ( babies[i] )
-		if(!babies[i]->action.isSaved)
 		{
-			if(babies[i]->actor->shadow && babies[i]->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+			if(!babies[i]->action.isSaved)
 			{
-				vec.v[X] = bTStart[i]->centre.v[X];
-				vec.v[Y] = bTStart[i]->centre.v[Y] + 1;
-				vec.v[Z] = bTStart[i]->centre.v[Z];
-				DrawShadow(&vec,NULL,babies[i]->actor->shadow->radius,0,babies[i]->actor->shadow->alpha,babies[i]->actor->shadow->vert,NULL,0,0);
+				if(babies[i]->actor->shadow && babies[i]->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+				{
+					vec.v[X] = bTStart[i]->centre.v[X];
+					vec.v[Y] = bTStart[i]->centre.v[Y] + 1;
+					vec.v[Z] = bTStart[i]->centre.v[Z];
+					DrawShadow(&vec,NULL,babies[i]->actor->shadow->radius,0,babies[i]->actor->shadow->alpha,babies[i]->actor->shadow->vert,NULL,0,0);
+				}
 			}
 		}
+		// ENDIF
 	}
 
 	// process enemy shadows
