@@ -954,14 +954,23 @@ void UpdateRotatePathNME( ENEMY *cur )
 */
 void UpdateHomingNME( ENEMY *cur )
 {
-	VECTOR moveVec;
+	VECTOR fwd, at;
 
 	// For now, screw tiles completely and just move. Make radius based if they need to collide
-	SubVector( &moveVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
-	MakeUnit( &moveVec );
+	SubVector( &fwd, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
+	MakeUnit( &fwd );
 
-	ScaleVector( &moveVec, cur->speed * gameSpeed );
-	AddVector( &cur->nmeActor->actor->pos, &moveVec, &cur->nmeActor->actor->pos );
+	AddVector( &at, &fwd, &cur->nmeActor->actor->pos );
+
+	if (!cur->doNotMove)
+		if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
+			ActorLookAt( cur->nmeActor->actor, &at, LOOKAT_ANYWHERE );
+			//Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+		else // Need to do this so normals still work
+			Orientate(&cur->nmeActor->actor->qRot,&inVec,&inVec,&upVec);
+
+	ScaleVector( &fwd, cur->speed * gameSpeed );
+	AddVector( &cur->nmeActor->actor->pos, &fwd, &cur->nmeActor->actor->pos );
 }
 
 
