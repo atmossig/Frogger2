@@ -549,8 +549,6 @@ long playMode = NORMAL_PMODE;
 long carryOnBabies = 1;
 long clearTiles = 0;
 
-SPRITEOVERLAY *atari,*konami,*flogo[10];
-
 
 //////////////////////////////////////////
 void Modify3DText(TEXT3D *t3d, char *str,unsigned char alpha);
@@ -864,12 +862,21 @@ void RunGameLoop (void)
 				konami->xPos-=2*gameSpeed;
 				for (i=0; i<10; i++)
 					flogo[i]->yPos+=3*gameSpeed;
+
+				islLogo[0]->xPos+=2*gameSpeed;
+				islLogo[1]->xPos+=2*gameSpeed;
+				islLogo[2]->xPos+=2*gameSpeed;
 			}
 			else
 			{
 				atari->draw = 0;
+				konami->draw = 0;
 				for (i=0; i<10; i++)
 					flogo[i]->draw = 0;
+
+				islLogo[0]->draw = 0;
+				islLogo[1]->draw = 0;
+				islLogo[2]->draw = 0;
 			}
 		}
 		else

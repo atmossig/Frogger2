@@ -25,6 +25,8 @@ TEXTOVERLAY *levelnameText;
 SPRITEOVERLAY *atari = NULL;
 SPRITEOVERLAY *konami = NULL;
 SPRITEOVERLAY *sprOver = NULL;
+SPRITEOVERLAY *islLogo[] = {NULL,NULL,NULL};
+SPRITEOVERLAY *flogo[10];
 
 #ifdef PC_VERSION
 unsigned long USE_MENUS = 0;
@@ -86,6 +88,10 @@ void RunTitleScreen()
 
 		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,192,0 );
 		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,192,0 );
+
+		islLogo[0] = CreateAndAddSpriteOverlay(220,195,"isl1.bmp",32,32,192,0 );
+		islLogo[1] = CreateAndAddSpriteOverlay(252,195,"isl2.bmp",32,32,192,0 );
+		islLogo[2] = CreateAndAddSpriteOverlay(284,195,"isl3.bmp",32,32,192,0 );
 
 		CreateOverlaysFromLogo(&Frogger2Logo,98,20);
 
