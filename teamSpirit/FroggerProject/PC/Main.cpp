@@ -854,7 +854,7 @@ long LoopFunc(void)
 
 	if (gameState.mode!=PAUSE_MODE)
 	{
-		lastActFrameCount = actFrameCount * (float)(turbo/4096);
+		lastActFrameCount = actFrameCount;
 		
 		actFrameCount = (timeInfo.frameCount-(pFrameModifier)) * (float)(turbo/4096);
 
