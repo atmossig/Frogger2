@@ -3585,7 +3585,8 @@ void my_setPolyFT4(POLY_FT4 *packet, TMD_P_FT4I *opcd)
 	else
 	{
 		// change strip if required
-		if(opcd->tpage != stripGT4textureID)
+		// *ASL* 13/08/2000 - Changed to stripFt4textureID
+		if(opcd->tpage != stripFT4textureID)
 		{
 			kmChangeStripTextureSurface(&StripHead_FT4,KM_IMAGE_PARAM1,DCKtextureList[opcd->tpage].surfacePtr);
 			stripFT4textureID = opcd->tpage;

@@ -13,6 +13,10 @@ typedef struct{
 }SHORTQUAT;
 
 
+// Swampy texture map
+#define SWAMPTROLLEY_TEXTURE_ID		0x130
+
+
 //#define min(a,b) (((a) < (b)) ? (a) : (b))
 //#define max(a,b) (((a) > (b)) ? (a) : (b))
 
@@ -703,8 +707,21 @@ void psiFixupPrims(PSIMODEL *psiModel)
 					((TMD_P_GT4I*)primitive)->tv1 = sprt->y;
 					((TMD_P_GT4I*)primitive)->tv2 = sprt->y;
 					((TMD_P_GT4I*)primitive)->tv3 = sprt->y;
-*/								
+*/
 					TG4count++;
+
+					// ** Martyn's fix for the Swampy Trolly texture in the garden training level.
+					{
+						TMD_P_GT4I	*prim;
+						prim = (TMD_P_GT4I *)primitive;
+						if (prim->tpage == SWAMPTROLLEY_TEXTURE_ID)
+						{
+							prim->tu0 = 0;	prim->tv0 = 0;
+							prim->tu1 = 0;	prim->tv1 = 31;
+							prim->tu2 = 31;	prim->tv2 = 0;
+							prim->tu3 = 31;	prim->tv3 = 31;
+						}
+					}
 					break;
 
 				default:	
