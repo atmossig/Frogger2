@@ -302,7 +302,7 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned)
 		OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
 		G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
 	}
-	
+
 	SetupRenderModeForObject(obj);
 
 	if(drawList)

@@ -33,6 +33,7 @@ extern ACTOR2 *watActor;
 
 void RunWaterDemo();
 void UpdateWater(ACTOR *wAct);
+void UpdateWater2(ACTOR *wAct);
 
 
 #endif

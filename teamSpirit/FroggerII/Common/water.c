@@ -176,5 +176,57 @@ void UpdateWater(ACTOR *wAct)
 	}
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateWater2
+	Purpose			: updates the specified water actor / object - new method
+	Parameters		: ACTOR *
+	Returns			: void
+	Info			: 
+*/
+float modi1 = 0.075;	//0.05;
+float modi2 = 1.29;
+float modi3 = 2.5;
+
+int modc1 = 128;
+int modc2 = 190;
+int modc3 = 8;
+
+void UpdateWater2(ACTOR *wAct)
+{
+	// update the water - assumes drawlisted and skinned object....
+	if(wAct)
+	{
+		float t,t2,xval,zval;
+		Vtx *in = NULL;
+		int i,colMod;
+
+		in = wAct->objectController->vtx[wAct->objectController->vtxBuf];
+		i = wAct->objectController->numVtx;
+
+		t = actFrameCount * modi1;
+		while(i--)
+		{
+			xval = in->v.ob[X] * modi2;
+			zval = in->v.ob[Z] * modi2;
+
+			t2 = sinf(t + xval * zval * 0.5) - cosf(t + xval * 0.3 * zval);
+			in->v.ob[Y] += t2 * modi3;
+
+			colMod = modc2 + (modc3 * (in->v.ob[Y] + 20));
+			if(colMod > 255)
+				colMod = 255;
+			else if(colMod < modc1)
+				colMod = modc1;
+
+			in->v.cn[0] = colMod;
+			in->v.cn[1] = colMod;
+			in->v.cn[2] = colMod;
+			in->v.cn[3] = colMod;
+
+			in++;
+		}
+	}
+}
+
 
 #endif
