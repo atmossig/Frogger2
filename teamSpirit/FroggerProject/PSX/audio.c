@@ -866,7 +866,7 @@ void PauseAudio( )
 {
 	// CD Pause: Possibly should check return value... Nah, can't be bothered.
 #if GOLDCD==1
-	SetCDVolume(0);
+	SpuSetCommonCDVolume(0, 0);
 //	CdControl( CdlPause, NULL, NULL );
 #endif
 
@@ -878,7 +878,7 @@ void UnPauseAudio( )
 {
 	// CD Resume
 #if GOLDCD==1
-	SetCDVolume((globalMusicVol * 65535)/MAX_SOUND_VOL);
+	SpuSetCommonCDVolume((0x7fff*globalMusicVol)/MAX_SOUND_VOL, (0x7fff*globalMusicVol)/MAX_SOUND_VOL);
 //	CdControl( CdlPlay, NULL, NULL );
 #endif
 	// Unmute sound
