@@ -286,7 +286,7 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 	{
 		if ( levelID == LEVELID_GARDENLAWN )
 		{
-			// wasps
+/*			// wasps
 			devNME1 = CreateAndAddEnemy("wasp.ndo");
 			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp1,PATH_MAKENODETILEPTRS);
 
@@ -361,7 +361,7 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 			devNME1 = CreateAndAddEnemy("moa.ndo");
 			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow2d,0);
 			devNME1 = CreateAndAddEnemy("moa.ndo");
-			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow2e,0);
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow2e,0);*/
 
 		} else if ( levelID == LEVELID_GARDENMAZE )
 		{
@@ -568,7 +568,7 @@ void UpdateEnemies()
 				else
 				{
 					PlaySample(110,NULL,192,128);
-					AnimateActor(frog[0]->actor,2,NO,NO,0.367);
+					AnimateActor(frog[0]->actor,2,NO,NO,0.367, 0, 0);
 					frog[0]->action.dead = 50;
 					frog[0]->action.lives = 3;
 			
@@ -612,7 +612,7 @@ void UpdateEnemies()
 			else
 			{
 				PlaySample(110,NULL,192,128);
-				AnimateActor(frog[0]->actor,2,NO,NO,0.367);
+				AnimateActor(frog[0]->actor,2,NO,NO,0.367, 0, 0);
 				frog[0]->action.dead = 50;
 				frog[0]->action.lives = 3;
 			
@@ -694,14 +694,14 @@ void ProcessNMEDog ( ACTOR2 *nme )
 			{
 				// frog is in snapping range - prepare for him to snap at frog
 				nme->actor->status	= NMESTATE_DOG_SNAPPING;
-				AnimateActor ( nme->actor, 1, NO, NO, 1.5F);
+				AnimateActor ( nme->actor, 1, NO, NO, 1.5F, 0, 0);
 			}
 			else
 			{
 				if(nme->actor->animation->reachedEndOfAnimation)
 				{
 					// Choose an idle animation at random
-					AnimateActor(nme->actor,0,NO,NO,1.0F);
+					AnimateActor(nme->actor,0,NO,NO,1.0F, 0, 0);
 				}
 			}
 							
@@ -718,7 +718,7 @@ void ProcessNMEDog ( ACTOR2 *nme )
 					if ( ( DistanceBetweenPointsSquared(&snapPos,&frog[0]->actor->pos) == 0.0F ) )
 					{
 						// kill frog
-						AnimateActor(frog[0]->actor,2,NO,NO,0.35F);
+						AnimateActor(frog[0]->actor,2,NO,NO,0.35F, 0, 0);
 						frog[0]->action.deathBy = DEATHBY_NORMAL;
 						player[0].frogState |= FROGSTATUS_ISDEAD;
 						frog[0]->action.dead = 50;
@@ -731,7 +731,7 @@ void ProcessNMEDog ( ACTOR2 *nme )
 					if(nme->actor->animation->reachedEndOfAnimation)
 					{
 						nme->actor->status	= NMESTATE_DOG_YAP;
-						AnimateActor(nme->actor,3,NO,NO,1.0F);
+						AnimateActor(nme->actor,3,NO,NO,1.0F, 0, 0);
 						PlaySample ( 75,NULL,192,128);
 					}
 				}
@@ -741,7 +741,7 @@ void ProcessNMEDog ( ACTOR2 *nme )
 			if(nme->actor->animation->reachedEndOfAnimation)
 			{
 				nme->actor->status	= NMESTATE_DOG_RETURN;
-				AnimateActor(nme->actor,2,NO,NO,1.0F);
+				AnimateActor(nme->actor,2,NO,NO,1.0F, 0, 0);
 			}
 						   
 			break;
@@ -759,14 +759,14 @@ void ProcessNMEDog ( ACTOR2 *nme )
 				if(nme->actor->animation->reachedEndOfAnimation)
 				{
 					nme->actor->status	= NMESTATE_DOG_RETURN;
-					AnimateActor(nme->actor,2,NO,NO,1.0F);
+					AnimateActor(nme->actor,2,NO,NO,1.0F, 0, 0);
 				}
 			break;
 		case NMESTATE_DOG_RETURN:
 				if(nme->actor->animation->reachedEndOfAnimation)
 				{
 					nme->actor->status	= NMESTATE_DOG_IDLE;
-					AnimateActor(nme->actor,0,NO,NO,1.0F);
+					AnimateActor(nme->actor,0,NO,NO,1.0F, 0, 0);
 				}	  
 			break;
 
@@ -826,7 +826,7 @@ case NMESTATE_SNAPPER_SNAPPING:
 				if(nme->actor->animation->reachedEndOfAnimation)
 				{
 					// Choose an idle animation at random
-					AnimateActor(nme->actor,Random(3)+1,NO,NO,0.75F);
+					AnimateActor(nme->actor,Random(3)+1,NO,NO,0.75F, 0, 0);
 				}
 			}
 
@@ -840,7 +840,7 @@ case NMESTATE_SNAPPER_SNAPPING:
 			{
 				nme->action.dead	= 5;
 				nme->actor->status	= NMESTATE_SNAPPER_SNAPPING;
-				AnimateActor(nme->actor,0,NO,NO,1.0F);
+				AnimateActor(nme->actor,0,NO,NO,1.0F, 0, 0);
 			}
 
 			break;
@@ -853,7 +853,7 @@ case NMESTATE_SNAPPER_SNAPPING:
 				if(DistanceBetweenPoints(&snapPos,&nme->actor->pos) < 3600.0F && (!frog[0]->action.dead))
 				{
 					// kill frog
-					AnimateActor(frog[0]->actor,2,NO,NO,0.35F);
+					AnimateActor(frog[0]->actor,2,NO,NO,0.35F, 0, 0);
 					frog[0]->action.deathBy = DEATHBY_NORMAL;
 					player[0].frogState |= FROGSTATUS_ISDEAD;
 					frog[0]->action.dead = 50;
@@ -863,7 +863,7 @@ case NMESTATE_SNAPPER_SNAPPING:
 			if(nme->actor->animation->reachedEndOfAnimation)
 			{
 				nme->actor->status	= NMESTATE_SNAPPER_IDLE;
-				AnimateActor(nme->actor,1,NO,NO,0.75F);
+				AnimateActor(nme->actor,1,NO,NO,0.75F, 0, 0);
 			}
 
 			break;
@@ -998,6 +998,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 
 	initFlags |= INIT_ANIMATION;
 
+	//stringChange ( eActorName );
 	// check the actor name to determine the enemy type
 	if(gstrcmp(eActorName,"roto.ndo") == 0)
 		enemyType = NMETYPE_MOWER;
@@ -1007,7 +1008,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 		enemyType = NMETYPE_MOWER;
 	else if(gstrcmp(eActorName,"roll.ndo") == 0)
 		enemyType = NMETYPE_ROLLER;
-	else if(gstrcmp(eActorName,"wasp.ndo") == 0)
+	else if(gstrcmp(eActorName,"wasp.obe") == 0)
 		enemyType = NMETYPE_WASP;
 	else if(gstrcmp(eActorName,"b.ndo") == 0)
 		enemyType = NMETYPE_WASP;
@@ -1052,11 +1053,11 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 		{
 			case NMETYPE_MOWER:
 			case NMETYPE_ROLLER:
-				AnimateActor(newItem->nmeActor->actor,0,YES,NO,1.5F);
+				AnimateActor(newItem->nmeActor->actor,0,YES,NO,1.5F, 0, 0);
 				newItem->nmeActor->actor->status = NMESTATE_MOWER_IDLE;
 				break;
 			case NMETYPE_WASP:
-				AnimateActor(newItem->nmeActor->actor,0,YES,NO,2.0F);
+				AnimateActor(newItem->nmeActor->actor,0,YES,NO,2.0F, 0, 0);
 				newItem->nmeActor->actor->status = NMESTATE_WASP_MOVING;
 				newItem->nmeActor->actor->scale.v[X] = 1.5F;
 				newItem->nmeActor->actor->scale.v[Y] = 1.5F;
