@@ -84,8 +84,8 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj 
 			
 #                slink /psx /c /strip /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
 #                slink /l $(LIBISL) /psx /c /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
-				 slink /l $(LIBISL) /psx /c /wo /v /strip /nostriplib @frogger.lnk,frogger.cpe
-#				 slink /l $(LIBISL) /psx /c /wo /v /nostriplib @frogger.lnk,frogger.cpe
+#				 slink /l $(LIBISL) /psx /c /wo /v /strip /nostriplib @frogger.lnk,frogger.cpe
+				 slink /l $(LIBISL) /psx /c /wo /v /nostriplib @frogger.lnk,frogger.cpe
 
 
 
