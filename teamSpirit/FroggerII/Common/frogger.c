@@ -126,7 +126,7 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 			{
 				sprHeart[i] = CreateAndAddSpriteOverlay((short)(20+(i*10)), 205, "heart001.bmp",
 					16,16,192,ANIMATION_FORWARDS | ANIMATION_CYCLE);
-				for (f = 2; f <= 10; f++)
+/*				for (f = 2; f <= 10; f++)
 				{
 					char fname[13];
 					sprintf(fname, "heart%03d.bmp", f);
@@ -134,7 +134,7 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 				}
 				SetSpriteOverlayAnimSpeed(sprHeart[i],1.0F);
 				sprHeart[i]->animTime = (i * 3);
-			}
+*/			}
 		}
 	}
 	else

@@ -29,8 +29,6 @@ SPRITEOVERLAY *babyIcons[NUM_BABIES];
 unsigned long numBabies = 0;
 unsigned long babiesSaved = 0;
 
-const char* baby_filenames[NUM_BABIES] = { "frog", "ylfrg", "blfrog", "prfrg", "rdfrg" };
-
 
 void InitBabyList( unsigned char createOverlays )
 {
@@ -90,18 +88,14 @@ void InitBabyList( unsigned char createOverlays )
 	{
 		for(i=0; i<numBabies; i++)
 		{
-			char fn[14];
+			char fn[] = "frog001.bmp\0";
 
-			sprintf(fn, "%s001.bmp", baby_filenames[i]);
-
-			
 			babyIcons[i] = CreateAndAddSpriteOverlay( (280-(i*15)),205,fn,10,10,91,ANIMATION_FORWARDS|ANIMATION_CYCLE);
 
 			// Add animation frames
-
 			for (j=2; j<=8; j++)
 			{
-				sprintf(fn, "%s%03d.bmp", baby_filenames[i], j);
+				sprintf(fn, "frog%03d.bmp", j);
 				AddFrameToSpriteOverlay(babyIcons[i], fn);
 			}
 		}
