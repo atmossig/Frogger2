@@ -1,6 +1,9 @@
 #ifndef __ISLPAD_H__
 #define __ISLPAD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define PAD_SELECT		(1<<0)
 #define PAD_L3			(1<<1)
@@ -50,4 +53,7 @@ void padInitialise(unsigned char multiTap);
 void padHandler();
 
 
+#ifdef __cplusplus
+}
+#endif
 #endif

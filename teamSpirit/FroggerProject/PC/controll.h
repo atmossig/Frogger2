@@ -12,6 +12,7 @@
 #ifndef CONTROLL_H_INCLUDED
 #define CONTROLL_H_INCLUDED
 
+#include <dinput.h>
 
 #ifdef __cplusplus
 extern "C"

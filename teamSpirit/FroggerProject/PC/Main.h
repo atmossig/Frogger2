@@ -1,11 +1,17 @@
 #ifndef _MAIN_H_INCLUDE
 #define _MAIN_H_INCLUDE
 
-#include <math.h>
+#pragma warning(disable: 4244)
+
 #include <windows.h>
 #include "fixed.h"
 #include "sonylibs.h"
 #include <malloc.h>
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 #define COLLISION_BASE	"collision\\"
 #define SCENIC_BASE		"scenics\\"
@@ -74,5 +80,10 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow);
 long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam);
 
 void DrawGraphics();
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

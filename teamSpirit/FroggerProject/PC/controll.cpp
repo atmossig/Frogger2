@@ -10,26 +10,16 @@
 ----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
-#include <windowsx.h>
-#include <wtypes.h>
-#include <crtdbg.h>
-#include <commctrl.h>
-#include <cguid.h>
-#include <dplay.h>
-#include <dplobby.h>
-#include "network.h"
-#include "netgame.h"
-
-extern "C"
-{
-#include <ultra64.h>
-#include "stdio.h"
-#include "incs.h"
-}	// extern "C" end
-
+#include <stdio.h>
 #include <fstream.h>
-
+#include <islutil.h>
 #include "..\resource.h"
+
+#include "Main.h"
+#include "frogger.h"
+#include "language.h"
+#include "controll.h"
+
 
 /*	------------------------------------------------------------------------
 	Global stuff
@@ -73,16 +63,16 @@ LPDIRECTINPUTDEVICE		lpKeyb		= NULL;
 LPDIRECTINPUTDEVICE2	lpJoystick[4] = { NULL, NULL, NULL, NULL };
 LPDIRECTINPUTDEVICE		lpMouse		= NULL;
 
-extern "C"
-{
 void StopKeying(void);
+
+// TODO: put these in a structure somewhere SENSIBLE
 char rKeyFile[MAX_PATH] = "";
 unsigned long rKeying = 0;
-unsigned long rKeyOK = 0;				// TODO: put these in a structure somewhere SENSIBLE
+unsigned long rKeyOK = 0;				
 unsigned long rPlaying = 0;
 unsigned long rPlayOK = 0;
 long rEndFrame;
-}
+// -------------------------------------------------
 
 int numJoypads = 0;
 
@@ -414,7 +404,7 @@ BOOL CALLBACK EnumJoypadProc(LPCDIDEVICEINSTANCE dev, LPVOID foundDev)
 {
 	LPCDIDEVICEINSTANCE found;
 
-	dprintf"Found device: %s\n", dev->tszInstanceName));
+	utilPrintf("Found device: %s\n", dev->tszInstanceName);
 
 	found = ((LPCDIDEVICEINSTANCE)foundDev) + numJoypads;
 
@@ -457,7 +447,7 @@ BOOL InitJoystickControl()
 		hRes = lpJoy1->QueryInterface( IID_IDirectInputDevice2,(LPVOID *)&lpJoy);
 		if (FAILED(hRes))
 		{
-			dprintf"Error retrieving DirectInputDevice2 interface\n"));
+			utilPrintf("Error retrieving DirectInputDevice2 interface\n");
 			return FALSE;
 		}
 
@@ -466,7 +456,7 @@ BOOL InitJoystickControl()
 		hRes = lpJoy->SetDataFormat(&c_dfDIJoystick);
 		if(FAILED(hRes))
 		{
-			dprintf"Error setting data format\n"));
+			utilPrintf("Error setting data format\n");
 			return FALSE;
 		}
 
@@ -554,16 +544,16 @@ TIMER idletimer;
 void ProcessUserInput(HWND hWnd)
 {
 	HRESULT hRes;
-	long i,j;
+	long i;
 	int pressed = 0;
 	
-	if (keyInput)
-	{
+	//if (keyInput)
+	//{
 		// read keyboard data
 		hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
 		if(FAILED(hRes))
 			return;
-	}
+	//}
 
 	//----- [ KEYBOARD CONTROL ] -----//
 
@@ -582,6 +572,7 @@ void ProcessUserInput(HWND hWnd)
 
 	if (!keysEnabled) return;
 
+/*
 #ifdef _DEBUG
 	if (KEYPRESS(DIK_NUMPAD7))
 	{
@@ -600,6 +591,7 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_Z))
 		ShowJalloc();
 #endif
+*/
 
 	if (rPlayOK)
 	{
@@ -634,12 +626,12 @@ void ProcessUserInput(HWND hWnd)
 				lpJoy->Acquire();
 
 				hRes = lpJoy->Poll();
-				if (hRes == DD_OK || hRes == DI_NOEFFECT)
+				if (hRes == DI_OK || hRes == DI_NOEFFECT)
 				{
 					hRes = lpJoy->GetDeviceState(sizeof(joy), &joy);
 					if (FAILED(hRes))
 					{
-						dprintf"GetDeviceState() failed\n"));
+						utilPrintf("GetDeviceState() failed\n");
 						return;
 					}
 
@@ -666,7 +658,7 @@ void ProcessUserInput(HWND hWnd)
 						controllerdata[i].button |= b;
 						pressed = 1;
 
-						if (rPlaying) StopKeying();
+						//if (rPlaying) StopKeying();
 					}
 
 					//lpJoystick->UnAcquire();
@@ -708,337 +700,335 @@ void ResetParameters()
 }
 
 
-BOOL SetupControllerDlg(HWND hdlg)
-{
-	int n = numJoypads + 1;
-	HWND combo;
-
-	controllerInfo = (CONTROLLERINFO*)malloc(sizeof(CONTROLLERINFO) * n);
-
-	strcpy(controllerInfo[0].name, "Keyboard");
-	controllerInfo[0].id = KEYBOARD;
-
-	for (int c = 0; c < numJoypads && lpJoystick[c]; c++)
-	{
-		DIDEVICEINSTANCE di;
-		di.dwSize = sizeof(DIDEVICEINSTANCE);
-
-		lpJoystick[c]->GetDeviceInfo(&di);
-
-		strcpy(controllerInfo[c+1].name, di.tszInstanceName);
-		controllerInfo[c+1].id = GAMEPAD + c;
-	}
-
-	for (int player = 0; player < 4; player++)
-	{
-		combo = GetDlgItem(hdlg, IDC_PLAYER1 + player);
-		for (int i = 0; i < n; i++)
-			SendMessage(combo, CB_ADDSTRING, 0, (LPARAM)controllerInfo[i].name);
-
-		SendMessage(combo, CB_SETCURSEL, 0, 0);
-	}
-
-	return TRUE;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function	: ControllerDlgProc
-	Purpose		: Dialog procedure for controller setup
-	Parameters	: 
-	Returns		: 
-	Info		: 
-*/
-
-BOOL CALLBACK ControllerDlgProc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	static int selectedPlayer = -1;
-
-	switch (msg)
-	{
-	case WM_INITDIALOG:
-		return SetupControllerDlg(hdlg);
-
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
-		{
-		case IDOK:
-			// Set appropriate controller data
-			{
-				for (int player = 0; player < 4; player++)
-				{
-					HWND combo = GetDlgItem(hdlg, IDC_PLAYER1 + player);
-					int sel = SendMessage(combo, CB_GETCURSEL, 0, 0);
-					controllers[player] = controllerInfo[sel].id;
-				}
-			}
-
-			// fall through...
-		case IDCANCEL:
-			EndDialog(hdlg, wParam);
-			free(controllerInfo);
-			return TRUE;
-
-		case ID_SETUP:
-			if (selectedPlayer >= 0)
-				SetupKeyboardDialog(selectedPlayer, hdlg);
-			return TRUE;
-		}
-
-		// When selection changes, make sure no other combo boxes have this controller
-		// selected (unless KEYBOARD is selected)
-		case CBN_SELENDOK:
-			{
-				HWND combo;
-				int cb, controller, id;
-				
-				selectedPlayer = cb = LOWORD(wParam) - IDC_PLAYER1;
-				controller = SendMessage((HWND)lParam, CB_GETCURSEL, 0, 0);
-				id = controllerInfo[controller].id;
-
-				if (id == KEYBOARD)
-				{
-					EnableWindow(GetDlgItem(hdlg, ID_SETUP), 1);
-					return TRUE;
-				}
-				else
-					EnableWindow(GetDlgItem(hdlg, ID_SETUP), 0);
-
-				for (int player=0; player<4; player++)
-				{
-					if (player == cb) continue;
-					combo = GetDlgItem(hdlg, IDC_PLAYER1 + player);
-					int s = SendMessage(combo, CB_GETCURSEL, 0, 0);
-
-					if (id == controllerInfo[s].id)
-						SendMessage(combo, CB_SETCURSEL, 0, 0);
-				}
-
-				return TRUE;
-			}
-
-	}
-
-	return FALSE;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function	: SetupControllers
-	Purpose		: Set up control devices
-	Parameters	: 
-	Returns		: TRUE unless something goes horribly wrong
-	Info		: 
-*/
-BOOL SetupControllers(HWND hwnd)
-{
-	return DialogBox(winInfo.hInstance, MAKEINTRESOURCE(IDD_CONTROLS), hwnd,
-		(DLGPROC)ControllerDlgProc);
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: SetupKeyboardDialog
-	Purpose			: Make a dialogue that maps command to keys
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-char listText1[] = "Command";
-char listText2[] = "Key";
-BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam);
-
-
-int SetupKeyboardDialog(int player, HWND hParent)
-{
-	return DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYMAPBOX), hParent,
-		(DLGPROC)DLGKeyMapDialogue, (LPARAM)player);
-}
-
-BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
-{
-	long i;
-	HRESULT hRes;
-	char itmTxt[64];
-	MSG pMsg;
-	HWND list;
-	static DWORD keyIndex = 0;
-	static long kMapSet = 0;
-
-    switch(msg)
-	{
-		case WM_INITDIALOG:
-		{
-			RECT meR;
-			int player = (int)lParam;
-			int tabstop = 80;
-
-			keyIndex = 14 * player;
-			
-			wsprintf(itmTxt, "Keyboard setup: Player %d", (player+1));
-			SetWindowText(hDlg, itmTxt);
-
-			GetWindowRect(hDlg, &meR);
-			SetWindowPos(hDlg,HWND_TOPMOST,(GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
-
-			list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
-
-			SendMessage(list, LB_SETTABSTOPS, 1, (LPARAM)&tabstop);
-
-			for( i=0; i<14; i++ )
-			{
-				strcpy( itmTxt, controlDesc[i] );
-				strcat( itmTxt, "\t" );
-				strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
-				SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
-			}
-
- 			return TRUE;
-		}
-
-        case WM_CLOSE:
-			keyIndex = 0;
-			kMapSet = 0;
-			EndDialog(hDlg,TRUE);
-            return TRUE;
-
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
-			{
-				case IDC_KEYMAPLIST:
-					switch(HIWORD(wParam))
-					{
-						case LBN_SELCHANGE:
-							// Get index of new selection
-							i = SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_GETCURSEL,(WPARAM)0,(LPARAM)0);
-							if(i == LB_ERR || i < 0 || i > 14 )
-								break;
-
-							if ((i = GetButtonDialog(lpKeyb, hDlg)) == -1)
-								break;
-
-							// Set DInput key in keymap
-							keymap[keyIndex+kMapSet].key = i;
-
-							// Reset and remake the key list
-							list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
-							SendMessage( list,LB_RESETCONTENT,(WPARAM)0,(LPARAM)0 );
-
-							for( i=0; i<14; i++ )
-							{
-								strcpy( itmTxt, controlDesc[i] );
-								strcat( itmTxt, "\t" );
-								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
-								SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
-							}
-
-							SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_SETCURSEL,(WPARAM)-1,(LPARAM)0);
-
-							kMapSet = 0;
-							break;
-					}
-					break;
-
-				case IDCANCEL:
-				{
-					ifstream in;
-					in.open( keyFileName, ios::nocreate, filebuf::sh_read );
-					if( in.is_open() )
-					{
-						for( i=0; i<56; i++ )
-							in >> keymap[i].key;
-
-						in.close();
-					}
-
-					keyIndex = 0;
-					kMapSet = 0;
-					EndDialog(hDlg,FALSE);
-					break;
-				}
-
-				case IDOK:
-				{
-					ofstream out;
-					out.open( keyFileName, ios::out, filebuf::sh_read );
-					if( out.is_open() )
-					{
-						for( i=0; i<56; i++ )
-							out << keymap[i].key << ' ';
-
-						out.close( );
-					}
-
-					keyIndex = 0;
-					kMapSet = 0;
-					EndDialog(hDlg,TRUE);
-					break;
-				}
-			}
-
-			return TRUE;
-	}
-
-	return FALSE;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: GetButtonDialog
-	Purpose			: brings up a little dialog prompting to press a button; wait for a keypress and return immediately
-	Parameters		: LPDIRECTINPUT, HWND parent
-	Returns			: scan code of key
-	Info			: 
-*/
-
-BOOL CALLBACK ButtonDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	static int *button;
-
-	switch (msg)
-	{
-		case WM_INITDIALOG:
-			button = (int*)lParam;
-            
-			SetTimer( hDlg, 0, 100, NULL );	// poll every 100ms
-			return TRUE;
-
-		case WM_TIMER:
-			if (lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable) == DI_OK)
-			{
-				int i;
-
-				for(i=1; i<256; i++ )
-					if( KEYPRESS( i ) )
-						break;
-
-				if (i < 256)
-				{
-					*button = i;
-                    KillTimer(hDlg, 0);
-					EndDialog(hDlg, TRUE);
-				}
-			}
-			break;
-
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
-			{
-			case IDCANCEL:
-				DestroyWindow(hDlg);
-				break;
-			}
-			break;
-
-		default:
-			return FALSE;
-	}
-
-	return TRUE;
-}
-
-int GetButtonDialog(LPDIRECTINPUTDEVICE lpDID, HWND hParent)
-{
-	int button = -1;
-
-	DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYPRESS), hParent, ButtonDialogProc, (LPARAM)&button);
-
-	return button;
-}
+//BOOL SetupControllerDlg(HWND hdlg)
+//{
+//	int n = numJoypads + 1;
+//	HWND combo;
+//
+//	controllerInfo = (CONTROLLERINFO*)malloc(sizeof(CONTROLLERINFO) * n);
+//
+//	strcpy(controllerInfo[0].name, "Keyboard");
+//	controllerInfo[0].id = KEYBOARD;
+//
+//	for (int c = 0; c < numJoypads && lpJoystick[c]; c++)
+//	{
+//		DIDEVICEINSTANCE di;
+//		di.dwSize = sizeof(DIDEVICEINSTANCE);
+//
+//		lpJoystick[c]->GetDeviceInfo(&di);
+//
+//		strcpy(controllerInfo[c+1].name, di.tszInstanceName);
+//		controllerInfo[c+1].id = GAMEPAD + c;
+//	}
+//
+//	for (int player = 0; player < 4; player++)
+//	{
+//		combo = GetDlgItem(hdlg, IDC_PLAYER1 + player);
+//		for (int i = 0; i < n; i++)
+//			SendMessage(combo, CB_ADDSTRING, 0, (LPARAM)controllerInfo[i].name);
+//
+//		SendMessage(combo, CB_SETCURSEL, 0, 0);
+//	}
+//
+//	return TRUE;
+//}
+//
+//
+///*	--------------------------------------------------------------------------------
+//	Function	: ControllerDlgProc
+//	Purpose		: Dialog procedure for controller setup
+//	Parameters	: 
+//	Returns		: 
+//	Info		: 
+//*/
+//
+//BOOL CALLBACK ControllerDlgProc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
+//{
+//	static int selectedPlayer = -1;
+//
+//	switch (msg)
+//	{
+//	case WM_INITDIALOG:
+//		return SetupControllerDlg(hdlg);
+//
+//	case WM_COMMAND:
+//		switch (LOWORD(wParam))
+//		{
+//		case IDOK:
+//			// Set appropriate controller data
+//			{
+//				for (int player = 0; player < 4; player++)
+//				{
+//					HWND combo = GetDlgItem(hdlg, IDC_PLAYER1 + player);
+//					int sel = SendMessage(combo, CB_GETCURSEL, 0, 0);
+//					controllers[player] = controllerInfo[sel].id;
+//				}
+//			}
+//
+//			// fall through...
+//		case IDCANCEL:
+//			EndDialog(hdlg, wParam);
+//			free(controllerInfo);
+//			return TRUE;
+//
+//		case ID_SETUP:
+//			if (selectedPlayer >= 0)
+//				SetupKeyboardDialog(selectedPlayer, hdlg);
+//			return TRUE;
+//		}
+//
+//		// When selection changes, make sure no other combo boxes have this controller
+//		// selected (unless KEYBOARD is selected)
+//		case CBN_SELENDOK:
+//			{
+//				HWND combo;
+//				int cb, controller, id;
+//				
+//				selectedPlayer = cb = LOWORD(wParam) - IDC_PLAYER1;
+//				controller = SendMessage((HWND)lParam, CB_GETCURSEL, 0, 0);
+//				id = controllerInfo[controller].id;
+//
+//				if (id == KEYBOARD)
+//				{
+//					EnableWindow(GetDlgItem(hdlg, ID_SETUP), 1);
+//					return TRUE;
+//				}
+//				else
+//					EnableWindow(GetDlgItem(hdlg, ID_SETUP), 0);
+//
+//				for (int player=0; player<4; player++)
+//				{
+//					if (player == cb) continue;
+//					combo = GetDlgItem(hdlg, IDC_PLAYER1 + player);
+//					int s = SendMessage(combo, CB_GETCURSEL, 0, 0);
+//
+//					if (id == controllerInfo[s].id)
+//						SendMessage(combo, CB_SETCURSEL, 0, 0);
+//				}
+//
+//				return TRUE;
+//			}
+//
+//	}
+//
+//	return FALSE;
+//}
+//
+///*	--------------------------------------------------------------------------------
+//	Function	: SetupControllers
+//	Purpose		: Set up control devices
+//	Parameters	: 
+//	Returns		: TRUE unless something goes horribly wrong
+//	Info		: 
+//*/
+//BOOL SetupControllers(HWND hwnd)
+//{
+//	return DialogBox(winInfo.hInstance, MAKEINTRESOURCE(IDD_CONTROLS), hwnd,
+//		(DLGPROC)ControllerDlgProc);
+//}
+//
+///*	--------------------------------------------------------------------------------
+//	Function		: SetupKeyboardDialog
+//	Purpose			: Make a dialogue that maps command to keys
+//	Parameters		: 
+//	Returns			: 
+//	Info			: 
+//*/
+//char listText1[] = "Command";
+//char listText2[] = "Key";
+//BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam);
+//
+//
+//int SetupKeyboardDialog(int player, HWND hParent)
+//{
+//	return DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYMAPBOX), hParent,
+//		(DLGPROC)DLGKeyMapDialogue, (LPARAM)player);
+//}
+//
+//BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
+//{
+//	long i;
+//	char itmTxt[64];
+//	HWND list;
+//	static DWORD keyIndex = 0;
+//	static long kMapSet = 0;
+//
+//    switch(msg)
+//	{
+//		case WM_INITDIALOG:
+//		{
+//			RECT meR;
+//			int player = (int)lParam;
+//			int tabstop = 80;
+//
+//			keyIndex = 14 * player;
+//			
+//			wsprintf(itmTxt, "Keyboard setup: Player %d", (player+1));
+//			SetWindowText(hDlg, itmTxt);
+//
+//			GetWindowRect(hDlg, &meR);
+//			SetWindowPos(hDlg,HWND_TOPMOST,(GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
+//
+//			list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
+//
+//			SendMessage(list, LB_SETTABSTOPS, 1, (LPARAM)&tabstop);
+//
+//			for( i=0; i<14; i++ )
+//			{
+//				strcpy( itmTxt, controlDesc[i] );
+//				strcat( itmTxt, "\t" );
+//				strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
+//				SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
+//			}
+//
+// 			return TRUE;
+//		}
+//
+//        case WM_CLOSE:
+//			keyIndex = 0;
+//			kMapSet = 0;
+//			EndDialog(hDlg,TRUE);
+//            return TRUE;
+//
+//		case WM_COMMAND:
+//			switch (LOWORD(wParam))
+//			{
+//				case IDC_KEYMAPLIST:
+//					switch(HIWORD(wParam))
+//					{
+//						case LBN_SELCHANGE:
+//							// Get index of new selection
+//							i = SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_GETCURSEL,(WPARAM)0,(LPARAM)0);
+//							if(i == LB_ERR || i < 0 || i > 14 )
+//								break;
+//
+//							if ((i = GetButtonDialog(lpKeyb, hDlg)) == -1)
+//								break;
+//
+//							// Set DInput key in keymap
+//							keymap[keyIndex+kMapSet].key = i;
+//
+//							// Reset and remake the key list
+//							list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
+//							SendMessage( list,LB_RESETCONTENT,(WPARAM)0,(LPARAM)0 );
+//
+//							for( i=0; i<14; i++ )
+//							{
+//								strcpy( itmTxt, controlDesc[i] );
+//								strcat( itmTxt, "\t" );
+//								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
+//								SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
+//							}
+//
+//							SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_SETCURSEL,(WPARAM)-1,(LPARAM)0);
+//
+//							kMapSet = 0;
+//							break;
+//					}
+//					break;
+//
+//				case IDCANCEL:
+//				{
+//					ifstream in;
+//					in.open( keyFileName, ios::nocreate, filebuf::sh_read );
+//					if( in.is_open() )
+//					{
+//						for( i=0; i<56; i++ )
+//							in >> keymap[i].key;
+//
+//						in.close();
+//					}
+//
+//					keyIndex = 0;
+//					kMapSet = 0;
+//					EndDialog(hDlg,FALSE);
+//					break;
+//				}
+//
+//				case IDOK:
+//				{
+//					ofstream out;
+//					out.open( keyFileName, ios::out, filebuf::sh_read );
+//					if( out.is_open() )
+//					{
+//						for( i=0; i<56; i++ )
+//							out << keymap[i].key << ' ';
+//
+//						out.close( );
+//					}
+//
+//					keyIndex = 0;
+//					kMapSet = 0;
+//					EndDialog(hDlg,TRUE);
+//					break;
+//				}
+//			}
+//
+//			return TRUE;
+//	}
+//
+//	return FALSE;
+//}
+//
+///*	--------------------------------------------------------------------------------
+//	Function		: GetButtonDialog
+//	Purpose			: brings up a little dialog prompting to press a button; wait for a keypress and return immediately
+//	Parameters		: LPDIRECTINPUT, HWND parent
+//	Returns			: scan code of key
+//	Info			: 
+//*/
+//
+//BOOL CALLBACK ButtonDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+//{
+//	static int *button;
+//
+//	switch (msg)
+//	{
+//		case WM_INITDIALOG:
+//			button = (int*)lParam;
+//            
+//			SetTimer( hDlg, 0, 100, NULL );	// poll every 100ms
+//			return TRUE;
+//
+//		case WM_TIMER:
+//			if (lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable) == DI_OK)
+//			{
+//				int i;
+//
+//				for(i=1; i<256; i++ )
+//					if( KEYPRESS( i ) )
+//						break;
+//
+//				if (i < 256)
+//				{
+//					*button = i;
+//                    KillTimer(hDlg, 0);
+//					EndDialog(hDlg, TRUE);
+//				}
+//			}
+//			break;
+//
+//		case WM_COMMAND:
+//			switch (LOWORD(wParam))
+//			{
+//			case IDCANCEL:
+//				DestroyWindow(hDlg);
+//				break;
+//			}
+//			break;
+//
+//		default:
+//			return FALSE;
+//	}
+//
+//	return TRUE;
+//}
+//
+//int GetButtonDialog(LPDIRECTINPUTDEVICE lpDID, HWND hParent)
+//{
+//	int button = -1;
+//
+//	DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYPRESS), hParent, ButtonDialogProc, (LPARAM)&button);
+//
+//	return button;
+//}
