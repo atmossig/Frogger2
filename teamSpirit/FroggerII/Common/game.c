@@ -831,7 +831,7 @@ void RunGameLoop (void)
 
 		CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
 
-		firstTile[52].state = TILESTATE_ENDLEVEL;
+		//firstTile[52].state = TILESTATE_ENDLEVEL;
 		//firstTile[261].state = TILESTATE_SPRING;
 		//firstTile[301].state = TILESTATE_SPRING;
 
@@ -844,6 +844,10 @@ void RunGameLoop (void)
 				cur = cur->next;
 			}
 		}
+
+		Init3DTextList();
+
+		CreateAndAdd3DText( "geezers", 224, 128,128,128,255, T3D_CIRCLE );
 
 //		runningWaterStuff = 0;
 		ChangeCameraSetting();

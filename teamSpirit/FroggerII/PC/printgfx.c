@@ -15,6 +15,18 @@
 #include "incs.h"
 
 
+Vtx *fsVerts = NULL;
+Vtx *vPtr = NULL;
+
+unsigned short *grab = NULL;
+unsigned short *scrTexGrab = NULL;
+
+GRABSTRUCT grabData;
+
+short drawScreenGrab = 0;
+short grabFlag = 0;
+
+
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrop
 	Purpose			: prints a backdrop...

@@ -20,6 +20,7 @@ extern unsigned long gstrlen(const char *a);
 extern void stringChange ( char *name );
 inline extern void smemcpy( unsigned short *a, unsigned short *b, unsigned long size );
 inline extern void lmemcpy( unsigned long *a, unsigned long *b, unsigned long size );
+inline extern void cmemcpy( char *a, char *b, unsigned long size );
 
 extern GAMETILE* FindNearestTile(VECTOR v);
 extern int MemLoadEntities(const void* data, long size);

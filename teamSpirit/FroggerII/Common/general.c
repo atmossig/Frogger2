@@ -60,6 +60,12 @@ void stringChange ( char *name )
 
 }
 
+inline void cmemcpy( char *a, char *b, unsigned long size )
+{
+	while( size-- )
+		a[size] = b[size];
+}
+
 inline void smemcpy( unsigned short *a, unsigned short *b, unsigned long size )
 {
 	while( size-- )

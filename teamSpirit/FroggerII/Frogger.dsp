@@ -428,6 +428,14 @@ SOURCE=.\N64\makefile
 # End Group
 # Begin Source File
 
+SOURCE=.\N64\3DText.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\N64\3DText.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\N64\audio.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
