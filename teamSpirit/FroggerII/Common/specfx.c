@@ -897,17 +897,20 @@ void AddTrailElement( SPECFX *fx, int i )
 		ScaleVector( &fx->particles[i].vel, fx->accn );
 	}
 
-	// Rotate to be around normal
-	GetRotationFromQuaternion( &q, &fx->follow->qRot );
-	CrossProduct( (VECTOR *)&cross, (VECTOR *)&q, &upVec );
-	MakeUnit( (VECTOR *)&cross );
-	t = DotProduct( (VECTOR *)&q, &upVec );
-	if( cross.x >= 0 )
-		cross.w = acos(t);
-	else
-		cross.w = -acos(t);
-	GetQuaternionFromRotation( &q, &cross );
-	QuaternionToMatrix( &q, (MATRIX *)fx->particles[i].rMtrx );
+	if( fx->type != FXTYPE_BILLBOARDTRAIL )
+	{
+		// Rotate to be around normal
+		GetRotationFromQuaternion( &q, &fx->follow->qRot );
+		CrossProduct( (VECTOR *)&cross, (VECTOR *)&q, &upVec );
+		MakeUnit( (VECTOR *)&cross );
+		t = DotProduct( (VECTOR *)&q, &upVec );
+		if( cross.x >= 0 )
+			cross.w = acos(t);
+		else
+			cross.w = -acos(t);
+		GetQuaternionFromRotation( &q, &cross );
+		QuaternionToMatrix( &q, (MATRIX *)fx->particles[i].rMtrx );
+	}
 }
 
 

@@ -986,6 +986,25 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i )
 	guTranslateF( tMtrx, pos.v[X], pos.v[Y], pos.v[Z] );
 	PushMatrix( tMtrx );
 
+	if( trail->type == FXTYPE_BILLBOARDTRAIL )	// Calculate screen align rotation
+	{
+		VECTOR normal;
+		QUATERNION q, cross;
+		float t;
+
+		SubVector( &normal, &camSource[0], &pos );
+		MakeUnit( &normal );
+		CrossProduct( (VECTOR *)&cross, &normal, &upVec );
+		MakeUnit( (VECTOR *)&cross );
+		t = DotProduct( &normal, &upVec );
+		if( cross.x >= 0 )
+			cross.w = acos(t);
+		else
+			cross.w = -acos(t);
+		GetQuaternionFromRotation( &q, &cross );
+		QuaternionToMatrix( &q, (MATRIX *)trail->particles[i].rMtrx );
+	}
+
 	// Precalculated rotation
 	PushMatrix( trail->particles[i].rMtrx );
 
