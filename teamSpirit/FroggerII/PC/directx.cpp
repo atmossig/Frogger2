@@ -925,7 +925,7 @@ unsigned long screenGrabbed = 0;
 void ShowLoadScreen(void)
 {
 	long i,j,sTicks,nTicks;
-	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+	long numRequired = (SCREEN_WIDTH/SCREENTEX_SIZE) * (SCREEN_HEIGHT/SCREENTEX_SIZE);
 	DDSURFACEDESC ddsd;
 	long startTicks;
 	long curTicks;
@@ -1780,7 +1780,7 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, unsigned short *
 
 LPDIRECTDRAWSURFACE *InitScreenTextureList(void)
 {
-	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+	long numRequired = (SCREEN_WIDTH/SCREENTEX_SIZE) * (SCREEN_HEIGHT/SCREENTEX_SIZE);
 	LPDIRECTDRAWSURFACE *me = (LPDIRECTDRAWSURFACE *)JallocAlloc(numRequired * sizeof(LPDIRECTDRAWSURFACE),0,"ScrSrf");
 	for (int i=0; i<numRequired; i++)
 		me[i] = NULL;
@@ -1797,7 +1797,7 @@ LPDIRECTDRAWSURFACE *InitScreenTextureList(void)
 
 D3DTLVERTEX *InitScreenVertexList(void)
 {
-	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+	long numRequired = (SCREEN_WIDTH/SCREENTEX_SIZE) * (SCREEN_HEIGHT/SCREENTEX_SIZE);
 	RECT rect;
 	D3DTLVERTEX *me = (D3DTLVERTEX *)JallocAlloc(numRequired * sizeof(D3DTLVERTEX) * 4,0,"ScrSrf");
 	for (int i=0; i<numRequired * 4; i+=4)
@@ -1828,17 +1828,17 @@ D3DTLVERTEX *InitScreenVertexList(void)
 
 	i = 0;
 
-	for (rect.top = 0, rect.bottom = 31; rect.bottom < SCREEN_HEIGHT; rect.top += 32, rect.bottom += 32)
-		for (rect.left = 0, rect.right = 31; rect.right < SCREEN_WIDTH; rect.left += 32, rect.right += 32)
+	for (rect.top = 0, rect.bottom = SCREENTEX_SIZE; rect.top < SCREEN_HEIGHT; rect.top += SCREENTEX_SIZE, rect.bottom += SCREENTEX_SIZE)
+		for (rect.left = 0, rect.right = SCREENTEX_SIZE; rect.left < SCREEN_WIDTH; rect.left += SCREENTEX_SIZE, rect.right += SCREENTEX_SIZE)
 		{
 			me[i+0].sx = rect.left;
 			me[i+0].sy = rect.top;
-			me[i+1].sx = rect.right+1;
+			me[i+1].sx = rect.right;
 			me[i+1].sy = rect.top;
-			me[i+2].sx = rect.right+1;
-			me[i+2].sy = rect.bottom+1;
+			me[i+2].sx = rect.right;
+			me[i+2].sy = rect.bottom;
 			me[i+3].sx = rect.left;
-			me[i+3].sy = rect.bottom+1;
+			me[i+3].sy = rect.bottom;
 
 			i+=4;
 		}
@@ -1851,7 +1851,7 @@ unsigned long screenTexList[1000];
 void DrawScreenOverlays(void)
 {
 	unsigned short faces[] = {0,1,2,0,2,3};
-	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+	long numRequired = (SCREEN_WIDTH/SCREENTEX_SIZE) * (SCREEN_HEIGHT/SCREENTEX_SIZE);
 	BeginDrawHardware();
 
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
@@ -1888,7 +1888,7 @@ void DrawScreenOverlays(void)
 */
 void FreeScreenTextures(LPDIRECTDRAWSURFACE *where,LPDIRECTDRAWSURFACE *where2, unsigned long *tex)
 {
-	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+	long numRequired = (SCREEN_WIDTH/SCREENTEX_SIZE) * (SCREEN_HEIGHT/SCREENTEX_SIZE);
 	for (int i=0; i<numRequired; i++)
 	{
 		if (where[i])
@@ -1912,8 +1912,10 @@ void FreeScreenTextures(LPDIRECTDRAWSURFACE *where,LPDIRECTDRAWSURFACE *where2, 
 
 void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRECTDRAWSURFACE *to2)
 {
-	int i, j;
+	int i, j,y,sY,dY;
 	LPDIRECTDRAWSURFACE surface, *dds, surface2, *dds2;
+	DDSURFACEDESC ddsd,ddsd2;
+	
 	unsigned long *hdl;
 	HRESULT res;
 	RECT rect;
@@ -1922,22 +1924,34 @@ void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRE
 	dds2 = &to2[0];
 	hdl = screenTexList;
 	
-	for (rect.top = 0, rect.bottom = 32; rect.top < SCREEN_HEIGHT; rect.top += 32, rect.bottom += 32)
+	for (rect.top = 0, rect.bottom = SCREENTEX_SIZE; rect.top < SCREEN_HEIGHT; rect.top += SCREENTEX_SIZE, rect.bottom += SCREENTEX_SIZE)
 	{
-		for (rect.left = 0, rect.right = 32; rect.left < SCREEN_WIDTH; rect.left += 32, rect.right += 32)
+		for (rect.left = 0, rect.right = SCREENTEX_SIZE; rect.left < SCREEN_WIDTH; rect.left += SCREENTEX_SIZE, rect.right += SCREENTEX_SIZE)
 		{
 			if (!*dds2)
-				*dds2 = surface =  D3DCreateTexSurface2(32,32,1,0);
+				*dds2 = surface =  D3DCreateTexSurface2(SCREENTEX_SIZE,SCREENTEX_SIZE,1,0);
 			else
 				surface = *dds2;
 
 			if (!*dds)
-				*dds = surface2 = D3DCreateTexSurface2(32,32,1,1);
+				*dds = surface2 = D3DCreateTexSurface2(SCREENTEX_SIZE,SCREENTEX_SIZE,1,1);
 			else
 				surface2 = *dds;
 
 			//res = surface->Blt(NULL, from, &rect, DDBLT_WAIT,NULL);
 			res = surface->BltFast(0,0,from,&rect,DDBLTFAST_WAIT);
+			
+		/*	DDINIT(ddsd);
+			DDINIT(ddsd2);
+			
+			while (surface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+			while (surface2->Lock(NULL,&ddsd2,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+
+			surface->Unlock(NULL);
+			surface2->Unlock(NULL);
+			
+			memcpy(ddsd2.lpSurface,ddsd.lpSurface,32*32*sizeof(short));
+*/
 			res = surface2->BltFast(0,0,surface,NULL,DDBLTFAST_WAIT);
 			
 			if (!*hdl)

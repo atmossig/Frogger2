@@ -338,7 +338,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	RES_DIFF = SCREEN_WIDTH/640.0;
 	RES_DIFF2 = 2*RES_DIFF;
 	
-	numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+	numRequired = (SCREEN_WIDTH/SCREENTEX_SIZE) * (SCREEN_HEIGHT/SCREENTEX_SIZE);
 
 	for (i=0; i<numRequired; i++)
 		screenTexList[i] = NULL;
@@ -566,8 +566,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 						screenVtxList[i].color = D3DRGBA(1,1,1,0.8);
 					
 					DrawScreenOverlays();
-					tSurface->lpVtbl->BltFast(tSurface,0,0,surface[RENDER_SRF],NULL,DDBLTFAST_WAIT);
-					GrabScreenTextures(tSurface, screenTextureList, screenTextureList2);					
+					GrabScreenTextures(surface[RENDER_SRF], screenTextureList, screenTextureList2);					
 					//FreeScreenTextures(screenTextureList);
 				}
 				if( !shotMode )				

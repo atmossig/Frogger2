@@ -228,7 +228,12 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 	strcpy (newE->name,mys);
 	newE->CRC  = UpdateCRC (mys);
-	newE->data = GetGelfBmpDataAsShortPtr(file,GELF_IFORMAT_16BPP555);
+
+	if (isAnim != 2)
+		newE->data = GetGelfBmpDataAsShortPtr(file,GELF_IFORMAT_16BPP555);
+	else
+		newE->data = GetGelfBmpDataAsShortPtr(file,0);
+
 	newE->cFrame = newE;
 
 	if (newE->data)
