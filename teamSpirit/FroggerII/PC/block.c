@@ -44,6 +44,7 @@ HBITMAP appBackgnd;
 WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
 int runQuit = 0;
+long totalFacesDrawn;
 extern long numFacesDrawn;
 extern long numPixelsDrawn;
 extern long runHardware;
@@ -57,7 +58,7 @@ long scaleMode = 0;
 char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
 char editorOk = 0;
 long drawTimers = 0;
-char keyDelay;
+float keyDelay;
 
 char outputMessageBuffer[256];
 
@@ -349,7 +350,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					displayingTile=!displayingTile;
 			}
 
-			if (!keyDelay)
+			if (keyDelay<1)
 			{
 				if( KEYPRESS(DIK_F7) && chatFlags )
 				{
@@ -390,7 +391,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			}
 			else
-				keyDelay--;
+				keyDelay-=gameSpeed;
 			
 			if (editorOk)
 				RunEditor();
@@ -643,7 +644,9 @@ long useBilerpF = 0;
 
 void DrawGraphics() 
 {
-	StartTimer(0,"Draw Gfx");
+	totalFacesDrawn = 0;
+
+	StartTimer(1,"Draw Gfx");
 
 	if (useBilerpN)
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
@@ -664,7 +667,9 @@ void DrawGraphics()
 
 	currentFrameTime = timeGetTime();
 	
+	StartTimer(2,"XformActorList");
 	XformActorList();
+	EndTimer(2);
 
 	if(spriteList.numEntries)
 		AnimateSprites();
@@ -675,7 +680,9 @@ void DrawGraphics()
 	else
 		SoftwareBeginFrame();
 
+	StartTimer(3,"DrawActorList");
 	DrawActorList();	
+	EndTimer(3);
 
 	if(spriteList.numEntries)
 		PrintSpritesOpaque();
@@ -725,41 +732,38 @@ void DrawGraphics()
 	currCamSource[screenNum] = oldCCSource;
 	currCamTarget[screenNum] = oldCCTarget;
 	/* END CAMERA SPACE STUFF */
+	EndTimer(1);
 	EndTimer(0);
 
 	if (drawTimers)
-		switch (drawTimers)
-		{
-			case 1:
-				PrintTimers();
-				break;
-			case 2:
-			case 3:
-			{
-				HDC hdc;
-				HRESULT res = IDirectDrawSurface4_GetDC(hiddenSrf, &hdc);
-				char speed[255];
-				
-				if (res == DD_OK)
-				{
-					sprintf(speed,"%4f - %4f - %lu - %lu - %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn,numSprites,numPixelsDrawn);
+	if (drawTimers<3)
+	{
+		PrintTimers();
+		{	
+			HDC hdc;
+			HRESULT res = IDirectDrawSurface4_GetDC(hiddenSrf, &hdc);
+			char speed[255];
 					
-					SetBkMode(hdc, TRANSPARENT);
-					SetTextColor(hdc, RGB(255,0,0));
-					TextOut(hdc,160,48, speed, strlen(speed));
-					TextOut(hdc,160,98, dprintbuf, strlen(dprintbuf));
+			if (res == DD_OK)
+			{
+				sprintf(speed,"%.2f fps - %lu polys (%lu) - %lu sprites- %lu pixels",(60.0/gameSpeed),numFacesDrawn,totalFacesDrawn,numSprites,numPixelsDrawn);
+				
+				SetBkMode(hdc, TRANSPARENT);
+				SetTextColor(hdc, RGB(255,0,0));
+				TextOut(hdc,50,28, speed, strlen(speed));
 
-					IDirectDrawSurface4_ReleaseDC(hiddenSrf, hdc);
-				}
-				break;
+				IDirectDrawSurface4_ReleaseDC(hiddenSrf, hdc);
 			}
 		}
+	}
 	
 	if (KEYPRESS(DIK_F6))
 		HoldTimers();
 		
 	ClearTimers();
-	StartTimer(0,"Draw Gfx");
+	StartTimer(1,"Draw Gfx");
+	StartTimer(0,"Everything");
+
 	if (runHardware)
 		EndDrawHardware();
 	else
@@ -767,5 +771,5 @@ void DrawGraphics()
 
 	AnimateTexturePointers();
 
-	EndTimer(0);
+	EndTimer(1);
 }
