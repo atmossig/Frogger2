@@ -941,15 +941,28 @@ void gte_ld_intpol_sv1(VOID *v)
 // ** Hopefully optimised PSX emulation transform
 void gte_rtps(void)
 {
-	register float vrx = (float)vr0.vx, vry = (float)vr0.vy, vrz = (float)vr0.vz;
-	register float tx = fTransVector[0], ty = fTransVector[1], tz = fTransVector[2];
-	register float screenvx, screenvy, screenvz;
-	register float ps, psz;
+	register float	vrx = (float)vr0.vx, vry = (float)vr0.vy, vrz = (float)vr0.vz;
+	register float	tx = fTransVector[0], ty = fTransVector[1], tz = fTransVector[2];
+	register float	screenvx, screenvy, screenvz;
+	register float	ps, psz;
+	register short	*scrs = &screenxy[2].vx;
+	register float	*mp = &fRotMatrix[0][0];
 
 	// vector transform
-	screenvx = (fRotMatrix[0][0] * vrx) + (fRotMatrix[0][1] * vry) + (fRotMatrix[0][2] * vrz) + tx;
-	screenvy = (fRotMatrix[1][0] * vrx) + (fRotMatrix[1][1] * vry) + (fRotMatrix[1][2] * vrz) + ty;
-	screenvz = (fRotMatrix[2][0] * vrx) + (fRotMatrix[2][1] * vry) + (fRotMatrix[2][2] * vrz) + tz;
+	screenvx =  *mp++ * vrx;
+	screenvx += *mp++ * vry;
+	screenvx += *mp++ * vrz;
+	screenvx += tx;
+
+	screenvy =  *mp++ * vrx;
+	screenvy += *mp++ * vry;
+	screenvy += *mp++ * vrz;
+	screenvy += ty;
+
+	screenvz =  *mp++ * vrx;
+	screenvz += *mp++ * vry;
+	screenvz += *mp   * vrz;
+	screenvz += tz;
 
 	// limit perpspective calculation
 	if (screenvz < fGShHalf)
@@ -981,9 +994,9 @@ void gte_rtps(void)
 	else if (screenvy > 1023.0f)
 		screenvy = 1023.0f;
 
-	screenxy[2].vx = (short)screenvx;
-	screenxy[2].vy = (short)screenvy;
-	screenxy[2].vz = (short)screenvz;
+	*scrs++ = (short)screenvx;
+	*scrs++ = (short)screenvy;
+	*scrs   = (short)screenvz;
 }
 
 #else
