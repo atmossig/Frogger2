@@ -2,8 +2,7 @@
 #define _MEMCARD_H_INCLUDE
 
 
-
-// *ASL* 14/08/2000 - Moved these from memcard.c 
+// *ASL* 14/08/2000 - Moved these from memcard.c to here
 enum {
 	SAVEMENU_CHECK,
 	SAVEMENU_FULL,
