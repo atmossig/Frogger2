@@ -944,6 +944,10 @@ SOURCE=.\resource.rc
 # End Group
 # Begin Source File
 
+SOURCE=.\bugs.txt
+# End Source File
+# Begin Source File
+
 SOURCE=.\devlog.txt
 # End Source File
 # End Target
