@@ -240,9 +240,24 @@ James Hubbard:
 
 	Afternoon:
 
-		First try at bumpmapping, looks kind of interesting. Spent
+		First try at pseudo bumpmapping, looks kind of interesting. Spent
 		inordinate amount of time working out how to divide by three without a divide.
 
+	Late afternoon:
+
+		Grr. Division by three I can do roughly by multiplying by (x<<6 + x<<4 + x<<2 + x)>>8
+		and then discarding the fraction, but pseudo bump mapping doesn't seem to work that well anyway.
+		Maybe applying specular hilights to single pixels and thin lines isn't too clever :)
+		It ends up as a big mess of pixels. Bloody 32x32 textures, even voodoo1 can do 256x256...
+		I'm going to stop doing procedural textures for a while and fix some bugs.
+
+		Oh yeah, on that note I changed tile snappers to work better.
+
+		I've had too much good coffee I think. Listened to completely random music 
+		and laughed at Worldconv. Sandro is still trying to work out the title or a film from
+		a vague memory of two women, a burglary, some noodles, and subtitles. Hmm.
+
+		More from "Dear Diary" tommorrow
 
 James Healey:
 ------------------------------------------------
