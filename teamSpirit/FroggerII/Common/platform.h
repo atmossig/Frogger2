@@ -91,8 +91,6 @@ extern PLATFORM *currPlatform[4];		// platform that frog is currently on
 extern GAMETILE	*oldTile[4];
 
 extern void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID);
-extern PLATFORM *CreateAndAddPlatform(char *pActorName,unsigned long *pathIndex,unsigned long *highIndex,float offset,float offset2,int startNode,float *moveSpeed,float riseSpeed,unsigned long pFlags);
-extern PATH *CreatePlatformPathFromTileList(unsigned long *pIndex, unsigned long *hIndex, float offset,float offset2);
 
 extern void InitPlatformLinkedList();
 extern void FreePlatformLinkedList();
@@ -102,7 +100,6 @@ extern void SubPlatform(PLATFORM *plat);
 extern void UpdatePlatforms();
 extern void GetNextLocalPlatform(unsigned long direction);
 extern PLATFORM *GetPlatformForTile(GAMETILE *tile);
-extern BOOL PlatformHasArrivedAtNode(PLATFORM *pform,int nodeID);
 
 extern BOOL PlatformTooHigh(PLATFORM *plat);
 extern BOOL PlatformTooLow(PLATFORM *plat);
@@ -127,11 +124,11 @@ extern PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
 #define PLATFORM_NEW_CARRYINGFROG		(1 << 10)	// platform is carrying a frog
 
 
-PLATFORM *NEW_CreateAndAddPlatform(char *pActorName);
-void NEW_AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path,unsigned long pathFlags);
-BOOL NEW_PlatformHasArrivedAtNode(PLATFORM *pform);
-BOOL NEW_PlatformReachedTopOrBottomPoint(PLATFORM *pform);
-void NEW_UpdatePlatformPathNodes(PLATFORM *pform);
+PLATFORM *CreateAndAddPlatform(char *pActorName);
+void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path,unsigned long pathFlags);
+BOOL PlatformHasArrivedAtNode(PLATFORM *pform);
+BOOL PlatformReachedTopOrBottomPoint(PLATFORM *pform);
+void UpdatePlatformPathNodes(PLATFORM *pform);
 
 //------------------------------------------------------------------------------------------------
 

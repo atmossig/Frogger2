@@ -65,6 +65,8 @@ void SetAllPathNodesToSetWaitTime(PATH *pPath,short pause);
 float GetSpeedFromIndexedNode(PATH *path,short index);
 short GetWaitTimeFromIndexedNode(PATH *path,short index);
 
+void CalcDirectionVectorFromNodeToNode(VECTOR *result,PATHNODE *fromNode,PATHNODE *toNode);
+
 void AssignRandomSpeedsToPathNodes(PATH *path,float minSpeed,float maxSpeed);
 void AssignRandomWaitTimesToPathNodes(PATH *path,short minPause,float maxPause);
 

@@ -130,6 +130,25 @@ short GetWaitTimeFromIndexedNode(PATH *path,short index)
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: CalcDirectionVectorFromNodeToNode
+	Purpose			: calculates the direction vector from one node to another
+	Parameters		: VECTOR *,PATHNODE *,PATHNODE *
+	Returns			: void
+	Info			: 
+*/
+void CalcDirectionVectorFromNodeToNode(VECTOR *result,PATHNODE *fromNode,PATHNODE *toNode)
+{
+	VECTOR vecFrom,vecTo;
+
+	GetPositionForPathNode(&vecFrom,fromNode);
+	GetPositionForPathNode(&vecTo,toNode);
+
+	SubVector(result,&vecTo,&vecFrom);
+	MakeUnit(result);
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: AssignRandomSpeedsToPathNodes
 	Purpose			: assigns random speed values to path nodes
 	Parameters		: PATH *,float,float
