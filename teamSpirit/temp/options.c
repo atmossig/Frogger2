@@ -1902,7 +1902,6 @@ void RunOptionsMenu(void)
 		{
 			gameState.mode = ARTVIEWER_MODE;
 			SpuSetKey(SPU_OFF,0xffffff);
-			PrepareSong(AUDIOTRK_LEVELCOMPLETELOOP,1);
 			GTInit(&artTimer,10);
 			currentArt = 0;
 			goingToArtViewer = 0;
