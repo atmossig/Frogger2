@@ -157,6 +157,7 @@ long DrawLoop(void)
 	SwapFrame(MA_FRAME_NORMAL);
 
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 
 	if (world)
 		DrawLandscape(world);
@@ -204,8 +205,8 @@ long DrawLoop(void)
 
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	
-	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
-	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
+//	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
+//	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();

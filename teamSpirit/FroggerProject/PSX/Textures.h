@@ -8,6 +8,8 @@
 
 extern TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ];
 
+// For PSX, no need to add .bmp extension
+#define FindTexture(x) textureFindCRCInAllBanks(utilStr2CRC(x))
 
 void LoadTextureBank			( int textureBank );
 void FreeTextureBank			( TextureBankType *textureBank );

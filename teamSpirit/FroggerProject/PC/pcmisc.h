@@ -27,6 +27,8 @@ extern int drawOverlays;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
+TextureType *FindTexture( char *name );
+
 void InitPCSpecifics();
 void DeInitPCSpecifics();
 short *GetGelfBmpDataAsShortPtr(char *filename);

@@ -14,6 +14,8 @@
 #include <d3d.h>
 #include <mdx.h>
 #include <islmem.h>
+#include <isltex.h>
+#include <islutil.h>
 
 #include "Main.h"
 #include "pcmisc.h"
@@ -58,7 +60,7 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE7 to, unsigned char *buf, unsigned short 
 	long i;
 	DDINIT(ddsd);
 
-	static LPDIRECTDRAWSURFACE7 pSurface = D3DCreateTexSurface(32,32,0xf81f, 0,0);
+	static LPDIRECTDRAWSURFACE7 pSurface = D3DCreateTexSurface( 32,32,0xf81f, 0,1);
 	
 	while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
 		ddShowError(res);
@@ -91,3 +93,20 @@ void PTTextureLoad( )
 			CreateProceduralTexture( (TextureType *)t, t->name );
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function 	: FindTexture
+	Purpose 	: Add .bmp extension to filename and find in all banks
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+TextureType *FindTexture( char *name )
+{
+	char bmp[32];
+
+	strcpy( bmp, name );
+	strcat( bmp, ".bmp" );
+
+	return (TextureType *)textureFindCRCInAllBanks(utilStr2CRC(bmp));
+}
