@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI_2
+#define F3DEX_GBI
 
 #include <ultra64.h>
 
@@ -112,7 +112,7 @@ void FreeCameoList ( void )
 	while ( curObj )
 	{
 		nextObj = curObj->next;
-		JallocFree ( (UBYTE**)&curObj );
+		JallocFree ( &curObj );
 		curObj = nextObj;
 	}
 	// ENDWHILE
@@ -126,7 +126,7 @@ void FreeCameoList ( void )
 	while ( curCameo )
 	{
 		nextCameo = curCameo->next;
-		JallocFree ( (UBYTE**)&curCameo );
+		JallocFree ( &curCameo );
 		curCameo = nextCameo;
 	}
 	// ENDWHILE
@@ -135,7 +135,7 @@ void FreeCameoList ( void )
 		cameoSet->cameos = NULL;
 	// ENDIF - cameoSet
 
-	JallocFree ( (UBYTE**)&cameoSet );
+	JallocFree ( &cameoSet );
 
 	cameoSet = NULL;
 }
@@ -311,7 +311,7 @@ void UpdateCameos ( void )
 
 				if ( cur->flags & CAMEO_ANIMATE )
 				{
-					AnimateActor ( cur->linkObject->cameoActor->actor, cur->animNum, NO, NO, 0.5F, 10, 0 );
+					AnimateActor ( cur->linkObject->cameoActor->actor, cur->animNum, NO, NO, 0.5F );
 				}
 				// ENDIF
 

@@ -33,7 +33,7 @@ extern WININFO winInfo;
 extern BYTE lButton, rButton;
 extern char baseDirectory[MAX_PATH];
 extern char outputMessageBuffer[256];
-
+extern unsigned long actFrameCount;
 
 extern char	transparentSurf;
 extern char	xluSurf;

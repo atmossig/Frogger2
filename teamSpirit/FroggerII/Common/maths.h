@@ -7,7 +7,6 @@
 #define PI			3.141592654
 #define PI_OVER_2	3.141592654/2.0F
 #define PI_OVER_4	3.141592654/4.0F
-#define PI2			3.141592654*2.0F
 
 #define ULONG unsigned long
 
@@ -54,22 +53,13 @@
 
 //#define SetVector(v1,v2) {(v1)->v[X] = (v2)->v[X];(v1)->v[Y] = (v2)->v[Y];(v1)->v[Z] = (v2)->v[Z];}
 
-// New for the skinning
-
-#define PushMatrix(matrix)	guMtxCatF((matrix), matrixStack.stack[matrixStack.stackPosition++], matrixStack.stack[matrixStack.stackPosition])
-#define PopMatrix() matrixStack.stackPosition--
-
-#define PushRMatrix(matrix)	guMtxCatF((matrix), rMatrixStack.stack[rMatrixStack.stackPosition++], rMatrixStack.stack[rMatrixStack.stackPosition])
-#define PopRMatrix() rMatrixStack.stackPosition--
-
-#define LinearInterp(result,from,to,interp) {(result)->v[0] = (from)->v[0] + (((to)->v[0] - (from)->v[0]) * interp);(result)->v[1] = (from)->v[1] + (((to)->v[1] - (from)->v[1]) * interp);(result)->v[2] = (from)->v[2] + (((to)->v[2] - (from)->v[2]) * interp);}
-
-
 
 #define QEPSILON	((float)0.00001)
 #define QHALFPI		((float)1.570796326794895)
 
-#define MAX_STACK_SIZE	20	//60
+
+
+#define MAX_STACK_SIZE	20
 
 typedef struct
 {
@@ -80,7 +70,6 @@ typedef struct
 }MATRIXSTACK;
 
 extern MATRIXSTACK	matrixStack;
-extern MATRIXSTACK	rMatrixStack;
 
 
 #ifndef PC_VERSION
@@ -164,8 +153,8 @@ void AddToOneScaledVector2D(VECTOR *result,VECTOR *operand2,float scale2);
 void AddOneScaledVector2D(VECTOR *result,VECTOR *operand1,VECTOR *operand2,float scale2);
 float DistanceBetweenPoints2D(VECTOR *v1, VECTOR *v2);
 float DistanceBetweenPoints(VECTOR *v1, VECTOR *v2);
-float DistanceBetweenPoints2DSquared(VECTOR *v1, VECTOR *v2);
 float DistanceBetweenPointsSquared(VECTOR *v1, VECTOR *v2);
+float DistanceBetweenPoints2DSquared(VECTOR *v1, VECTOR *v2);
 BOOL IsPointWithinBox(BOX *box, VECTOR *pos);
 BOOL IsPointWithinBoxPlusHeight(BOX *box, VECTOR *pos,float height);
 void FlipVector(VECTOR *vector);
@@ -187,8 +176,8 @@ void CalculateQuatForPlane2(float yRot,QUATERNION *qAim,VECTOR *normal);
 
 
 void InitMatrixStack();
-//void PushMatrix(float *matrix);
-//void PopMatrix();
+void PushMatrix(float *matrix);
+void PopMatrix();
 void ComputeResultMatrix();
 //void SetMatrix(float *dest, float *source);
 void LoadMatrix(float *matrix);
@@ -216,4 +205,3 @@ void guLookAtF (float m[4][4],
 
 
 #endif
-

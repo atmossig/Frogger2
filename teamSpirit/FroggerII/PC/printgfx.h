@@ -39,7 +39,7 @@ extern void DrawSpecialFX();
 extern void DrawFXRipples();
 
 extern void ProcessShadows();
-extern void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,Vtx *vert,VECTOR *lightDir);
+extern void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vtx *vert,VECTOR *lightDir, float tu, float tv);
 
 extern void DrawSwirlFX();
 extern void ScreenFade(UBYTE dir,UBYTE step);

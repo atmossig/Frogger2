@@ -125,6 +125,23 @@ PATH debug_path7 = { 1,0,0,0,0,debug_pathNodes7 };
 
 static void	GetPlatformActiveTile(PLATFORM *pform);
 
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+PLATFORM *GetPlatformFromUID(long uid)
+{
+	PLATFORM *cur;
+
+	for(cur = platformList.head.next; cur != &platformList.head; cur = cur->next)
+		if (cur->uid == uid)
+			return cur;
+	return NULL;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: InitPlatformsForLevel
@@ -334,7 +351,20 @@ void UpdatePlatforms()
 						GetPositionForPathNodeOffset2(&toPosition,&cur->path->nodes[0]);
 		
 						if(DistanceBetweenPointsSquared(&cur->pltActor->actor->pos,&fromPosition) < DistanceBetweenPointsSquared(&fromPosition,&toPosition))
+						{
 							SubFromVector(&cur->pltActor->actor->pos,&moveVec);
+						}
+						else
+							if(cur->flags & PLATFORM_NEW_KILLSFROG)
+							{
+								if (!(player[0].frogState & FROGSTATUS_ISDEAD))
+								{
+									AnimateActor(frog[0]->actor,2,NO,NO,0.35F, 0, 0);
+									frog[0]->action.deathBy = DEATHBY_DROWNING;
+									player[0].frogState |= FROGSTATUS_ISDEAD;
+									frog[0]->action.dead = 50;
+								}
+							}
 					}
 					else if(cur->flags & PLATFORM_NEW_RISEWITHFROG)
 					{
@@ -955,8 +985,8 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 
 	// set the start position for the platform
 	pform->path->fromNode = pform->path->startNode;
-
-
+	
+	
 	if(platformFlags & PLATFORM_NEW_FORWARDS)
 	{
 		// this platform moves forward thru path nodes
@@ -1012,6 +1042,9 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 	pform->path->endFrame = (actFrameCount+(60*pform->currSpeed));
 
 	CalcPlatformNormalInterps(pform);
+
+	if (pform->flags & PLATFORM_NEW_CRUMBLES)
+		pform->visible = pform->visibleTime = path->nodes[pform->path->fromNode].waitTime;
 
 	dprintf"\n"));
 }

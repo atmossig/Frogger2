@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI_2
+#define F3DEX_GBI
 
 #include <ultra64.h>
 #include "incs.h"
@@ -41,12 +41,6 @@ void RunFrontEnd( )
 			multiplayerRun = 0;
 			RunLevelSelect();
 		break;
-	case DEVELOPMENTMENU_MODE:
-			RunDevelopmentMenu();
-		break;
-	case OBJVIEW_MODE:
-			RunObjectViewer();
-		break;
 	}
 }
 
@@ -72,8 +66,8 @@ void GameLoop(void)
 		if(frameCount == 15)
 			StartDrawing("gameloop");
 
-		//UseAAMode = 2;
-		//UseZMode = 1;
+		UseAAMode = 2;
+		UseZMode = 1;
 	
 		RunGameLoop();
 		frameCount++;

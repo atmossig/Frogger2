@@ -8,7 +8,6 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI_2
 
 //----- [ INCLUDE FILES FOR FROGGER 2 ] -----------------------------------------------------//
 
@@ -74,12 +73,9 @@
 #include "tongue.h"
 #include "event.h"
 #include "eventfuncs.h"
-#include "memload.h"
 
 #ifndef PC_VERSION
 #include "develop.h"
-#include "objview.h"
-#include "3dtext.h"
 #endif
 
 #include "frontend.h"

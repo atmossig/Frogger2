@@ -82,8 +82,29 @@ void Crash(char *mess)
 	Returns			: int
 	Info			: 
 */
-
+int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow);
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
+{
+//	__try
+//	{
+		WinMain2(hInstance,hPrevInstance,lpCmdLine,nCmdShow);
+//	} 
+/*	__except (1) 
+	{
+		dprintf"--------------------------------------------------------\n"));
+		dprintf"- *** Unhandled exception ***                          -\n"));
+		dprintf"--------------------------------------------------------\n"));
+		///////////////////////////
+		
+	//	_exception_info();
+
+		///////////////////////////
+		dprintf"--------------------------------------------------------\n"));
+
+	}*/
+}
+
+int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
 	SYSTEMTIME currTime;
 	ULONG memSizeInBytes = 0;
@@ -91,6 +112,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
     MSG msg;
 	FILE *fpp;
 	int ok = 1;
+	long zero = 0;
 	
 	GetLocalTime(&currTime);
 //	fpp = fopen("c:\frog.ini","rt");

@@ -16,8 +16,9 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "directx.h"
+#include "..\resource.h"
 #include <crtdbg.h>
-
+#include "commctrl.h"
 
 #define SCREEN_WIDTH	640	//320
 #define SCREEN_HEIGHT	480	//240
@@ -26,6 +27,7 @@
 
 extern "C"
 {
+#include "block.h"
 
 HWND win;
 
@@ -36,10 +38,26 @@ LPDIRECTDRAWSURFACE		srfZBuffer;
 LPDIRECT3D2				pDirect3D;
 LPDIRECT3DDEVICE2		pDirect3DDevice;
 LPDIRECT3DVIEWPORT2		pDirect3DViewport;
+LPDIRECTDRAW4			pDirectDraw4;
 
+struct dxDevice
+{
+	GUID *guid;
+	DDCAPS caps;
+	char *desc;
+	char *name;
+	long idx;
+};
+
+dxDevice dxDeviceList[100];
+unsigned long dxNumDevices = 0;
+long selIdx = 0;
 long a565Card = 0;
 
 #define DEBUG_FILE "C:\\frogger2.log"
+
+char *ddError2String(HRESULT error);
+long isHardware = 1;
 
 void dp(char *format, ...)
 {
@@ -63,6 +81,85 @@ void dp(char *format, ...)
 }
 
 
+/*  --------------------------------------------------------------------------------
+    Function      : EnumDDDevices
+	Purpose       :	-
+	Parameters    : (GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverName, LPVOID lpContext))
+	Returns       : static BOOL FAR PASCAL 
+	Info          : -
+*/
+
+static BOOL FAR PASCAL EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverName, LPVOID lpContext)
+{
+    LPDIRECTDRAW	lpDD;
+    DDCAPS			ddCaps;
+	LPDIRECTDRAW4	pDD4;
+	DDDEVICEIDENTIFIER ddId;
+
+	if (DirectDrawCreate(lpGUID, &lpDD, NULL)!=DD_OK)				// Couldn't create DirectDraw device..
+		return DDENUMRET_OK;										// so continue on to the next one
+
+	DDINIT(ddCaps);													// Init caps struct
+	
+ 	HRESULT capsResult;
+	capsResult = lpDD->GetCaps(&ddCaps, NULL);					// Get the caps for the device
+ 	if (capsResult!=DD_OK)										// Get the caps for the device 	if (lpDD->GetCaps(&ddCaps, NULL)!=DD_OK)						// Get the caps for the device
+	{
+		ddError2String (capsResult);
+		lpDD->Release();											// Oops couldn't get it, release...
+		return DDENUMRET_OK;										// And continue looking.
+	}
+	
+	lpDD->QueryInterface(IID_IDirectDraw4, (LPVOID *)&pDD4);
+	pDD4->GetDeviceIdentifier(&ddId,0);
+	
+	dxDeviceList[dxNumDevices].desc = new char [strlen (ddId.szDescription)];
+	dxDeviceList[dxNumDevices].name = new char [strlen (ddId.szDriver)];
+	
+	strcpy(dxDeviceList[dxNumDevices].desc, ddId.szDescription);
+	strcpy(dxDeviceList[dxNumDevices].name, ddId.szDriver);
+
+	dxDeviceList[dxNumDevices].caps = ddCaps;						// Implicit structure copy.
+
+    if (lpGUID)													// This is NULL for the primary display device
+	{
+	    dxDeviceList[dxNumDevices].guid = new GUID;
+		memcpy(dxDeviceList[dxNumDevices].guid, lpGUID, sizeof(GUID));		
+	}
+	else
+		dxDeviceList[dxNumDevices].guid = NULL;
+
+	dxNumDevices++;
+
+	lpDD->Release();
+
+    return DDENUMRET_OK;
+}
+
+/*  --------------------------------------------------------------------------------
+    Function      : enumDXObjects 
+	Purpose       :	-
+	Parameters    : (void))
+	Returns       : bool 
+	Info          : -
+*/
+
+void EnumDXObjects (void)
+{
+	DirectDrawEnumerate(EnumDDDevices, NULL);
+}
+
+/* ---------------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------------- */
 
 char *ddError2String(HRESULT error)
 {
@@ -346,6 +443,139 @@ char *ddError2String(HRESULT error)
 	    }
 }
 
+char col0txt[] = "Name";
+char col1txt[] = "Description";
+char col2txt[] = "Caps";
+char hwText[] = "3D Hardware Accelerated";
+char swText[] = "Software Renderer";
+
+BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	long i;
+	HWND list;
+
+    switch(uMsg)
+	{
+		case WM_INITDIALOG:
+		{
+			RECT meR;
+			LV_COLUMN clm;
+			
+			GetWindowRect(hwndDlg, &meR);
+			
+			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+			clm.fmt = LVCFMT_LEFT;
+			clm.cx = 400;
+			clm.pszText = col2txt;
+			clm.cchTextMax = 255; 
+			clm.iSubItem = 0; 
+
+			list = GetDlgItem(hwndDlg,IDC_LIST2);
+
+			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
+			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
+			clm.pszText = col1txt;
+			clm.cx = 120;
+			clm.iSubItem = 1; 
+			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
+			
+			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
+			clm.pszText = col0txt;
+			clm.cx = 200;
+			clm.iSubItem = 2; 
+			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
+			SendMessage (GetDlgItem(hwndDlg,IDC_EDIT),WM_SETTEXT,0,(long)baseDirectory);
+
+			for (i=0; i<dxNumDevices; i++)
+			{
+				LV_ITEM itm;
+				
+				itm.mask = LVIF_TEXT ;
+				itm.iItem = i; 
+				itm.iSubItem = 0;
+				itm.state = 0;
+				itm.stateMask = 0; 
+				
+				itm.pszText = dxDeviceList[i].desc;
+
+				itm.cchTextMax = 255; 
+				itm.iImage = NULL; 
+				itm.lParam = i; 
+				
+				dxDeviceList[i].idx = SendMessage (list,LVM_INSERTITEM,0,(long)&itm);
+
+				itm.mask = LVIF_TEXT ;
+				itm.iItem = i; 
+				itm.state = 0;
+				itm.stateMask = 0; 
+				itm.cchTextMax = 255; 
+				itm.iImage = NULL; 
+				itm.lParam = i; 
+				itm.iSubItem = 1;
+				itm.pszText = dxDeviceList[i].name;
+
+				SendMessage (list,LVM_SETITEM,0,(long)&itm);
+				
+				itm.mask = LVIF_TEXT ;
+				itm.iItem = i; 
+				itm.state = 0;
+				itm.stateMask = 0; 
+				itm.cchTextMax = 255; 
+				itm.iImage = NULL; 
+				itm.lParam = i; 
+				itm.iSubItem = 2;
+
+				itm.pszText = (dxDeviceList[i].caps.dwCaps & DDCAPS_3D)?hwText:swText;
+
+				SendMessage (list,LVM_SETITEM,0,(long)&itm);
+				
+			}
+
+			ListView_SetItemState(list, 0, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
+
+			SetWindowPos(hwndDlg, HWND_TOPMOST, (GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
+ 			return TRUE;
+		}
+        case WM_CLOSE:
+			PostQuitMessage(0);
+			runQuit = 1;
+            return TRUE;
+			break;
+		
+		case WM_COMMAND:
+			switch (LOWORD(wParam))
+			{
+				case IDCANCEL:
+					PostQuitMessage(0);
+					runQuit = 1;
+					break;
+				case IDOK:
+				{
+					ShowCursor(0);
+					
+					for (i=0; i<SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMCOUNT,0,0); i++)
+						if (SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMSTATE,i,LVIS_SELECTED))
+							selIdx = i;
+					
+					SendMessage (GetDlgItem(hwndDlg,IDC_EDIT),WM_GETTEXT,MAX_PATH,(long)baseDirectory);
+
+					if (selIdx == LB_ERR)
+					{
+						PostQuitMessage(0);
+						runQuit = 1;
+						return TRUE;
+					}
+
+					EndDialog(hwndDlg,0);
+					runQuit = 0;
+					break;
+				}
+			}
+			break;
+	}
+	return FALSE;
+}
+
 long DirectXInit(HWND window, long hardware)
 {
 	D3DVIEWPORT				viewport;
@@ -355,11 +585,25 @@ long DirectXInit(HWND window, long hardware)
 	DDSURFACEDESC sdesc;
 	int l;
 	win = window;
-	// Create main DirectDraw object
-	if (DirectDrawCreate(NULL, &pDirectDraw, NULL) != DD_OK)
-	 return FALSE;
+
+	EnumDXObjects();
+
+	DialogBox(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1),window,(DLGPROC)HardwareProc);
 	
-//	if (pDirectDraw->SetCooperativeLevel(window, DDSCL_NORMAL)!=DD_OK)
+	if (runQuit)
+		return 0;
+	
+	isHardware = (dxDeviceList[selIdx].caps.dwCaps & DDCAPS_3D);
+	hardware = isHardware;
+
+//	while (0==0);
+	// Create main DirectDraw object
+	if (DirectDrawCreate(dxDeviceList[selIdx].guid, &pDirectDraw, NULL) != DD_OK)
+	 return FALSE;
+
+	if (pDirectDraw->QueryInterface(IID_IDirectDraw4, (LPVOID *)&pDirectDraw4) != S_OK)
+		return FALSE;	
+
 	if (pDirectDraw->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX) != DD_OK)
 	 return FALSE;
 
@@ -371,7 +615,7 @@ long DirectXInit(HWND window, long hardware)
 	ddsd.dwFlags = DDSD_CAPS;
 
 	if (hardware)
-	 ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+	 ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_VIDEOMEMORY;
 	else
 	 ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_SYSTEMMEMORY;
 	
@@ -386,7 +630,7 @@ long DirectXInit(HWND window, long hardware)
 	ddsd.dwHeight = SCREEN_HEIGHT;
 
 	if (hardware)
-	 ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_VIDEOMEMORY;
+	 ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER | DDSCAPS_3DDEVICE /*| DDSCAPS_VIDEOMEMORY*/;
 	else
 	 ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_SYSTEMMEMORY;
 	
@@ -396,7 +640,8 @@ long DirectXInit(HWND window, long hardware)
 	if (primarySrf->AddAttachedSurface(hiddenSrf) != DD_OK)
 	 return FALSE;
 
-	if (hardware)
+
+//	if (hardware)
 	{
 		// Create a z-buffer and attach it to the backbuffer
 		ddsd.dwSize = sizeof(ddsd);
@@ -427,12 +672,10 @@ long DirectXInit(HWND window, long hardware)
 	search.dcmColorModel = D3DCOLOR_RGB;
 	//search.dcmColorModel = D3DCOLOR_MONO;  
 
-	
 	if (pDirect3D->FindDevice(&search, &result) != D3D_OK) 
 		return FALSE;
 
 	// Create the D3D device
-
 	if (pDirect3D->CreateDevice(result.guid, hiddenSrf, &pDirect3DDevice) != D3D_OK)
 	 return FALSE;
 
@@ -472,6 +715,8 @@ long DirectXInit(HWND window, long hardware)
 	return TRUE;
 }
 
+float bRed = 0, bGreen = 0, bBlue = 0;
+ 
 void DirectXFlip(void)
 {
 	D3DRECT rect;
@@ -480,8 +725,11 @@ void DirectXFlip(void)
 
 	// Flip the back buffer to the primary surface
 	primarySrf->Flip(NULL,DDFLIP_WAIT);
+//	while (primarySrf->Blt(NULL,hiddenSrf,NULL,NULL,NULL)!=DD_OK);
+
+	
 	DDINIT(m);
-	m.dwFillColor = D3DRGB(0,0,0);
+	m.dwFillColor = D3DRGB((bRed/(float)0xff),(bGreen/(float)0xff),(bBlue/(float)0xff));
 	while (hiddenSrf->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_COLORFILL,&m)!=DD_OK);
 	DDINIT(m);
 	m.dwFillDepth = -1;//D3DRGB(0,0,0);
@@ -514,7 +762,7 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 	LPDIRECTDRAWSURFACE pSurface,pTSurface = NULL;
 	DDSURFACEDESC ddsd;
 	HRESULT me;
-
+	hardware = isHardware;
 	//Create the surface
 	DDINIT(ddsd);
 	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | (aiSurf?DDSD_PIXELFORMAT:0);

@@ -14,20 +14,12 @@
 
 #include "define.h"
 
-//************************************************************************************************
-//	Defines
-
-#define FIXED_CAMERA_SOURCE		( 1 << 0 )
-#define STATIC_CAMERA			( 1 << 1 )
-#define CAMERA_LOOK_AT_FROG		( 1 << 2 )
-
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
 typedef struct TAGTRANSCAMERA
 {
 	GAMETILE				*tile;
 	unsigned long			dirCamMustFace;
-	unsigned long			flags;
 	VECTOR					camOffset;
 
 	struct TAGTRANSCAMERA	*next;
@@ -76,7 +68,6 @@ extern float	scaleV;
 extern short	cameraShake;
 
 extern char		controlCamera;
-extern char		controlCamSource;
 
 extern TRANSCAMERA *transCameraList;
 
@@ -85,7 +76,7 @@ extern TRANSCAMERA *transCameraList;
 
 extern void InitCameraForLevel(unsigned long worldID,unsigned long levelID);
 
-extern TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace,float offsetX,float offsetY,float offsetZ, unsigned long camFlags);
+extern TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace,float offsetX,float offsetY,float offsetZ);
 extern void CheckForDynamicCameraChange(GAMETILE *tile);
 extern void FreeTransCameraList();
 

@@ -270,6 +270,24 @@ unsigned long gatePath2[]    = { 1,		15};
 
 
 static void GetEnemyActiveTile(ENEMY *enemy);
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+ENEMY *GetEnemyFromUID (long uid)
+{
+	ENEMY *cur,*next;
+
+	for(cur = enemyList.head.next; cur != &enemyList.head; cur = cur->next)
+		if (cur->uid == uid)
+			return cur;
+
+	return NULL;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: InitEnemiesForLevel
@@ -1165,8 +1183,12 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 
 	initFlags |= INIT_ANIMATION;
 
-	//stringChange ( eActorName );
+	enemyType = NMETYPE_WASP;
+
+	
+//stringChange ( eActorName );
 	// check the actor name to determine the enemy type
+	/*
 	if(gstrcmp(eActorName,"roto.obe") == 0)
 		enemyType = NMETYPE_MOWER;
 	else if(gstrcmp(eActorName,"lomoa.obe") == 0)
@@ -1181,6 +1203,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 		enemyType = NMETYPE_WASP;
 	else if(gstrcmp(eActorName,"mole.obe") == 0)
 		enemyType = NMETYPE_MOLE;
+*/
 
 	// check nme type and assign shadow if necessary
 	initFlags |= INIT_ANIMATION;

@@ -17,7 +17,6 @@
 
 #include "incs.h"
 
-
 Vtx	objectsVtx[2][2000];
 
 Vtx *vtxPtr;
@@ -49,7 +48,7 @@ char	staticObj;
 void DrawObject(OBJECT *obj);
 
 short texture[256*256];
-float nearClip = 200;
+float nearClip = 10;
 float farClip = 900;
 
 float horizClip = 400;
@@ -67,8 +66,8 @@ long InitTex(void)
 VECTOR tV[4000];
 float mV[4000];
 
-long DIST=450;
-long FOV=450;
+long DIST=380;
+long FOV=380;
 
 float stx=124,sty=93, stz=864;
 float ctx=124,cty=-224,ctz=451;
@@ -316,6 +315,9 @@ float fmody = 0.4,fmody2 = 0.9;
 float sclW = 1;
 float thresh = 900;
 float sofs = 5;
+
+long noClipping = 0;
+
 void PCDrawObject(OBJECT *obj, float m[4][4])
 {
 	short fce[3] = {0,1,2};		
@@ -402,12 +404,13 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
 		}
 	
-		if  (((vTemp2->v[Z]+DIST)>nearClip) &&
-			((vTemp2->v[Z]+DIST)<farClip) &&
+		if (((vTemp2->v[Z]+DIST)>nearClip) &&
+			((noClipping) ||   
+			(((vTemp2->v[Z]+DIST)<farClip) &&
 			((vTemp2->v[X])>-horizClip) &&
 			((vTemp2->v[X])<horizClip) &&
 			((vTemp2->v[Y])>-vertClip) &&
-			((vTemp2->v[Y])<vertClip))
+			((vTemp2->v[Y])<vertClip))))
 		{
 			float oozd = -1/(vTemp2->v[Z]+DIST);
 			vTemp2->v[X] = 320+((vTemp2->v[X] * FOV) * oozd);
@@ -427,6 +430,8 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 		long v1 = obj->mesh->faceIndex[i].v[1];
 		long v2 = obj->mesh->faceIndex[i].v[2];
 		long v0a,v1a,v2a;
+		TEXENTRY *tex = (TEXENTRY *)(obj->mesh->textureIDs[i]);
+
 		v0a = i*3;
 		v1a = v0a+1;
 		v2a = v1a+1;
@@ -434,6 +439,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 		if (tV[v0].v[Z])
 		if (tV[v1].v[Z])
 		if (tV[v2].v[Z])
+		if (tex)
 		{
 			c1 = &(((VECTOR *)obj->mesh->vertexNormals)[v0a]);
 			c2 = &(((VECTOR *)obj->mesh->vertexNormals)[v1a]);
@@ -447,8 +453,8 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->sx = tV[v0].v[X];
 			vTemp->sy = tV[v0].v[Y];
 			vTemp->sz = (tV[v0].v[Z]+DIST)/2000;///2000;
-			vTemp->tu = obj->mesh->faceTC[v0a].v[0]*(1.0/1024.0);
-			vTemp->tv = obj->mesh->faceTC[v0a].v[1]*(1.0/1024.0);
+			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*(1.0/1024.0));
+			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*(1.0/1024.0));
 			vTemp->color = D3DRGBA(c1->v[2],c1->v[1],c1->v[0],xl);
 			if (xl<0.99)
 			{
@@ -465,8 +471,8 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->sx = tV[v1].v[X];
 			vTemp->sy = tV[v1].v[Y];
 			vTemp->sz = (tV[v1].v[Z]+DIST)/2000;//2000;
-			vTemp->tu = obj->mesh->faceTC[v1a].v[0]*(1.0/1024.0);
-			vTemp->tv = obj->mesh->faceTC[v1a].v[1]*(1.0/1024.0);
+			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*(1.0/1024.0));
+			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*(1.0/1024.0));
 			vTemp->color = D3DRGBA(c2->v[2],c2->v[1],c2->v[0],xl);
 			if (xl<0.99)
 			{
@@ -483,8 +489,8 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->sx = tV[v2].v[X];
 			vTemp->sy = tV[v2].v[Y];
 			vTemp->sz = (tV[v2].v[Z]+DIST)/2000;///2000;
-			vTemp->tu = obj->mesh->faceTC[v2a].v[0]*(1.0/1024.0);
-			vTemp->tv = obj->mesh->faceTC[v2a].v[1]*(1.0/1024.0);
+			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*(1.0/1024.0));
+			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*(1.0/1024.0));
 			vTemp->color = D3DRGBA(c3->v[2],c3->v[1],c3->v[0],xl);
 			if (xl<0.99)
 			{
@@ -517,7 +523,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 						drawme = 0;
 
 			if (drawme)
-				Clip3DPolygon(v,obj->mesh->textureIDs[i]);
+				Clip3DPolygon(v,tex->hdl);
 		
 		/*	SetTexture (obj->mesh->textureIDs[i]);
 			if (obj->mesh->textureIDs[i])
@@ -1195,7 +1201,14 @@ void DrawActor(ACTOR *ptr)
 
 	currentDrawActor = ptr;
 	if(ptr->objectController->object)
+	{
+		noClipping = 0;
+		
+		if (ptr->objectController->object->name[0] == '_')
+			noClipping = 1;
+
 		TransformAndDrawObject(ptr->objectController->object, animTime, 0, 0);
+	}
 	
 	if((calcMtx == TRUE) || (staticObj == FALSE))
 	{

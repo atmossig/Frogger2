@@ -22,6 +22,15 @@ typedef struct
 
 }TEXTURE_BANK;
 
+typedef struct tTEXENTRY
+{
+	long CRC;
+	short *data;
+	struct tTEXENTRY *next;
+	LPDIRECTDRAWSURFACE surf;
+	D3DTEXTUREHANDLE hdl;
+} TEXENTRY;
+
 extern TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];
 extern unsigned long numTextureBanks;
 
@@ -31,6 +40,7 @@ extern void InitTextureBanks();
 extern void FindTexture(TEXTURE **texPtr, int texID, BOOL report);
 extern short *GetTexDataFromCRC (long CRC);
 D3DTEXTUREHANDLE GetTexHandleFromCRC (long CRC);
+TEXENTRY *GetTexEntryFromCRC (long CRC);
 
 
 #endif

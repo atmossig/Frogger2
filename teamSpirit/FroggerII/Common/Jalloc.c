@@ -540,43 +540,6 @@ ShowJalloc()
 	dprintf"%d blocks used; %d blocks empty\n",n,m));
 }
 
-/**********************************************************************************/
-
-void ListJallocBlocks(UBYTE **blk)
-{
-	int count;
-	LONG	l, k;
-	JALLOCTYPE *jp = &jallocControl;
-	jallocentType *block;
-
-	count = 0;
-
-	dprintf"--- Checking jalloc lists for address 0x%08x ---\n", *blk));
-
-	for(l = 0, block = jp->blocks; l <= jp->lastUsedStatic; l++, block++)
-	{
-		if((*blk >= block->address) && (*blk < (block->address + block->size)))
-		{
-			dprintf"Static: %08x '%s'\n", block->address, jp->blocks[l].name));
-			count++;
-		}
-	}
-	
-	for(l = MAXJALLOCS-1, block = &jp->blocks[l]; l >= jp->lastUsedDynamic; l--, block--)
-	{
-		if((*blk >= block->address) && (*blk < (block->address + block->size)))
-		{
-			dprintf"Dynamic: %08x '%s'\n", block->address, jp->blocks[l].name));
-			count++;
-		}
-	}
-
-	dprintf"--- Found %d block%s of memory ---\n", count, (count==1)?"":"s"));
-}
-
-
-
-/**********************************************************************************/
 
 
 #ifndef PC_VERSION

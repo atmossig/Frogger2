@@ -115,6 +115,8 @@ typedef struct TAGENEMY
 {
 	struct TAGENEMY			*next,*prev;			// ptr to next / prev platform
 	
+	long					uid;					// Unique ID
+
 	ACTOR2					*nmeActor;				// actor used as enemy
 	unsigned long			flags;					// enemy flags
 	
@@ -151,31 +153,32 @@ extern ENEMY *testEnemy;
 
 // FUNCTION PROTOTYPES
 
-extern void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID);
+void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID);
 
-extern void InitEnemyLinkedList();
-extern void FreeEnemyLinkedList();
-extern void AddEnemy(ENEMY *enemy);
-extern void SubEnemy(ENEMY *enemy);
+void InitEnemyLinkedList();
+void FreeEnemyLinkedList();
+void AddEnemy(ENEMY *enemy);
+void SubEnemy(ENEMY *enemy);
 
-extern void UpdateEnemies();
+void UpdateEnemies();
 
 
-extern void ProcessNMEMole ( ENEMY *nme );
+void ProcessNMEMole ( ENEMY *nme );
 
-extern void ProcessNMESnapperPlant(ACTOR2 *nme);
-extern void ProcessNMECar(ACTOR2 *nme);
-extern void ProcessNMEDog(ACTOR2 *nme);
-extern void ProcessNMEMower(ACTOR2 *nme);
+void ProcessNMESnapperPlant(ACTOR2 *nme);
+void ProcessNMECar(ACTOR2 *nme);
+void ProcessNMEDog(ACTOR2 *nme);
+void ProcessNMEMower(ACTOR2 *nme);
 
 //------------------------------------------------------------------------------------------------
 
-extern ENEMY *CreateAndAddEnemy(char *eActorName);
-extern void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags);
-extern BOOL EnemyHasArrivedAtNode(ENEMY *nme);
-extern BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
-extern void UpdateEnemyPathNodes(ENEMY *nme);
-extern void CalcEnemyNormalInterps(ENEMY *nme);
+ENEMY *CreateAndAddEnemy(char *eActorName);
+void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags);
+BOOL EnemyHasArrivedAtNode(ENEMY *nme);
+BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
+void UpdateEnemyPathNodes(ENEMY *nme);
+void CalcEnemyNormalInterps(ENEMY *nme);
+ENEMY *GetEnemyFromUID (long uid);
 
 //------------------------------------------------------------------------------------------------
 

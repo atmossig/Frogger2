@@ -42,6 +42,8 @@ typedef struct TAGPLATFORM
 	struct TAGPLATFORM		*next,*prev;			// ptr to next / prev platform
 	struct TAGPLATFORM		*pltPtrs[4];			// ptrs to adjacent platforms (if any)
 
+	long					uid;					// Unique ID
+
 	VECTOR					dirVector[4];			// 4 possible direction vectors
 	VECTOR					initDirVector[4];		// initial 4 direction vectors
 		
@@ -117,6 +119,7 @@ void SetPlatformVisibleTime(PLATFORM *pform,short time);
 void SetPlatformRegenerateTime(PLATFORM *pform,short time);
 
 PLATFORM *GetNearestPlatformBelowFrog(GAMETILE *tile,long pl);
+PLATFORM *GetPlatformFromUID(long uid);
 
 //------------------------------------------------------------------------------------------------
 

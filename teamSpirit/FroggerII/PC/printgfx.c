@@ -19,11 +19,10 @@ Vtx *vPtr = NULL;
 unsigned short *grab = NULL;
 unsigned short *scrTexGrab = NULL;
 
-GRABSTRUCT grabData;
+//GRABSTRUCT grabData;
 
 short drawScreenGrab = 0;
 short grabFlag = 0;
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrop
@@ -32,6 +31,7 @@ short grabFlag = 0;
 	Returns			: void
 	Info			: assumes relevant surface (back buffer) has been locked
 */
+
 void PrintBackdrop(BACKDROP *bDrop)
 {
 //	SetRaster(NORMAL);
@@ -132,7 +132,8 @@ void PrintSprite(SPRITE *sprite)
 	VECTOR m,sc;
 	VECTOR s = {1,1,0};
 	float distx,disty;
-	
+	TEXENTRY *tEntry;
+
 	if((!sprite->texture) || (sprite->scaleX == 0) || (sprite->scaleY == 0))
 		return;
 
@@ -140,10 +141,16 @@ void PrintSprite(SPRITE *sprite)
 	
 	if (m.v[Z])
 	{
+		tEntry = ((TEXENTRY *)sprite->texture);
 		distx = disty = (FOV)/(m.v[Z]+DIST);
 		distx *= sprite->scaleX/64.0;
 		disty *= sprite->scaleY/64.0;
-		DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,(m.v[Z]+DIST)/2000.0,32*distx,32*disty,0,0,0.99,0.99,sprite->texture,sprite->a/255.0);
+		DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,(m.v[Z]+DIST)/2000.0,32*distx,32*disty,
+				0,
+				0,
+				1,
+				1,
+				tEntry->hdl,sprite->a/255.0);
 	}
 }
 
@@ -162,14 +169,14 @@ SPRITE *PrintSpritesOpaque()
 	spriteList.lastTexture = NULL;
 	spriteList.xluMode = NO;
 
-	if(!pauseMode)
-	{
+//	if(!pauseMode)
+//	{
 		for(cur = spriteList.head.next; (cur != &spriteList.head); cur = next)
 		{
 			next = cur->next;
 			PrintSprite(cur);
 		}
-	}
+//	}
 
 	return cur;
 }
@@ -186,6 +193,7 @@ void PrintSpriteOverlays()
 
 	SPRITEOVERLAY *cur;
 	short *texture,x,y;
+	TEXENTRY *tEntry;
 
 	cur = spriteOverlayList.head.next;
 	if (spriteOverlayList.numEntries)
@@ -257,10 +265,18 @@ void PrintSpriteOverlays()
 				// choose a random frame and display it
 				cur->currFrame = rand() % cur->numFrames;
 			}
-
-			texture = cur->frames[cur->currFrame];
-			DrawAlphaSprite (cur->xPos*2,cur->yPos*2,0,cur->width*2,cur->height*2,0,0,0.99,0.99,texture,cur->a/255.0);
-
+			
+			tEntry = ((TEXENTRY *)cur->frames[cur->currFrame]);
+			texture = tEntry->hdl;
+			
+			//tEntry->xo = 7 * (32.0/256.0);
+			//tEntry->yo = 3 * (32.0/256.0);
+			DrawAlphaSprite (cur->xPos*2,cur->yPos*2,0,cur->width*2,cur->height*2,
+				0,
+				0,
+				1,
+				1,
+				texture,cur->a/255.0);
 		}
 
 		cur = cur->next;
@@ -302,9 +318,12 @@ void ProcessShadows()
 	PLATFORM *plat;
 	GARIB *garib;
 	int i;
-			
+	TEXENTRY *tEntry;
+	
 	FindTexture(&theTexture,UpdateCRC("ai_circle.bmp"),YES);
-	tex = (long)theTexture;	
+	tEntry = ((TEXENTRY *)theTexture);
+	tex = (long)tEntry->hdl;	
+
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 
 //	dprintf"%x",tex));
@@ -313,7 +332,7 @@ void ProcessShadows()
 		vec.v[X] = frog[0]->actor->pos.v[X];
 		vec.v[Y] = currTile[0]->centre.v[Y] + 1;
 		vec.v[Z] = frog[0]->actor->pos.v[Z];
-		DrawShadow(&vec,NULL,frog[0]->actor->shadow->radius,0,frog[0]->actor->shadow->alpha,frog[0]->actor->shadow->vert,NULL);
+		DrawShadow(&vec,NULL,frog[0]->actor->shadow->radius,0,frog[0]->actor->shadow->alpha,frog[0]->actor->shadow->vert,NULL,0,0);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -328,7 +347,7 @@ void ProcessShadows()
 				vec.v[X] = bTStart[i]->centre.v[X];
 				vec.v[Y] = bTStart[i]->centre.v[Y] + 1;
 				vec.v[Z] = bTStart[i]->centre.v[Z];
-				DrawShadow(&vec,NULL,babies[i]->actor->shadow->radius,0,babies[i]->actor->shadow->alpha,babies[i]->actor->shadow->vert,NULL);
+				DrawShadow(&vec,NULL,babies[i]->actor->shadow->radius,0,babies[i]->actor->shadow->alpha,babies[i]->actor->shadow->vert,NULL,0,0);
 			}
 		}
 	}
@@ -343,7 +362,7 @@ void ProcessShadows()
 			vec.v[X] = nme->nmeActor->actor->pos.v[X];
 			vec.v[Y] = nme->inTile->centre.v[Y] + 1;
 			vec.v[Z] = nme->nmeActor->actor->pos.v[Z];
-			DrawShadow(&vec,NULL,nme->nmeActor->actor->shadow->radius,0,nme->nmeActor->actor->shadow->alpha,nme->nmeActor->actor->shadow->vert,NULL);
+			DrawShadow(&vec,NULL,nme->nmeActor->actor->shadow->radius,0,nme->nmeActor->actor->shadow->alpha,nme->nmeActor->actor->shadow->vert,NULL,0,0);
 		}
 	}
 
@@ -358,7 +377,7 @@ void ProcessShadows()
 			vec.v[X] = garib->sprite.pos.v[X];
 			vec.v[Y] = garib->sprite.pos.v[Y] + garib->sprite.offsetY;
 			vec.v[Z] = garib->sprite.pos.v[Z];
-			DrawShadow(&vec,NULL,garib->shadow.radius,0,garib->shadow.alpha,garib->shadow.vert,NULL);
+			DrawShadow(&vec,NULL,garib->shadow.radius,0,garib->shadow.alpha,garib->shadow.vert,NULL,0,0);
 		}
 	}
 
@@ -377,7 +396,7 @@ void ProcessShadows()
 
 float sscale = 1.2;
 
-void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,Vtx *vert,VECTOR *lightDir)
+void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vtx *vert,VECTOR *lightDir, float tu, float tv)
 {
 	VECTOR tempVect[4],m[4];
 	D3DTLVERTEX vT[4];
@@ -411,33 +430,34 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,V
 		vT[0].sx = m[0].v[X];
 		vT[0].sy = m[0].v[Y];
 		vT[0].sz = (m[0].v[Z]+DIST)/2000;///2000;
-		vT[0].tu = 0;
-		vT[0].tv = 0;
+		vT[0].tu = tu;
+		vT[0].tv = tv;
 		vT[0].color = D3DRGBA(0,0,0,1);
 		vT[0].specular = D3DRGB(0,0,0);
 
 		vT[1].sx = m[1].v[X];
 		vT[1].sy = m[1].v[Y];
 		vT[1].sz = (m[1].v[Z]+DIST)/2000;///2000;
-		vT[1].tu = 1;
-		vT[1].tv = 0;
+		vT[1].tu = tu+1;
+		vT[1].tv = tv;
 		vT[1].color = D3DRGBA(0,0,0,1);
 		vT[1].specular = D3DRGB(0,0,0);
 
 		vT[2].sx = m[2].v[X];
 		vT[2].sy = m[2].v[Y];
 		vT[2].sz = (m[2].v[Z]+DIST)/2000;///2000;
-		vT[2].tu = 1;
-		vT[2].tv = 1;
+		vT[2].tu = tu+1;
+		vT[2].tv = tv+1;
 		vT[2].color = D3DRGBA(0,0,0,1);
 		vT[2].specular = 0;
 		vT[2].specular = D3DRGB(0,0,0);
 
+		
 		vT[3].sx = m[3].v[X];
 		vT[3].sy = m[3].v[Y];
 		vT[3].sz = (m[3].v[Z]+DIST)/2000;///2000;
-		vT[3].tu = 0;
-		vT[3].tv = 1;
+		vT[3].tu = tu;
+		vT[3].tv = tv+1;
 		vT[3].color = D3DRGBA(0,0,0,1);
 		vT[3].specular = 0;
 		vT[3].specular = D3DRGB(0,0,0);
@@ -447,7 +467,6 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,V
 }
 
 
-
 /*	--------------------------------------------------------------------------------
 	Function		: DrawTongue
 	Purpose			: er, draw Frogger's tongue.....
@@ -455,6 +474,7 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,V
 	Returns			:
 	Info			:
 */
+
 void DrawTongue()
 {
 /*

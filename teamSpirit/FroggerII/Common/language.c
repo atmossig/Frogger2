@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI_2
+#define F3DEX_GBI
 
 #include <ultra64.h>
 
@@ -32,7 +32,7 @@ void RunLanguageSelect()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(GENERIC_TEX_BANK);
+		LoadTextureBank(TITLES_TEX_BANK);
 
 		currFont	= smallFont;
 		british		= CreateAndAddTextOverlay(100,122,"english",YES,NO,200,255,200,91,currFont,TEXTOVERLAY_WAVECHARS,6,0);

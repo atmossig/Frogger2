@@ -330,6 +330,8 @@ void CheckTileForCollectable(GAMETILE *tile)
 	}
 }
 
+
+
 /*	--------------------------------------------------------------------------------
 	Function		: ProcessCollectables
 	Purpose			: processes collectables scattered across the many varied worldscapes...

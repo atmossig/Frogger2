@@ -52,17 +52,18 @@ END
 // Dialog
 //
 
-IDD_DIALOG1 DIALOGEX 0, 0, 255, 148
-STYLE DS_SYSMODAL | DS_MODALFRAME | DS_CENTER | DS_CENTERMOUSE | WS_POPUP | 
+IDD_DIALOG1 DIALOGEX 0, 0, 341, 130
+STYLE DS_MODALFRAME | DS_CENTER | DS_CENTERMOUSE | WS_POPUP | 
     WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU
-EXSTYLE WS_EX_TOOLWINDOW
 CAPTION "Select Your Weapon"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "Play",IDOK,195,126,50,14
-    PUSHBUTTON      "Don't want to ",IDCANCEL,141,127,50,14
-    LISTBOX         IDC_LIST1,7,7,240,116,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | 
-                    WS_TABSTOP
+    CONTROL         "List2",IDC_LIST2,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | 
+                    WS_BORDER | WS_TABSTOP,7,7,327,98,WS_EX_STATICEDGE
+    DEFPUSHBUTTON   "Play",IDOK,281,109,50,14
+    PUSHBUTTON      "Don't want to ",IDCANCEL,225,109,50,14
+    EDITTEXT        IDC_EDIT,7,109,214,14,ES_AUTOHSCROLL
 END
 
 
@@ -77,13 +78,20 @@ BEGIN
     IDD_DIALOG1, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 248
+        RIGHTMARGIN, 334
         TOPMARGIN, 7
-        BOTTOMMARGIN, 141
+        BOTTOMMARGIN, 123
     END
 END
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BACKGROUND          BITMAP  DISCARDABLE     "Backtile.bmp"
 #endif    // English (U.K.) resources
 /////////////////////////////////////////////////////////////////////////////
 

@@ -7,7 +7,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI_2
+#define F3DEX_GBI
 
 #include <ultra64.h>
 #include "incs.h"
@@ -26,7 +26,7 @@ char fadeDir		= FADE_OUT;
 short fadeOut		= 255;
 short fadeStep		= 4;
 
-char pauseMode		= 0;
+char testPause		= 0;
 UBYTE testR			= 0;
 UBYTE testG			= 0;
 UBYTE testB			= 0;

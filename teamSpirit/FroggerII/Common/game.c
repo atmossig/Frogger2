@@ -44,7 +44,6 @@ float upVal = 1;
 
 unsigned long displayCount = 0;
 long babySaved = 0;
-long award = 2;
 
 unsigned long autoPlaying = 0;
 unsigned long recordKeying = 0;
@@ -56,7 +55,6 @@ unsigned long myVar = 4;
 short showEndLevelScreen = 1;
 
 ACTOR2 *demoTug = NULL;
-ACTOR2 *levelTrophy = NULL;
 OBJECT_CONTROLLER *waterObjectCont = NULL;
 OBJECT *waterObject = NULL;
 float demoTugSeed = 0.0F;
@@ -309,27 +307,19 @@ void GameProcessController(long pl)
 
 	if((button[0] & CONT_F) && !(lastbutton[0] & CONT_F))
     {
-		if ( !controlCamera )
-		{
-			camFacing--;
-			camFacing &= 3;
-			if ( recordKeying )
-				AddPlayingActionToList ( CAMERA_LEFT, frameCount );
-		}
-		// ENDIF
+		camFacing--;
+		camFacing &= 3;
+		if ( recordKeying )
+			AddPlayingActionToList ( CAMERA_LEFT, frameCount );
 
 	}
 
 	if((button[pl] & CONT_C) && !(lastbutton[pl] & CONT_C))
     {
-		if ( !controlCamera )
-		{
-			camFacing++;
-			camFacing &= 3;		
-			if ( recordKeying )
-				AddPlayingActionToList ( CAMERA_RIGHT, frameCount );
-		}
-		// ENDIF
+		camFacing++;
+		camFacing &= 3;		
+		if ( recordKeying )
+			AddPlayingActionToList ( CAMERA_RIGHT, frameCount );
 	}
 
 	// Croak and Croak Float
@@ -387,18 +377,48 @@ void GameProcessController(long pl)
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{
+		long i;
+		//ScreenShot();
+
 		gameState.mode = PAUSE_MODE;
-		pauseMode = PM_PAUSE;
+		testPause = 1;
 	
-		grabData.afterEffect = NO_EFFECT;
+//		grabData.afterEffect = NO_EFFECT;
 
 		EnableTextOverlay ( pauseTitle );
 		EnableTextOverlay ( continueText );
 		EnableTextOverlay ( quitText );
 
-		DisableHUD( );
+		livesTextOver->oa = livesTextOver->a;
+		scoreTextOver->oa = scoreTextOver->a;
+		timeTextOver->oa = timeTextOver->a;
+
+		livesTextOver->a = 0;
+		scoreTextOver->a = 0;
+		timeTextOver->a = 0;
+	
+		for ( i = 0; i < 3; i++ )
+			sprHeart[i]->draw = 0;
+
+		for(i=0; i<numBabies; i++)
+			babyIcons[i]->draw = 0;
 
 		lastbutton[pl] = button[pl];
+/*		
+		if(backPanel)
+		{
+			backPanel->xPos		= 50;
+			backPanel->yPos		= 60;
+			backPanel->width	= 220;
+			backPanel->height	= 95;
+			backPanel->r		= 15;
+			backPanel->g		= 63;
+			backPanel->b		= 255;
+			backPanel->a		= 127;
+			backPanel->draw		= 1;
+		}
+*/
+//		return;	
     }
   
 	lastbutton[pl] = button[pl];
@@ -557,7 +577,7 @@ void UpdateCameraPosition(long cam)
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
 	
-	if ( gameState.mode != CAMEO_MODE && !controlCamSource )
+	if ( gameState.mode != CAMEO_MODE )
 	{
 		float afx,afy,afz;
 		int i;
@@ -594,8 +614,8 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
 	unsigned long flags = 0;
 //	static int firstObject = 1;
-	
-	ACTOR2 *theActor;
+		
+	ACTOR2 *theActor,*skyActor;
 	SCENIC *ts = Sc_000;
 	int actCount = 0;
 	OBJECT_CONTROLLER *objCont;
@@ -615,18 +635,21 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 			MakeTeleportTile(&firstTile[573],&firstTile[388],TELEPORT_ONEWAY);
 		}
 	}
-
+	
+	skyActor = CreateAndAddActor("sky.ndo",0,0,0,0,0,0);
+	skyActor->flags |= ACTOR_DRAW_ALWAYS;
+	if (skyActor->actor->objectController)
+		skyActor->actor->objectController->object->name[0]=='_';
+	
 	// Go through and add them!
 	while (ts)
 	{
 		float tv;
 
-		stringChange( ts->name );
-
 		theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
 		dprintf"Added actor '%s'\n",ts->name));
 
-		if ( gstrcmp ( ts->name, "world.obe" ) == 0 )
+		if ( gstrcmp ( ts->name, "world.ndo" ) == 0 )
 			flags |= ACTOR_DRAW_ALWAYS;
 		
 		theActor->flags = flags;
@@ -652,20 +675,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	}
 
 //	firstObject = 1;
-
-	levelTrophy = CreateAndAddActor("trophy.obe",0,0,100.0,0,0,0);
-	levelTrophy->draw = 0;
-	levelTrophy->flags |= ACTOR_DRAW_LAST;
-	levelTrophy->flags |= ACTOR_LEVEL_TROPHY;
-	levelTrophy->flags &= ~ACTOR_DRAW_ALWAYS;
-	levelTrophy->flags &= ~ACTOR_DRAW_CULLED;
-	levelTrophy->actor->scale.v[0] = 0.2;
-	levelTrophy->actor->scale.v[1] = 0.2;
-	levelTrophy->actor->scale.v[2] = 0.2;
-	levelTrophy->actor->pos.v[0] = 0.0;
-	levelTrophy->actor->pos.v[1] = 0.0;
-	levelTrophy->actor->pos.v[2] = 300.0;
-	actCount++;
 
 	dprintf"\n\n** ADDED %d ACTORS **\n\n",actCount));	
 
@@ -757,10 +766,10 @@ char tmpBuffer[16];
 long carryOnBabies = 1;
 long clearTiles = 0;
 
+
 void RunGameLoop (void)
 {	    	
 	VECTOR fvec = { 0,0,1 };
-	VECTOR textSpeed = { 0, 0, 0 };
 	VECTOR v1;
 	QUATERNION q;
 	unsigned long i,j;
@@ -844,7 +853,7 @@ void RunGameLoop (void)
 
 		CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
 
-		//firstTile[52].state = TILESTATE_ENDLEVEL;
+		//firstTile[137].state = TILESTATE_SPRING;
 		//firstTile[261].state = TILESTATE_SPRING;
 		//firstTile[301].state = TILESTATE_SPRING;
 
@@ -858,14 +867,16 @@ void RunGameLoop (void)
 			}
 		}
 
-		Init3DTextList();
-
-		//		runningWaterStuff = 0;
+//		runningWaterStuff = 0;
 		ChangeCameraSetting();
+
+		//AddAmbientSfxAtPoint( FX_CHICKEN_BELCH, 150, &ambpos, 50, 50, 10, 0, 0, 0, ambrad );
+
 	}
 
 		if(frameCount > 50)
 		{
+
 			if (backPanel)
 			{
 				backPanel->yPos -= 4;
@@ -888,13 +899,7 @@ void RunGameLoop (void)
 
 	if(babySaved && !gameIsOver && !levelIsOver)
 		RunBabySavedSequence(lastBabySaved);
-
-	if( grabData.afterEffect == FROG_DEATH_OUT && !grabData.fxTimer )
-	{
-		grabData.afterEffect = FROG_DEATH_IN;
-		EnableHUD( );
-	}
-
+	
 	if(player[0].frogState & FROGSTATUS_ISDEAD)
 	{
 		if(gameIsOver)
@@ -922,19 +927,11 @@ void RunGameLoop (void)
 		}
 		else
 		{
-			// PLEASE DON'T DELETE
-			//if( !grabData.fxTimer )
-			//	Screen2Texture( );
-
-			if( grabData.afterEffect != FROG_DEATH_OUT )
-			{
-				grabData.afterEffect = FROG_DEATH_OUT;
-				DisableHUD( );
-			}
+			//osMotorStop ( &rumble );
 		}
 		 
-		camDist.v[Y] -= (camDist.v[Y] - 100) / 10.0F;
-		camDist.v[Z] -= (camDist.v[Z] - 125) / 10.0F;
+//		camDist.v[Y] -= (camDist.v[Y] - 100) / 10.0F;
+//		camDist.v[Z] -= (camDist.v[Z] - 125) / 10.0F;
 
 		//UpdateCameraPosition(0);
 	}
@@ -944,40 +941,23 @@ void RunGameLoop (void)
 		{
 			if( showEndLevelScreen )
 			{
-				static QUATERNION tSpin = { 0,1,0, PI/60 };
-			
 				RunLevelCompleteSequence();
 
-				if( pauseMode != PM_ENDLEVEL )
+				if(!levelComplete1->draw)
 				{
-					static char scoreStr[255];
-
-					MakeUnit ((VECTOR *)&tSpin);
-
-					// PLEASE DON'T DELETE
-					//levelTrophy->flags |= ACTOR_DRAW_ALWAYS;
-
-					sprintf( scoreStr, "%s  score %i  time %i  spawn %i of %i   \0", player[0].name, player[0].score, 
-						player[0].timeSec, player[0].numSpawn, garibCollectableList.numEntries );
-
-					// PLEASE DON'T DELETE
-					//CreateAndAdd3DText( scoreStr, 600, 128,128,128,255, T3D_CIRCLE,
-					//					T3D_MOVE_SPIN,
-					//					&textSpeed,-1,0,30,300,6,0.6,0.6 );
-
-					//Screen2Texture( );			// Need static grab for endlevel screen
-
 					darkenedLevel = 0;
-					pauseMode = PM_ENDLEVEL;
+					testPause = 1;
+					//sprintf(levelComplete3->text,"you scored %s",scoreText);
+					EnableTextOverlay(levelComplete1);
+					EnableTextOverlay(levelComplete2);
+					scoreTextOver->a = 255;
+					EnableTextOverlay(scoreTextOver);
+					//EnableTextOverlay(levelComplete3);
 				}
 
-				if( levelTrophy->draw )
-				{
-					tSpin.w += PI/60;
-					if( tSpin.w > PI2 )
-						tSpin.w = 0;
-					GetQuaternionFromRotation(&levelTrophy->actor->qRot,&tSpin);
-				}
+				levelComplete1->a -= (levelComplete1->a - 255) / 20.0F;
+				levelComplete2->a -= (levelComplete2->a - 255) / 20.0F;
+				//levelComplete3->a -= (levelComplete3->a - 255) / 20.0F;
 			}
 
 			levelIsOver--;
@@ -997,15 +977,7 @@ void RunGameLoop (void)
 #endif
 				}
 
-				levelTrophy->flags &= ~ACTOR_DRAW_ALWAYS;
-				pauseMode = 0;
-
 				FreeAllLists();
-
-				/*
-				*	Move this to FreeAllLists
-				*/
-				//FreeGrabData( );
 
 				frog[0] = NULL;
 				frameCount = 0;
@@ -1077,7 +1049,7 @@ void RunGameLoop (void)
 					for (i=0; i<numBabies; i++)
 					{
 				//		InitActorAnim(babies[i]->actor);
-						AnimateActor(babies[i]->actor,0,YES,NO,1.0,0,0);
+						AnimateActor(babies[i]->actor,0,YES,NO,1.0);
 					}
 					if ( gameState.mode != CAMEO_MODE )
 					{
@@ -1226,16 +1198,17 @@ void RunGameLoop (void)
 
 void RunLevelCompleteSequence()
 {
+	long award = 2;
 	long i;
 	extern long numHops_TOTAL;
 	extern long speedHops_TOTAL;
 	extern long numHealth_TOTAL;
 
-	DisableHUD( );
+	DisableTextOverlay(livesTextOver);
+	DisableTextOverlay(timeTextOver);
+	//DisableTextOverlay(scoreTextOver);
 	DisableTextOverlay(babySavedText);
 
-	award = 2;
-/*
 	if(carryOnBabies)
 	{					
 		if(numHops_TOTAL < 110)
@@ -1243,9 +1216,34 @@ void RunLevelCompleteSequence()
 		if(numHops_TOTAL < 105)
 			award = 0;
 	}
-*/
+
+	clock->draw = 1;
+	spawn->draw = 1;
+	
+	spawnCollected->draw = 1;
+	time->draw = 1;
+
 	nextLev1->draw = 1;
 	nextLev2->draw = 1;
+
+	for ( i = 0; i < 3; i++ )
+		sprHeart[i]->draw = 0;
+	// ENDFOR
+
+	testA = 220;
+
+	scoreTextOver->xPos -= ((float)scoreTextOver->xPos - (100.0F)) / 15.0F;
+	scoreTextOver->yPos -= ((float)scoreTextOver->yPos - (110.0F)) / 16.0F;
+	
+	if ( spawnCounter != player[0].numSpawn )
+	{
+		spawnCounter++;
+	}
+	// ENDIF
+
+	sprintf ( spawnCollected->text, "%d / 150", spawnCounter );
+
+	sprintf ( timeTemp, "%i secs", 90-(player[0].timeSec/30) );
 
 	i = numBabies;
 	while(i--)
@@ -1253,5 +1251,21 @@ void RunLevelCompleteSequence()
 		babyIcons[i]->xPos -= ((float)babyIcons[i]->xPos - ((20.0F*i)+115.0F)) / 16.0F;
 		babyIcons[i]->yPos -= ((float)babyIcons[i]->yPos - (65.0F)) / 16.0F;
 		babyIcons[i]->animSpeed = 1.5F;
+	}
+							
+	switch(award)
+	{
+		case 0:
+			for(i=0; i<8; i++)
+				EnableSpriteOverlay(goldCup[i]);
+			break;
+		case 1:
+			for(i=0; i<8; i++)
+				EnableSpriteOverlay(silverCup[i]);
+			break;
+		case 2:
+			for(i=0; i<8; i++)
+				EnableSpriteOverlay(bronzeCup[i]);
+			break;
 	}
 }

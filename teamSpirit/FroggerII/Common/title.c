@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI_2
+#define F3DEX_GBI
 
 #include <ultra64.h>
 
@@ -54,9 +54,9 @@ void RunTmpTitle()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(GENERIC_TEX_BANK);
-
-	/*	sprOver = CreateAndAddSpriteOverlay(posx,posy,"n64a.bmp",32,32,255,255,255,255,0);
+		LoadTextureBank(TITLES_TEX_BANK);
+/*
+		sprOver = CreateAndAddSpriteOverlay(posx,posy,"n64a.bmp",32,32,255,255,255,255,0);
 		sprOver = CreateAndAddSpriteOverlay(posx+(32*1),posy,"n64b.bmp",32,32,255,255,255,255,0);
 		sprOver = CreateAndAddSpriteOverlay(posx+(32*2),posy,"n64c.bmp",32,32,255,255,255,255,0);
 		sprOver = CreateAndAddSpriteOverlay(posx+(32*3),posy,"n64d.bmp",32,32,255,255,255,255,0);
@@ -68,7 +68,7 @@ void RunTmpTitle()
 		sprOver = CreateAndAddSpriteOverlay(posx+(32*1),posy+(32*2),"n64h.bmp",32,32,255,255,255,255,0);
 		sprOver = CreateAndAddSpriteOverlay(posx+(32*2),posy+(32*2),"n64i.bmp",32,32,255,255,255,255,0);
 		sprOver = CreateAndAddSpriteOverlay(posx+(32*3),posy+(32*2),"n64j.bmp",32,32,255,255,255,255,0);
-				 */
+*/				 
 
 		currFont	= smallFont;
 		availWorlds	= CreateAndAddTextOverlay(100,122,"complete worlds",YES,NO,200,255,200,91,currFont,TEXTOVERLAY_WAVECHARS,1,0);
@@ -195,5 +195,5 @@ void CreateOverlays ( void )
 	sprOver = CreateAndAddSpriteOverlay(232,185,"isl2.bmp",32,32,255,255,255,255,0);
 	sprOver = CreateAndAddSpriteOverlay(264,185,"isl3.bmp",32,32,255,255,255,255,0);
 
-	CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
+//	CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
 }

@@ -18,8 +18,6 @@
 #define	ACTOR_DRAW_NEVER			(1 << 0)
 #define ACTOR_DRAW_CULLED			(1 << 1)
 #define ACTOR_DRAW_ALWAYS			(1 << 2)
-#define ACTOR_DRAW_LAST				(1 << 3)
-#define ACTOR_LEVEL_TROPHY			(1 << 4) // urgh.
 
 
 //------------------------------------------------------------------------------------------------
@@ -77,10 +75,6 @@ extern int objectMatrix;
 
 extern ACTOR2 *actList;
 
-extern char uniqueEnemyCount[20];
-extern int uniqueActorCRC[];
-extern char numUniqueActors;
-
 ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode);
 void DrawActorList();
 void FreeActorList();
@@ -92,8 +86,5 @@ void FreeObjectSprites(OBJECT *obj);
 BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2);
 void SetActorCollisionRadius(ACTOR2 *act,float radius);
 
-extern void MakeUniqueActor(ACTOR *actor,int type);
-
-extern void LoadTextureForTrophy( TEXTURE *tex );
 
 #endif

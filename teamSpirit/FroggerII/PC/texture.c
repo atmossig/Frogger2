@@ -20,16 +20,6 @@ unsigned long numTextureBanks = 0;
 
 char message[32];
 
-typedef struct tTEXENTRY
-{
-	long CRC;
-	short *data;
-	struct tTEXENTRY *next;
-	LPDIRECTDRAWSURFACE surf;
-	D3DTEXTUREHANDLE hdl;
-
-} TEXENTRY;
-
 TEXENTRY *texList = NULL;
 
 /*	--------------------------------------------------------------------------------
@@ -39,6 +29,7 @@ TEXENTRY *texList = NULL;
 	Returns			: void
 	Info			: NOTE: leaves system texture bank alone !
 */
+
 void FreeAllTextureBanks()
 {
 	TEXENTRY *me = texList;
@@ -49,8 +40,10 @@ void FreeAllTextureBanks()
 		tme=me;
 		me=me->next;
 
-		ReleaseSurface(tme->surf);
-		JallocFree(&tme);
+		if (tme->surf)
+			ReleaseSurface(tme->surf);
+		JallocFree(&(tme->data));
+		JallocFree(&tme);		
 	}
 
 	dprintf"AllTextureBanksAreFreed---------\n"));
@@ -118,18 +111,43 @@ D3DTEXTUREHANDLE GetTexHandleFromCRC (long CRC)
 	return NULL;
 }
 
-void AddTextureToTexList(char *file, char *shortn)
+TEXENTRY *GetTexEntryFromCRC (long CRC)
+{
+	TEXENTRY *me = texList;
+	
+	while (me)
+	{
+		if (me->CRC==CRC)
+			return me;
+
+		me=me->next;
+	}
+
+	dprintf"TEXTURE NOT FOUND %xl\n",CRC));
+	return NULL;
+}
+
+void AddTextureToTexList(char *file, char *shortn, long finalTex)
 {
 	char mys[255];
+	short *dat;
+
 	TEXENTRY *newE = JallocAlloc (sizeof(TEXENTRY),NO,"txtur");
 
 	newE->next = texList;
+	
+	texList = newE;
+	
 	strcpy (mys,shortn);
 	strlwr (mys);
+	
 	newE->CRC  = UpdateCRC (mys);
+	
 	if (strncmp(shortn,"frog1",5)==0)
 		dprintf"mmmh\n"));
+	
 	newE->data = GetGelfBmpDataAsShortPtr(file);
+	
 	if (newE->data)
 	{
 		if (((shortn[0]=='a') & (shortn[1]=='i')) & (shortn[2]=='_'))
@@ -144,13 +162,9 @@ void AddTextureToTexList(char *file, char *shortn)
 			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,0);
 			newE->hdl = ConvertSurfaceToTexture(newE->surf);
 		}
-		if (newE->hdl==0)
-			dprintf"De-bugger\n"));
 	}
 	else
 		dprintf"Cannot find texture %s\n",shortn));
-
-	texList = newE;
 }
 
 void LoadTextureBank(int num)
@@ -245,18 +259,22 @@ void LoadTextureBank(int num)
 	strcat (Sfilename,"*.bmp");
 	dprintf"Loading %s from %s\n",message,filename));
 	fHandle = FindFirstFile (Sfilename,&fData);
-	
+
 	if (fHandle != INVALID_HANDLE_VALUE)
 	{
 		long ret;
 		char finalFile[MAX_PATH];
+		char finalShort[MAX_PATH];
+
 		do
 		{
 			strcpy (finalFile,filename);
 			strcat (finalFile,fData.cFileName);
+			strcpy (finalShort,fData.cFileName);
 			dprintf"Loading %s %s\n",finalFile,fData.cFileName));
-			AddTextureToTexList (finalFile,fData.cFileName);
 			ret = FindNextFile (fHandle,&fData);
+
+			AddTextureToTexList (finalFile,finalShort,!ret);			
 		}
 		while (ret);
 	
@@ -277,7 +295,7 @@ void FindTexture(TEXTURE **texPtr, int texID, BOOL report)
 	TEXTURE *tex;
 	char *temp;
 			
-	*texPtr = GetTexHandleFromCRC(texID);
+	*texPtr = GetTexEntryFromCRC(texID);
 
 	return;
 }

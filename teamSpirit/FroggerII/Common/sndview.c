@@ -461,7 +461,7 @@ void RunSndView ( void )
 		FreeAllLists();
 		
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(GENERIC_TEX_BANK);
+		LoadTextureBank(TITLES_TEX_BANK);
 		LoadTextureBank ( SNDVIEW_TEX_BANK );
 
 		myBackdrop = CreateAndInitBackdrop("objvscrn.bmp");

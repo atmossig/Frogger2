@@ -9,7 +9,8 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI_2
+#define F3DEX_GBI
+//#include "oddballs.h"
 
 #include <ultra64.h>
 
@@ -97,7 +98,7 @@ void SetFroggerStartPos(GAMETILE *startTile,ACTOR2 *act, long p)
 
 	camFacing		= 0;
 	camFacing2		= 0;
-	currCamSetting	= 0;
+//	currCamSetting	= 0;
 
 	isJump[p]			= 0;
 	jumpSpeed[p]		= 0;
@@ -115,10 +116,10 @@ void SetFroggerStartPos(GAMETILE *startTile,ACTOR2 *act, long p)
 	changeLongSpeed	= -10;
 	startLongSpeed	= 25.0f;
 
-	ChangeCameraSetting();
+//	ChangeCameraSetting();
 
 	InitActorAnim(act->actor);
-	AnimateActor(act->actor,1,YES,NO,0.5F,0,0);
+	AnimateActor(act->actor,3,YES,NO,1.0F);
 
 	player[p].frogState	= FROGSTATUS_ISSTANDING;
 	frogState2	= FROGSTATUS_ISSTANDING;
@@ -146,7 +147,7 @@ void SetFroggerStartPos(GAMETILE *startTile,ACTOR2 *act, long p)
 			NormalToQuaternion(&babies[i]->actor->qRot,&bTStart[i]->normal);
 
 			InitActorAnim(babies[i]->actor);
-			AnimateActor(babies[i]->actor,0,YES,NO,1.0F,0,0);
+			AnimateActor(babies[i]->actor,0,YES,NO,1.0F);
 		}
 		
 		// *********************************************
@@ -344,8 +345,8 @@ void UpdateFroggerPos(long pl)
 			if ( !( player[pl].frogState & FROGSTATUS_ISFLOATING ) )
 			{
 				frog[pl]->actor->animation->animTime = 0;
-				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed,0,0);
-				AnimateActor(frog[pl]->actor,1,YES,YES,1.0F,0,0);
+				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
+				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 
 				if ( currPlatform[pl] )
 					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
@@ -375,8 +376,8 @@ void UpdateFroggerPos(long pl)
 			if ( !(player[pl].frogState & FROGSTATUS_ISFLOATING )	)
 			{
 				frog[pl]->actor->animation->animTime = 0;
-				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed,0,0);
-				AnimateActor(frog[pl]->actor,1,YES,YES,1.0F,0,0);
+				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
+				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 
 				if ( currPlatform[pl] )
 					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
@@ -407,8 +408,8 @@ void UpdateFroggerPos(long pl)
 			if ( !(player[pl].frogState & FROGSTATUS_ISFLOATING )	)
 			{
 				frog[pl]->actor->animation->animTime = 0;
-				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed,0,0);
-				AnimateActor(frog[pl]->actor,1,YES,YES,1.0F,0,0);
+				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
+				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 
 				if ( currPlatform[pl] )
 					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
@@ -439,8 +440,8 @@ void UpdateFroggerPos(long pl)
 			if ( !(player[pl].frogState & FROGSTATUS_ISFLOATING )	)
 			{
 				frog[pl]->actor->animation->animTime = 0;
-				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed,0,0);
-				AnimateActor(frog[pl]->actor,1,YES,YES,1.0F,0,0);
+				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
+				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 
 				if ( currPlatform[pl] )
 					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
@@ -469,8 +470,8 @@ void UpdateFroggerPos(long pl)
 		if(!MoveToRequestedDestination(MOVE_UP,pl))
 		{
 			frog[pl]->actor->animation->animTime = 0;
-			AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed,0,0);
-			AnimateActor(frog[pl]->actor,1,YES,YES,1.0F,0,0);
+			AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
+			AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 			
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGLONGHOPU;
 
@@ -494,8 +495,8 @@ void UpdateFroggerPos(long pl)
 		if(!MoveToRequestedDestination(MOVE_DOWN,pl))
 		{
 			frog[pl]->actor->animation->animTime = 0;
-			AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed,0,0);
-			AnimateActor(frog[pl]->actor,1,YES,YES,1.0F,0,0);
+			AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
+			AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 			
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGLONGHOPD;
 
@@ -519,8 +520,8 @@ void UpdateFroggerPos(long pl)
 		if(!MoveToRequestedDestination(MOVE_LEFT,pl))
 		{
 			frog[pl]->actor->animation->animTime = 0;
-			AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed,0,0);
-			AnimateActor(frog[pl]->actor,1,YES,YES,1.0F,0,0);
+			AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
+			AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 			
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGLONGHOPL;
 
@@ -544,8 +545,8 @@ void UpdateFroggerPos(long pl)
 		if(!MoveToRequestedDestination(MOVE_RIGHT,pl))
 		{
 			frog[pl]->actor->animation->animTime = 0;
-			AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed,0,0);
-			AnimateActor(frog[pl]->actor,1,YES,YES,1.0F,0,0);
+			AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
+			AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 			
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGLONGHOPR;
 
@@ -1281,10 +1282,10 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	if ( !( player[pl].frogState & FROGSTATUS_ISFLOATING ) )
 	{
-		//frog[pl]->actor->animation->animTime = 0;
+		frog[pl]->actor->animation->animTime = 0;
 
-		AnimateActor(frog[pl]->actor,0,NO,NO,1.8,0,0);
-		AnimateActor(frog[pl]->actor,1,YES,YES,1.0F,0,0);
+		AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
+		AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 	}
 	// ENDIF
 	numHops_TOTAL++;
@@ -1325,6 +1326,7 @@ void SlurpFroggerPosition(int whereTo,long pl)
 		frog[pl]->actor->pos.v[X] += (fwd.v[X] * speedTest);
 		frog[pl]->actor->pos.v[Y] += (fwd.v[Y] * speedTest);
 		frog[pl]->actor->pos.v[Z] += (fwd.v[Z] * speedTest);
+
 	}
 	else
 	{
@@ -1396,9 +1398,9 @@ void SlurpFroggerPosition(int whereTo,long pl)
 		}
 
 		frogScale = jumpAmt[pl] * 0.001F;
-		frog[pl]->actor->scale.v[X] = 0.0075F + frogScale;
-		frog[pl]->actor->scale.v[Y] = 0.0075F + frogScale;
-		frog[pl]->actor->scale.v[Z] = 0.0075F + frogScale;
+		frog[pl]->actor->scale.v[X] = 0.09F + frogScale;
+		frog[pl]->actor->scale.v[Y] = 0.09F + frogScale;
+		frog[pl]->actor->scale.v[Z] = 0.09F + frogScale;
 	}
 	
 	if (isLong)
@@ -1418,9 +1420,9 @@ void SlurpFroggerPosition(int whereTo,long pl)
 		}
 
 		frogScale = longAmt * 0.001F;
-		frog[pl]->actor->scale.v[X] = 0.0075F + frogScale;
-		frog[pl]->actor->scale.v[Y] = 0.0075F + frogScale;
-		frog[pl]->actor->scale.v[Z] = 0.0075F + frogScale;
+		frog[pl]->actor->scale.v[X] = 0.09F + frogScale;
+		frog[pl]->actor->scale.v[Y] = 0.09F + frogScale;
+		frog[pl]->actor->scale.v[Z] = 0.09F + frogScale;
 	}
 	
 	for (i=0; i<numBabies; i++)
@@ -1471,7 +1473,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			if(player[pl].frogState & FROGSTATUS_ISDEAD)
 			{
 				cameraShake = 35;
-				AnimateActor(frog[pl]->actor,2,NO,NO,0.367,0,0);
+				AnimateActor(frog[pl]->actor,2,NO,NO,0.367);
 				frog[pl]->action.deathBy = DEATHBY_NORMAL;
 				frog[pl]->action.dead = 35;
 			}
@@ -1491,9 +1493,11 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
 			currPlatform[pl] = destPlatform[pl];
 
-			frog[pl]->actor->scale.v[X] = 0.0075F;
-			frog[pl]->actor->scale.v[Y] = 0.0075F;
-			frog[pl]->actor->scale.v[Z] = 0.0075F;
+			frog[pl]->actor->scale.v[X] = 0.09F;
+			frog[pl]->actor->scale.v[Y] = 0.09F;
+			frog[pl]->actor->scale.v[Z] = 0.09F;
+
+			CheckTileForCollectable(NULL);
 		}
 	}
 	else
@@ -1516,14 +1520,6 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				frog[pl]->action.deathBy = DEATHBY_FALLINGTOTILE;
 				dprintf"SPRING TILE\n"));
 			}
-			else if ( destTile[pl]->state == TILESTATE_ENDLEVEL )
-			{
-				StopDrawing ( "New Sub Level" );
-				FreeAllLists();
-				InitLevel ( player[0].worldNum, player[0].levelNum+1 );
-				StartDrawing ( "New Sub Level" );
-				return;
-			}
 			else
 			{
 				// Okay - Frogger has landed - snap him to the centre of the current tile
@@ -1537,7 +1533,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				if(player[pl].frogState & FROGSTATUS_ISDEAD)
 				{
 					cameraShake = 35;
-					AnimateActor(frog[pl]->actor,2,NO,NO,0.367,0,0);
+					AnimateActor(frog[pl]->actor,2,NO,NO,0.367);
 					frog[pl]->action.deathBy = DEATHBY_NORMAL;
 					frog[pl]->action.dead = 35;
 				}
@@ -1558,9 +1554,9 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 				landRadius = 20.0f;
 
-				frog[pl]->actor->scale.v[X] = 0.0075F;
-				frog[pl]->actor->scale.v[Y] = 0.0075F;
-				frog[pl]->actor->scale.v[Z] = 0.0075F;
+				frog[pl]->actor->scale.v[X] = 0.09F;
+				frog[pl]->actor->scale.v[Y] = 0.09F;
+				frog[pl]->actor->scale.v[Z] = 0.09F;
 
 				// check if the tile is a teleport tile
 				if(IsATeleportTile(currTile[pl]))
@@ -1684,11 +1680,8 @@ BOOL KillFrog(ACTOR2 *frogAct,long pl)
 		SetFroggerStartPos(gTStart[0],frogAct,pl);
 		ResetPlatformFlags();
 		camFacing = 2;
-		currCamSetting = 1;
-		ChangeCameraSetting();
-
-		grabData.fxTimer = 100;
-		grabData.alpha = 255;
+		//currCamSetting = 1;
+		//ChangeCameraSetting();
 
 		return FALSE;
 	}
