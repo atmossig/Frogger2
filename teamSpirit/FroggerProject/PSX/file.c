@@ -32,6 +32,8 @@
 char FILEIO_CDINDEX[64];	//	"\\MYGAME.DAT;1"
 //#endif
 
+unsigned char fileIndex[2048*8];
+
 typedef struct _FileIODataType
 {
 	int				DATsector;
@@ -236,7 +238,7 @@ static void fileCDInitialise(char *fileSystem)
 	strcpy(FILEIO_CDINDEX, fileSystem);
 	CdInit();
 
-	fileIO.index = MALLOC0(8*2048);
+	fileIO.index = &fileIndex[0];//MALLOC0(8*2048);
 
 	while(fileCDreadIndex(FILEIO_CDINDEX))
 	{

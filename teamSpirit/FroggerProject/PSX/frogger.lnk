@@ -94,7 +94,7 @@ lang	group	over(video),file("lang.bin")
 	include "psi.obj"
 	;include "bbpsiani.obj"
 	include "loadingbar.obj"
-	;include "file.obj"
+	include "islfile.obj"
 	include "objviewer.obj"
 	include "options.obj"
 	include "snapshot.obj"
@@ -168,7 +168,7 @@ lang	group	over(video),file("lang.bin")
 
 	;inclib  "islpsi.lib"
 ;    inclib  "islmem.lib"
-    inclib  "islfile.lib"
+;    inclib  "islfile.lib"
 ;    inclib  "isltex.lib"
 ;	inclib  "islfont.lib"
     inclib  "isllocal.lib"

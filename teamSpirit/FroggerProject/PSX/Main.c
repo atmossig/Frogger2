@@ -508,7 +508,8 @@ int main ( )
 		//XAsetStatus(CdInit());
 #else
 		fileInitialise("\\FROGGER.DAT;1");
-		XAsetStatus(CdInit());
+		XAsetStatus(1);
+//		XAsetStatus(CdInit());
 #endif
 
 
@@ -1052,11 +1053,11 @@ void MainReset ( void )
 		utilSeedRandomInt(398623);
 
 #if GOLDCD == NO
-	fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
+//	fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
 //	fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
 #else
-	fileInitialise("\\FROGGER.DAT;1");
-	XAsetStatus(CdInit());
+//	fileInitialise("\\FROGGER.DAT;1");
+//	XAsetStatus(CdInit());
 #endif
 
 //		padInitialise(1); // 0 = No multi tap support

@@ -10,8 +10,8 @@
 #include <libsn.h>
 #include <stdio.h>
 #include <string.h>
-#include "../islmem/islmem.h"
-#include "../islutil/islutil.h"
+#include <islmem.h>
+#include <islutil.h>
 #include "islfile.h"
 
 // FlatPacker magic number
@@ -23,6 +23,8 @@ char FILEIO_PCROOT[64];		//	"C:\\PSX\\MYGAME\\CD\\"
 char FILEIO_CDINDEX[64];	//	"\\MYGAME.DAT;1"
 #endif
 
+
+unsigned char fileIndex[8*2048];
 typedef struct _FileIODataType
 {
 	int				DATsector;
@@ -227,7 +229,7 @@ static void fileCDInitialise(char *fileSystem)
 	strcpy(FILEIO_CDINDEX, fileSystem);
 	CdInit();
 
-	fileIO.index = MALLOC(8*2048);
+	fileIO.index = &fileIndex[0];//MALLOC(8*2048);
 
 	while(fileCDreadIndex(FILEIO_CDINDEX))
 	{
