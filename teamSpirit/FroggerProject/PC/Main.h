@@ -49,8 +49,8 @@ extern WININFO winInfo;
 extern GsRVIEW2	camera;
 
 
-extern fixed gameSpeed;
-extern unsigned long actFrameCount, lastActFrameCount;
+//extern fixed gameSpeed;
+//extern unsigned long actFrameCount, lastActFrameCount;
 extern char	desiredFrameRate;
 extern char	newDesiredFrameRate;
 extern unsigned long currentFrameTime;
