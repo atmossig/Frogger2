@@ -96,6 +96,7 @@ bss     group   bss
 	;include "file.obj"
 	include "font.obj"
 	include "objviewer.obj"
+	include "options.obj"
 
 
 ;	include "ANIM.obj"
