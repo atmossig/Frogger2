@@ -44,20 +44,20 @@ BOOL WINAPI  EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverN
     DDCAPS			ddCaps;
 	DDDEVICEIDENTIFIER2 ddId;
 
-	if (!_CrtCheckMemory())
-	{
-		dp("Heap is corrupt!\n");
-		__asm {int 3};
-	}
+//	if (!_CrtCheckMemory())
+//	{
+//		dp("Heap is corrupt!\n");
+//		__asm {int 3};
+//	}
 
 	if (DirectDrawCreateEx(lpGUID, (LPVOID *)&lpDD, IID_IDirectDraw7, NULL)!=DD_OK)				// Couldn't create DirectDraw device...
 		return DDENUMRET_OK;										// so continue on to the next one
 
-	if (!_CrtCheckMemory())
-	{
-		dp("Heap is corrupt!\n");
-		__asm {int 3};
-	}
+//	if (!_CrtCheckMemory())
+//	{
+//		dp("Heap is corrupt!\n");
+//		__asm {int 3};
+//	}
 
 	DDINIT(ddCaps);													// Init caps struct
 	
@@ -69,11 +69,11 @@ BOOL WINAPI  EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverN
 		return DDENUMRET_OK;										// And continue looking.
 	}
 
-	if (!_CrtCheckMemory())
-	{
-		dp("Heap is corrupt!\n");
-		__asm {int 3};
-	}
+//	if (!_CrtCheckMemory())
+//	{
+//		dp("Heap is corrupt!\n");
+//		__asm {int 3};
+//	}
 
 	lpDD->GetDeviceIdentifier(&ddId,0);
 
@@ -85,11 +85,11 @@ BOOL WINAPI  EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverN
 
 	dxDeviceList[dxNumDevices].caps = ddCaps;						// Implicit structure copy.
 
-	if (!_CrtCheckMemory())
-	{
-		dp("Heap is corrupt!\n");
-		__asm {int 3};
-	}
+//	if (!_CrtCheckMemory())
+//	{
+//		dp("Heap is corrupt!\n");
+//		__asm {int 3};
+//	}
 
     if (lpGUID)													// This is NULL for the primary display device
 	{
