@@ -401,6 +401,7 @@ void UpdateCameraPosition(long cam)
 				afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
 				afy2 -= currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
 				afz2 -= currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
+
 				l++;
 			}
 		}
