@@ -761,7 +761,7 @@ void RunGameLoop (void)
 	static int ambrad = 10;
 	
 	// Setup for frogger point of interest
-	pOIDistance = 10000.0;
+	pOIDistance = 50000.0;
 	pointOfInterest = NULL;
 
 	if(frameCount == 1)

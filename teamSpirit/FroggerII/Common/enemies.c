@@ -137,6 +137,7 @@ GAMETILE *FindJoinedTileByDirection(GAMETILE *st,VECTOR *d)
 float snapRadius = 75;
 long snapTime = 50;
 extern float waitScale;
+float rotLimit = 0.7;
 
 void UpdateEnemies()
 {
@@ -256,14 +257,12 @@ void UpdateEnemies()
 			{
 				Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
 			}
-			/*
 			else
 			{
 				SubVector( &moveVec, &cur->path->nodes[cur->path->startNode+1].worldTile->centre, &cur->path->nodes[cur->path->startNode].worldTile->centre );
 				if (cur->flags & ENEMY_NEW_BACKWARDS) ScaleVector (&fwd,-1);
 				Orientate(&cur->nmeActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
 			}
-			*/
 //--------------------->
 
 			// check if this enemy has arrived at a path node
@@ -280,7 +279,9 @@ void UpdateEnemies()
 				ActorLookAt( cur->nmeActor->actor, &frog[0]->actor->pos );
 			else if (cur->flags & ENEMY_NEW_SNAPFROG)
 			{
+				VECTOR v1, v2, v3;
 				static GAMETILE *tile = NULL;
+				float angle;
 
 				if( cur->isSnapping > 1 )
 					cur->isSnapping--;
@@ -633,9 +634,11 @@ void UpdateEnemies()
 		// Set point of interest for frog
 		if( cur->nmeActor->distanceFromFrog < pOIDistance )
 		{
+			float angle;
 			SubVector( &moveVec, &cur->nmeActor->actor->pos, &frog[0]->actor->pos );
 			MakeUnit( &moveVec );
-			if( abs(acos(DotProduct( &currTile[0]->dirVector[frogFacing[0]], &moveVec ))) < 0.9 )
+			angle = acos(DotProduct( &currTile[0]->dirVector[frogFacing[0]], &moveVec ));
+			if( angle < rotLimit )
 			{
 				pOIDistance = cur->nmeActor->distanceFromFrog;
 				pointOfInterest = &cur->nmeActor->actor->pos;

@@ -180,6 +180,7 @@ void UpdatePlatforms()
 				if (cur->flags & PLATFORM_NEW_BACKWARDS) ScaleVector (&fwd,-1);
 				Orientate(&cur->pltActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
 			}
+			
 
 //--------------------->
 
