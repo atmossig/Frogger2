@@ -650,7 +650,6 @@ void UpdateRollEnemy(ENEMY *nme)
 	PATH *p = nme->path;
 
 	nme->flags |= ENEMY_NEW_NOREORIENTATE|ENEMY_NEW_FACEFORWARDS;
-//	nme>flags &= ~ENEMY_NEW_F
 
 //	Does this work? Does it? Hmm?
 
@@ -668,8 +667,10 @@ void UpdateRollEnemy(ENEMY *nme)
 		&p->nodes[p->toNode].worldTile->centre,
 		&p->nodes[p->fromNode].worldTile->centre);
 
-	t = (gameSpeed<<12)/FMul(nme->nmeActor->radius, nme->speed);
+	MakeUnit(&fwd);
 
+	t = (gameSpeed*nme->speed)/nme->nmeActor->radius;
+	
 	// rotate around z axis with a quaternion.. oogly
 
 	c = rsin(t);
