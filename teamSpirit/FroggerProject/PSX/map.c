@@ -127,6 +127,9 @@ void LoadScenics ( int collBank )
 			sprintf ( fileName, "SCENICS\\HALLO3.SCE" );
 			break;
 
+		case HALLOWEENBONUS_COL:
+			sprintf ( fileName, "SCENICS\\HALLOBOSSB.SCE" );
+			break;
 
 		case FRONTEND1_COL:
 			sprintf ( fileName, "SCENICS\\START.SCE" );
@@ -318,6 +321,9 @@ void LoadCollision ( int collBank )
 			sprintf ( fileName, "COLLISION\\HALLO3.COL" );
 			break;
 
+		case HALLOWEENBONUS_COL:
+			sprintf ( fileName, "COLLISION\\HALLOBOSSB.COL" );
+			break;
 
 		case FRONTEND1_COL:
 			sprintf ( fileName, "COLLISION\\START.COL" );

@@ -332,6 +332,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 
 // Put the polygon into the OT (Note that we re-use "depth" as one of the "t" variables)
+//				addPrimLen(ot+(depth), (si),12,t2);
 				addPrimLen(ot+(depth), (si),12,t2);
 // Copy the polygon data over into the OT
 #ifdef TEMP_STORE

@@ -144,18 +144,21 @@ void LoadObjectBank ( int objectBank )
 			break;
 
 		case HALLOWEENLEV1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\HALLOWEN\\HALLOWEEN1.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\HALLOWEN\\HALLOWEEN1.PIL" );
+				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN1.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN1.PIL" );
 			break;
 
 		case HALLOWEENLEV2_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\HALLOWEN\\HALLO2.BFF" );
+				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLO2.BFF" );
 			break;
 
 		case HALLOWEENLEV3_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\HALLOWEN\\HALLO3.BFF" );
+				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLO3.BFF" );
 			break;
 
+		case HALLOWEENBONUS_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLOBOSSB.BFF" );
+			break;
 
 		case FRONTEND_OBJ_BANK:
 				sprintf ( PILfileName, "OBJECTS\\HUB.PIL" );
@@ -185,7 +188,7 @@ void LoadObjectBank ( int objectBank )
 			utilPrintf("Loading BFF World %s \n", BFFfileName);
 					//GetWorldFrom_BFF(fileName);
 			objectBanks [ numObjectBanks++ ] = BFF_LoadFile ( BFFfileName );
-			fma_world = (void *)BFF_FindObject(BFF_FMA_WORLD_ID,utilStr2CRC("WORLD"));	// Should only be one world in the BFF
+			fma_world = (void *)BFF_FindObject(BFF_FMA_WORLD_ID,utilStr2CRC("world.psi"));	// Should only be one world in the BFF
 //			ASSERT(fma_world);
 //			chrisSetUpWaterMesh(fma_world);
 		}

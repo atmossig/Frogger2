@@ -21,7 +21,7 @@ void CreateAndAddWaterObject ( char *name, short posx, short posy, short posz, i
 	newItem->flags = newFlags;
 	
 	utilPrintf("Creating water object : %s\n", name);
-	utilUpperStr ( name );
+//	utilUpperStr ( name );
 
 	newItem->fma_water = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( name ) );
 

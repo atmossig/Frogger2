@@ -68,6 +68,8 @@ typedef struct FMA_MESH_HEADER
 	unsigned long id;
 	int length;
 	unsigned long name_crc;
+	unsigned long flags;
+	unsigned long shift;
 
 // Follow that up with a bounding box
 	int minx,miny,minz, maxx,maxy,maxz;
@@ -83,7 +85,7 @@ typedef struct FMA_MESH_HEADER
 	short extra_depth;
 
 // CPW -  I've added this in on 8/12/99
-	short flags;
+//	short flags;
 
 // Finally, vertices, triangles, quads, and texture names.
 // These are stored as integers in the file, and are converted to pointers after loading.

@@ -359,6 +359,7 @@ BFF_Header *BFF_LoadFile(char *filename)
 	}
 //	DB("linking all done\n");
 
+//	outputdebugmessage
 	return addr;
 }
 

@@ -97,8 +97,8 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 				{
 					flags = 0;
 
-					if ( cur->name[4] == 'f' )
-						flags = ACTOR_SLIDYTEX;
+					//if ( cur->name[4] == 'f' )
+						//flags = ACTOR_SLIDYTEX;
 					// ENDIF
 
 					CreateAndAddWaterObject ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, flags );
