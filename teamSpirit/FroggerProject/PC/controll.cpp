@@ -76,12 +76,11 @@ LPDIRECTINPUTDEVICE		lpMouse		= NULL;
 
 void StopKeying(void);
 
-// TODO: put these in a structure somewhere SENSIBLE
 char rKeyFile[MAX_PATH] = "";
-unsigned long rKeying = 0;
-unsigned long rKeyOK = 0;				
-unsigned long rPlaying = 0;
-unsigned long rPlayOK = 0;
+unsigned rKeying = 0;
+unsigned rKeyOK = 0;				
+unsigned rPlaying = 0;
+unsigned rPlayOK = 0;
 long rEndFrame;
 // -------------------------------------------------
 
@@ -206,8 +205,8 @@ const char* DIErrorStr(HRESULT err)
 
 
 /*	--------------------------------------------------------------------------------
-	Function	: InitInputDevices
-	Purpose		: initialises input devices
+	Function	: RecordKeyInit
+	Purpose		: initialises key recording
 	Parameters	: 
 	Returns		: BOOL - TRUE on success, else FALSE
 	Info		: 

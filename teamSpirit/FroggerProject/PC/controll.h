@@ -44,8 +44,8 @@ extern DIMOUSESTATE mouseState;
 
 extern KEYENTRY keymap[56];
 
-extern unsigned long rKeying;
-extern unsigned long rPlaying;
+extern unsigned rKeying;
+extern unsigned rPlaying;
 
 extern LPDIRECTINPUT lpDI;
 extern LPDIRECTINPUTDEVICE lpKeyb;
