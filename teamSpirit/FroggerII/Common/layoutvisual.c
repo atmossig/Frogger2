@@ -644,7 +644,10 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	// create objects for the level
 	CreateLevelObjects(worldID,levelID);
 	CreateFrogger(1,1);
-	LoadLevelEntities(worldID,levelID);
+	
+	LoadLevelEntities(
+		worldVisualData[worldID].worldID,
+		worldVisualData[worldID].levelVisualData[levelID].levelID);
 
 	i=0;
 	initialCamera = 1;
@@ -675,7 +678,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	frameCount = 0;
 
 	// script is loaded last when we know everything's set up
-	LoadLevelScript(worldID,levelID);	
+	LoadLevelScript(
+		worldVisualData[worldID].worldID,
+		worldVisualData[worldID].levelVisualData[levelID].levelID);
 
 	// Stuff that used to be in RunGameLoop
 	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
