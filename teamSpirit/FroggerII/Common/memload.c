@@ -136,16 +136,15 @@ int MemLoadEntities(const void* data, long size)
 			switch (thing)
 			{
 			case CREATE_ENEMY:
-				if( flags & ENEMY_NEW_SWARM )
-					enemy = CreateAndAddEnemy(type,0/*INIT_SWARM*/);
-				else
+//				if( flags & ENEMY_NEW_SWARM )
+//					enemy = CreateAndAddEnemy(type,INIT_SWARM);
+//				else
 					enemy = CreateAndAddEnemy(type,0);
 				enemy->uid = ID;
 				AssignPathToEnemy(enemy, flags, path, 0);
 				act = enemy->nmeActor;
-//				if( enemy->flags & ENEMY_NEW_SWARM )
+//				if( flags & ENEMY_NEW_SWARM )
 //					CreateAndAddFXSwarm( SWARM_TYPE_CROWS, &act->actor->pos, 32, 65535, 0 );
-
 				break;
 
 			case CREATE_PLATFORM:

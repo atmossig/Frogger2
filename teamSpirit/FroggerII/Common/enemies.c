@@ -791,15 +791,15 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags )
 
 	// check nme type and assign shadow if necessary
 
-	if( !(initFlags & INIT_SWARM) )
-	{
+//	if( !(initFlags & INIT_SWARM) )
+//	{
 		initFlags |= INIT_ANIMATION;
 		if(enemyType == NMETYPE_WASP)
 		{
 			initFlags |= INIT_SHADOW;
 			shadowRadius = 20;
 		}
-	}
+//	}
 
 	// create and add the nme actor
 	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);
