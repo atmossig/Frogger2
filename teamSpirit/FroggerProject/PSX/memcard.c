@@ -60,7 +60,11 @@ int gameSaveGetCardStatus()
 	return -1;
 }
 
+#ifdef PALMODE
 #define SAVE_FILENAME "BESLES-00000FROGGER2"
+#else
+#define SAVE_FILENAME "BASLUS-00000FROGGER2"
+#endif
 
 int gameSaveHandleSave()
 {

@@ -208,7 +208,7 @@ long DrawLoop(void)
 		D3DSetupRenderstates(normalZRS);
 		ActorListDraw(0);
 
-		if(!backdrop)
+		if((!backdrop) && (!tileTexture[0]))
 		{
 			DrawAllFrames();
 			BlankAllFrames();

@@ -28,44 +28,23 @@
 
 int lastSound = -1;
 
-char *musicNames[] = { "CDA.XA",//
-											 "CDB.XA",//
-					   "CDA.XA",//
-					   "CDA.XA",//
-					   "CDA.XA",//
-					   "CDA.XA",//
-					   "CDA.XA",//
-					   "CDA.XA",//
-					   "CDA.XA"};//
+char *musicNames[] = {	"CDA.XA",
+						"CDB.XA",
+					 };
 
 int musicList[] = { 0,//
-											1,//
-					   2,//
-					   6,//
-					   3,//
-					   4,//
-					   5,//
-					   6,//
-					   7,
-	0,
-	1,
-	2,
+					1,//
+					2,//
+					6,//
+					3,//
+					4,//
+					5,//
+					6,//
+					7,
+					0,
+					1,
+					2,
 };//
-
-/*
-char *musicNames[] = { "CD3.XA",//
-					   "CD3.XA",
-					   "CD4.XA",
-					   "CD3.XA",//
-					   "CD3.XA",//
-					   "CD4.XA",//
-					   "CD4.XA",
-					   "CD4.XA",//
-					   "CD4.XA",//
-					   "CD3.XA"};//
-*/
-
-
 
 
 #define SFX_BASE		"SFX\\"
@@ -89,7 +68,7 @@ SAMPLE voiceArray[4][MAX_VOICES];
 SAMPLE *genSfx[NUM_GENERIC_SFX];
 // SAMPLE **sfx_anim_map = NULL;
 
-XAFileType	*xaFileData[MUSIC_NUM_TRACKS];
+XAFileType	*xaFileData[2];
  
 // UINT mciDevice = 0;
  
@@ -722,7 +701,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 
 
-
+/*
 void MAIN_PrintXAData(const XAFileType * const XATrack)
 {
 	if (XATrack->status)
@@ -744,7 +723,7 @@ void MAIN_PrintXAData(const XAFileType * const XATrack)
 		utilPrintf("No XA file currently being played.\n");
 	}
 }
-
+*/
 
 
 
