@@ -40,7 +40,7 @@ EDITGROUP *ReadTileGroup(HANDLE f);
 
 int bytesWritten, bytesRead;
 
-void WriteByte(int v, HANDLE f)		{ BYTE b = (BYTE)v; WriteFile(f, &b, 1, &bytesWritten, NULL); }
+void WriteByte(int v, HANDLE f)		{ signed char b = (signed char)v; WriteFile(f, &b, 1, &bytesWritten, NULL); }
 void WriteWord(int v, HANDLE f)		{ WORD w = (WORD)v; WriteFile(f, &w, 2, &bytesWritten, NULL); }
 void WriteInt(int v, HANDLE f)		{ WriteFile(f, &v, 4, &bytesWritten, NULL); }
 void WriteFloat(float v, HANDLE f)	{ WriteInt((int)(v * 0x10000), f); }
