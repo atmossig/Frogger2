@@ -35,8 +35,8 @@ void LoadObjectBank(int objectBank)
 		case INGAMEGENERIC_OBJ_BANK:
 			strcpy(fileName, "gamegeneric"); break;
 
-		case MULTIPLAYER_OBJ_BANK:
-			strcpy(fileName, "multiplayer"); break;
+//		case MULTIPLAYER_OBJ_BANK:
+//			strcpy(fileName, "multiplayer"); break;
 
 		case FROGGER_OBJ_BANK:
 			strcpy(fileName, "frogger"); break;
@@ -44,6 +44,24 @@ void LoadObjectBank(int objectBank)
 		case LILLI_OBJ_BANK:
 			strcpy(fileName, "lilli"); break;
 			
+		case TAD_OBJ_BANK:
+			strcpy(fileName, "tad"); break;
+
+		case SWAMPY_OBJ_BANK:
+			strcpy(fileName, "swampy"); break;
+
+		case TWEE_OBJ_BANK:
+			strcpy(fileName, "twee"); break;
+
+		case WART_OBJ_BANK:
+			strcpy(fileName, "wart"); break;
+
+		case ROOBIE_OBJ_BANK:
+			strcpy(fileName, "roobie"); break;
+
+		case TANK_OBJ_BANK:
+			strcpy(fileName, "tank"); break;
+
 // Garden
 
 		case GARDENMASTER_OBJ_BANK:
