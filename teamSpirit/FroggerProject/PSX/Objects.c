@@ -36,7 +36,7 @@ void LoadObjectBank ( int objectBank )
 				break;
 
 		case LILLI_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\LILLIE.PIL" );					
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\LILLI.PIL" );					
 				break;
 
 		case TAD_OBJ_BANK:

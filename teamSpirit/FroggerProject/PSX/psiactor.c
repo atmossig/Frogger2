@@ -245,7 +245,9 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 
 	actor->radius = psiModel->radius;
 	
-	psiInitSortList( (actor->radius * 2) + 8 );	 					// make enough room to z sort polys
+	if ( actor->psiData.flags & ACTOR_DYNAMICSORT )
+		psiInitSortList( (actor->radius * 2) + 8 );	 					// make enough room to z sort polys
+
 	actor->size.vx = actor->size.vy = actor->size.vz = 4096;
 
 	if (psiObjectScan(actor->psiData.object,"MOTION"))
