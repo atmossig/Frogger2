@@ -26,7 +26,7 @@ extern TextureType	*buttonSprites[6];
 
 int framePause = 0;
 static int	optChosen, optFrame, optSaveAlready, optSaveSlot;
-static char	optStr[1024];
+static char	optStr[256];
 
 #ifdef FINAL_MASTER
 int useMemCard = 1;
@@ -34,8 +34,8 @@ int useMemCard = 1;
 int useMemCard = 1;
 #endif
 
-char memmessage[1024];
-char slotNumStr[4] = "1-A";
+char memmessage[256];
+char slotNumStr[4];
 
 SAVE_INFO saveInfo;
 
