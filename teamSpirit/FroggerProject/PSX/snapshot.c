@@ -1,4 +1,5 @@
 
+#include <islmem.h>
 #include "shell.h"
 #include "snapshot.h"
 
@@ -108,7 +109,7 @@ int SnapShot(char *root)
 	}
 	if (i>9999)
 	{
-		debugPrintf("Error trying to save %s\n", filename);
+		utilPrintf("Error trying to save %s\n", filename);
 		return 0;
 	}
 
@@ -119,13 +120,13 @@ int SnapShot(char *root)
 
     if(!memptr || !output)
 	{
-		debugPrintf("Error malloccing screenshot\n");
+		utilPrintf("Error malloccing screenshot\n");
 		return 0;
 	}
 
 	if ((file = PCcreat(filename,1))==-1)
 	{
-		debugPrintf("Error creating file %s\n", filename);
+		utilPrintf("Error creating file %s\n", filename);
 		return 0;
 	}
 
@@ -160,7 +161,7 @@ int SnapShot(char *root)
 
 	PCclose(file);
 
-	debugPrintf("Grabbed screen %s\n", filename);
+	utilPrintf("Grabbed screen %s\n", filename);
 
 	return 1;
 #endif
