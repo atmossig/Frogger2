@@ -224,8 +224,8 @@ void RenderObjects(void)
 
 	// Draw Additive frameset (num 3)
 	SwapFrame(3);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_ZERO);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
 
 
 	DrawBatchedPolys();
@@ -1316,10 +1316,91 @@ void ActorLookAt( ACTOR *act, VECTOR *at, long flags )
 	Info 		:
 */
 
+QUATERNION flipQuatX = {1,0,0,3.14};
+QUATERNION flipQuatY = {0,1,0,0};
+
 void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
 {
+	QUATERNION r1,q1,q2;
+	VECTOR v1,v2,v3;
+	float dp;
+
+	
+	dp = DotProduct(up,&upVec);
+	
+	if (dp<1-QEPSILON)
+	{
+		if (dp>QEPSILON-1)
+		{
+
+			CrossProduct((VECTOR *)(&r1),up,&upVec);
+			MakeUnit((VECTOR *)(&r1));
+			r1.w = -acos(dp);
+			GetQuaternionFromRotation(&q1,&r1);			
+		}
+		else
+		{			
+			SetQuaternion(&r1,&flipQuatX);			
+		}
+	}
+	else
+	{
+		SetQuaternion(&r1,&flipQuatY);		
+	}
+	
+	RotateVectorByRotation(&v1,mfd,&r1);
+	GetQuaternionFromRotation(&q1,&r1);
+
+	CrossProduct(&v2,fd,up);
+	CrossProduct(&v3,up,&v2);
+	MakeUnit(&v3);
+
+	dp = DotProduct(&v3,&v1);
+
+	if (dp<1-QEPSILON)
+	{
+		if (dp>QEPSILON-1)
+		{
+			CrossProduct((VECTOR *)(&r1),&v3,&v1);
+			MakeUnit(&r1);
+//			SetVector((VECTOR *)(&r1),up);
+			r1.w = -acos(dp);
+			GetQuaternionFromRotation(&q2,&r1);			
+		}
+		else
+		{	
+			SetVector((VECTOR *)(&r1),up);
+			r1.w = -3.14;			
+			GetQuaternionFromRotation(&q2,&r1);
+		}
+	}
+	else
+	{
+		SetQuaternion(&q2,&zeroQuat);		
+	}
+	
+	QuaternionMultiply(me,&q2,&q1);
+//	SetQuaternion(me,&q1);	
+
+	/*
+	if ((dp<=1) && (dp>=-1))
+	{
+		CrossProduct((VECTOR *)&r1, fd, mfd );	
+		r1.w = acos(dp);
+	}
+	else
+	{
+		r1.x = r1.z = 0; 
+		r1.y = 1;
+		r1.z = PI;
+	}
+	*/
+
+	
+	//me->w = 1;
+	//me->x = me->y = me->z = 0;
 	/* This seems to be somewhat more expensive (and unreliable!) than it should be. */
-	VECTOR dirn;
+/*	VECTOR dirn;
 	QUATERNION rotn,q,normal;
 	float dp,m;
 	
@@ -1351,6 +1432,7 @@ void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
 		GetQuaternionFromRotation(&q,&vertQ);
 		QuaternionMultiply(me,me,&q);
 	}
+	*/
 }
 
 void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
