@@ -130,14 +130,6 @@ SOURCE=.\French.bmp
 # End Source File
 # Begin Source File
 
-SOURCE=.\frogger2.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\frogger2mask.bmp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Germany.bmp
 # End Source File
 # Begin Source File
