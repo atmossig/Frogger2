@@ -58,7 +58,6 @@
 #define ENEMY_NEW_RANDOMMOVE			(1 << 26)	// Go to a random adjacent tile
 #define ENEMY_NEW_SHADOW				(1 << 27)	// Has a shadow
 #define ENEMY_NEW_TILEHOMING			(1 << 28)	// Homes in using tiles
-#define ENEMY_NEW_CURVEPATH				(1 << 29)	// Hermite interpolation between nodes
 
 
 typedef struct TAGENEMY

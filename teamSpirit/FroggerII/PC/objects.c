@@ -149,7 +149,7 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 		for (x=0; x<obj->mesh->numFaces; x++)
 		{
 			TEXENTRY *me;
-			me = obj->mesh->textureIDs[x] = GetTexEntryFromCRC (obj->mesh->textureIDs[x]);
+			me = obj->mesh->textureIDs[x] = (TEXTURE *)GetTexEntryFromCRC( (long)obj->mesh->textureIDs[x]);
 			
 			if (me)
 				if (me->type == TEXTURE_AI)
@@ -191,7 +191,7 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 BOOL LoadObjectBank(int num)
 {
 	char				*objectBank = NULL;
-	u32					bankRomStart, bankRomEnd, bankSize;
+	u32					bankRomStart, bankRomEnd;
 	short				x = -1, y = 0;
 	OBJECT				*obj;
 	OBJECT_CONTROLLER	*objCont;
@@ -522,9 +522,7 @@ BOOL LoadObjectBank(int num)
 //		FreeLibrary(handle);
 	}
 	
-	if(objectBank)
-		dprintf"Loaded object bank %s (size %d)\n", file, (int)bankSize));
-	else
+	if( !objectBank )
 	{
 		dprintf"Unable to load object bank %s\n", message));
 		return 0;

@@ -31,7 +31,7 @@ extern char pauseMode;
 #define EF_SMOKE_STATIC					(1 << 1)	// Smoke that doesn't grow
 #define EF_SPARKBURST					(1 << 2)	// Explosion of smoke
 #define EF_FLAMES						(1 << 3)	// Fire
-#define EF_BATSWARM						(1 << 4)	// Crappy fly textures
+#define EF_BATSWARM						(1 << 4)	// Bats
 #define EF_BUBBLES						(1 << 5)	// From the fishes
 #define EF_SMOKE_GROWS					(1 << 6)	// Grows as it fades
 #define EF_SMOKEBURST					(1 << 7)	// Explosion of smoke
@@ -41,6 +41,8 @@ extern char pauseMode;
 #define EF_TRAIL						(1 << 11)	// Motion trail
 #define EF_BILLBOARDTRAIL				(1 << 12)	// Always faces camera
 #define EF_LIGHTNING					(1 << 13)	// Emperors hands effect
+#define EF_SPACETHING1					(1 << 14)	// Swirly jobby
+#define EF_SPARKLYTRAIL					(1 << 15)	// Flash texture
 
 #define EF_RANDOMCREATE					(1 << 25)
 #define EF_FAST							(1 << 26)
@@ -57,7 +59,7 @@ enum
 	FXTYPE_CUSTOM,
 	FXTYPE_WATERRIPPLE,
 	FXTYPE_GARIBCOLLECT,
-	FXTYPE_JUMPBLUR,
+	FXTYPE_SPARKLYTRAIL,
 	FXTYPE_FROGSTUN,
 	FXTYPE_SMOKE_STATIC,
 	FXTYPE_SMOKE_GROWS,
@@ -76,6 +78,7 @@ enum
 	FXTYPE_BILLBOARDTRAIL,
 	FXTYPE_LIGHTNING,
 	FXTYPE_HEALTHFLY,
+	FXTYPE_SPACETHING1,
 
 	FXTYPE_NUMTYPES
 };
@@ -139,7 +142,7 @@ extern TEXTURE *txtrBubble;
 extern TEXTURE *txtrFire;
 extern TEXTURE *txtrBlank;
 extern TEXTURE *txtrTrail;
-
+extern TEXTURE *txtrFlash;
 
 
 extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime );

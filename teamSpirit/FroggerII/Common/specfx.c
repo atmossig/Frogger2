@@ -33,6 +33,7 @@ TEXTURE *txtrBubble		= NULL;
 TEXTURE *txtrFire		= NULL;
 TEXTURE *txtrBlank		= NULL;
 TEXTURE *txtrTrail		= NULL;
+TEXTURE *txtrFlash		= NULL;
 
 
 void UpdateFXRipple( SPECFX *fx );
@@ -185,17 +186,14 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Draw = DrawFXTrail;
 
 		break;
-	case FXTYPE_JUMPBLUR:
+	case FXTYPE_SPARKLYTRAIL:
 		effect->numP = 1;
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
 
 		SetVector( &effect->sprites->pos, &effect->origin );
-		effect->sprites->texture = txtrSolidRing;
+		effect->sprites->texture = txtrFlash;
 		effect->sprites->scaleX = effect->scale.v[X];
 		effect->sprites->scaleY = effect->scale.v[Y];
-		effect->sprites->r = 100;
-		effect->sprites->b = 100;
-		effect->sprites->a = 200;
 		effect->fade = effect->sprites->a / life;
 
 #ifndef PC_VERSION
@@ -250,6 +248,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		break;
 	case FXTYPE_BATSWARM:
 	case FXTYPE_BUTTERFLYSWARM:
+	case FXTYPE_SPACETHING1:
 		effect->numP = (int)lifetime; // Nasty Nasty Nasty
 		i = effect->numP;
 
@@ -262,6 +261,15 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 				effect->act[i] = CreateAndAddActor( "bat.obe", 0,0,0, INIT_ANIMATION);
 			else if( effect->type == FXTYPE_BUTTERFLYSWARM )
 				effect->act[i] = CreateAndAddActor( "bfly.obe", 0,0,0, INIT_ANIMATION);
+			else if( effect->type == FXTYPE_SPACETHING1 )
+			{
+				SPECFX *fx;
+				effect->act[i] = CreateAndAddActor( "xx_saus.obe", 0,0,0, INIT_ANIMATION);
+
+				fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &effect->origin, &effect->normal, 2, 0.99, 0, 2 );
+				fx->follow = effect->act[i]->actor;
+				SetFXColour( fx, 255, 100, 100 );
+			}
 
 			if( effect->act[i]->actor->objectController )
 				InitActorAnim( effect->act[i]->actor );
@@ -609,13 +617,7 @@ void UpdateFXSmoke( SPECFX *fx )
 
 	fo = fx->fade * gameSpeed;
 	if( fx->sprites->a > fo ) fx->sprites->a -= fo;
-	else
-	{
-		if( fx->type == FXTYPE_JUMPBLUR )
-			fx->sprites->a = 255;
-		else
-			fx->sprites->a = 0;
-	}
+	else fx->sprites->a = 0;
 
 	fx->sprites->pos.v[X] += fx->vel.v[X] * gameSpeed;
 	fx->sprites->pos.v[Y] += fx->vel.v[Y] * gameSpeed;
@@ -629,11 +631,6 @@ void UpdateFXSmoke( SPECFX *fx )
 	{
 		fx->sprites->scaleX += fx->accn*gameSpeed;
 		fx->sprites->scaleY += fx->accn*gameSpeed;
-	}
-	else if( fx->type == FXTYPE_JUMPBLUR )
-	{
-		fx->sprites->scaleX--;
-		fx->sprites->scaleY--;
 	}
 	else if( fx->type == FXTYPE_BUBBLES )
 	{
@@ -733,16 +730,13 @@ void UpdateFXSwarm( SPECFX *fx )
 		if( !fx->act )
 		{
 			AddVector( &fx->sprites[i].pos, &fx->origin, &fx->particles[i].pos );
+			SetVector( &pos, &fx->sprites[i].pos );
 		}
 		else
 		{
 			AddVector( &fx->act[i]->actor->pos, &fx->origin, &fx->particles[i].pos );
-		}
-
-		if( !fx->act )
-			SetVector( &pos, &fx->sprites[i].pos );
-		else
 			SetVector( &pos, &fx->act[i]->actor->pos );
+		}
 
 		if( fx->rebound )
 		{
@@ -754,7 +748,7 @@ void UpdateFXSwarm( SPECFX *fx )
 		}
 	}
 
-	if( fx->type != FXTYPE_BATSWARM && fx->type != FXTYPE_BUTTERFLYSWARM )
+	if( fx->type == FXTYPE_FROGSTUN )
 		if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 			fx->deadCount = 5;
 }
@@ -1134,6 +1128,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrFire,UpdateCRC("prc_fire1.bmp"),YES);
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
+	FindTexture(&txtrFlash,UpdateCRC("ai_flash.bmp"),YES);
 }
 
 
@@ -1392,6 +1387,17 @@ void ProcessAttachedEffects( void *entity, int type )
 
 			SetAttachedFXColour( fx, act->effects );
 		}
+		if( act->effects & EF_SPARKLYTRAIL )
+		{
+			if( act->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->actor->pos, &normal, 64, 0, 0, 0.5 );
+			else if( act->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->actor->pos, &normal, 64, 0, 0, 2.5 );
+			else // EF_MEDIUM
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->actor->pos, &normal, 64, 0, 0, 1.0 );
+
+			SetAttachedFXColour( fx, act->effects );
+		}
 		if( act->effects & EF_SPARKBURST )
 		{
 			if( act->effects & EF_FAST )
@@ -1459,22 +1465,32 @@ void ProcessAttachedEffects( void *entity, int type )
 		}
 	}
 
-	if( (act->effects & EF_BUTTERFLYSWARM) || (act->effects & EF_BATSWARM) )
+	if( (act->effects & EF_BUTTERFLYSWARM) || (act->effects & EF_BATSWARM) || (act->effects & EF_SPACETHING1) )
 	{
 		if( act->effects & EF_BATSWARM )
+		{
 			fx = CreateAndAddSpecialEffect( FXTYPE_BATSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
-		else
+			act->effects &= ~EF_BATSWARM;
+		}
+		else if( act->effects & EF_BUTTERFLYSWARM )
+		{
 			fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
+			act->effects &= ~EF_BUTTERFLYSWARM;
+			if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_FLAPPYTHING) )
+			{
+				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+				GetPositionForPathNode( &rPos, &path->nodes[0] );
+				SetVector( &fx->rebound->point, &rPos );
+				SetVector( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
+			}
+		}
+		else
+		{
+			fx = CreateAndAddSpecialEffect( FXTYPE_SPACETHING1, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
+			act->effects &= ~EF_SPACETHING1;
+		}
 
 		fx->follow = act->actor;
-		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_FLAPPYTHING) )
-		{
-			fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-			GetPositionForPathNode( &rPos, &path->nodes[0] );
-			SetVector( &fx->rebound->point, &rPos );
-			SetVector( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
-		}
-		act->effects &= ~EF_BUTTERFLYSWARM;
 	}
 
 	if( act->effects & EF_TRAIL )
