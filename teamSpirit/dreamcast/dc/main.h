@@ -28,9 +28,6 @@
 #define XAgetStatus()	1
 #define	memoryDestroy();
 #define MainReset();
-
-#define LoadGame();
-#define SaveGame();
 	
 extern KMPACKEDARGB 	borderColour;
 extern KMDWORD 			FBarea[];
@@ -77,4 +74,5 @@ extern short			*acostable;
 extern long 			turbo;
 
 extern struct gameStateStruct gameState;
+
 #endif

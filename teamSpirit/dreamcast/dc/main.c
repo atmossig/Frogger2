@@ -35,6 +35,12 @@
 #include "strsfx.h"
 #include "islvideo.h"
 #include "options.h"
+#include "CR_lang.h"
+#include "story.h"
+#include "memcard.h"
+#include "fadeout.h"
+#include "savegame.h"
+#include "DCK_system.h"
 
 KMPACKEDARGB 	borderColour;
 KMDWORD 		FBarea[24576 + 19456];
@@ -109,6 +115,14 @@ AC_ERROR_PTR	acErr;
 AM_ERROR 		*amErr;
 	
 KMDWORD			FogDensity;
+
+#ifdef FINAL_MASTER
+int useMemCard = 1;
+#else
+int useMemCard = 1;
+#endif
+
+SAVE_INFO saveInfo;
 
 /*	--------------------------------------------------------------------------------
 	Function 	: Kamui_Init
@@ -228,6 +242,15 @@ static void VblCallBack(void *arg)
 	vsyncCounter++;	
 }
 
+
+static void EORCallBack(void *arg)
+{
+	if ( loadingDisplay )
+	{
+		loadingDisplayFrame();
+	}
+}
+
 /*	--------------------------------------------------------------------------------
 	Function 	: 
 	Purpose 	: 
@@ -319,13 +342,100 @@ short videoKeyHandler()
 extern StrDataType 	vStream;
 extern CurrentData	current[24];
 
+int	softReset = FALSE;
+
+int checkForSoftReset();
+int checkForValidControllers();
+
+void updatePads()
+{
+	int	i,padCounter;
+
+	padCounter = 0;
+	for(i=firstPad;i<(firstPad+numPads);i++)
+	{
+		switch(i)
+		{
+			case 0:	
+				per = pdGetPeripheral(PDD_PORT_A0);
+				break;
+			case 1:	
+				per = pdGetPeripheral(PDD_PORT_B0);
+				break;
+			case 2:	
+				per = pdGetPeripheral(PDD_PORT_C0);
+				break;
+			case 3:	
+				per = pdGetPeripheral(PDD_PORT_D0);
+				break;
+		}
+
+		// temp pad emulation
+		padData.debounce[padCounter] = 0;
+		if(per->press & PDD_DGT_KU)
+			padData.debounce[padCounter] |= PAD_UP;
+		if(per->press & PDD_DGT_KD)
+			padData.debounce[padCounter] |= PAD_DOWN;
+		if(per->press & PDD_DGT_KR)	
+			padData.debounce[padCounter] |= PAD_RIGHT;
+		if(per->press & PDD_DGT_KL)
+			padData.debounce[padCounter] |= PAD_LEFT;
+
+		if(per->press & PDD_DGT_TB)
+			padData.debounce[padCounter] |= PAD_TRIANGLE;
+		if(per->press & PDD_DGT_TA)
+			padData.debounce[padCounter] |= PAD_CROSS;
+		if(per->press & PDD_DGT_TX)
+			padData.debounce[padCounter] |= PAD_SQUARE;
+		if(per->press & PDD_DGT_TY)
+			padData.debounce[padCounter] |= PAD_CIRCLE;
+		if(per->press & PDD_DGT_ST)
+			padData.debounce[padCounter] |= PAD_START;
+
+		padCounter++;
+	}
+
+	pdExecPeripheralServer();
+}
+
+int startButtonPressed()
+{
+	int	i;
+
+	for(i=0;i<4;i++)
+	{
+		switch(i)
+		{
+			case 0:	
+				per = pdGetPeripheral(PDD_PORT_A0);
+				break;
+			case 1:	
+				per = pdGetPeripheral(PDD_PORT_B0);
+				break;
+			case 2:	
+				per = pdGetPeripheral(PDD_PORT_C0);
+				break;
+			case 3:	
+				per = pdGetPeripheral(PDD_PORT_D0);
+				break;
+		}
+
+		if(per->press & PDD_DGT_ST)
+			return TRUE;
+	}
+
+	pdExecPeripheralServer();
+}
+
 void main()
 {
-	int					i;
+	int					i,counter,padCounter;
 	MWS_PLY_INIT_SFD	iprm;
 	Uint32 				*memfree,*memsize;
 	unsigned long		hyp,test;
-	int					numUsed;
+	int					numUsed,numPadsDetected=0;
+	Sint32				langNum,soundMode;
+	void				*pbuf;
 	
 	#ifdef __GNUC__
 	shinobi_workaround();
@@ -355,28 +465,8 @@ void main()
 	}
 	frameBufferFormat = KM_DSPBPP_RGB888;
 
-	for(i = 0;i < 4;i++)
-	{
-		switch(i)
-		{
-			case 0:	
-				per = pdGetPeripheral(PDD_PORT_A0);
-				break;
-			case 1:	
-				per = pdGetPeripheral(PDD_PORT_B0);
-				break;
-			case 2:	
-				per = pdGetPeripheral(PDD_PORT_C0);
-				break;
-			case 3:	
-				per = pdGetPeripheral(PDD_PORT_D0);
-				break;
-		}
-		padData.present[i] = TRUE;				
-		if(strstr(per->info->product_name,"(none)"))
-			padData.present[i] = FALSE;				
-	}
-	
+	ADXT_Init();
+
     // Check malloc alignment
     Init32Malloc();
 
@@ -397,14 +487,6 @@ void main()
 	// Setup the file system
 	a64FileInit();
 
-////////
-	
-	amHeapAlloc(&gPlayBuffer, gPlayBufferSize, 32,	AM_PURGABLE_MEMORY,KTNULL);
-	gTransferBuffer = (KTU32*)syMalloc(gTransferBufferSize);
-	gHeaderBuffer = (KTU32*)syMalloc(AM_FILE_BLOCK_SIZE);
-
-/////////
-	
 	// setup my vb interrupt
 	VblChain = syChainAddHandler(SYD_CHAIN_EVENT_IML6_VBLANK,VblCallBack,0x60,NULL);
 
@@ -423,38 +505,184 @@ void main()
 
 	numTextureBanks = 0;
 
+	// get boot rom settings
+	pbuf = (void*)syMalloc(16*1024);
+	syCfgInit(pbuf);
+
+	// get language
+	syCfgGetLanguage(&langNum);
+	switch(langNum)
+	{
+		case SYD_CFG_JAPANESE:
+			gameTextLang = LANG_UK;
+			break;
+		case SYD_CFG_ENGLISH:
+			gameTextLang = LANG_UK;
+			break;
+		case SYD_CFG_GERMAN:
+			gameTextLang = LANG_D;
+			break;
+		case SYD_CFG_FRENCH:
+			gameTextLang = LANG_F;
+			break;
+		case SYD_CFG_SPANISH:
+			gameTextLang = LANG_UK;
+			break;
+		case SYD_CFG_ITALIAN:
+			gameTextLang = LANG_IT;
+			break;
+		default:
+			gameTextLang = LANG_UK;
+			break;
+	}
+
+	// get sound mode
+	syCfgGetSoundMode(&soundMode);
+	if(soundMode == SYD_CFG_STEREO)
+		options.stereo = TRUE;
+	else
+		options.stereo = FALSE;
+
+	syCfgExit();
+	syFree(pbuf);
+
+/*
+	// Play initial FMV
+	numPadsDetected = checkForValidControllers();
+	utilPrintf("Playing FMV.....\n");
+	StartVideoPlayback(FMV_ATARI_LOGO);
+	if(quitAllVideo == 0)
+		StartVideoPlayback(FMV_BLITZ_LOGO);
+
+
+	InitBackdrop ("SOFDEC");
+	ScreenFade(0,255,20);
+	actFrameCount = 0;
+	counter = FALSE;
+	while((counter == FALSE)||(fadingOut))
+	{
+		DrawLegalBackDrop(0, 0);
+//		DrawScreenTransition();
+		actFrameCount++;
+
+		if((actFrameCount > (3*60)) && (counter == 0))
+		{
+			ScreenFade(255,0,20);
+			counter = YES;
+		}
+
+//		if(startButtonPressed())
+//			break;
+	}
+	FreeLegalBackdrop();
+*/
+	InitBackdrop ("FR2LEGAL");
+	ScreenFade(0,255,20);
+	actFrameCount = 0;
+	counter = FALSE;
+	while((counter == FALSE)||(fadingOut))
+	{
+		DrawLegalBackDrop(0, 0);
+//		DrawScreenTransition();
+		actFrameCount++;
+
+		if((actFrameCount > (3*60)) && (counter == 0))
+		{
+			ScreenFade(255,0,20);
+			counter = YES;
+		}
+
+//		if(startButtonPressed())
+//			break;
+	}
+	FreeLegalBackdrop();
+
 	CommonInit();
 
-	for(i = 0;i < 4;i++)
+	// don't start up unless valid pad detected
+	numPadsDetected = checkForValidControllers();
+	if(numPadsDetected == 0)
 	{
-		switch(i)
+		InitTiledBackdrop("LOGO");
+		ScreenFade(0,255,20);
+
+		while(!numPadsDetected)
 		{
-			case 0:	
-				per = pdGetPeripheral(PDD_PORT_A0);
-				break;
-			case 1:	
-				per = pdGetPeripheral(PDD_PORT_B0);
-				break;
-			case 2:	
-				per = pdGetPeripheral(PDD_PORT_C0);
-				break;
-			case 3:	
-				per = pdGetPeripheral(PDD_PORT_D0);
-				break;
+			kmBeginScene(&kmSystemConfig);
+			kmBeginPass(&vertexBufferDesc);
+
+//			fontPrint(font, 10-256,0, GAMESTRING(STR_DC_NOCONTROLLER), 255,255,255);
+			FontInSpace((320-fontExtentWScaled(fontSmall, "No Valid Controller Connected to Dreamcast.",4096)/2),240, "No Valid Controller Connected to Dreamcast.", 380,2, 255,255,255);
+
+			utilPrintf("header: %d\n",sizeof(SAVEGAME_HEADER));
+			utilPrintf("level: %d\n",sizeof(SAVEGAME_LEVELINFO));
+			utilPrintf("level * numLevels: %d\n",sizeof(SAVEGAME_LEVELINFO)*SAVEGAME_LEVELS);
+			utilPrintf("total: %d\n",(SAVEGAME_HEADERSIZE+sizeof(SAVEGAME_LEVELINFO)*SAVEGAME_LEVELS));
+			utilPrintf("psxheader: %d\n",PSXCARDHEADER_SIZE);
+			utilPrintf("\n");
+
+			DrawTiledBackdrop(NO);
+			DrawScreenTransition();
+			actFrameCount++;
+
+			kmEndPass(&vertexBufferDesc);
+				
+			kmRender(KM_RENDER_FLIP);
+			kmEndScene(&kmSystemConfig);
+
+			numPadsDetected = checkForValidControllers();
 		}
-		padData.present[i] = TRUE;				
-		if(strstr(per->info->product_name,"(none)"))
-			padData.present[i] = FALSE;				
 	}
-	
+
+	cardInitialise();
+
+	LoadGame();
+		
+	actFrameCount = 0;
+	if(saveInfo.saveFrame)
+	{
+		InitTiledBackdrop("LOGO");
+		ScreenFade(0,255,20);
+		keepFade = NO;
+
+		while((saveInfo.saveFrame) || (fadingOut))
+		{
+			updatePads();
+
+			kmBeginScene(&kmSystemConfig);
+			kmBeginPass(&vertexBufferDesc);
+
+			DrawTiledBackdrop(NO);
+			DrawScreenTransition();
+			actFrameCount++;
+
+			if(actFrameCount > 20)
+				ChooseLoadSave();
+			
+			if((saveInfo.saveFrame == 0) && (keepFade == 0))
+			{
+				ScreenFade(255,0,20);
+				keepFade = YES;
+			}
+
+			kmEndPass(&vertexBufferDesc);
+				
+			kmRender(KM_RENDER_FLIP);
+			kmEndScene(&kmSystemConfig);
+		}
+		FreeTiledBackdrop();
+	}
+
 //ma	BuildFogTable();
 
 #ifdef _DEBUG
 	utilPrintf("DEBUG ACTIVE!!!!!\n");
 #endif
 
+//	syCacheInit(SYD_CACHE_FORM_OC_ENABLE | SYD_CACHE_FORM_IC_ENABLE | SYD_CACHE_FORM_OC_RAM);
+
 	// render loop
-	while(TRUE)
+	while(!softReset)
 	{
 		DCTIMER_START(0);
 
@@ -467,13 +695,8 @@ void main()
 		
 		DCTIMER_STOP(1);		
 
-		bpAmStreamServer();
-		if (bpAmStreamDone(gStream))
-		{
-			ReplayStream();
-		}
-
-		for(i=0;i<NUM_FROGS;i++)
+		padCounter = 0;
+		for(i=firstPad;i<(firstPad+numPads);i++)
 		{
 			switch(i)
 			{
@@ -492,64 +715,66 @@ void main()
 			}
 
 			// temp pad emulation
-			padData.debounce[i] = 0;
+			padData.debounce[padCounter] = 0;
 			if(per->press & PDD_DGT_KU)
-				padData.debounce[i] |= PAD_UP;
+				padData.debounce[padCounter] |= PAD_UP;
 			if(per->press & PDD_DGT_KD)
-				padData.debounce[i] |= PAD_DOWN;
+				padData.debounce[padCounter] |= PAD_DOWN;
 			if(per->press & PDD_DGT_KR)	
-				padData.debounce[i] |= PAD_RIGHT;
+				padData.debounce[padCounter] |= PAD_RIGHT;
 			if(per->press & PDD_DGT_KL)
-				padData.debounce[i] |= PAD_LEFT;
+				padData.debounce[padCounter] |= PAD_LEFT;
 
 			if(per->press & PDD_DGT_TB)
-				padData.debounce[i] |= PAD_TRIANGLE;
+				padData.debounce[padCounter] |= PAD_TRIANGLE;
 			if(per->press & PDD_DGT_TA)
-				padData.debounce[i] |= PAD_CROSS;
+				padData.debounce[padCounter] |= PAD_CROSS;
 			if(per->press & PDD_DGT_TX)
-				padData.debounce[i] |= PAD_SQUARE;
+				padData.debounce[padCounter] |= PAD_SQUARE;
 			if(per->press & PDD_DGT_TY)
-				padData.debounce[i] |= PAD_CIRCLE;
+				padData.debounce[padCounter] |= PAD_CIRCLE;
 			if(per->press & PDD_DGT_ST)
-				padData.debounce[i] |= PAD_START;
+				padData.debounce[padCounter] |= PAD_START;
 
-			if((per->press & PDD_DGT_TR)&&(per->press & PDD_DGT_TL))
-			{
-				padData.debounce[i] |= PAD_R1;
-			}
-			else
-			{
+//			if((per->press & PDD_DGT_TR)&&(per->press & PDD_DGT_TL))
+//			{
+//				padData.debounce[padCounter] |= PAD_R1;
+//			}
+//			else
+//			{
 				if(per->press & PDD_DGT_TR)
-					padData.debounce[i] |= PAD_R2;
+					padData.debounce[padCounter] |= PAD_R1;
 				if(per->press & PDD_DGT_TL)
-					padData.debounce[i] |= PAD_L2;
-			}
+					padData.debounce[padCounter] |= PAD_L1;
+//			}
 		
 			// toggle timer bars on/off
 			if((per->press & PDD_DGT_TY)&&((per->r <= 128)&&(per->r > 0))&&((per->l <= 128)&&(per->l > 0)))
 				timerBars = !timerBars;
 
 			// temp pad emulation
-			padData.digital[i] = 0;
+			padData.digital[padCounter] = 0;
 			if(per->on & PDD_DGT_KU)
-				padData.digital[i] |= PAD_UP;
+				padData.digital[padCounter] |= PAD_UP;
 			if(per->on & PDD_DGT_KD)
-				padData.digital[i] |= PAD_DOWN;
+				padData.digital[padCounter] |= PAD_DOWN;
 			if(per->on & PDD_DGT_KR)
-				padData.digital[i] |= PAD_RIGHT;
+				padData.digital[padCounter] |= PAD_RIGHT;
 			if(per->on & PDD_DGT_KL)
-				padData.digital[i] |= PAD_LEFT;
+				padData.digital[padCounter] |= PAD_LEFT;
 
 			if(per->on & PDD_DGT_TB)
-				padData.digital[i] |= PAD_TRIANGLE;
+				padData.digital[padCounter] |= PAD_TRIANGLE;
 			if(per->on & PDD_DGT_TA)
-				padData.digital[i] |= PAD_CROSS;
+				padData.digital[padCounter] |= PAD_CROSS;
 			if(per->on & PDD_DGT_TX)
-				padData.digital[i] |= PAD_SQUARE;
+				padData.digital[padCounter] |= PAD_SQUARE;
 			if(per->on & PDD_DGT_TY)
-				padData.digital[i] |= PAD_CIRCLE;
+				padData.digital[padCounter] |= PAD_CIRCLE;
 			if(per->on & PDD_DGT_ST)
-				padData.digital[i] |= PAD_START;
+				padData.digital[padCounter] |= PAD_START;
+
+			padCounter++;
 		}
 		
 		if((gameState.mode != PAUSE_MODE ) && (gameState.mode != GAMEOVER_MODE))
@@ -592,7 +817,7 @@ void main()
 		}
 
 		if(tileTexture[0])
-			DrawTiledBackdrop(/*saveInfo.saveFrame ? NO : */YES);
+			DrawTiledBackdrop(saveInfo.saveFrame ? NO : YES);
 
 		DCTIMER_START(6);				
 		PrintSpriteOverlays(1);
@@ -618,12 +843,12 @@ void main()
 					numUsed++;
 			}
  
-		 	sprintf(textbuffer,"numUsed: %d",numUsed);
-			fontPrint(font, 10,10, textbuffer, 255,255,255);
+//		 	sprintf(textbuffer,"numUsed: %d",numUsed);
+//			fontPrint(font, 10,10, textbuffer, 255,255,255);
 
 //			fontPrint(font, textPosX,textPosY, texurestring, 255,255,255);
 
-			fontPrint(font, textPosX,textPosY+16, texurestring2, 255,255,255);
+//			fontPrint(font, textPosX,textPosY+16, texurestring2, 255,255,255);
 
 //			sprintf(textbuffer,"polyCount: %d",polyCount);
 //			fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
@@ -631,15 +856,15 @@ void main()
 //			sprintf(textbuffer,"Actors: %d (%d,%d)",(psiActorCount+fmaActorCount),psiActorCount, fmaActorCount);
 //			fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
 
-//			sprintf(textbuffer,"DCK: %d (%d)",DCKnumTextures,texViewer);
-//			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
+			sprintf(textbuffer,"DCK: %d (%d)",DCKnumTextures,texViewer);
+			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
 
 //			sprintf(textbuffer,"Map: %d",mapCount);
 //			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
 
-			syMallocStat(memfree,memsize);
-			sprintf(textbuffer,"alloc: %d",*memfree);//mallocList.totalMalloc);		
-			fontPrint(font, textPosX,textPosY+48, textbuffer, 255,255,255);						
+//			syMallocStat(memfree,memsize);
+//			sprintf(textbuffer,"alloc: %d",*memfree);//mallocList.totalMalloc);		
+//			fontPrint(font, textPosX,textPosY+48, textbuffer, 255,255,255);						
 
 //			sprintf(textbuffer,"mallocList: %d",mallocList.numEntries);//mallocList.totalMalloc);		
 //			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
@@ -702,8 +927,6 @@ void main()
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 			kmEndStrip(&vertexBufferDesc);
 */
-
-
 /*			kmxxGetCurrentPtr(&vertexBufferDesc);					
 
 			kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,&DCKtextureList[texViewer].surface);
@@ -725,7 +948,7 @@ void main()
 		kmRender(KM_RENDER_FLIP);
 		kmEndScene(&kmSystemConfig);
 
-		if((gameState.mode != PAUSE_MODE) || (quittingLevel))
+/*		if((gameState.mode != PAUSE_MODE) || (quittingLevel))
 		{
 			//bb
 			lastActFrameCount = actFrameCount;
@@ -738,10 +961,33 @@ void main()
 			actFrameCount += gameSpeed>>12;
 			vsyncCounter = 0;
 		}
-		
+*/		
+		if((gameState.mode!=PAUSE_MODE) || (quittingLevel))
+		{
+			lastActFrameCount = actFrameCount;
+
+			gameSpeed = vsyncCounter<<12;
+	
+			if(gameSpeed > (5<<12))
+				gameSpeed = (5<<12);
+
+ 			actFrameCount += gameSpeed>>12;
+
+//#ifdef PALMODE
+//			gameSpeed *= 6;
+//			gameSpeed /= 5;
+//#endif	
+			vsyncCounter = 0;
+		}
+		else
+		{
+			pauseGameSpeed = vsyncCounter<<12;
+			vsyncCounter = 0;
+		}
+
 		pdExecPeripheralServer();
 		DCTIMER_STOP(8);		
-		DCTIMER_STOP(0);		
+		DCTIMER_STOP(0);	
 	}
 
 	bpAmShutdown();		
@@ -752,3 +998,6 @@ void main()
 
 	sbExitSystem();
 }
+
+
+
