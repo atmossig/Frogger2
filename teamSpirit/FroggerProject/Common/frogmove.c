@@ -1341,11 +1341,14 @@ void CheckForFroggerLanding(long pl)
 	else /*if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)*/
 	{
 		int state;
-		
+
 		if (!destTile[pl])
 			tile = currTile[pl];
 		else
 		{
+			if( currTile[pl]->state >= TILESTATE_CONVEYOR_ONEWAY && destTile[pl]->state < TILESTATE_CONVEYOR_ONEWAY )
+				actorAnimate( frog[pl]->actor, FROG_ANIM_BREATHE, YES, NO, FROG_BREATHE_SPEED, 0 );
+
 			currTile[pl] = tile = destTile[pl];
 			destTile[pl] = NULL;
 		}
