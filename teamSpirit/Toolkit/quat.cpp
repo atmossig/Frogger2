@@ -1,6 +1,5 @@
 #include <math.h>
 
-#include "maths.h"
 #include "vertex.h"
 #include "matrix.h"
 #include "quat.h"
@@ -122,7 +121,7 @@ Quaternion Quaternion::SlerpFixedSpeed( quat &q, float speed )
 	else
 		t = -(x*q.x + y*q.y + z*q.z + w*q.w);
 
-	t = Fabs(acos(t));
+	t = fabs(acos(t));
 
 	if( t > speed )
 		d = Slerp( q, speed/t );
