@@ -278,11 +278,11 @@ void GetArgs(char *arglist)
 						screenshotEnable = !screenshotEnable;
 						utilPrintf("Screenshot mode is %s\n",screenshotEnable?"enabled":"disabled");
 						break;
-
+/*
 					case 'M':
 						e3multi = !e3multi;
 						break;
-
+*/
 					case 'E':
 						showMemDebug = !showMemDebug;
 						break;
@@ -552,7 +552,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			switch( (int)wParam )
 			{
 			case MCI_NOTIFY_SUCCESSFUL:
-				PrepareSong( player[0].worldNum );
+				LoopSong();
 				break;
 			}
 

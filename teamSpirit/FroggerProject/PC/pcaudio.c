@@ -71,7 +71,7 @@ DWORD stopCDTrack( HWND hWndNotify );
 
 // CD Audio variables
 
-static int		auxVolume, oldVolume;
+static int		auxVolume, oldVolume, cdTrack;
 static DWORD	volumecontrolid, cdaudiovalid;
 
 static char		errStr[128];
@@ -121,6 +121,24 @@ long bytetoDB[256] =
 	-187,-181,-174,-168,-161,-155,-149,-142,-136,-130,-124,-118,-112,-106,100,-93,
 	//240-255
 	-87,-81,-75,-70,-64,-58,-52,-46,-40,-34,-28,-22,-17,-11,-5,0
+};
+
+enum
+{
+	NOTRACK = 0,
+	GARDEN_CDAUDIO			= 2,
+	ANCIENTS_CDAUDIO,
+	SPACE_CDAUDIO,
+//	CITY_CDAUDIO,
+	SUBTERRANEAN_CDAUDIO,
+	LABORATORY_CDAUDIO,
+	HALLOWEEN_CDAUDIO,
+	SUPERRETRO_CDAUDIO,
+	FRONTEND_CDAUDIO,
+	LEVELCOMPLETE_CDAUDIO,
+	GAMEOVER_CDAUDIO,
+
+	NUM_CD_TRACKS,
 };
 
 /*	--------------------------------------------------------------------------------
@@ -912,16 +930,48 @@ int ShutdownCDaudio()
 	Returns			: void
 	Info			: 
 */
-void PrepareSong( short num )
+void PrepareSong(short world, short loop)
 {
+	int track;
+
+	switch (world)
+	{
+	case WORLDID_GARDEN:		track = GARDEN_CDAUDIO; break;
+	case WORLDID_ANCIENT:		track = ANCIENTS_CDAUDIO; break;
+	case WORLDID_SPACE:			track = SPACE_CDAUDIO; break;
+	case WORLDID_CITY:			track = SUPERRETRO_CDAUDIO; break;
+	case WORLDID_SUBTERRANEAN:	track = SUBTERRANEAN_CDAUDIO; break;
+	case WORLDID_LABORATORY:	track = LABORATORY_CDAUDIO; break;
+	case WORLDID_HALLOWEEN:		track = HALLOWEEN_CDAUDIO; break;
+	case WORLDID_SUPERRETRO:	track = SUPERRETRO_CDAUDIO; break;
+	case WORLDID_FRONTEND:		track = FRONTEND_CDAUDIO; break;
+
+	case AUDIOTRK_GAMEOVER:		track = GAMEOVER_CDAUDIO; break;
+	case AUDIOTRK_LEVELCOMPLETE:track = LEVELCOMPLETE_CDAUDIO; break;
+
+	default:
+		return;
+	}
 	// play cd audio track here....
-	playCDTrack ( mdxWinInfo.hWndMain, num + GARDEN_CDAUDIO );
+	playCDTrack ( mdxWinInfo.hWndMain, track);
+	
+	if (loop)
+		cdTrack = track;
+	else
+		cdTrack = 0;
+}
+
+
+void LoopSong()
+{
+	PrepareSong(cdTrack, 1);
 }
 
 
 void StopSong( )
 {
 	stopCDTrack( mdxWinInfo.hWndMain );
+	cdTrack = 0;
 }
 
 

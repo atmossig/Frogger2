@@ -35,23 +35,6 @@ extern "C"
 extern int AMBIENT_VOLUME;
 extern int SAMPLE_VOLUME;
 
-
-enum
-{
-	NOTRACK = 0,
-	GARDEN_CDAUDIO = 2,
-	ANCIENTS_CDAUDIO,
-	SPACE_CDAUDIO,
-	CITY_CDAUDIO,
-	SUBTERRANEAN_CDAUDIO,
-	LABORATORY_CDAUDIO,
-	HALLOWEEN_CDAUDIO,
-	SUPERRETRO_CDAUDIO,
-	FRONTEND_CDAUDIO,
-
-	NUM_CD_TRACKS,
-};
-
 // All generic sfx
 enum
 {
@@ -100,6 +83,9 @@ enum
 
 	NUM_VOICES
 };
+
+#define AUDIOTRK_GAMEOVER		100
+#define AUDIOTRK_LEVELCOMPLETE	101
 
 //***********************************
 // Type Defines
@@ -214,7 +200,8 @@ extern void UpdateAmbientSounds();
 extern void InitVoices( char *path, int len );
 #define PlayVoice(pl, sound) PlaySample(FindVoice(UpdateCRC(sound),pl), NULL, 0, SAMPLE_VOLUME, -1)
 
-extern void PrepareSong( short num );
+extern void PrepareSong(short num, short loop);
+extern void LoopSong();
 extern void StopSong( );
 
 extern void PauseAudio( );
