@@ -587,8 +587,9 @@ EDITPATH *ReadEditPath(EDLOADSTATE *state)
 		if( state->ver > 13 ) sample = (unsigned long)ReadInt(f);
 		else sample = 0;
 
-		//tile = FindNearestTile(v);
-		if (!tile || tile == prevtile) continue;	// discard invalid path nodes
+		//tile = FindNearestTile(v);  
+		// if .. || tile == prevtile)
+		if (!tile) continue;	// discard invalid path nodes
 
 		node = EditorAddFlag(tile, path);
 
