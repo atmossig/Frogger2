@@ -126,8 +126,8 @@ float modi2 = 1.29;
 float modi3 = 2.5;
 float modi4 = 96.0;
 
-int modc1 = 80;
-int modc2 = 100;
+int modc1 = 32;
+int modc2 = 96;
 int modc3 = 16;
 
 int slideSpeed = 0;
@@ -140,17 +140,18 @@ void UpdateWaterN64(ACTOR2 *wAct)
 		float t,t2,xval,zval,mV;
 		Vtx *in = NULL;
 		int i,colMod;
+		OBJECT_CONTROLLER *wObjCont = wAct->actor->objectController;
 
-		in = wAct->actor->objectController->vtx[wAct->actor->objectController->vtxBuf];
-		i = wAct->actor->objectController->numVtx;
+		in = wObjCont->vtx[wAct->actor->objectController->vtxBuf];
+		i = wObjCont->numVtx;
 
 		t = actFrameCount * modi1;
+
 		while(i--)
 		{
 			if(wAct->flags & ACTOR_SLIDYTEX)
 			{
 				in->v.tc[1] -= (gameSpeed * slideSpeed * 1024);
-
 				in->v.cn[3] = modc2;
 			}
 			else
@@ -165,7 +166,6 @@ void UpdateWaterN64(ACTOR2 *wAct)
 
 				in->v.ob[Y] += t2 * modi3;
 
-//				colMod = modc2 + (modc3 * (in->v.ob[Y] + 20));
 				colMod = modc2 + (t2 * modi3 * modc3);
 
 				if(colMod > 255)
@@ -173,9 +173,6 @@ void UpdateWaterN64(ACTOR2 *wAct)
 				else if(colMod < modc1)
 					colMod = modc1;
 
-				in->v.cn[0] = colMod;
-				in->v.cn[1] = colMod;
-				in->v.cn[2] = colMod;
 				in->v.cn[3] = colMod;
 
 				// modge texture co-ordinates
@@ -202,11 +199,11 @@ void SetWaterModifiersN64(short worldID,short levelID)
 	switch(worldID)
 	{
 		case WORLDID_FRONTEND:
-			modc1 = 80;		modc2 = 100;	modc3 = 16;
+			modc1 = 32;		modc2 = 96;		modc3 = 16;
 			break;
 
 		case WORLDID_SPACE:
-			modc1 = 140;	modc2 = 180;	modc3 = 8;
+			modc1 = 64;		modc2 = 128;	modc3 = 8;
 			break;
 	}
 }
@@ -296,7 +293,7 @@ void UpdateModgyTexN64(ACTOR2 *mAct)
 			xval = in->v.ob[X] * 0.05;
 			zval = in->v.ob[Z] * 0.05;
 
-			t2 = sinf(t + xval * zval * 0.25) - cosf(t + xval * 0.15 * zval);
+			t2 = sinf(t + xval * zval * 0.5) - cosf(t + xval * 0.3 * zval);
 
 			mV = t2 * 96;
 

@@ -364,7 +364,9 @@ void DrawActorList()
 			continue;
 		}
 
-		if((!cur->actor->objectController) || (cur->flags & ACTOR_DRAW_LAST))
+		if((!cur->actor->objectController) ||
+			(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) ||
+			(cur->flags & ACTOR_DRAW_LAST))
 		{
 			// don't draw object yet
 			cur = cur->next;
@@ -413,14 +415,13 @@ void DrawActorList()
 		cur = cur->next;
 	}
 
-/*
 	// now draw the xlu objects that aren't water objects
 	waterObject = 0;
 	cur = actList;
 	while(cur)
 	{
 		// don't draw the water objects
-		if((cur->flags & ACTOR_WATER) || !(cur->flags & ACTOR_DRAW_CULLED))
+		if(!(cur->actor->objectController) || (cur->flags & ACTOR_WATER))
 		{
 			cur = cur->next;
 			continue;
@@ -436,7 +437,7 @@ void DrawActorList()
 		
 		cur = cur->next;
 	}
-*/
+
 #endif
 }
 
