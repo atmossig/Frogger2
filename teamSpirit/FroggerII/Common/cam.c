@@ -56,6 +56,7 @@ float scaleV				= 1.1F;
 short cameraShake			= 0;
 
 char controlCamera			= 0;
+char controlCamSource		= 0;
 
 TRANSCAMERA *transCameraList = NULL;
 
@@ -188,7 +189,7 @@ VECTOR dCam11 = { 0,540,7 };
 
 int gardenLawnSetting1[] = 
 {
-	12,13,14,15,108,109,110,111,112,113,114,115,116,292,
+	74,
 
 
 
@@ -258,11 +259,30 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 
 	switch(worldID)
 	{
+		case WORLDID_GARDEN:
+			switch(levelID)
+			{
+				case LEVELID_GARDENLAWN:
+					i = 0;
+					while ( gardenLawnSetting1 [ i ] != -1 )
+						CreateAndAddTransCamera ( &firstTile[gardenLawnSetting1[i++]], 0, gardenLawnCam1.v[0], gardenLawnCam1.v[1], gardenLawnCam1.v[2], FIXED_CAMERA_SOURCE );
+					/*i=0;
+					while(gardenLawnSetting2[i] != -1)
+						CreateAndAddTransCamera(&firstTile[gardenLawnSetting2[i++]],0,gardenLawnCam2.v[0],gardenLawnCam2.v[1],gardenLawnCam2.v[2]);
+					i=0;
+					while(gardenLawnSetting3[i] != -1)
+						CreateAndAddTransCamera(&firstTile[gardenLawnSetting3[i++]],0,gardenLawnCam3.v[0],gardenLawnCam3.v[1],gardenLawnCam3.v[2]);
+					i=0;
+					while(gardenLawnSetting4[i] != -1)
+						CreateAndAddTransCamera(&firstTile[gardenLawnSetting4[i++]],0,gardenLawnCam4.v[0],gardenLawnCam4.v[1],gardenLawnCam4.v[2]);
+					*/break;
+			}
+
 		case WORLDID_CITY:
 			switch(levelID)
 			{
 				case LEVELID_CITYDOCKS:
-					while (tCam1[i]!=-1)
+/*					while (tCam1[i]!=-1)
 						CreateAndAddTransCamera(&firstTile[tCam1[i++]],0,dCam1.v[0],dCam1.v[1],dCam1.v[2]);
 					i=0;
 					while (tCam2[i]!=-1)
@@ -294,7 +314,7 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 					i=0;
 					while (tCam11[i]!=-1)
 						CreateAndAddTransCamera(&firstTile[tCam11[i++]],0,dCam11.v[0],dCam11.v[1],dCam11.v[2]);
-
+						   */
 					break;
 
 				case LEVELID_CITYSTREETS:
@@ -310,25 +330,6 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 					break;
 			}
 			break;
-
-		case WORLDID_GARDEN:
-			switch(levelID)
-			{
-				case LEVELID_GARDENLAWN:
-					i=0;
-					while(gardenLawnSetting1[i] != -1)
-						CreateAndAddTransCamera(&firstTile[gardenLawnSetting1[i++]],0,gardenLawnCam1.v[0],gardenLawnCam1.v[1],gardenLawnCam1.v[2]);
-					i=0;
-					while(gardenLawnSetting2[i] != -1)
-						CreateAndAddTransCamera(&firstTile[gardenLawnSetting2[i++]],0,gardenLawnCam2.v[0],gardenLawnCam2.v[1],gardenLawnCam2.v[2]);
-					i=0;
-					while(gardenLawnSetting3[i] != -1)
-						CreateAndAddTransCamera(&firstTile[gardenLawnSetting3[i++]],0,gardenLawnCam3.v[0],gardenLawnCam3.v[1],gardenLawnCam3.v[2]);
-					i=0;
-					while(gardenLawnSetting4[i] != -1)
-						CreateAndAddTransCamera(&firstTile[gardenLawnSetting4[i++]],0,gardenLawnCam4.v[0],gardenLawnCam4.v[1],gardenLawnCam4.v[2]);
-					break;
-			}
 	}
 }
 
@@ -340,7 +341,7 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 	Returns			: TRANSCAMERA *
 	Info			: 
 */
-TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace,float offsetX,float offsetY,float offsetZ)
+TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace,float offsetX,float offsetY,float offsetZ, unsigned long camFlags)
 {
 	TRANSCAMERA *newItem = (TRANSCAMERA *)JallocAlloc(sizeof(TRANSCAMERA),YES,"TRNSCAM");
 
@@ -349,6 +350,8 @@ TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace
 	newItem->camOffset.v[X]	= offsetX;
 	newItem->camOffset.v[Y]	= offsetY;
 	newItem->camOffset.v[Z]	= offsetZ;
+
+	newItem->flags			= camFlags;
 
 	newItem->next			= transCameraList;
 	transCameraList			= newItem;
@@ -378,14 +381,27 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 	{
 		if(cur->tile == tile)
 		{
-			// frog on tile where camera change is needed
-			// check if camera if facing right direction for the change
-//			if(camFacing == cur->dirCamMustFace)
+			if ( cur->flags & STATIC_CAMERA )
 			{
-				// ok - move the camera to the new position
-				SetVector(&camDist,&cur->camOffset);
-				specialCaseTile = 1;
+				controlCamera = 1;
 			}
+			else if ( cur->flags & FIXED_CAMERA_SOURCE )
+			{
+				controlCamSource = 1;
+			}
+			else if ( cur->flags & CAMERA_LOOK_AT_FROG )
+			{
+				// frog on tile where camera change is needed
+				// check if camera if facing right direction for the change
+	//			if(camFacing == cur->dirCamMustFace)
+				{
+					// ok - move the camera to the new position
+					SetVector(&camDist,&cur->camOffset);
+					specialCaseTile = 1;
+				}
+			}
+			// ENDELSEIF
+
 		}
 		cur = cur->next;
 	}

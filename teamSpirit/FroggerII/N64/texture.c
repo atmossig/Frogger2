@@ -102,17 +102,17 @@ void LoadTextureBank(int num)
 		case LEVEL1_GARDEN_TEX_BANK:
 				bankRomStart	= (u32)&_texBank4SegmentRomStart;
 				bankRomEnd		= (u32)&_texBank4SegmentRomEnd;
-				sprintf ( message, "LEV1_GAR_TB" );
+				sprintf ( message, "LV1_GAR_TB" );
 			break;
 		case LEVEL2_GARDEN_TEX_BANK:
 				bankRomStart	= (u32)&_texBank5SegmentRomStart;
 				bankRomEnd		= (u32)&_texBank5SegmentRomEnd;
-				sprintf ( message, "LEV2_GAR_TB" );
+				sprintf ( message, "LV2_GAR_TB" );
 			break;
 		case LEVEL3_GARDEN_TEX_BANK:
 				bankRomStart	= (u32)&_texBank6SegmentRomStart;
 				bankRomEnd		= (u32)&_texBank6SegmentRomEnd;
-				sprintf ( message, "LEV3_GAR_TB" );
+				sprintf ( message, "LV3_GAR_TB" );
 			break;
 		case BOSSA_GARDEN_TEX_BANK:
 				bankRomStart	= (u32)&_texBank7SegmentRomStart;
@@ -145,17 +145,17 @@ void LoadTextureBank(int num)
 		case LEVEL1_ANCIENT_TEX_BANK:
 				bankRomStart	= (u32)&_texBank12SegmentRomStart;
 				bankRomEnd		= (u32)&_texBank12SegmentRomEnd;
-				sprintf ( message, "LEV1_ANC_TB" );
+				sprintf ( message, "LV1_ANC_TB" );
 			break;
 		case LEVEL2_ANCIENT_TEX_BANK:
 				bankRomStart	= (u32)&_texBank13SegmentRomStart;
 				bankRomEnd		= (u32)&_texBank13SegmentRomEnd;
-				sprintf ( message, "LEV2_ANC_TB" );
+				sprintf ( message, "LV2_ANC_TB" );
 			break;
 		case LEVEL3_ANCIENT_TEX_BANK:
 				bankRomStart	= (u32)&_texBank14SegmentRomStart;
 				bankRomEnd		= (u32)&_texBank14SegmentRomEnd;
-				sprintf ( message, "LEV3_ANC_TB" );
+				sprintf ( message, "LV3_ANC_TB" );
 			break;
 		case BOSSA_ANCIENT_TEX_BANK:
 				bankRomStart	= (u32)&_texBank15SegmentRomStart;
@@ -168,6 +168,8 @@ void LoadTextureBank(int num)
 				sprintf ( message, "BOSB_ANC_TB" );
 			break;
 		case BOSSC_ANCIENT_TEX_BANK:
+				bankRomStart	= (u32)&_texBank17SegmentRomStart;
+				bankRomEnd		= (u32)&_texBank17SegmentRomEnd;
 				sprintf ( message, "BOSC_ANC_TB" );
 			break;
 		case BOSSD_ANCIENT_TEX_BANK:

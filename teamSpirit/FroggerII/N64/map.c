@@ -100,6 +100,12 @@ void LoadCollision (int num)
 		case ANCIENTMASTERA_COL:
 			tnum = TOWER_COLL_BANK;
 			break;
+		case ANCIENTMASTERB_COL:
+			tnum = ROOMONE_COLL_BANK;
+			break;
+		case ANCIENTMASTERC_COL:
+			tnum = TRAP2_COLL_BANK;
+			break;
 		case ANCIENTMULTI_COL:
 			break;
 		case ANCIENTLEV1_COL:

@@ -51,6 +51,10 @@ extern char *_objBank14SegmentRomStart;
 extern char *_objBank14SegmentRomEnd;
 extern char *_objBank15SegmentRomStart;
 extern char *_objBank15SegmentRomEnd;
+extern char *_objBank16SegmentRomStart;
+extern char *_objBank16SegmentRomEnd;
+extern char *_objBank17SegmentRomStart;
+extern char *_objBank17SegmentRomEnd;
 
 
 

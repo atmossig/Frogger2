@@ -20,8 +20,11 @@ unsigned long objIDs[128];
 ACTOR2 *viewActor = NULL;
 
 OBJECT_VIEWER objectViewer;
-					 
+
+
 char objName[32];
+
+
 char message[10];
 
 static TEXTOVERLAY *lev[MAX_LEVELS];
@@ -103,12 +106,16 @@ void SelectObjectBank()
 
 		FreeAllLists();
 
+
+
+
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(GENERIC_TEX_BANK);
+		//LoadTextureBank(GENERIC_TEX_BANK);
 
-		myBackdrop	= NULL;//CreateAndInitBackdrop("objvscrn.bmp");
 
-		currFont = smallFont;
+		myBackdrop	= NULL;
+
+		currFont = oldeFont;
 		CreateAndAddTextOverlay(0,30,"OBJECT VIEWER",YES,NO,255,255,255,255,currFont,0,0,0);
 		CreateAndAddTextOverlay(0,60,"SELECT OBJECT BANK",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,6,0);
 		CreateAndAddTextOverlay(0,60,"SELECT OBJECT BANK",YES,NO,255,255,255,127,currFont,TEXTOVERLAY_WAVECHARS,7,PI / 4);
@@ -183,9 +190,28 @@ void SelectObjectBank()
 			StopDrawing("wldbanks");
 			// load relevant object bank and texture bank...
 			FreeAllLists();
-			//LoadTextureBank(SYSTEM_TEX_BANK);
-			//LoadTextureBank(GENERIC_TEX_BANK);
-			LoadVisualBanksForWorld(objectViewer.currWorldID,2);
+//			LoadTextureBank(SYSTEM_TEX_BANK);
+//			LoadTextureBank(GENERIC_TEX_BANK);
+
+			LoadVisualBanksForWorld(objectViewer.currWorldID,0);
+
+			// add the texture tiles that comprise the Frogger2 logo....
+	/*		CreateAndAddSpriteOverlay(22,10,"flogo01.bmp",32,32,255,255,255,255,0);
+			CreateAndAddSpriteOverlay(54,10,"flogo02.bmp",32,32,255,255,255,255,0);
+			CreateAndAddSpriteOverlay(86,10,"flogo03.bmp",32,32,255,255,255,255,0);
+			CreateAndAddSpriteOverlay(118,10,"flogo04.bmp",32,32,255,255,255,255,0);
+			CreateAndAddSpriteOverlay(22,42,"flogo05.bmp",32,32,255,255,255,255,0);
+			CreateAndAddSpriteOverlay(54,42,"flogo06.bmp",32,32,255,255,255,255,0);
+			CreateAndAddSpriteOverlay(86,42,"flogo07.bmp",32,32,255,255,255,255,0);
+			CreateAndAddSpriteOverlay(118,42,"flogo08.bmp",32,32,255,255,255,255,0);
+			CreateAndAddSpriteOverlay(86,74,"flogo09.bmp",32,32,255,255,255,255,0);
+			CreateAndAddSpriteOverlay(118,74,"flogo10.bmp",32,32,255,255,255,255,0);
+
+			currFont = smallFont;
+			CreateAndAddTextOverlay(150,15,"object viewer",NO,NO,255,255,255,255,currFont,0,0,0);
+
+			CreateAndAddTextOverlay(20,100,objName,NO,NO,255,255,255,95,oldeFont,0,0,0);
+			//CreateAndAddTextOverlay(20,210,message,NO,NO,255,255,255,95,oldeFont,0,0,0);*/
 
 			// ...and get the object ID's from the bank
 			objectViewer.numObjects = 0;
@@ -231,7 +257,8 @@ void SelectObjectBank()
 			objectViewer.currObjNum		= 0;
 			objectViewer.currObj->flags = ACTOR_DRAW_ALWAYS;
 
-			objectViewer.mode		= VIEWOBJECTBANK_MODE;
+			objectViewer.mode		= 
+				VIEWOBJECTBANK_MODE;
 			objectViewer.viewMode	= OBJVIEW_GEOM;
 			frameCount = 0;
 			lastbutton = 0;
@@ -262,7 +289,7 @@ void ViewObjectBank(unsigned long worldID)
 //	if(textOverlayList)
 //		FreeTextOverlayList();
 
-	sprintf(objName,"%s (%d/%d)",objectViewer.currObj->actor->objectController->object->name,objectViewer.currObjNum+1,objectViewer.numObjects);
+	sprintf(objName,"object name %s (%d/%d)",objectViewer.currObj->actor->objectController->object->name,objectViewer.currObjNum+1,objectViewer.numObjects);
 
 	objectMatrix = 0;
 
