@@ -775,7 +775,7 @@ int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 			check|=OFFFRONT;
 
 //		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<2))
-		if((transformedDepths[v]) >= (fog.max<<2))
+		if((transformedDepths[v]) >= (fog.max))
 			check |= OFFBACK;
 #endif
 
