@@ -339,15 +339,12 @@ void LoadTextureBank(int textureBank)
 	return;
 }
 
-void FreeTextureBank(TextureBankType *textureBank)		
-{
-	utilPrintf("!!! FreeTextureBank() : TEXTURE BANKS ARE NOT FREED CORRECTLY !!!\n");
-}
-
 void FreeAllTextureBanks(void)							
 {
+	// Waiting for Matt to put it in MDX
 	utilPrintf("!!! FreeAllTextureBanks() : TEXTURE BANKS ARE NOT FREED CORRECTLY !!!\n");
 }
+
 /*
 void newobj(char* fn)
 {
