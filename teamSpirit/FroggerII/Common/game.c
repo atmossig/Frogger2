@@ -436,17 +436,23 @@ float camSpeed4 = 8;
 
 void SlurpCamPosition(long cam)
 {
-	currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/camSpeed;
-	currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/camSpeed;
-	currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/camSpeed;
+	float cam1, cam2, cam3;
 
-	currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/camSpeed3;
-	currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/camSpeed3;
-	currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/camSpeed3;
+	cam1 = camSpeed;
+	cam2 = camSpeed3;
+	cam3 = camSpeed4;
 
-	currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/camSpeed4;
-	currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/camSpeed4;
-	currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/camSpeed4;
+	currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/cam1;
+	currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/cam1;
+	currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/cam1;
+
+	currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/cam2;
+	currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/cam2;
+	currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/cam2;
+
+	currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/cam3;
+	currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/cam3;
+	currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/cam3;
 
 	if ( gameState.mode != CAMEO_MODE )
 	{
