@@ -775,7 +775,7 @@ void GetNextTile(unsigned long direction,long pl)
 		player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
 		// check if a platform is in the destination tile
-		destPlatform[pl] = JumpingToTileWithPlatform(destTile[pl]);
+		destPlatform[pl] = JumpingToTileWithPlatform(destTile[pl],pl);
 	}
 
 	if(destTile[pl])
@@ -1169,13 +1169,15 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		RemoveFrogTongue();
 
 	// see if frog is currently on a moving platform (i.e. platform that follows a path)
-	if(currPlatform[pl] = GetPlatformFrogIsOn())
+	if(currPlatform[pl] = GetPlatformFrogIsOn(pl))
 	{
 		currTile[pl] = currPlatform[pl]->inTile;
+		currPlatform[pl]->carrying = frog[pl];
 
-		if(currPlatform[pl]->flags & PLATFORM_HASPATH)
+		if(currPlatform[pl]->flags & PLATFORM_NEW_FOLLOWPATH)
 		{
 			// frog is on a platform that follows a path
+/*
 			if(currPlatform[pl]->flags & PLATFORM_SEGMENT)
 			{
 				// frog is on a platform that follows a path and has local platform segments
@@ -1235,7 +1237,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 					moveLocal = 1;
 				}
 			}
-
+*/
 			player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 		}
 	}
@@ -1244,7 +1246,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	// Select the requested destination tile based on current position and direction
 	if(!moveLocal)
 	{
-		if ( player[pl].frogState & FROGSTATUS_ISLONGHOPPING )
+		if(player[pl].frogState & FROGSTATUS_ISLONGHOPPING)
 		{
 			switch(dir)
 			{
@@ -1308,7 +1310,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	if(destTile[pl])
 	{
 		if(currPlatform[pl])
-			currPlatform[pl]->flags &= ~PLATFORM_CARRYINGFROG;
+			currPlatform[pl]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
 
 		if(destPlatform[pl])
 		{
@@ -1647,7 +1649,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				frog[pl]->action.deathBy = -1;
 			}
 
-			destPlatform[pl]->flags |= PLATFORM_CARRYINGFROG;
+			destPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
 			player[pl].frogState	|= FROGSTATUS_ISONMOVINGPLATFORM;
 			player[pl].frogState	|= FROGSTATUS_ISSTANDING;
 			
@@ -2015,7 +2017,7 @@ void GetNextTileLongHop ( unsigned long direction )
 		player[0].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
 		// check if a platform is in the destination tile
-		destPlatform[0] = JumpingToTileWithPlatform(destTile[0]);
+		destPlatform[0] = JumpingToTileWithPlatform(destTile[0],0);
 	}
 
 	if(destTile[0])
@@ -2138,7 +2140,7 @@ void GetNextTileLongHop ( unsigned long direction )
 			player[0].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
 			// check if a platform is in the destination tile
-			destPlatform[0] = JumpingToTileWithPlatform(longHopDestTile);
+			destPlatform[0] = JumpingToTileWithPlatform(longHopDestTile,0);
 		}
 
 		if(longHopDestTile)
