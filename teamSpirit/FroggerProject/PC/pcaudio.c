@@ -821,9 +821,6 @@ void FreeBufSampleList ( void )
 
 		RemoveBufSample( bufferList.head.next );
 	}
-
-	// initialise list for future use
-	InitSampleList();
 }
 
 

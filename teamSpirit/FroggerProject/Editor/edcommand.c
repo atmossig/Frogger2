@@ -637,8 +637,6 @@ void ToolbarSelect(int command)
 
 	case TB_KILL_EVERYTHING:
 		FreeAmbientSoundList();
-		FreeBufSampleList();
-
 		FreeSpecFXList( );
 		InitSpecFXList( );
 		ResetBabies( );

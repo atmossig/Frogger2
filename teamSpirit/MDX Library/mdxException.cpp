@@ -103,7 +103,7 @@ void Show_Mem(void)
 	MEMINFO *cur = memList;
 	while (cur)
 	{
-		dp("Memory Block number #%lu - Size:%lu   File:%s   Line:%lu - %lu prints\n",cur->number,cur->size,cur->file,cur->line,cur->numprints++);
+		dp("Memory Block number #%lu - Size:%lu   File:%s   Line:%lu - %lu prints   Data:0x%xl\n",cur->number,cur->size,cur->file,cur->line,cur->numprints++,cur->data);
 		cur = cur->next;
 	}
 }
