@@ -462,7 +462,9 @@ static void GetEnemyActiveTile(ENEMY *nme)
 		else
 			nme->inTile = nme->path->nodes[nme->path->toNode].worldTile;
 	}
-	else if( nme->flags & ENEMY_NEW_ROTATEPATH )
+	else if( (nme->flags & ENEMY_NEW_ROTATEPATH_XZ) ||
+			(nme->flags & ENEMY_NEW_ROTATEPATH_XY) ||
+			(nme->flags & ENEMY_NEW_ROTATEPATH_ZY) )
 	{
 		nme->inTile = FindNearestTile( nme->nmeActor->actor->pos );
 	}
@@ -766,7 +768,7 @@ void UpdateEnemies()
 				}
 
 				// Move around a single flag
-				if( cur->flags & ENEMY_NEW_ROTATEPATH )
+				if( cur->flags & ENEMY_NEW_ROTATEPATH_XZ )
 				{
 					VECTOR v1,v2,v3,nmeup;
 					fromPosition = cur->nmeActor->actor->pos;
@@ -778,17 +780,64 @@ void UpdateEnemies()
 					if( cur->flags & ENEMY_NEW_FACEFORWARDS ) // Look in direction of travel
 					{
 						SubVector(&v1,&fromPosition,&toPosition);
-					}
-					else // Look at the start node
-					{
-						SubVector(&v1,&toPosition,&cur->path->nodes->worldTile->centre);
+						MakeUnit(&v1);
+						RotateVectorByQuaternion(&nmeup,&upVec,&cur->nmeActor->actor->qRot);
+						CrossProduct(&v2,&v1,&nmeup);
+						CrossProduct(&v3,&v2,&nmeup);
+						Orientate(&cur->nmeActor->actor->qRot,&v3,&inVec,&nmeup);
 					}
 
-					MakeUnit(&v1);
-					RotateVectorByQuaternion(&nmeup,&upVec,&cur->nmeActor->actor->qRot);
-					CrossProduct(&v2,&v1,&nmeup);
-					CrossProduct(&v3,&v2,&nmeup);
-					Orientate(&cur->nmeActor->actor->qRot,&v3,&inVec,&nmeup);
+					cur->nmeActor->actor->pos = toPosition;
+					cur->nmeActor->angle += cur->speed;
+					if( cur->nmeActor->angle >= 360 )
+						cur->nmeActor->angle -= 360;
+					else if( cur->nmeActor->angle < 0 )
+						cur->nmeActor->angle += 360;
+				}
+				else if( cur->flags & ENEMY_NEW_ROTATEPATH_XY )
+				{
+					VECTOR v1,v2,v3,nmeup;
+					fromPosition = cur->nmeActor->actor->pos;
+
+					toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf( cur->nmeActor->angle/57.6 ));
+					toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * cosf( cur->nmeActor->angle/57.6 )) + cur->path->nodes->offset;
+					toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z];
+
+					if( cur->flags & ENEMY_NEW_FACEFORWARDS ) // Look in direction of travel
+					{
+						SubVector(&v1,&fromPosition,&toPosition);
+						MakeUnit(&v1);
+						RotateVectorByQuaternion(&nmeup,&upVec,&cur->nmeActor->actor->qRot);
+						CrossProduct(&v2,&v1,&nmeup);
+						CrossProduct(&v3,&v2,&nmeup);
+						Orientate(&cur->nmeActor->actor->qRot,&v3,&inVec,&nmeup);
+					}
+
+					cur->nmeActor->actor->pos = toPosition;
+					cur->nmeActor->angle += cur->speed;
+					if( cur->nmeActor->angle >= 360 )
+						cur->nmeActor->angle -= 360;
+					else if( cur->nmeActor->angle < 0 )
+						cur->nmeActor->angle += 360;
+				}
+				else if( cur->flags & ENEMY_NEW_ROTATEPATH_ZY )
+				{
+					VECTOR v1,v2,v3,nmeup;
+					fromPosition = cur->nmeActor->actor->pos;
+
+					toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * sinf( cur->nmeActor->angle/57.6 )) + cur->path->nodes->offset;
+					toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * cosf( cur->nmeActor->angle/57.6 ));
+					toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X];
+
+					if( cur->flags & ENEMY_NEW_FACEFORWARDS ) // Look in direction of travel
+					{
+						SubVector(&v1,&fromPosition,&toPosition);
+						MakeUnit(&v1);
+						RotateVectorByQuaternion(&nmeup,&upVec,&cur->nmeActor->actor->qRot);
+						CrossProduct(&v2,&v1,&nmeup);
+						CrossProduct(&v3,&v2,&nmeup);
+						Orientate(&cur->nmeActor->actor->qRot,&v3,&inVec,&nmeup);
+					}
 
 					cur->nmeActor->actor->pos = toPosition;
 					cur->nmeActor->angle += cur->speed;
