@@ -366,7 +366,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		// ok - make the spawn garib a rotating sprite - ANDYE
 		garib->sprite->flags	|= SPRITE_FLAGS_ROTATE;
 		garib->sprite->angle	= 0;
-		garib->sprite->angleInc = 0.05f;
+		garib->sprite->angleInc = 0.01f;
 		
 #ifndef PC_VERSION
 		garib->sprite->offsetX = -garib->sprite->texture->sx / 2;

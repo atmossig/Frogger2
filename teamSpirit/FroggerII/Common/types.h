@@ -569,6 +569,16 @@ typedef struct TAGPOLY
 } POLYGON;
 
 
+// added by ANDYE to facilitate (<- ooh, good word !) Sutherland-Hodgman clipping algorhythmicallythingy
+typedef struct TAGPOLYCLIP
+{
+	int numVerts;
+	D3DTLVERTEX verts[10];
+
+} POLYCLIP;
+
+
+
 #define dprintf debugPrintf(sprintf(outputMessageBuffer, 
 
 #define bprintf sprintf(statusMessage,

@@ -2028,11 +2028,10 @@ void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRE
 	Info			: 
 */
 
-typedef struct POLYCLIP
-{
-	int numVerts;
-	D3DTLVERTEX verts[8];
-};
+#define ROTSPRITECLIPLEFT	0
+#define ROTSPRITECLIPTOP	0
+#define ROTSPRITECLIPRIGHT	(SCREEN_WIDTH)
+#define ROTSPRITECLIPBOTTOM	(SCREEN_HEIGHT)
 
 POLYCLIP tempPoly;
 
@@ -2103,6 +2102,10 @@ void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, f
 
 	// clip the rotated sprite here...
 	SpriteClip_Do(&p2d,&drawPoly);
+
+	// return if we have less than 3 vertices
+	if(drawPoly.numVerts < 3)
+		return;
 
 	if (h!=lastH)
 	{
@@ -2194,21 +2197,21 @@ void SpriteClip_Left(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
 	dy		= v1->sy - v0->sy;
 	du		= v1->tu - v0->tu;
 	dv		= v1->tv - v0->tv;
-	segLen	= SPRITECLIPLEFT - v0->sx;
+	segLen	= ROTSPRITECLIPLEFT - v0->sx;
 	m		= segLen / dx;
 
 	// check if polygon edge is in viewport
-	if((v0->sx >= SPRITECLIPLEFT) && (v1->sx >= SPRITECLIPLEFT))
+	if((v0->sx >= ROTSPRITECLIPLEFT) && (v1->sx >= ROTSPRITECLIPLEFT))
 	{
 		poly->verts[poly->numVerts] = *(v1);
 		poly->numVerts++;
 	}
 
 	// check if polygon edge is leaving viewport
-	if((v0->sx >= SPRITECLIPLEFT) && (v1->sx < SPRITECLIPLEFT))
+	if((v0->sx >= ROTSPRITECLIPLEFT) && (v1->sx < ROTSPRITECLIPLEFT))
 	{
 		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = SPRITECLIPLEFT;
+		poly->verts[poly->numVerts].sx = ROTSPRITECLIPLEFT;
 		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
 		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
 		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
@@ -2216,10 +2219,10 @@ void SpriteClip_Left(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
 	}
 
 	// check if polygon edge is entering viewport
-	if((v0->sx < SPRITECLIPLEFT) && (v1->sx >= SPRITECLIPLEFT))
+	if((v0->sx < ROTSPRITECLIPLEFT) && (v1->sx >= ROTSPRITECLIPLEFT))
 	{
 		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = SPRITECLIPLEFT;
+		poly->verts[poly->numVerts].sx = ROTSPRITECLIPLEFT;
 		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
 		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
 		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
@@ -2239,21 +2242,21 @@ void SpriteClip_Right(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
 	dy		= v1->sy - v0->sy;
 	du		= v1->tu - v0->tu;
 	dv		= v1->tv - v0->tv;
-	segLen	= SPRITECLIPRIGHT - 1 - v0->sx;
+	segLen	= ROTSPRITECLIPRIGHT - v0->sx;
 	m		= segLen / dx;
 
 	// check if polygon edge is in viewport
-	if((v0->sx < SPRITECLIPRIGHT) && (v1->sx < SPRITECLIPRIGHT))
+	if((v0->sx < ROTSPRITECLIPRIGHT) && (v1->sx < ROTSPRITECLIPRIGHT))
 	{
 		poly->verts[poly->numVerts] = *(v1);
 		poly->numVerts++;
 	}
 
 	// check if polygon edge is leaving viewport
-	if((v0->sx < SPRITECLIPRIGHT) && (v1->sx >= SPRITECLIPRIGHT))
+	if((v0->sx < ROTSPRITECLIPRIGHT) && (v1->sx >= ROTSPRITECLIPRIGHT))
 	{
 		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = SPRITECLIPRIGHT - 1;
+		poly->verts[poly->numVerts].sx = ROTSPRITECLIPRIGHT;
 		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
 		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
 		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
@@ -2261,10 +2264,10 @@ void SpriteClip_Right(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
 	}
 
 	// check if polygon edge is entering viewport
-	if((v0->sx >= SPRITECLIPRIGHT) && (v1->sx < SPRITECLIPRIGHT))
+	if((v0->sx >= ROTSPRITECLIPRIGHT) && (v1->sx < ROTSPRITECLIPRIGHT))
 	{
 		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = SPRITECLIPRIGHT - 1;
+		poly->verts[poly->numVerts].sx = ROTSPRITECLIPRIGHT;
 		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
 		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
 		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
@@ -2284,33 +2287,33 @@ void SpriteClip_Top(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
 	dy		= v1->sy - v0->sy;
 	du		= v1->tu - v0->tu;
 	dv		= v1->tv - v0->tv;
-	segLen	= SPRITECLIPTOP - v0->sy;
+	segLen	= ROTSPRITECLIPTOP - v0->sy;
 	m		= segLen / dy;
 
 	// check if polygon edge is in viewport
-	if((v0->sy >= SPRITECLIPTOP) && (v1->sy >= SPRITECLIPTOP))
+	if((v0->sy >= ROTSPRITECLIPTOP) && (v1->sy >= ROTSPRITECLIPTOP))
 	{
 		poly->verts[poly->numVerts] = *(v1);
 		poly->numVerts++;
 	}
 
 	// check if polygon edge is leaving viewport
-	if((v0->sy >= SPRITECLIPTOP) && (v1->sy < SPRITECLIPTOP))
+	if((v0->sy >= ROTSPRITECLIPTOP) && (v1->sy < ROTSPRITECLIPTOP))
 	{
 		poly->verts[poly->numVerts] = *(v0);
 		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
-		poly->verts[poly->numVerts].sy = SPRITECLIPTOP;
+		poly->verts[poly->numVerts].sy = ROTSPRITECLIPTOP;
 		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
 		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
 		poly->numVerts++;
 	}
 
 	// check if polygon edge is entering viewport
-	if((v0->sy < SPRITECLIPTOP) && (v1->sy >= SPRITECLIPTOP))
+	if((v0->sy < ROTSPRITECLIPTOP) && (v1->sy >= ROTSPRITECLIPTOP))
 	{
 		poly->verts[poly->numVerts] = *(v0);
 		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
-		poly->verts[poly->numVerts].sy = SPRITECLIPTOP;
+		poly->verts[poly->numVerts].sy = ROTSPRITECLIPTOP;
 		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
 		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
 		poly->numVerts++;
@@ -2329,33 +2332,33 @@ void SpriteClip_Bottom(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
 	dy		= v1->sy - v0->sy;
 	du		= v1->tu - v0->tu;
 	dv		= v1->tv - v0->tv;
-	segLen	= SPRITECLIPBOTTOM - 1 - v0->sy;
+	segLen	= ROTSPRITECLIPBOTTOM - v0->sy;
 	m		= segLen / dy;
 
 	// check if polygon edge is in viewport
-	if((v0->sy < SPRITECLIPBOTTOM) && (v1->sy < SPRITECLIPBOTTOM))
+	if((v0->sy < ROTSPRITECLIPBOTTOM) && (v1->sy < ROTSPRITECLIPBOTTOM))
 	{
 		poly->verts[poly->numVerts] = *(v1);
 		poly->numVerts++;
 	}
 
 	// check if polygon edge is leaving viewport
-	if((v0->sy < SPRITECLIPBOTTOM) && (v1->sy >= SPRITECLIPBOTTOM))
+	if((v0->sy < ROTSPRITECLIPBOTTOM) && (v1->sy >= ROTSPRITECLIPBOTTOM))
 	{
 		poly->verts[poly->numVerts] = *(v0);
 		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
-		poly->verts[poly->numVerts].sy = SPRITECLIPBOTTOM - 1;
+		poly->verts[poly->numVerts].sy = ROTSPRITECLIPBOTTOM;
 		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
 		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
 		poly->numVerts++;
 	}
 
 	// check if polygon edge is entering viewport
-	if((v0->sy >= SPRITECLIPBOTTOM) && (v1->sy < SPRITECLIPBOTTOM))
+	if((v0->sy >= ROTSPRITECLIPBOTTOM) && (v1->sy < ROTSPRITECLIPBOTTOM))
 	{
 		poly->verts[poly->numVerts] = *(v0);
 		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
-		poly->verts[poly->numVerts].sy = SPRITECLIPBOTTOM - 1;
+		poly->verts[poly->numVerts].sy = ROTSPRITECLIPBOTTOM;
 		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
 		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
 		poly->numVerts++;
