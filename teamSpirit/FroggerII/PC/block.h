@@ -42,7 +42,7 @@ extern char	UseZMode;
 extern char	desiredFrameRate;
 extern char	newDesiredFrameRate;
 
-
+extern char editorOk;
 
 void debugPrintf(int num);
 void Crash(char *mess);
