@@ -287,7 +287,7 @@ Chris Wilson:
 		water object. Think I've just abput cracked it though.
 
 	Afternoon:
-		
+		Got the PSX to draw water.
 
 
 
@@ -360,6 +360,22 @@ Chris Wilson:
 ------------------------------------------------
 
 
+	Morning:
+		This morning my computer crashed (needing rebooting)* three times, and it took me all morning just
+		to get the bloody PSX to render my water objects properly. There was also a bug in frog_map.exe
+		which James fixed. I've been experimenting with u/v texture animation. It's a pain in the arse.
 
+	Afternoon:
+		Much the same sort of stuff. Now I'm going to play with animating the water's actual vertex
+		positions.  
+
+
+*In my vocabulary, there are two kinds of machine hangs:
+
+1.	A 'Crash of the Gods' is typically a blank screen or screen corruption, with the machine not responding
+	thus requiring a complete reset.
+
+2.	A 'Crash of the Titans', is less severe, the screen is still recognisible, but the machine will still
+	require a reset.
 
 
