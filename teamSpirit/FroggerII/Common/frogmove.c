@@ -51,10 +51,10 @@ struct {
 } frogPitch = { 0, 128, 15, 2, 8, 128, 110 };
 
 
-#define MAX_HOP_HEIGHT			25.0f
-#define MAX_SUPERHOP_HEIGHT		50.0f
-#define DROP_HURT_HEIGHT			100.0f
-#define DROP_KILL_HEIGHT			150.0f
+#define MAX_HOP_HEIGHT			26.0f	// +1 for rounding :o)
+#define MAX_SUPERHOP_HEIGHT		51.0f
+#define DROP_HURT_HEIGHT		100.0f
+#define DROP_KILL_HEIGHT		150.0f
 
 float	hopHeight		= 30;
 float	superhopHeight	= 50;
@@ -1024,10 +1024,10 @@ void CheckForFroggerLanding(long pl)
 				//PlayActorBasedSample(2,frog[pl]->actor,255,128);
 			}
 		}
-		else if (player[pl].heightJumped < -DROP_HURT_HEIGHT)
+/*		else if (player[pl].heightJumped < -DROP_HURT_HEIGHT)
 		{
-			// TODO: Hurt frog!
-		}
+			// TODO: Hurt frog?
+		}*/
 		else	// check tile to see if frog has jumped onto a certain tile type
 
 		if(state == TILESTATE_DEADLY)
@@ -1173,8 +1173,7 @@ BOOL GameTileTooHigh(GAMETILE *tile,long pl)
 	height = (h * DotProduct(&diff,&tile->normal));
 
 	return
-		(height > MAX_HOP_HEIGHT) ||
-		(player[pl].isSuperHopping && height > MAX_SUPERHOP_HEIGHT);
+		height > (player[pl].isSuperHopping ? MAX_SUPERHOP_HEIGHT : MAX_HOP_HEIGHT);
 }
 
 /*	--------------------------------------------------------------------------------
