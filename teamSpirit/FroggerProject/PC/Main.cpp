@@ -95,7 +95,7 @@ unsigned long synchSpeed = 60 * 1;
 unsigned long pingOffset = 40;
 unsigned long synchRecovery = 1;
 
-long resolution = 0;
+long resolution = 1;
 long slideSpeeds[4] = {0,16,32,64};
 
 long fogEnable = 0;
@@ -438,11 +438,13 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 				case IDOK:
 				{
-					// default: 640x480
+					// *ASL* 13/06/2000
+
+					// default to 640x480
 					resolution = 1;
 
 					if (SendMessage (GetDlgItem(hWnd,IDC_320),BM_GETCHECK,0,0))
-						resolution = 0;
+						resolution=0;
 					else if (SendMessage (GetDlgItem(hWnd,IDC_800),BM_GETCHECK,0,0))
 						resolution=2;
 					else if (SendMessage (GetDlgItem(hWnd,IDC_1024),BM_GETCHECK,0,0))
@@ -694,37 +696,17 @@ void DrawBackground(void)
 }
 
 
-/*	--------------------------------------------------------------------------------
-	Function	: WinMain
-	Purpose		: Application startup and shutdown
-	Parameters	: the usual...
-	Returns		: success
+/* -----------------------------------------------------------------------
+   Function : DrawLoop
+   Purpose : main draw loop pass
+   Parameters : rectangle, colour, mdx texture pointer, u0,v0 pair, u1,v1 pair
+   Returns : 1 draw error else 0 okay
+   Info : 
 */
+
 long DrawLoop(void)
 {
-	POINT			t;
-	DDSURFACEDESC2	ddsd;
-	int				dxError;
-
-	// Begin software overlay drawing - rather than use ssbeginscene in every call to drawpoly :)
-	// *ASL* 12/06/2000
-	if (!rHardware)
-	{
-		DDINIT(ddsd);
-		dxError = surface[RENDER_SRF]->Lock(NULL, &ddsd, DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK, NULL);
-		if (SUCCEEDED(dxError))
-		{
-			dxError = surface[RENDER_SRF]->Unlock(NULL);
-		}
-		if (SUCCEEDED(dxError))
-		{
-			ssBeginScene((unsigned short *)ddsd.lpSurface, ddsd.lPitch, ddsd.dwWidth, ddsd.dwHeight);
-			ssClearViewport();
-		}
-		else
-			utilPrintf("DrawLoop Error!");
-	}
-
+	POINT	t;
 
 	D3DSetupRenderstates(D3DDefaultRenderstates);
 	// Just to get functionality... ;)
@@ -888,10 +870,8 @@ long DrawLoop(void)
 	EndDraw();
 	EndTimer(16);
 
-	// *ASL* 12/06/2000 - commented out as internal buffer is now used
-	//CopySoftScreenToSurface(surface[RENDER_SRF]);
 	EndTimer(0);
-	
+
 	if (textureDraw)
 		ShowTextures();
 	if( showSounds )
@@ -904,7 +884,9 @@ long DrawLoop(void)
 	
 	ClearTimers();
 	StartTimer(0,"Everything");
-	
+
+
+	// ** Flip the screen
 	
 	StartTimer(17,"Flip");
 	BeginDraw();
@@ -916,13 +898,21 @@ long DrawLoop(void)
 
 	//GrabSurfaceToTexture(100, 50, GetTexEntryFromCRC(UpdateCRC("febwood.bmp")),surface[RENDER_SRF]);	
 //	fxBlurSurface(surface[RENDER_SRF]);
-		
+
+	// *ASL* 13/06/2000
+	SurfaceDraw();
+
 	DDrawFlip();
 	EndTimer(17);
 	StartTimer(18,"Clear");
 	D3DClearView();
 	EndTimer(18);
 
+
+// *ASL* 13/06/2000
+// ** Section commented out
+// ** Why print anything after a flip!!!
+#if 0
 	if (grabToTexture == 1)
 	{
 		DrawPageB();
@@ -936,10 +926,8 @@ long DrawLoop(void)
 		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
 		grabToTexture = 2;
 	}
-	
-	// *ASL* 12/06/2000
-	if( !rHardware )
-		ssEndScene();
+#endif
+
 
 	GetCursorPos(&t);
 	camZ = t.x*8;
@@ -953,11 +941,14 @@ long DrawLoop(void)
 	EndTimer(19);
 	
 	UpdateAnimatingTextures();
-
 	//UpdateTextureText();
 
 	return 0;
 }
+
+
+
+
 
 long turbo = 4096;
 
@@ -1171,10 +1162,8 @@ int GameStartup()
 
 	sprintf(path, "%stextures\\font\\bigfont.bmp", baseDirectory);
 	pcFont = InitFont(path);
-
 	sprintf(path, "%stextures\\font\\smallfont.bmp", baseDirectory);
 	pcFontSmall = InitFont(path);
-
 	sprintf(path, "%stextures\\font\\monofont.bmp", baseDirectory);
 	pcFontWhite = InitFont(path);
 
@@ -1212,6 +1201,17 @@ int GameStartup()
 int GameShutdown()
 {
 	SaveGame();
+
+	fontWhite = NULL;
+	fontSmall = NULL;
+	font = NULL;
+
+	ShutdownFont(pcFontWhite);
+	pcFontWhite = NULL;
+	ShutdownFont(pcFontSmall);
+	pcFontSmall = NULL;
+	ShutdownFont(pcFont);
+	pcFont = NULL;
 
 	FreeAllLists();
 	fxFreeBlur( );
@@ -1276,7 +1276,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		if (DDrawInitObject (NULL) == -1)
 			return 1;
 
-		switch(resolution)
+		// *ASL* 13/06/2000
+		switch (resolution)
 		{
 		case 0:
 			xRes = 320;

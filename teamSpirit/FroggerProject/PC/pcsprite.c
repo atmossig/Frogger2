@@ -432,7 +432,8 @@ void DrawTiledBackdrop()
 			r.top = (y*yRes)/yTile + yScroll;
 			r.bottom = ((y+1)*yRes)/yTile + yScroll;
 
-			DrawTexturedRect(r,D3DRGBA(1,1,1,1),((MDX_TEXENTRY *)tileTexture)->surf,0,0,1,1);
+//			DrawTexturedRect(r,D3DRGBA(1,1,1,1),((MDX_TEXENTRY *)tileTexture)->surf,0,0,1,1);
+			mdxPolyDrawTextureRect(r, D3DRGBA(1,1,1,1), (MDX_TEXENTRY *)tileTexture, 0,0, 1,1);
 		}
 	}
 

@@ -59,7 +59,18 @@ void InitLoadingScreen( const char *filename )
 	loadProgress = 0;
 }
 
-void UpdateLoadingScreen( short addprog )
+
+
+
+/* -----------------------------------------------------------------------
+   Function : UpdateLoadingScreen
+   Purpose : update and display the loading progress
+   Parameters : progess increment
+   Returns : 
+   Info : 
+*/
+
+void UpdateLoadingScreen(short addprog)
 {
 	RECT r;
 
@@ -68,21 +79,35 @@ void UpdateLoadingScreen( short addprog )
 	if( loadProgress > 100 )
 		loadProgress = 100;
 
-	BeginDraw( );
-
-	DrawBackdrop( );
-
 	r.top = rYRes - rYRes/4;
 	r.bottom = rYRes - rYRes/4.8;
 	r.left = rXRes/4;
 	r.right = (((rXRes-(2*r.left))/100) * loadProgress) + r.left;
 
-	DrawFlatRect( r, D3DRGBA(1,0.2,0.2,0.8) );
+	// show fixed background screen
+	DrawBackdrop();
 
-	EndDraw( );
+	// *ASL* 14/06/2000
+	if (rHardware)
+	{
+		BeginDraw();
+		DrawFlatRect( r, D3DRGBA(1,0.2,0.2,0.8) );
+		EndDraw();
+	}
+	else
+	{
+		// ** Unfortunately, this does not perform the alpha over the background
+		// ** screen, The reason for this is that the software render buffer would
+		// ** have to contain the backdrop image.
 
+		// !! no alpha !!
+		mdxDrawRectangle(r, (int)1.0f*255.0f, (int)0.2f*255.0f, (int)0.2f*255.0f);
+	}
+
+	// show our print screen
 	DDrawFlip();
 }
+
 
 void FreeLoadingScreen( )
 {
