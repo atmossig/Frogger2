@@ -50,6 +50,7 @@ typedef struct _AIPATHNODE
 	GAMETILE *tile;					// Node is on this tile
 //	unsigned long start, end;		// Timing stuff
 	VECTOR to;						// Vector to next node
+	SPECFX *fx;						// Used in battle multiplayer mode to make tiles look dangerous
 
 } AIPATHNODE;
 

@@ -29,6 +29,8 @@ typedef struct
 	char ready;
 	short lasttile;
 
+	AIPATHNODE *path;
+
 } MPINFO;
 
 

@@ -276,20 +276,19 @@ void UpdateBattle( )
 		// Check for frog off screen - death
 		if( started )
 		{
+			res = 1;
 
 			// If the frog can move then continue in current direction
-			if( player[i].canJump )
-			{
+			if( player[i].canJump )	
 				res = MoveToRequestedDestination( ((frogFacing[i] - camFacing) & 3), i );
-			}
 
-			// If move failed then we've hit summat, so die
-
-			// If we've moved to a nasty tile or one that's got a trail on it, die again
-
+			// If move failed then we've hit summat, so die. Also die if we've hit another players trail
+			if( !res || (currTile[i]->state >= TILESTATE_FROGGER1AREA && currTile[i]->state <= TILESTATE_FROGGER4AREA && (currTile[i]->state-TILESTATE_FROGGER1AREA != i)) )
+				player[i].frogState |= FROGSTATUS_ISDEAD;
+			
 		}
 
-		if( !(player[i].healthPoints) || (player[i].frogState & FROGSTATUS_ISDEAD) ) dead++;
+		if( player[i].frogState & FROGSTATUS_ISDEAD ) dead++;
 	}
 
 	// The last player alive wins!
@@ -320,7 +319,7 @@ void RunMultiplayer( )
 		multiplayerMode = MULTIMODE_CTF;
 		UpdateCTF( );
 		break;
-	default:
+	case WORLDID_LABORATORY:
 		multiplayerMode = MULTIMODE_BATTLE;
 		UpdateBattle( );
 		break;

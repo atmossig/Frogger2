@@ -1000,9 +1000,11 @@ void RunGameLoop (void)
 					pos.v[Z] += Random(2)?(Random(20)+5):(-Random(20)-5);
 					AddToVector( &pos, &frog[i]->actor->pos );
 
-					fx = CreateAndAddSpecialEffect( FXTYPE_TWINKLE, &pos, &currTile[i]->normal, 20+Random(10), 0, 0, Random(3)+1 );
-					fx->tilt = 2;
-					SetFXColour( fx, 220, 220, 255 );
+					if( (fx = CreateAndAddSpecialEffect( FXTYPE_TWINKLE, &pos, &currTile[i]->normal, 20+Random(10), 0, 0, Random(3)+1 )) )
+					{
+						fx->tilt = 2;
+						SetFXColour( fx, 220, 220, 255 );
+					}
 				}
 
 				if( player[i].idleEnable )

@@ -154,9 +154,7 @@ void RunTitleScreen()
 					InitLevel(player[0].worldNum,player[0].levelNum);
 
 					gameState.mode = INGAME_MODE;
-						
-					if(gameState.multi != MULTIREMOTE)
-						gameState.multi = SINGLEPLAYER;
+					gameState.multi = SINGLEPLAYER;
 
 					ACTOR_DRAWDISTANCEINNER = 300000;
 					ACTOR_DRAWDISTANCEOUTER = 350000;
