@@ -11,7 +11,7 @@
 #define __CHARACTER_H
 
 
-#define MAX_SEARCH_DEPTH 24
+#define MAX_SEARCH_DEPTH 16
 
 // Types of command that can be issued to characters
 enum

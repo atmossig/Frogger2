@@ -45,6 +45,7 @@ void CharHubIdle( CHARACTER *ch );		// Just flit about a bit
 
 // Path functions
 void LocateAIPathNode( VECTOR *pos, AIPATHNODE *node, float offset );
+void CollapseAIPath( AIPATHNODE *path );// Remove jaggies from path where it is safe to do so
 
 
 /*	--------------------------------------------------------------------------------
@@ -87,7 +88,7 @@ CHARACTER *CreateAndAddCharacter( char *name, GAMETILE *start, float offset, uns
 	Purpose			: Make a character do something
 	Parameters		: Character and command
 	Returns			: 
-	Info			: 
+	Info			: All to do with queue ordering
 */
 void IssueAICommand( CHARACTER *ch, AICOMMAND *command )
 {
@@ -140,7 +141,7 @@ void IssueAICommand( CHARACTER *ch, AICOMMAND *command )
 	Purpose			: Start the command at the head of the queue
 	Parameters		: Character
 	Returns			: 
-	Info			: 
+	Info			: Sets info necessary to do the command NOW
 */
 void StartAICommand( CHARACTER *ch )
 {
@@ -173,7 +174,10 @@ void StartAICommand( CHARACTER *ch )
 			}
 
 			if( ch->Update )
+			{
+				CollapseAIPath( path );
 				ch->path = path;
+			}
 			else
 			{
 				JallocFree( (UBYTE **)path );
@@ -201,6 +205,10 @@ void StartAICommand( CHARACTER *ch )
 		break;
 	}
 
+	// If timeout, set end time
+	if( ch->command->flags & AICOMFLAG_TIMEOUT )
+		ch->command->end = actFrameCount + ch->command->time;
+
 	ch->node = ch->path;
 }
 
@@ -218,16 +226,32 @@ void ProcessCharacters( )
 
 	for( c = characterList; c; c = c->next )
 	{
-		if( c->command && ((c->command->flags & AICOMFLAG_COMPLETE) || (c->command->flags & AICOMFLAG_FAILED)) )
+		if( c->command )
 		{
-			if( c->command->flags & AICOMFLAG_COMPLETE )
-				dprintf"Type %i: Command %i completed\n",c->type, c->command->type));
-			else if( c->command->flags & AICOMFLAG_FAILED )
-				dprintf"Type %i: Command %i failed\n",c->type, c->command->type));
+			// If timeout flag and passed end timer then next
+			if( (c->command->flags & AICOMFLAG_TIMEOUT) && (actFrameCount > c->command->end) )
+			{
+				c->command->flags |= AICOMFLAG_COMPLETE;
+				c->inTile = FindNearestTile( c->act->actor->pos );
+			}
 
-			FreeAIPathNodeList( &c->path );
-			NextAICommand( &c->command );
-			StartAICommand( c );
+			// If command is finished then do the next one
+			if( (c->command->flags & AICOMFLAG_COMPLETE) || (c->command->flags & AICOMFLAG_FAILED) )
+			{
+				if( c->command->flags & AICOMFLAG_COMPLETE )
+					dprintf"Type %i: Command %i completed\n",c->type, c->command->type));
+				else if( c->command->flags & AICOMFLAG_FAILED )
+					dprintf"Type %i: Command %i failed\n",c->type, c->command->type));
+
+				FreeAIPathNodeList( &c->path );
+				c->node = NULL;
+
+				// Same again if looping
+				if( !(c->command->flags & AICOMFLAG_LOOP) )
+					NextAICommand( &c->command );
+
+				StartAICommand( c );
+			}
 		}
 
 		if( c->Update )
@@ -348,6 +372,7 @@ void CharFlyToTile( CHARACTER *ch )
 
 	// Skewer a line to rotate around, and make a rotation
 	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
+	MakeUnit( (VECTOR *)&q3 );
 	t = DotProduct(&inVec,&fwd);
 	if (t<-0.999)
 		t=-0.999;
@@ -401,6 +426,32 @@ void LocateAIPathNode( VECTOR *pos, AIPATHNODE *node, float offset )
 	pos->v[X] = node->tile->centre.v[X] + (node->tile->normal.v[X] * offset);
 	pos->v[Y] = node->tile->centre.v[Y] + (node->tile->normal.v[Y] * offset);
 	pos->v[Z] = node->tile->centre.v[Z] + (node->tile->normal.v[Z] * offset);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CollapseAIPath
+	Purpose			: Remove jaggies from path where it is safe to (i.e. where it won't make the character clip walls etc)
+	Parameters		: Path
+	Returns			: 
+	Info			: Probably of most use to flying things like the hub character
+*/
+void CollapseAIPath( AIPATHNODE *path )
+{
+	AIPATHNODE *node, *next;
+
+	if( !path || !path->next ) return;
+
+	for( node = path->next; node->next; node = next )
+	{
+		next = node->next;
+
+		if( node->tile->tilePtrs[0] && 
+			node->tile->tilePtrs[1] && 
+			node->tile->tilePtrs[2] && 
+			node->tile->tilePtrs[3] )
+			SubAIPathNode( node );
+	}
 }
 
 
@@ -501,6 +552,8 @@ void TestPath( )
 */
 int BestFirst( AIPATHNODE *path, int depth, GAMETILE *previous, GAMETILE *tile, GAMETILE *goal, char fly )
 {
+	if( !tile || !goal ) return FALSE;
+
 	// Terminating condition, success - start the path building
 	if( tile == goal )
 	{
