@@ -1976,3 +1976,29 @@ Mike Movel:
 Byron Blay:
 ------------------------------------------------
 
+Finished running around doing the video CDs for toyfair.
+Back to the milestone!
+Looking tight for tommorrow,
+but at least in the big scheme of things,
+I think we're pretty much on target,
+Although polishing could still bring up lengthy problems.
+Current priorities:
+	orientation bugged
+	anim speeds
+	models need touching up (uv's, may need an artist)
+	jerky camera (convert from int to fixed)
+	specfx
+	psi sprites not printing
+	jump animations
+	sound
+
+Secondaries:
+	time variables
+	memory leaks
+	check over the sprite module
+	speed optimise
+	gameflow
+
+
+
+
