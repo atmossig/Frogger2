@@ -63,7 +63,7 @@ void LoadObjectBank ( int objectBank )
 
 		case ANCIENTMULTI_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\ANCIENTS\\ANCIENTSMULTI.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\ANCIENTS\\ANCIENTS1.PIL" );
+				sprintf ( PILfileName, "OBJECTS\\ANCIENTS\\ANCIENTSMULTI.PIL" );
 			break;
 
 		case SPACELEV1_OBJ_BANK:

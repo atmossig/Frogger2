@@ -1177,11 +1177,11 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 void PTTextureLoad ( void )
 {
-/*	CreateProceduralTexture ( "PRC_FIRE1" );		
+	//CreateProceduralTexture ( "PRC_FIRE1" );		
 
-	CreateProceduralTexture ( "PRC_WATRD1" );		
+//	CreateProceduralTexture ( "PRC_WATRD1" );		
 
-	CreateProceduralTexture ( "PRC_WATRT1" );		
+//	CreateProceduralTexture ( "PRC_WATRT1" );		
 //	CreateProceduralTexture ( "00WATE04" );*/
 
 }
