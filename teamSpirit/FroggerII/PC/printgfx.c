@@ -623,7 +623,7 @@ void DrawFXDecal( SPECFX *ripple )
 	vT[0].sz = ripple->scale.v[Z];
 	vT[0].tu = 0;
 	vT[0].tv = 0;
-	vT[0].color = D3DRGBA(ripple->r/255.0,ripple->g/255.0,ripple->b/255.0,ripple->a/255.0);
+	vT[0].color = D3DRGBA((float)ripple->r/255.0,(float)ripple->g/255.0,(float)ripple->b/255.0,(float)ripple->a/255.0);
 	vT[0].specular = D3DRGB(0,0,0);
 
 	vT[1].sx = ripple->scale.v[X];
@@ -695,6 +695,7 @@ void DrawFXDecal( SPECFX *ripple )
 	tEntry = ((TEXENTRY *)ripple->tex);
 	if( tEntry && !zeroZ )
 	{
+		SwapFrame(0);
 		Clip3DPolygon( vT, tEntry->hdl );
 		Clip3DPolygon( &vT[2], tEntry->hdl );
 

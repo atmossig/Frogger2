@@ -228,7 +228,11 @@ void UpdateBattle( )
 
 		for( i=0; i<NUM_FROGS; i++ )
 		{
-			if( (controllerdata[i].button & CONT_A) && !(controllerdata[i].lastbutton & CONT_A) ) mpl[i].ready = 1;
+			if( (controllerdata[i].button & CONT_A) && !(controllerdata[i].lastbutton & CONT_A) )
+			{
+				mpl[i].ready = 1;
+				DisableTextOverlay( raceTimeOver[i] );
+			}
 			if( mpl[i].ready ) count++;
 			player[i].idleEnable = 0;
 			// Face all frogs towards the centre of the map
@@ -680,10 +684,9 @@ int AddBattleTrailNode( int i )
 	SetVector( &pos, &currTile[i]->normal );
 	ScaleVector( &pos, 5 );
 	AddToVector( &pos, &currTile[i]->centre );
-	if( (node->fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &pos, &currTile[i]->normal, 25, 0, 0, 9999999 )) )
+	if( (node->fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &currTile[i]->normal, 25, 0, 0, 9999999 )) )
 	{
 		node->fx->fade = 0;
-		node->fx->tex = txtrSolidRing;
 		node->fx->a = 1;
 		SetFXColour( node->fx, mpl[i].r, mpl[i].g, mpl[i].b );
 	}
