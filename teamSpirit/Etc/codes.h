@@ -2,6 +2,8 @@
 
 	Trigger and event codes used by Frogger2 scripting system
 
+	Programmer: David Swift
+
 	NOTE: This file is SHARED in sourcesafe between the Frogger2/Common
 	project	and the ETC (Compiler) project. 
 */
@@ -31,7 +33,11 @@ enum TRIGGERTYPES
 	TR_ENEMYONTILE = 0,
 	TR_FROGONTILE,
 	TR_FROGONPLATFORM,
-	TR_WITHINRADIUS,
+	TR_PLATNEARPOINT,
+	TR_ENEMYNEARPOINT,
+	TR_FROGNEARPOINT,
+	TR_FROGNEARPLAT,
+	TR_FROGNEARENEMY
 };
 
 #endif
