@@ -2445,8 +2445,6 @@ void ArcadeStart(void)
 		player[2].character = FROG_BABYFROG;
 		player[3].character = FROG_TWEE;
 
-		fog.max = 25000;
-
 		gameState.mode = INGAME_MODE;
 		gameState.single = INVALID_MODE;
 		gameState.multi = MULTILOCAL;
@@ -2454,6 +2452,7 @@ void ArcadeStart(void)
 		multiplayerMode = MULTIMODE_RACE;
 
 		InitLevel(player[0].worldNum, player[0].levelNum);
+		fog.max = 25000;
 
 		return;
 	}
