@@ -94,8 +94,6 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	// Change frog's position to reflect that of the start tile
 	SetVector(&frog[p]->actor->pos,&startTile->centre);
 
-	controlCamera	= 0;
-
 	InitActorAnim(frog[p]->actor);
 	AnimateActor(frog[p]->actor,FROG_ANIM_DANCE1,YES,NO,0.25F,0,0);
 
@@ -794,7 +792,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				}
 			}
 
-			if (!player[pl].isSuperHopping && height <= MAX_HOP_HEIGHT)
+			if (!player[pl].isSuperHopping && height <= MAX_HOP_HEIGHT &&
+				plat->path->nodes[plat->path->fromNode].offset >= 0)
 			{
 				destPlatform[pl] = plat;
 				break;
@@ -802,7 +801,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		}
 		else
 		if (!player[pl].isSuperHopping && currPlatform[pl] &&
-			(40*40) > DistanceBetweenPointsSquared(&v, &plat->pltActor->actor->pos))
+			(40*40) > DistanceBetweenPointsSquared(&v, &plat->pltActor->actor->pos) &&
+			plat->path->nodes[plat->path->fromNode].offset >= 0)
 		{
 			SubVector(&w, &plat->pltActor->actor->pos, &frog[pl]->actor->pos);
 			height = DotProduct(&w, &dest->normal);
@@ -1529,12 +1529,13 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 	if (diff > 0) height += diff;		// When we're jumping UP, add height
 
 	// Up vector
-	SetVector(&pl->jumpUpVector, normal);
-	ScaleVector(&pl->jumpUpVector, height);
+	SetVector(&V, normal);
+	ScaleVector(&V, height);
+	SetVector(&pl->jumpUpVector, &V);
 
 	// Multiplier
 	// Set to zero if we don't actually want to do the vertical bit.
-	if (height)
+	if (height > 0.1 || height < 0.1)
 	{
 		m = 0.5f * (1 + sqrtf(1 - diff/height));
 		pl->jumpSpeed = 1.0f/(m*(float)time); //1/(float)time; 

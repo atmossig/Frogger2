@@ -161,6 +161,45 @@ GAMETILE *GetTileFromNumber(int number)
 #endif
 
 /*	--------------------------------------------------------------------------------
+    Function		: EnumPlaceholderTiles
+	Parameters		: int, function
+	Returns			: 
+*/
+
+int EnumPlaceholderTiles(long id, int (*func)(PATHNODE*, int), int param)
+{
+	ENEMY *cur;
+	PATHNODE *p;
+	int n, count;
+
+	for(cur = enemyList.head.next; cur != &enemyList.head; cur = cur->next, count++)
+	{
+		if (!id || cur->uid == id)
+		{
+			for (p = cur->path->nodes, n = cur->path->numNodes; n; p++, n--)
+				if (!func(p, param)) break;
+		}
+	}
+
+	return count;
+}
+
+
+int FrogOnPath(TRIGGER *t)
+{
+	PATHNODE *node;
+	int n;
+	int player = (int)t->data[0];
+	PATH *p = (PATH*)t->data[1];
+
+	for (node = p->nodes, n = p->numNodes; n; n--, node++)
+		if (node->worldTile == currTile[player]) return 1;
+
+	return 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
     Function		: InterpretEvent
 	Parameters		: EVENT*
 	Returns			: 
@@ -209,6 +248,140 @@ int OnCounterEquals(TRIGGER *t)
 }
 
 /*	--------------------------------------------------------------------------------
+    Function		: SetEnemy
+	Parameters		: ENEMY*, int
+	Returns			: 
+*/
+int SetEnemy(ENEMY *nme, int v)
+{
+	switch (v)
+	{
+	case FS_SET_MOVE:
+		SetEnemyMoving(nme, 1);
+		break;
+
+	case FS_SET_STOP:
+		SetEnemyMoving(nme, 0);
+		break;
+	
+	case FS_SET_TOGGLEMOVE:
+		SetEnemyMoving(nme, !nme->isWaiting);
+		break;
+
+	case FS_SET_INVIS:
+		SetEnemyVisible(nme, 0);
+		break;
+
+	case FS_SET_VIS:
+		SetEnemyVisible(nme, 1);
+		break;
+
+	case FS_SET_TOGGLEVIS:
+		SetEnemyVisible(nme, !nme->active);
+		break;
+	}
+
+	return 1;
+}
+
+/*	--------------------------------------------------------------------------------
+    Function		: SetPlatform
+	Parameters		: PLATFORM*, int
+	Returns			: 
+*/
+int SetPlatform(PLATFORM *plt, int v)
+{
+	switch (v)
+	{
+	case FS_SET_MOVE:
+		SetPlatformMoving(plt, 1);
+		break;
+
+	case FS_SET_STOP:
+		SetPlatformMoving(plt, 0);
+		break;
+	
+	case FS_SET_TOGGLEMOVE:
+		SetPlatformMoving(plt, (plt->isWaiting == -1));
+		break;
+
+	case FS_SET_INVIS:
+		SetPlatformVisible(plt, 0);
+		break;
+
+	case FS_SET_VIS:
+		SetPlatformVisible(plt, 1);
+		break;
+
+	case FS_SET_TOGGLEVIS:
+		SetPlatformVisible(plt, !plt->active);
+		break;
+	}
+
+	return 1;
+}
+
+int PathEffect(ENEMY *nme, int params)
+{
+	SCRIPT_EFFECT_PARAMS *p;
+	GAMETILE *tile;
+	PATHNODE *node = nme->path->nodes;
+	int c = nme->path->numNodes;
+	
+	(int)p = params;
+
+	while (c--)
+	{
+		tile = node->worldTile;
+		CreateAndAddSpecialEffect(p->type, &tile->centre, &tile->normal, p->size, p->speed, p->accn, p->lifetime);
+		node++;
+	}
+	return 1;
+}
+
+int EnemyEffect(ENEMY *nme, int params)
+{
+	SCRIPT_EFFECT_PARAMS *p;
+	(int)p = params;
+	CreateAndAddSpecialEffect(p->type, &nme->nmeActor->actor->pos, &nme->inTile->normal, p->size, p->speed, p->accn, p->lifetime);
+	return 1;
+}
+
+int SetTile(PATHNODE *node, int state)
+{
+	node->worldTile->state = state;
+	return 1;
+}
+
+/*	-------------------------------------------------------------------------------- */
+
+
+int SetEnemyFlag(ENEMY *e, int flag)	{ e->flags |= flag; e->Update(e); return 1; }
+int ResetEnemyFlag(ENEMY *e, int flag)	{ e->flags &= ~flag; e->Update(e); return 1; }
+
+int SetPlatformFlag(PLATFORM *p, int flag)		{ p->flags |= flag;	p->Update(p); return 1; }
+int ResetPlatformFlag(PLATFORM *p, int flag)	{ p->flags &= ~flag; p->Update(p); return 1; }
+
+int CollapsePlatform(PLATFORM *p, int time)
+{
+	p->countdown = time + Random(time / 4); return 1;
+}
+
+int AnimateEnemy(ENEMY *e, int params)
+{
+	RUNANIMINFO *i = (RUNANIMINFO*)params;
+	AnimateActor(e->nmeActor->actor, i->anim, i->loop, i->queue, i->speed, NO, NO);
+	return 1;
+}
+
+int AnimatePlatform(PLATFORM *p, int params)
+{
+	RUNANIMINFO *i = (RUNANIMINFO*)params;
+	AnimateActor(p->pltActor->actor, i->anim, i->loop, i->queue, i->speed, NO, NO);	
+	return 1;
+}
+
+/*	--------------------------------------------------------------------------------
     Function		: LoadTrigger
 	Parameters		: UBYTE*
 	Returns			: TRIGGER*
@@ -252,41 +425,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			trigger = MakeTrigger(FrogOnPlatform, params);
 		}
 		break;
-/*
-	case TR_PLATNEARPOINT:
-		{
-			PLATFORM *platform; VECTOR *v;
 
-			params = AllocArgs(3);
-			if (!(platform = GetPlatformFromUID(MEMGETWORD(p)))) return 0;
-			params[0] = platform->pltActor->actor;
-			v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
-			v->v[X] = MEMGETFLOAT(p);
-			v->v[Y] = MEMGETFLOAT(p);
-			v->v[Z] = MEMGETFLOAT(p);
-			params[1] = (void*)v;
-			params[2] = JallocAlloc(sizeof(float), NO, "float"); *(float*)params[1] = MEMGETFLOAT(p);
-			trigger = MakeTrigger(ActorWithinRadius, params);
-		}
-		break;
-
-	case TR_ENEMYNEARPOINT:
-		{
-			ENEMY *enemy; VECTOR *v;
-
-			params = AllocArgs(3);
-			if (!(enemy = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
-			params[0] = enemy->nmeActor->actor;
-			v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
-			v->v[X] = MEMGETFLOAT(p);
-			v->v[Y] = MEMGETFLOAT(p);
-			v->v[Z] = MEMGETFLOAT(p);
-			params[1] = (void*)v;
-			params[2] = JallocAlloc(sizeof(float), NO, "float"); *(float*)params[1] = MEMGETFLOAT(p);
-			trigger = MakeTrigger(ActorWithinRadius, params);
-		}
-		break;
-*/
 	case TR_ENEMYATFLAG:
 		{
 			ENEMY *enemy;
@@ -401,6 +540,15 @@ TRIGGER *LoadTrigger(UBYTE **p)
 		}
 		break;
 
+	case TR_ONPATH:
+		{
+			params = AllocArgs(2);
+			(int)params[0] = MEMGETBYTE(p);
+			(PATH*)params[1] = GetEnemyFromUID(MEMGETWORD(p))->path;
+			trigger = MakeTrigger(FrogOnPath, params);
+			break;
+		}
+
 	default:
 #ifdef DEBUG_SCRIPTING
 		dprintf"Unrecognised trigger type %02x, skipping\n", token));
@@ -409,136 +557,6 @@ TRIGGER *LoadTrigger(UBYTE **p)
 	}
 
 	return trigger;
-}
-
-/*	--------------------------------------------------------------------------------
-    Function		: SetEnemy
-	Parameters		: ENEMY*, int
-	Returns			: 
-*/
-int SetEnemy(ENEMY *nme, int v)
-{
-	switch (v)
-	{
-	case FS_SET_MOVE:
-		SetEnemyMoving(nme, 1);
-		break;
-
-	case FS_SET_STOP:
-		SetEnemyMoving(nme, 0);
-		break;
-	
-	case FS_SET_TOGGLEMOVE:
-		SetEnemyMoving(nme, (nme->isWaiting == -1));
-		break;
-
-	case FS_SET_INVIS:
-		SetEnemyVisible(nme, 0);
-		break;
-
-	case FS_SET_VIS:
-		SetEnemyVisible(nme, 1);
-		break;
-
-	case FS_SET_TOGGLEVIS:
-		SetEnemyVisible(nme, !nme->active);
-		break;
-	}
-
-	return 1;
-}
-
-/*	--------------------------------------------------------------------------------
-    Function		: SetPlatform
-	Parameters		: PLATFORM*, int
-	Returns			: 
-*/
-int SetPlatform(PLATFORM *plt, int v)
-{
-	switch (v)
-	{
-	case FS_SET_MOVE:
-		SetPlatformMoving(plt, 1);
-		break;
-
-	case FS_SET_STOP:
-		SetPlatformMoving(plt, 0);
-		break;
-	
-	case FS_SET_TOGGLEMOVE:
-		SetPlatformMoving(plt, (plt->isWaiting == -1));
-		break;
-
-	case FS_SET_INVIS:
-		SetPlatformVisible(plt, 0);
-		break;
-
-	case FS_SET_VIS:
-		SetPlatformVisible(plt, 1);
-		break;
-
-	case FS_SET_TOGGLEVIS:
-		SetPlatformVisible(plt, !plt->active);
-		break;
-	}
-
-	return 1;
-}
-
-
-int PathEffect(ENEMY *nme, int params)
-{
-	SCRIPT_EFFECT_PARAMS *p;
-	GAMETILE *tile;
-	VECTOR v;
-	PATHNODE *node = nme->path->nodes;
-	int c = nme->path->numNodes;
-	
-	(int)p = params;
-
-	while (c--)
-	{
-		tile = node->worldTile;
-		GetPositionForPathNode(&v, node);
-		CreateAndAddSpecialEffect(p->type, &v, &tile->normal, p->size, p->speed, p->accn, p->lifetime);
-		node++;
-	}
-	return 1;
-}
-
-int EnemyEffect(ENEMY *nme, int params)
-{
-	SCRIPT_EFFECT_PARAMS *p;
-	(int)p = params;
-	CreateAndAddSpecialEffect(p->type, &nme->nmeActor->actor->pos, &nme->inTile->normal, p->size, p->speed, p->accn, p->lifetime);
-	return 1;
-}
-/*	-------------------------------------------------------------------------------- */
-
-
-int SetEnemyFlag(ENEMY *e, int flag)	{ e->flags |= flag; e->Update(e); return 1; }
-int ResetEnemyFlag(ENEMY *e, int flag)	{ e->flags &= ~flag; e->Update(e); return 1; }
-
-int SetPlatformFlag(PLATFORM *p, int flag)		{ p->flags |= flag;	p->Update(p); return 1; }
-int ResetPlatformFlag(PLATFORM *p, int flag)	{ p->flags &= ~flag; p->Update(p); return 1; }
-
-int CollapsePlatform(PLATFORM *p, int time)
-{
-	p->countdown = time + Random(time / 4); return 1;
-}
-
-int AnimateEnemy(ENEMY *e, int params)
-{
-	RUNANIMINFO *i = (RUNANIMINFO*)params;
-	AnimateActor(e->nmeActor->actor, i->anim, i->loop, i->queue, i->speed, NO, NO);
-	return 1;
-}
-
-int AnimatePlatform(PLATFORM *p, int params)
-{
-	RUNANIMINFO *i = (RUNANIMINFO*)params;
-	AnimateActor(p->pltActor->actor, i->anim, i->loop, i->queue, i->speed, NO, NO);	
-	return 1;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -701,7 +719,7 @@ BOOL ExecuteCommand(UBYTE **p)
 
 			param = AllocArgs(2);
 			param[0] = (void *)fNum;
-			param[1] = (void *)tNum;
+			param[1] = (void *)(firstTile + tNum);
 			e = MakeEvent( TeleportFrog, param );
 
 			AttachEvent( t, e, TRIGGER_ONCE, 0 );
@@ -989,6 +1007,68 @@ BOOL ExecuteCommand(UBYTE **p)
 			cam_shake_falloff = MEMGETFLOAT(p);
 			break;
 		}
+
+	case EV_SETTILE_P:
+		{
+			int id = MEMGETFLOAT(p), state = MEMGETFLOAT(p);
+			EnumPlaceholderTiles(id, SetTile, state);
+			break;
+		}
+
+	case EV_SETSTARTTILE_P:
+		{
+			gTStart[0] = GetEnemyFromUID(MEMGETWORD(p))->path->nodes->worldTile; 
+		}
+
+	case EV_TELEPORT_P:
+		{
+			TRIGGER *t;
+			EVENT *e;
+			int fNum = MEMGETBYTE(p), time = (MEMGETFLOAT(p) * 60) + actFrameCount;
+			GAMETILE *tile; 
+			VECTOR telePos;
+			void **param;
+
+			fNum = MEMGETBYTE(p);
+			tile = GetEnemyFromUID(MEMGETWORD(p))->path->nodes->worldTile;
+			time = (MEMGETFLOAT(p) * 60) + actFrameCount;
+
+			if( player[fNum].frogState & FROGSTATUS_ISDEAD ) break;
+
+			player[fNum].frogState = FROGSTATUS_ISTELEPORTING;	// clear ALL other flags
+			player[fNum].canJump = 0;
+			FrogLeavePlatform(fNum);	// bah
+
+			CreateTeleportEffect( &frog[fNum]->actor->pos, &upVec, 255, 255, 255 );
+
+			param = AllocArgs(1);
+			param[0] = (void *)time;
+			t = MakeTrigger( OnTimeout, param );
+
+			param = AllocArgs(2);
+			param[0] = (void *)fNum;
+			param[1] = (void *)tile;
+			e = MakeEvent( TeleportFrog, param );
+
+			AttachEvent( t, e, TRIGGER_ONCE, 0 );
+
+			break;
+		}
+
+	case EV_SPRING_P:
+		{
+			GAMETILE *tile;	int pl;	float height, time;
+
+			pl = MEMGETBYTE(p);
+			tile = GetEnemyFromUID(MEMGETWORD(p))->path->nodes->worldTile;
+			height = MEMGETFLOAT(p);
+			time = MEMGETFLOAT(p);
+
+			SpringFrogToTile(tile, height, time, pl);
+
+			break;
+		}
+
 /*
 	case EV_HURTFROG:
 		{
