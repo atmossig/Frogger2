@@ -1296,6 +1296,7 @@ void CommonInit(void)
 	gameState.difficulty = DIFFICULTY_NORMAL;
 #ifdef PC_VERSION
 	gameState.mode = STARTUP_MODE;
+	ScreenFade(0,255,30);
 	InitBackdrop("FR2LEGAL");
 	GTInit(&modeTimer,4);
 #else
