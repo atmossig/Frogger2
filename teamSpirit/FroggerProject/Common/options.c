@@ -2266,7 +2266,8 @@ void RunOptionsMenu(void)
 				SsSetMute( 0 );
 #endif
 				playingFMV = NO;
-				PrepareSong(WORLDID_FRONTEND,YES);
+				UnPauseAudio( );
+//				PrepareSong(WORLDID_FRONTEND,YES);
 				ScreenFade(0,255,30);
 				keepFade = 0;
 			}
@@ -3109,6 +3110,7 @@ void FMVSelect(void)
 	ScreenFade(255,0,30);
 	playingFMV = YES;
 	keepFade = 0;
+	PauseAudio();
 //	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
