@@ -322,31 +322,53 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 	{ 
 		//if (worldObject && DistanceFail(&frog[0]->actor->pos,obj->))
 		//	drawme = 0;
-
-		if (obj->mesh && drawme)
+		if ((obj->name[0] == 'g') && (obj->name[1] == 'l') && (obj->name[2] == '_'))
 		{
-			xl = (((float)obj->xlu) / ((float)0xff)) * xl;
-			
-			// We are a water object, if so modge the vertices like water
-			if ((waterObject))
-			{
-				PCPrepareWaterObject(obj, obj->mesh,  obj->objMatrix.matrix);
+			VECTOR v;
+			float r,g,b;
 
-				// Draw it, eventually water will need it's own optimised draw function!
-				PCRenderObject(obj);
+			r = (obj->name[3]-'0')/9.0;
+			g = (obj->name[4]-'0')/9.0;
+			b = (obj->name[5]-'0')/9.0;
+
+			SwapFrame(4);
+			PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
+			PCRenderObject(obj);
+			v.v[X] = obj->objMatrix.matrix[3][0];
+			v.v[Y] = obj->objMatrix.matrix[3][1];
+			v.v[Z] = obj->objMatrix.matrix[3][2];
+			
+			AddHalo(&v,vMatrix[2][0],vMatrix[2][2],D3DRGBA(r,g,b,0.8));
+
+			SwapFrame(0);
+		}
+		else
+		{
+			if (obj->mesh && drawme)
+			{
+				xl = (((float)obj->xlu) / ((float)0xff)) * xl;
+				
+				// We are a water object, if so modge the vertices like water
+				if ((waterObject))
+				{
+					PCPrepareWaterObject(obj, obj->mesh,  obj->objMatrix.matrix);
+
+					// Draw it, eventually water will need it's own optimised draw function!
+					PCRenderObject(obj);
+				}
+				else // Or we can modge just the vertices
+					if (modgyObject) 
+					{
+						PCPrepareModgyObject(obj, obj->mesh,  obj->objMatrix.matrix);
+						// Same as for water objects
+						PCRenderObject(obj);
+					}
+					else // Or maybe we can't
+					{
+						PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
+						PCRenderObject(obj);
+					}
 			}
-			else // Or we can modge just the vertices
-				if (modgyObject) 
-				{
-					PCPrepareModgyObject(obj, obj->mesh,  obj->objMatrix.matrix);
-					// Same as for water objects
-					PCRenderObject(obj);
-				}
-				else // Or maybe we can't
-				{
-					PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
-					PCRenderObject(obj);
-				}
 		}
 	}
 

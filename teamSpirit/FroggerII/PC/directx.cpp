@@ -1388,22 +1388,22 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 	D3DTLVERTEX v[4] = {
 		{
 			x,y,z,0,
-			/*D3DRGBA(1,1,1,alpha)*/colour,FOGVAL(fogAmt),
+			/*D3DRGBA(1,1,1,alpha)*/colour,0,
 			u1,v1
 		},
 		{
 			x2,y,z,0,
-			colour,FOGVAL(fogAmt),
+			colour,0,
 			u2,v1
 		},
 		{
 			x2,y2,z,0,
-			colour,FOGVAL(fogAmt),
+			colour,0,
 			u2,v2
 		},
 		{
 			x,y2,z,0,
-			colour,FOGVAL(fogAmt),
+			colour,0,
 			u1,v2
 	}};
 

@@ -40,10 +40,141 @@ extern "C"
 #include "incs.h"
 #include "software.h"
 #include "mavis.h"
-
+#include "crc32.h"
 // Instance of FRAME_INFO, for storing... Surprisingly.. The frame information./
 FRAME_INFO frameInfo[MAX_FRAMES];
 FRAME_INFO *cFInfo = &frameInfo[0];
+
+#define MA_MAX_HALOS 50
+
+short haloZVals[MA_MAX_HALOS];
+VECTOR haloPoints[MA_MAX_HALOS];
+float flareScales[MA_MAX_HALOS];
+float flareScales2[MA_MAX_HALOS];
+unsigned long haloColor[MA_MAX_HALOS];
+
+unsigned long numHaloPoints;
+void XfmPoint (VECTOR *vTemp2, VECTOR *in);
+
+unsigned long haloHandle = 0;
+unsigned long haloHandle2 = 0;
+unsigned long haloHandle3 = 0;
+
+void DrawHalos(void)
+{
+	RECT rec;
+	
+	if (!haloHandle)
+	{
+		TEXENTRY *m;
+		FindTexture((TEXTURE **)&m,UpdateCRC("glowtex.bmp"),1);
+		haloHandle = m->hdl;
+		FindTexture((TEXTURE **)&m,UpdateCRC("halotex2.bmp"),1);
+		haloHandle2 = m->hdl;
+		FindTexture((TEXTURE **)&m,UpdateCRC("halotex3.bmp"),1);
+		haloHandle3 = m->hdl;
+	}
+
+	for (int i=0; i<numHaloPoints; i++)
+	{
+		if (haloPoints[i].v[2])
+		{
+			unsigned long c,size,size2;
+			DrawAlphaSprite(haloPoints[i].v[0] - 60,haloPoints[i].v[1] - 60, 0,120,120, 0,0,1,1,haloHandle,haloColor[i]);
+			
+			c = D3DRGB(0.7,0.7,0.7);//haloColor[i];
+			c &= 0x00ffffff;
+			
+			DrawAlphaSpriteRotating(&(haloPoints[i].v[0]),3*flareScales2[i],haloPoints[i].v[0] - 30,haloPoints[i].v[1] - 30, 0,60,60, 0,0,1,1,haloHandle3,c | D3DRGBA(0,0,0,1-fabs(flareScales2[i])));
+			DrawAlphaSpriteRotating(&(haloPoints[i].v[0]),1,haloPoints[i].v[0] - 30,haloPoints[i].v[1] - 30, 0,60,60, 0,0,1,1,haloHandle3,c | D3DRGBA(0,0,0,1-fabs(flareScales[i])));
+			
+			c = haloColor[i];
+			c &= 0x00ffffff;
+			
+			size = fabs(400 * flareScales[i]);
+			size2 = 40+fabs(20 * flareScales[i]);
+			DrawAlphaSpriteRotating(&(haloPoints[i].v[0]),0,haloPoints[i].v[0] - size2/2,haloPoints[i].v[1] - size/2, 0,size2,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales[i])));
+			size = fabs(200 * flareScales2[i]);
+			DrawAlphaSpriteRotating(&(haloPoints[i].v[0]),0.5,haloPoints[i].v[0] - 20,haloPoints[i].v[1] - size/2, 0,40,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales2[i])));
+			
+		//DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,fabs(200 * flareScales[i]),60 * (fabs(flareScales[i])),D3DRGBA(r,g,b,0.8-fabs(flareScales[i])*0.5),flareS,FULL_TEXTURE,1.57);
+		//DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,fabs(150 * flareScales2[i]),20,D3DRGBA(r,g,b,1-fabs(flareScales2[i])*0.5),flareS,FULL_TEXTURE,1);
+		//DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,30+fabs(80 * flareScales2[i]),30+fabs(80 * flareScales2[i]),D3DRGBA(r,g,b,1-fabs(flareScales2[i])),flareS2,FULL_TEXTURE,3*flareScales2[i]);
+		//DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,30+fabs(80 * flareScales[i]),30+fabs(80 * flareScales[i]),D3DRGBA(r,g,b,1-fabs(flareScales[i])),flareS2,FULL_TEXTURE,0);			
+	
+		}
+	}
+
+	numHaloPoints = 0;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawFlatRect
+	Purpose			: draw a flat rectangle
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void StoreHaloPoints(void)
+{
+	DDSURFACEDESC		ddsd;
+	VECTOR v;
+
+	DDINIT(ddsd);
+	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK,0)!=DD_OK);
+	
+	ddsd.lPitch /= sizeof(short);
+
+	for (int i=0; i<numHaloPoints; i++)
+	{
+		XfmPoint(&v,&haloPoints[i]);
+		haloPoints[i].v[0] = (unsigned long)v.v[0];
+		haloPoints[i].v[1] = (unsigned long)v.v[1];
+		haloPoints[i].v[2] = v.v[2];
+		
+		if (haloPoints[i].v[2]>100)
+			haloZVals[i] = ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].v[0]+(haloPoints[i].v[1]*ddsd.lPitch))];
+	}
+
+	surface[ZBUFFER_SRF]->Unlock(ddsd.lpSurface);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawFlatRect
+	Purpose			: draw a flat rectangle
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void CheckHaloPoints(void)
+{
+	DDSURFACEDESC		ddsd;
+	VECTOR v;
+	unsigned long i;
+
+	DDINIT(ddsd);
+	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK,0)!=DD_OK);
+	
+	ddsd.lPitch /= sizeof(short);
+
+	for (i=0; i<numHaloPoints; i++)
+		if (haloPoints[i].v[2]>100)
+			if (haloZVals[i] == ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].v[0]+(haloPoints[i].v[1]*ddsd.lPitch))])
+				haloPoints[i].v[Z] = 0;
+	
+	surface[ZBUFFER_SRF]->Unlock(ddsd.lpSurface);
+}
+
+
+void AddHalo(VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color)
+{
+	flareScales[numHaloPoints] = flareScaleA;
+	flareScales2[numHaloPoints] = flareScaleB;
+	haloColor[numHaloPoints] = color;
+	SetVector(&haloPoints[numHaloPoints++], point);	
+}
 
 #ifdef _DEBUG
 

@@ -203,6 +203,10 @@ void DrawAttachedObjects(void)
 	Returns			: void
 	Info			: 
 */
+extern unsigned long numHaloPoints;
+void StoreHaloPoints(void);
+void CheckHaloPoints(void);
+void DrawHalos(void);
 
 void RenderObjects(void)
 {
@@ -247,13 +251,37 @@ void RenderObjects(void)
 	DrawBatchedPolys();
 	BlankFrame(_);	
 	
-	SwapFrame(4);
-	DrawBatchedPolys();
-	BlankFrame(_);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+	//SwapFrame(4);
+	//DrawBatchedPolys();
+	//BlankFrame(_);
+	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 	
 	// We could take this out, I doubt it really matters which frame we use (Unless I put in varying poly counts, might be worth it.... Dunno)
 	// SwapFrame(0);
+	
+	EndDrawHardware();
+	StoreHaloPoints();
+	BeginDrawHardware();
+	
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_ZERO);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
+
+	SwapFrame(4);
+	DrawBatchedPolys();
+	BlankFrame(_);	
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
+
+	EndDrawHardware();
+	
+	CheckHaloPoints();
+
+	BeginDrawHardware();
+		
 }
 
 /*	--------------------------------------------------------------------------------
