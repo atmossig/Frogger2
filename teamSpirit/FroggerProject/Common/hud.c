@@ -126,7 +126,7 @@ void InitArcadeHUD(void)
 	arcadeHud.timeBak->b = 128;
 	sprintf(timeBarStr,"%d:%02d.%d0",worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime/600,(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime/10)%60,(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime)%10);
 	arcadeHud.timeBarText = CreateAndAddTextOverlay(2048,3300,timeBarStr,YES,255,font,TEXTOVERLAY_SHADOW);
-	if(gameState.mode == FRONTEND_MODE)
+	if((gameState.mode == FRONTEND_MODE) || (gameState.mode == DEMO_MODE))
 	{
 		GTInit(&goTimer,0);
 	}
@@ -800,7 +800,7 @@ void UpDateOnScreenInfo ( void )
 	}
 
 	timeFrames -=actFrameCount;
-	if(((gameState.difficulty == DIFFICULTY_HARD) || (gameState.single == ARCADE_MODE)) && (player[0].worldNum != WORLDID_FRONTEND))
+	if(((gameState.difficulty == DIFFICULTY_HARD) || (gameState.single == ARCADE_MODE)) && (player[0].worldNum != WORLDID_FRONTEND) && (gameState.mode != DEMO_MODE))
 	{
 		if(goTimer.time)
 		{
