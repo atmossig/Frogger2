@@ -620,5 +620,15 @@ Mike Movel:
 Byron Blay:
 ------------------------------------------------
 
+	- #includes finished.
+	- Converted many VECTORS to SVECTORS and FVECTORS, using past experience,
+	- Duplicating functions as needed (e.g AddVectorSS(), AddVectorVV() e.t.c)
+	- Spent some time with Mike on the PC/PSX coordinate systems.
+
+
 Chris Wilson:
 ------------------------------------------------
+
+
+
+
