@@ -2,7 +2,10 @@
 #define TEMP_PSX_H
 
 #include "types.h"
+#include <ctype.h>
 
+
+#define strupr(c) _toupper(c)
 
 #define PostQuitMessage(x)
 #define RunDesignWorkViewer()
