@@ -583,8 +583,8 @@ void ProcessShadows()
 
 //------------------------------------------------------------------------------------------------
 	// process frogs and babies shadows
-/*
-	i = number of players (1-4)
+
+	i = NUM_FROGS;
 	while(i--)
 	{
 		if(frog[i]->actor->shadow)
@@ -595,14 +595,7 @@ void ProcessShadows()
 			DrawShadow(&vec,NULL,frog[i]->actor->shadow->radius,0,frog[i]->actor->shadow->alpha,frog[i]->actor->shadow->vert,NULL);
 		}
 	}
-*/
-	if(frog[0]->actor->shadow)
-	{
-		vec.v[X] = frog[0]->actor->pos.v[X];
-		vec.v[Y] = currTile[0]->centre.v[Y] + 1;
-		vec.v[Z] = frog[0]->actor->pos.v[Z];
-		DrawShadow(&vec,NULL,frog[0]->actor->shadow->radius,0,frog[0]->actor->shadow->alpha,frog[0]->actor->shadow->vert,NULL);
-	}
+
 //------------------------------------------------------------------------------------------------
 
 	i = numBabies;

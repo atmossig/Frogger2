@@ -284,7 +284,6 @@ void GameProcessController(long pl)
 				player[pl].frogState		    |= FROGSTATUS_ISFLOATING;
 
 				yFOVNew		= 80.0f;
-				speedTest	= 2.0f;
 			}
 		}
     }
@@ -297,7 +296,6 @@ void GameProcessController(long pl)
 			player[pl].frogState			|= FROGSTATUS_ISDEAD;
 			frog[pl]->action.deathBy = DEATHBY_FALLINGTOTILE;
 			frog[pl]->action.dead	 = 50;
-			speedTest = 18.0f;
 		}
 	}
 

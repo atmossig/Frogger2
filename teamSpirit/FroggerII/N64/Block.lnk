@@ -233,7 +233,7 @@ _objBank_1_1_SegmentRomEnd          alias   _objBank11_orgend
 
         section.16      objBank11.data,objBank11
 
-oBank11  incbin  "objects/gardenlev1.nob",objBank11.data,64
+oBank11  incbin  "objects/garden1.nob",objBank11.data,64
 
 ; [ GARDEN WORLD LEVEL 2 ] >>>>>
 
@@ -245,7 +245,7 @@ _objBank_1_2_SegmentRomEnd          alias   _objBank12_orgend
 
         section.16      objBank12.data,objBank12
 
-oBank12  incbin  "objects/gardenlev2.nob",objBank12.data,64
+oBank12  incbin  "objects/garden2.nob",objBank12.data,64
 
 ; [ GARDEN WORLD LEVEL 3 ] >>>>>
 
@@ -257,9 +257,9 @@ _objBank_1_3_SegmentRomEnd          alias   _objBank13_orgend
 
         section.16      objBank13.data,objBank13
 
-oBank13  incbin  "objects/gardenlev3.nob",objBank13.data,64
+oBank13  incbin  "objects/garden3.nob",objBank13.data,64
 
-; [ GARDEN WORLD BOSS A ] >>>>>
+; [ GARDEN WORLD BOSS ] >>>>>
 
 objBank14        group   obj()
 objBank14bss     group   obj(),bss
@@ -269,9 +269,9 @@ _objBank_1_4_SegmentRomEnd          alias   _objBank14_orgend
 
         section.16      objBank14.data,objBank14
 
-oBank14  incbin  "objects/gardenbossa.nob",objBank14.data,64
+oBank14  incbin  "objects/gardenboss.nob",objBank14.data,64
 
-; [ GARDEN WORLD BOSS B ] >>>>>
+; [ GARDEN WORLD BOSS A ] >>>>>
 
 objBank15        group   obj()
 objBank15bss     group   obj(),bss
@@ -281,7 +281,7 @@ _objBank_1_5_SegmentRomEnd          alias   _objBank15_orgend
 
         section.16      objBank15.data,objBank15
 
-oBank15  incbin  "objects/gardenbossb.nob",objBank15.data,64
+oBank15  incbin  "objects/gardenbossa.nob",objBank15.data,64
 
 ; [ GARDEN WORLD BONUS ] >>>>>
 
@@ -293,7 +293,7 @@ _objBank_1_6_SegmentRomEnd          alias   _objBank16_orgend
 
         section.16      objBank16.data,objBank16
 
-oBank16  incbin  "objects/gardenbonuslev.nob",objBank16.data,64
+oBank16  incbin  "objects/gardenbonus.nob",objBank16.data,64
 
 ; [ GARDEN WORLD MULTIPLAYER ] >>>>>
 
@@ -318,7 +318,7 @@ _objBank_2_0_SegmentRomEnd          alias   _objBank20_orgend
 
         section.16      objBank20.data,objBank20
 
-oBank20  incbin  "objects/ancientmaster.nob",objBank20.data,64
+oBank20  incbin  "objects/ancientsmaster.nob",objBank20.data,64
 
 ; [ ANCIENT LEVEL 1 ] >>>>>
 
@@ -330,7 +330,7 @@ _objBank_2_1_SegmentRomEnd          alias   _objBank21_orgend
 
         section.16      objBank21.data,objBank21
 
-oBank21  incbin  "objects/ancientlev1.nob",objBank21.data,64
+oBank21  incbin  "objects/ancients1.nob",objBank21.data,64
 
 ; [ ANCIENT LEVEL 2 ] >>>>>
 
@@ -342,7 +342,7 @@ _objBank_2_2_SegmentRomEnd          alias   _objBank22_orgend
 
         section.16      objBank22.data,objBank22
 
-oBank22  incbin  "objects/ancientlev2.nob",objBank22.data,64
+oBank22  incbin  "objects/ancients2.nob",objBank22.data,64
 
 ; [ ANCIENT LEVEL 3 ] >>>>>
 
@@ -354,9 +354,9 @@ _objBank_2_3_SegmentRomEnd          alias   _objBank23_orgend
 
         section.16      objBank23.data,objBank23
 
-oBank23  incbin  "objects/ancientlev3.nob",objBank23.data,64
+oBank23  incbin  "objects/ancients3.nob",objBank23.data,64
 
-; [ ANCIENT BOSSA LEVEL ] >>>>>
+; [ ANCIENT BOSS LEVEL ] >>>>>
 
 objBank24       group   obj()
 objBank24bss    group   obj(),bss
@@ -366,9 +366,9 @@ _objBank_2_4_SegmentRomEnd          alias   _objBank24_orgend
 
         section.16      objBank24.data,objBank24
 
-oBank24  incbin  "objects/ancientbossa.nob",objBank24.data,64
+oBank24  incbin  "objects/ancientsboss.nob",objBank24.data,64
 
-; [ ANCIENT BOSSB LEVEL ] >>>>>
+; [ ANCIENT BOSSA LEVEL ] >>>>>
 
 objBank25       group   obj()
 objBank25bss    group   obj(),bss
@@ -378,9 +378,9 @@ _objBank_2_5_SegmentRomEnd          alias   _objBank25_orgend
 
         section.16      objBank25.data,objBank25
 
-oBank25  incbin  "objects/ancientbossb.nob",objBank25.data,64
+oBank25  incbin  "objects/ancientsbossa.nob",objBank25.data,64
 
-; [ ANCIENT BOSSC LEVEL ] >>>>>
+; [ ANCIENT BOSSB LEVEL ] >>>>>
 
 objBank26       group   obj()
 objBank26bss    group   obj(),bss
@@ -390,9 +390,9 @@ _objBank_2_6_SegmentRomEnd          alias   _objBank26_orgend
 
         section.16      objBank26.data,objBank26
 
-oBank26  incbin  "objects/ancientbossc.nob",objBank26.data,64
+oBank26  incbin  "objects/ancientsbossb.nob",objBank26.data,64
 
-; [ ANCIENT BOSSD LEVEL ] >>>>>
+; [ ANCIENT BOSSC LEVEL ] >>>>>
 
 objBank27       group   obj()
 objBank27bss    group   obj(),bss
@@ -402,7 +402,7 @@ _objBank_2_7_SegmentRomEnd          alias   _objBank27_orgend
 
         section.16      objBank27.data,objBank27
 
-oBank27  incbin  "objects/ancientbossd.nob",objBank27.data,64
+oBank27  incbin  "objects/ancientsbossc.nob",objBank27.data,64
 
 ; [ ANCIENT BONUS LEVEL ] >>>>>
 
@@ -414,7 +414,7 @@ _objBank_2_8_SegmentRomEnd          alias   _objBank28_orgend
 
         section.16      objBank28.data,objBank28
 
-oBank28  incbin  "objects/ancientbonuslev.nob",objBank28.data,64
+oBank28  incbin  "objects/dummy.nob",objBank28.data,64
 
 ; [ ANCIENT MULITPLAYER LEVEL ] >>>>>
 
@@ -426,7 +426,7 @@ _objBank_2_9_SegmentRomEnd          alias   _objBank29_orgend
 
         section.16      objBank29.data,objBank29
 
-oBank29  incbin  "objects/ancientmulti.nob",objBank29.data,64
+oBank29  incbin  "objects/ancientsmulti.nob",objBank29.data,64
 
 
 ; [ SPACE WORLD MASTER ] -------------------------------------------------------------------------
@@ -451,7 +451,7 @@ _objBank_3_1_SegmentRomEnd          alias   _objBank31_orgend
 
         section.16      objBank31.data,objBank31
 
-oBank31  incbin  "objects/spacelev1.nob",objBank31.data,64
+oBank31  incbin  "objects/space1.nob",objBank31.data,64
 
 ; [ SPACE WORLD LEVEL 2 ] >>>>>
 
@@ -463,7 +463,7 @@ _objBank_3_2_SegmentRomEnd          alias   _objBank32_orgend
 
         section.16      objBank32.data,objBank32
 
-oBank32  incbin  "objects/spacelev2.nob",objBank32.data,64
+oBank32  incbin  "objects/space2.nob",objBank32.data,64
 
 ; [ SPACE WORLD LEVEL 3 ] >>>>>
 
@@ -475,7 +475,7 @@ _objBank_3_3_SegmentRomEnd          alias   _objBank33_orgend
 
         section.16      objBank33.data,objBank33
 
-oBank33  incbin  "objects/spacelev3.nob",objBank33.data,64
+oBank33  incbin  "objects/space3.nob",objBank33.data,64
 
 ; [ SPACE WORLD BOSS ] >>>>>
 
@@ -487,7 +487,7 @@ _objBank_3_4_SegmentRomEnd          alias   _objBank34_orgend
 
         section.16      objBank34.data,objBank34
 
-oBank34  incbin  "objects/spacebossa.nob",objBank34.data,64
+oBank34  incbin  "objects/spaceboss.nob",objBank34.data,64
 
 ; [ SPACE WORLD BONUS ] >>>>>
 
@@ -524,7 +524,7 @@ _objBank_4_0_SegmentRomEnd          alias   _objBank40_orgend
 
         section.16      objBank40.data,objBank40
 
-oBank40  incbin  "objects/dummy.nob",objBank40.data,64
+oBank40  incbin  "objects/citymaster.nob",objBank40.data,64
 
 ; [ CITY WORLD LEVEL 1 ] >>>>>
 
@@ -536,7 +536,7 @@ _objBank_4_1_SegmentRomEnd          alias   _objBank41_orgend
 
         section.16      objBank41.data,objBank41
 
-oBank41  incbin  "objects/dummy.nob",objBank41.data,64
+oBank41  incbin  "objects/city1.nob",objBank41.data,64
 
 ; [ CITY WORLD LEVEL 2 ] >>>>>
 
@@ -548,7 +548,7 @@ _objBank_4_2_SegmentRomEnd          alias   _objBank42_orgend
 
         section.16      objBank42.data,objBank42
 
-oBank42  incbin  "objects/dummy.nob",objBank42.data,64
+oBank42  incbin  "objects/city2.nob",objBank42.data,64
 
 ; [ CITY WORLD LEVEL 3 ] >>>>>
 
@@ -560,7 +560,7 @@ _objBank_4_3_SegmentRomEnd          alias   _objBank43_orgend
 
         section.16      objBank43.data,objBank43
 
-oBank43  incbin  "objects/dummy.nob",objBank43.data,64
+oBank43  incbin  "objects/city3.nob",objBank43.data,64
 
 ; [ CITY WORLD BOSS ] >>>>>
 
@@ -572,7 +572,7 @@ _objBank_4_4_SegmentRomEnd          alias   _objBank44_orgend
 
         section.16      objBank44.data,objBank44
 
-oBank44  incbin  "objects/dummy.nob",objBank44.data,64
+oBank44  incbin  "objects/cityboss.nob",objBank44.data,64
 
 ; [ CITY WORLD BONUS ] >>>>>
 
@@ -584,7 +584,7 @@ _objBank_4_5_SegmentRomEnd          alias   _objBank45_orgend
 
         section.16      objBank45.data,objBank45
 
-oBank45  incbin  "objects/dummy.nob",objBank45.data,64
+oBank45  incbin  "objects/citybonus.nob",objBank45.data,64
 
 ; [ CITY WORLD MULTIPLAYER ] >>>>>
 
@@ -596,7 +596,7 @@ _objBank_4_6_SegmentRomEnd          alias   _objBank46_orgend
 
         section.16      objBank46.data,objBank46
 
-oBank46  incbin  "objects/dummy.nob",objBank46.data,64
+oBank46  incbin  "objects/citymulti.nob",objBank46.data,64
 
 
 ; [ SUBTER WORLD MASTER ] ------------------------------------------------------------------------
@@ -706,7 +706,7 @@ _objBank_6_1_SegmentRomEnd          alias   _objBank61_orgend
 
         section.16      objBank61.data,objBank61
 
-oBank61  incbin  "objects/lablev1.nob",objBank61.data,64
+oBank61  incbin  "objects/lab1.nob",objBank61.data,64
 
 ; [ LAB WORLD LEVEL 2 ] >>>>>
 
@@ -718,7 +718,7 @@ _objBank_6_2_SegmentRomEnd          alias   _objBank62_orgend
 
         section.16      objBank62.data,objBank62
 
-oBank62  incbin  "objects/lablev2.nob",objBank62.data,64
+oBank62  incbin  "objects/lab2.nob",objBank62.data,64
 
 ; [ LAB WORLD LEVEL 3 ] >>>>>
 
@@ -1084,7 +1084,7 @@ _texBank_1_0_SegmentRomEnd          alias   _texBank10_orgend
 
         section.16      texBank10.data,texBank10
 
-tBank10  incbin  "textures/generic_garden.fla",texBank10.data,64
+tBank10  incbin  "textures/gardenmaster.fla",texBank10.data,64
 
 ; [ LEVEL 1 GARDEN ] >>>>>
 
@@ -1096,7 +1096,7 @@ _texBank_1_1_SegmentRomEnd          alias   _texBank11_orgend
 
         section.16      texBank11.data,texBank11
 
-tBank11  incbin  "textures/level1_garden.fla",texBank11.data,64
+tBank11  incbin  "textures/garden1.fla",texBank11.data,64
 
 ; [ LEVEL 2 GARDEN ] >>>>>
 
@@ -1108,7 +1108,7 @@ _texBank_1_2_SegmentRomEnd          alias   _texBank12_orgend
 
         section.16      texBank12.data,texBank12
 
-tBank12  incbin  "textures/level2_garden.fla",texBank12.data,64
+tBank12  incbin  "textures/garden2.fla",texBank12.data,64
 
 ; [ LEVEL 3 GARDEN ] >>>>>
 
@@ -1120,9 +1120,9 @@ _texBank_1_3_SegmentRomEnd          alias   _texBank13_orgend
 
         section.16      texBank13.data,texBank13
 
-tBank13  incbin  "textures/level3_garden.fla",texBank13.data,64
+tBank13  incbin  "textures/garden3.fla",texBank13.data,64
 
-; [ BOSS A GARDEN ] >>>>>
+; [ BOSS GARDEN ] >>>>>
 
 texBank14        group   obj()
 texBank14bss     group   obj(),bss
@@ -1132,9 +1132,9 @@ _texBank_1_4_SegmentRomEnd          alias   _texBank14_orgend
 
         section.16      texBank14.data,texBank14
 
-tBank14  incbin  "textures/bossa_garden.fla",texBank14.data,64
+tBank14  incbin  "textures/gardenboss.fla",texBank14.data,64
 
-; [ BOSS B GARDEN ] >>>>>
+; [ BOSS A GARDEN ] >>>>>
 
 texBank15        group   obj()
 texBank15bss     group   obj(),bss
@@ -1144,7 +1144,7 @@ _texBank_1_5_SegmentRomEnd          alias   _texBank15_orgend
 
         section.16      texBank15.data,texBank15
 
-tBank15  incbin  "textures/bossb_garden.fla",texBank15.data,64
+tBank15  incbin  "textures/gardenbossa.fla",texBank15.data,64
 
 ; [ BONUS GARDEN ] >>>>>
 
@@ -1156,7 +1156,7 @@ _texBank_1_6_SegmentRomEnd          alias   _texBank16_orgend
 
         section.16      texBank16.data,texBank16
 
-tBank16  incbin  "textures/bonus_garden.fla",texBank16.data,64
+tBank16  incbin  "textures/gardenbonus.fla",texBank16.data,64
 
 ; [ MULTI GARDEN ] >>>>>
 
@@ -1168,7 +1168,7 @@ _texBank_1_7_SegmentRomEnd          alias   _texBank17_orgend
 
         section.16      texBank17.data,texBank17
 
-tBank17  incbin  "textures/multi_garden.fla",texBank17.data,64
+tBank17  incbin  "textures/gardenmulti.fla",texBank17.data,64
 
 
 ; [ GENERIC ANCIENT ] ----------------------------------------------------------------------------
@@ -1181,7 +1181,7 @@ _texBank_2_0_SegmentRomEnd          alias   _texBank20_orgend
 
         section.16      texBank20.data,texBank20
 
-tBank20  incbin  "textures/generic_ancients.fla",texBank20.data,64
+tBank20  incbin  "textures/ancientsmaster.fla",texBank20.data,64
 
 ; [ ANCIENT LEVEL 1 ] >>>>>
 
@@ -1193,7 +1193,7 @@ _texBank_2_1_SegmentRomEnd          alias   _texBank21_orgend
 
         section.16      texBank21.data,texBank21
 
-tBank21  incbin  "textures/level1_ancients.fla",texBank21.data,64
+tBank21  incbin  "textures/ancients1.fla",texBank21.data,64
 
 ; [ ANCIENT LEVEL 2 ] >>>>>
 
@@ -1205,7 +1205,7 @@ _texBank_2_2_SegmentRomEnd          alias   _texBank22_orgend
 
         section.16      texBank22.data,texBank22
 
-tBank22  incbin  "textures/level2_ancients.fla",texBank22.data,64
+tBank22  incbin  "textures/ancients2.fla",texBank22.data,64
 
 ; [ ANCIENT LEVEL 3 ] >>>>>
 
@@ -1217,9 +1217,9 @@ _texBank_2_3_SegmentRomEnd          alias   _texBank23_orgend
 
         section.16      texBank23.data,texBank23
 
-tBank23  incbin  "textures/level3_ancients.fla",texBank23.data,64
+tBank23  incbin  "textures/ancients3.fla",texBank23.data,64
 
-; [ ANCIENT LEVEL BOSSA ] >>>>>
+; [ ANCIENT LEVEL BOSS ] >>>>>
 
 texBank24        group   obj()
 texBank24bss     group   obj(),bss
@@ -1229,9 +1229,9 @@ _texBank_2_4_SegmentRomEnd          alias   _texBank24_orgend
 
         section.16      texBank24.data,texBank24
 
-tBank24  incbin  "textures/bossa_ancients.fla",texBank24.data,64
+tBank24  incbin  "textures/ancientsboss.fla",texBank24.data,64
 
-; [ ANCIENT LEVEL BOSSB ] >>>>>
+; [ ANCIENT LEVEL BOSSA ] >>>>>
 
 texBank25        group   obj()
 texBank25bss     group   obj(),bss
@@ -1241,9 +1241,9 @@ _texBank_2_5_SegmentRomEnd          alias   _texBank25_orgend
 
         section.16      texBank25.data,texBank25
 
-tBank25  incbin  "textures/bossb_ancients.fla",texBank25.data,64
+tBank25  incbin  "textures/ancientsbossa.fla",texBank25.data,64
 
-; [ ANCIENT LEVEL BOSSC ] >>>>>
+; [ ANCIENT LEVEL BOSSB ] >>>>>
 
 texBank26        group   obj()
 texBank26bss     group   obj(),bss
@@ -1253,9 +1253,9 @@ _texBank_2_6_SegmentRomEnd          alias   _texBank26_orgend
 
         section.16      texBank26.data,texBank26
 
-tBank26  incbin  "textures/bossc_ancients.fla",texBank26.data,64
+tBank26  incbin  "textures/ancientsbossb.fla",texBank26.data,64
 
-; [ ANCIENT LEVEL BOSSD ] >>>>>
+; [ ANCIENT LEVEL BOSSC ] >>>>>
 
 texBank27        group   obj()
 texBank27bss     group   obj(),bss
@@ -1265,7 +1265,7 @@ _texBank_2_7_SegmentRomEnd          alias   _texBank27_orgend
 
         section.16      texBank27.data,texBank27
 
-tBank27  incbin  "textures/bossd_ancients.fla",texBank27.data,64
+tBank27  incbin  "textures/ancientsbossc.fla",texBank27.data,64
 
 ; [ ANCIENT LEVEL BONUS ] >>>>>
 
@@ -1277,7 +1277,7 @@ _texBank_2_8_SegmentRomEnd          alias   _texBank28_orgend
 
         section.16      texBank28.data,texBank28
 
-tBank28  incbin  "textures/bonus_ancients.fla",texBank28.data,64
+tBank28  incbin  "textures/ancientsbonus.fla",texBank28.data,64
 
 ; [ ANCIENT LEVEL MULTI ] >>>>>
 
@@ -1289,7 +1289,7 @@ _texBank_2_9_SegmentRomEnd          alias   _texBank29_orgend
 
         section.16      texBank29.data,texBank29
 
-tBank29  incbin  "textures/dummy.fla",texBank29.data,64
+tBank29  incbin  "textures/ancientsmulti.fla",texBank29.data,64
 
 
 ; [ GENERIC SPACE ] ------------------------------------------------------------------------------
@@ -1302,7 +1302,7 @@ _texBank_3_0_SegmentRomEnd          alias   _texBank30_orgend
 
         section.16      texBank30.data,texBank30
 
-tBank30  incbin  "textures/generic_space.fla",texBank30.data,64
+tBank30  incbin  "textures/spacemaster.fla",texBank30.data,64
 
 ; [ LEVEL 1 SPACE ] >>>>>
 
@@ -1314,7 +1314,7 @@ _texBank_3_1_SegmentRomEnd          alias   _texBank31_orgend
 
         section.16      texBank31.data,texBank31
 
-tBank31  incbin  "textures/level1_space.fla",texBank31.data,64
+tBank31  incbin  "textures/space1.fla",texBank31.data,64
 
 ; [ LEVEL 2 SPACE ] >>>>>
 
@@ -1326,7 +1326,7 @@ _texBank_3_2_SegmentRomEnd          alias   _texBank32_orgend
 
         section.16      texBank32.data,texBank32
 
-tBank32  incbin  "textures/level2_space.fla",texBank32.data,64
+tBank32  incbin  "textures/space2.fla",texBank32.data,64
 
 ; [ LEVEL 3 SPACE ] >>>>>
 
@@ -1338,7 +1338,7 @@ _texBank_3_3_SegmentRomEnd          alias   _texBank33_orgend
 
         section.16      texBank33.data,texBank33
 
-tBank33  incbin  "textures/level3_space.fla",texBank33.data,64
+tBank33  incbin  "textures/space3.fla",texBank33.data,64
 
 ; [ BOSS SPACE ] >>>>>
 
@@ -1350,7 +1350,7 @@ _texBank_3_4_SegmentRomEnd          alias   _texBank34_orgend
 
         section.16      texBank34.data,texBank34
 
-tBank34  incbin  "textures/bossa_space.fla",texBank34.data,64
+tBank34  incbin  "textures/spaceboss.fla",texBank34.data,64
 
 ; [ BONUS SPACE ] >>>>>
 
@@ -1362,7 +1362,7 @@ _texBank_3_5_SegmentRomEnd          alias   _texBank35_orgend
 
         section.16      texBank35.data,texBank35
 
-tBank35  incbin  "textures/bonus_space.fla",texBank35.data,64
+tBank35  incbin  "textures/spacebonus.fla",texBank35.data,64
 
 ; [ MULTI SPACE ] >>>>>
 
@@ -1374,7 +1374,7 @@ _texBank_3_6_SegmentRomEnd          alias   _texBank36_orgend
 
         section.16      texBank36.data,texBank36
 
-tBank36  incbin  "textures/multi_space.fla",texBank36.data,64
+tBank36  incbin  "textures/spacemulti.fla",texBank36.data,64
 
 
 ; [ GENERIC CITY ] ------------------------------------------------------------------------------
@@ -1387,7 +1387,7 @@ _texBank_4_0_SegmentRomEnd          alias   _texBank40_orgend
 
         section.16      texBank40.data,texBank40
 
-tBank40  incbin  "textures/dummy.fla",texBank40.data,64
+tBank40  incbin  "textures/citymaster.fla",texBank40.data,64
 
 ; [ LEVEL 1 CITY ] >>>>>
 
@@ -1399,7 +1399,7 @@ _texBank_4_1_SegmentRomEnd          alias   _texBank41_orgend
 
         section.16      texBank41.data,texBank41
 
-tBank41  incbin  "textures/dummy.fla",texBank41.data,64
+tBank41  incbin  "textures/city1.fla",texBank41.data,64
 
 ; [ LEVEL 2 CITY ] >>>>>
 
@@ -1411,7 +1411,7 @@ _texBank_4_2_SegmentRomEnd          alias   _texBank42_orgend
 
         section.16      texBank42.data,texBank42
 
-tBank42  incbin  "textures/dummy.fla",texBank42.data,64
+tBank42  incbin  "textures/city2.fla",texBank42.data,64
 
 ; [ LEVEL 3 CITY ] >>>>>
 
@@ -1423,7 +1423,7 @@ _texBank_4_3_SegmentRomEnd          alias   _texBank43_orgend
 
         section.16      texBank43.data,texBank43
 
-tBank43  incbin  "textures/dummy.fla",texBank43.data,64
+tBank43  incbin  "textures/city3.fla",texBank43.data,64
 
 ; [ BOSS CITY ] >>>>>
 
@@ -1435,7 +1435,7 @@ _texBank_4_4_SegmentRomEnd          alias   _texBank44_orgend
 
         section.16      texBank44.data,texBank44
 
-tBank44  incbin  "textures/dummy.fla",texBank44.data,64
+tBank44  incbin  "textures/cityboss.fla",texBank44.data,64
 
 ; [ BONUS CITY ] >>>>>
 
@@ -1447,7 +1447,7 @@ _texBank_4_5_SegmentRomEnd          alias   _texBank45_orgend
 
         section.16      texBank45.data,texBank45
 
-tBank45  incbin  "textures/dummy.fla",texBank45.data,64
+tBank45  incbin  "textures/citybonus.fla",texBank45.data,64
 
 ; [ MULTI CITY ] >>>>>
 
@@ -1459,7 +1459,7 @@ _texBank_4_6_SegmentRomEnd          alias   _texBank46_orgend
 
         section.16      texBank46.data,texBank46
 
-tBank46  incbin  "textures/dummy.fla",texBank46.data,64
+tBank46  incbin  "textures/citymulti.fla",texBank46.data,64
 
 
 ; [ GENERIC SUBTERRANEAN ] ----------------------------------------------------------------------
@@ -1557,7 +1557,7 @@ _texBank_6_0_SegmentRomEnd          alias   _texBank60_orgend
 
         section.16      texBank60.data,texBank60
 
-tBank60  incbin  "textures/generic_lab.fla",texBank60.data,64
+tBank60  incbin  "textures/dummy.fla",texBank60.data,64
 
 ; [ LEVEL 1 LAB ] >>>>>
 
@@ -1569,7 +1569,7 @@ _texBank_6_1_SegmentRomEnd          alias   _texBank61_orgend
 
         section.16      texBank61.data,texBank61
 
-tBank61  incbin  "textures/level1_lab.fla",texBank61.data,64
+tBank61  incbin  "textures/dummy.fla",texBank61.data,64
 
 ; [ LEVEL 2 LAB ] >>>>>
 
@@ -1581,7 +1581,7 @@ _texBank_6_2_SegmentRomEnd          alias   _texBank62_orgend
 
         section.16      texBank62.data,texBank62
 
-tBank62  incbin  "textures/level2_lab.fla",texBank62.data,64
+tBank62  incbin  "textures/dummy.fla",texBank62.data,64
 
 ; [ LEVEL 3 LAB ] >>>>>
 

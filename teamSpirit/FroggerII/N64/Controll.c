@@ -141,17 +141,97 @@ void ReadControllerData()
 	Info			: this controller mode used for viewing animations during object viewing
 */
 
+float freeMove = 2;
+
 void ReadDebugPad()
 {
 	static u16 button;
-	static s16 stickX, stickY;      
+	static s16 stickX,stickY;
     
+	static u16 button2,lastbutton2;
+	static s16 stickX2,stickY2;
+
 	//(void)osRecvMesg(&controllerMsgQ, NULL, OS_MESG_BLOCK);
 	//osContGetReadData(controllerdata);
 
-	button = controllerdata[1].button;
-	stickX = controllerdata[1].stick_x;
-	stickY = controllerdata[1].stick_y;
+	button	= controllerdata[1].button;
+	stickX	= controllerdata[1].stick_x;
+	stickY	= controllerdata[1].stick_y;
+
+	// FOR TESTING - VIDEO FOOTAGE CREATION - GENERAL FRIGS AND FUDGES ---------------------------
+
+	button2 = controllerdata[2].button;
+	stickX2	= controllerdata[2].stick_x;
+	stickY2	= controllerdata[2].stick_y;
+
+
+	if(stickX2 > 15)
+		frog[0]->actor->pos.v[X] += freeMove;
+	else if(stickX2 < -15)
+		frog[0]->actor->pos.v[X] -= freeMove;
+
+	if(stickY2 > 15)
+		frog[0]->actor->pos.v[Z] -= freeMove;
+	else if(stickY2 < -15)
+		frog[0]->actor->pos.v[Z] += freeMove;
+
+	if(button2 & CONT_D)
+		frog[0]->actor->pos.v[Y] += freeMove;
+	if(button2 & CONT_E)
+		frog[0]->actor->pos.v[Y] -= freeMove;
+
+
+	if((button2 & CONT_UP) && !(lastbutton2 & CONT_UP))
+    {
+		AnimateActor(frog[0]->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+	}
+	if((button2 & CONT_DOWN) && !(lastbutton2 & CONT_DOWN))
+    {
+		AnimateActor(frog[0]->actor,FROG_ANIM_LOOKDOWN,NO,NO,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+	}
+	if((button2 & CONT_LEFT) && !(lastbutton2 & CONT_LEFT))
+    {
+		AnimateActor(frog[0]->actor,FROG_ANIM_LOOKLEFTANDRIGHT,NO,NO,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+	}
+	if((button2 & CONT_RIGHT) && !(lastbutton2 & CONT_RIGHT))
+    {
+		AnimateActor(frog[0]->actor,FROG_ANIM_ASSONFIRE,NO,NO,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+	}
+
+	if((button2 & CONT_A) && !(lastbutton2 & CONT_A))
+    {
+		AnimateActor(frog[0]->actor,FROG_ANIM_DANCE1,NO,NO,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+	}
+	if((button2 & CONT_B) && !(lastbutton2 & CONT_B))
+    {
+		AnimateActor(frog[0]->actor,FROG_ANIM_DANCE2,NO,NO,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+	}
+	if((button2 & CONT_G) && !(lastbutton2 & CONT_G))
+    {
+		AnimateActor(frog[0]->actor,FROG_ANIM_DANCE3,NO,NO,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+	}
+
+	if((button2 & CONT_C) && !(lastbutton2 & CONT_C))
+    {
+		AnimateActor(frog[0]->actor,FROG_ANIM_HOPLEFT,NO,NO,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+	}
+	if((button2 & CONT_F) && !(lastbutton2 & CONT_F))
+    {
+		AnimateActor(frog[0]->actor,FROG_ANIM_HOPRIGHT,NO,NO,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+	}
+
+	lastbutton2 = button2;
+
+	//--------------------------------------------------------------------------------------------
 
 	if(stickX > 15)
     {

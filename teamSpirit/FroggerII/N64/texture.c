@@ -544,3 +544,68 @@ void FindTexture(TEXTURE **texPtr, int texID, BOOL report)
 //	(*texPtr) = &fadeTexture;
 	return;
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: AnimateTexture
+	Purpose 	: animates a texture for a drawlisted object
+	Parameters 	: TEXTURE_ANIMATION *,Gfx *
+	Returns 	: void
+	Info 		:
+*/
+void AnimateTexture(TEXTURE_ANIMATION *anim,Gfx *dl)
+{
+	int lastFrame;
+	float speed;
+
+//	if(gamePaused)
+//		return;
+
+	lastFrame = anim->currentFrame;
+	speed = 32 * GAME_SPEED;
+	anim->counter -= speed;
+	while(anim->counter <= 0)
+	{
+		if(anim->flags & TEX_ANIM_FLAGS_REVERSE)
+		{
+			anim->currentFrame--;
+			if(anim->currentFrame >= anim->frameList->numFrames)
+			{
+				if(anim->flags & TEX_ANIM_FLAGS_FLIPFLOP)
+				{
+					anim->currentFrame = 1;
+					anim->flags &= -1 - TEX_ANIM_FLAGS_REVERSE;
+				}
+				else
+					anim->currentFrame = anim->frameList->numFrames-1;
+			}
+		}
+		else
+		{
+			anim->currentFrame++;
+			if(anim->currentFrame >= anim->frameList->numFrames)
+			{
+				if(anim->flags & TEX_ANIM_FLAGS_FLIPFLOP)
+				{
+					anim->currentFrame = anim->frameList->numFrames - 2;
+					anim->flags |= TEX_ANIM_FLAGS_REVERSE;
+				}
+				else
+		 			anim->currentFrame = 0;
+			}
+		}
+
+		anim->counter += anim->delay;
+	}
+/*
+	if(lastFrame != anim->currentFrame)
+	{
+		if(anim->frameList == &spriteFrameList[WATER_ANIM])
+			ReplaceTextureInDrawList(dl,NULL,(u32)(*(anim->frameList->texture + anim->currentFrame))->data, YES);
+		else
+			ReplaceTextureInDrawList(dl,(u32)(*(anim->frameList->texture + lastFrame))->data,(u32)(*(anim->frameList->texture + anim->currentFrame))->data, NO);
+
+	}
+*/
+}
+

@@ -14,6 +14,10 @@
 
 #define MAX_TEXTURE_BANKS		5
 
+#define TEX_ANIM_FLAGS_REVERSE	(1<<0)
+#define TEX_ANIM_FLAGS_FLIPFLOP (1<<1)
+
+
 typedef struct
 {
 	char	*data;
@@ -22,6 +26,7 @@ typedef struct
 
 }TEXTURE_BANK;
 
+
 extern TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];
 extern unsigned long numTextureBanks;
 
@@ -29,6 +34,7 @@ extern unsigned long numTextureBanks;
 void LoadTextureBank(int num);
 void InitTextureBanks();
 void FindTexture(TEXTURE **texPtr, int texID, BOOL report);
+void AnimateTexture(TEXTURE_ANIMATION *anim,Gfx *dl);
 
 
 #endif

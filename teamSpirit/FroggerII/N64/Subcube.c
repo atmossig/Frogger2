@@ -711,7 +711,6 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 		QuaternionToMatrix(&obj->rotateKeys[0].quat, (MATRIX *)rotmat);
 	}
 
-
 	//transform the objects vertex normals ONLY if the object is lit.
 	if((obj->flags & OBJECT_FLAGS_PRELIT) == 0)
 	{
@@ -729,9 +728,7 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 				vtx[obj->effectedVerts[i].verts[j]].n.n[Z] = (s8)rotation.v[Z];
 			}
 		}
-
 	}
-
 
 	rotmat[3][0] = translation.v[X] * parentScaleStack[parentScaleStackLevel].v[X];
 	rotmat[3][1] = translation.v[Y] * parentScaleStack[parentScaleStackLevel].v[Y];

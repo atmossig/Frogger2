@@ -114,6 +114,7 @@ void LoadCollision(short worldID,short levelID)
 					tnum = ANCIENTS3_COLL_BANK;
 					break;
 				case LEVELID_ANCIENTBOSSA:
+					tnum = ANCIENTSBOSS_COLL_BANK;
 					break;
 				case LEVELID_ANCIENTBOSSB:
 					break;
@@ -154,14 +155,18 @@ void LoadCollision(short worldID,short levelID)
 			switch(levelID)
 			{
 				case LEVELID_CITYLEV1:
+					tnum = CITY1_COLL_BANK;
 					break;
 				case LEVELID_CITYLEV2:
+					tnum = CITY2_COLL_BANK;
 					break;
 				case LEVELID_CITYLEV3:
+					tnum = CITY3_COLL_BANK;
 					break;
 				case LEVELID_CITYBOSSA:
 					break;
 				case LEVELID_CITYBONUS:
+					tnum = CITYBONUS_COLL_BANK;
 					break;
 				case LEVELID_CITYMULTI:
 					break;
@@ -401,6 +406,7 @@ void LoadScenics(short worldID,short levelID)
 					tnum = ANCIENTS3_COLL_BANK;
 					break;
 				case LEVELID_ANCIENTBOSSA:
+					tnum = ANCIENTSBOSS_COLL_BANK;
 					break;
 				case LEVELID_ANCIENTBOSSB:
 					break;
@@ -441,14 +447,18 @@ void LoadScenics(short worldID,short levelID)
 			switch(levelID)
 			{
 				case LEVELID_CITYLEV1:
+					tnum = CITY1_COLL_BANK;
 					break;
 				case LEVELID_CITYLEV2:
+					tnum = CITY2_COLL_BANK;
 					break;
 				case LEVELID_CITYLEV3:
+					tnum = CITY3_COLL_BANK;
 					break;
 				case LEVELID_CITYBOSSA:
 					break;
 				case LEVELID_CITYBONUS:
+					tnum = CITYBONUS_COLL_BANK;
 					break;
 				case LEVELID_CITYMULTI:
 					break;
@@ -582,6 +592,8 @@ void LoadScenics(short worldID,short levelID)
 
 	while (cSc)
 	{
+		dprintf"SCENIC: %s\n",cSc->name));
+
 		if (cSc->next)
 			cSc->next = Rom2Ram((u32)cSc->next, (u32)objectBank);
 		if (cSc->typedata)
@@ -593,7 +605,7 @@ void LoadScenics(short worldID,short levelID)
 				m->movementPath = Rom2Ram((u32)m->movementPath, (u32)objectBank);		
 		}
 		cSc = cSc->next;
-	}		
+	}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -608,6 +620,9 @@ void LoadLevelEntities(short worldID,short levelID)
 {
 	char	*entityDat;
 	u32		bankRomStart,bankRomEnd,bankSize;
+
+	// DEBUGGING ONLY ! ANDYE !!
+	return;
 
 	if(worldID == WORLDID_GARDEN)
 	{
@@ -748,6 +763,23 @@ void LoadLevelEntities(short worldID,short levelID)
 	{
 		switch(levelID)
 		{
+			case CITYLEV1_ENT:
+					bankRomStart	= (u32)&_levData_4_1_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_4_1_SegmentRomEnd;
+					sprintf(message, "CTY_ENT1");				
+				break;
+
+			case CITYLEV2_ENT:
+					bankRomStart	= (u32)&_levData_4_2_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_4_2_SegmentRomEnd;
+					sprintf(message, "CTY_ENT2");				
+				break;
+
+			case CITYLEV3_ENT:
+					bankRomStart	= (u32)&_levData_4_3_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_4_3_SegmentRomEnd;
+					sprintf(message, "CTY_ENT3");				
+				break;
 		}
 	}
 	else if(worldID == WORLDID_SUBTERRANEAN)

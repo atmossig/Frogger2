@@ -17,6 +17,10 @@ void SetObjectXlu(OBJECT *object,BOOL xlu);
 void DoubleBufferSkinVtx ( void );
 void AddOffsetToVertexLoads(int offset, Gfx *dl);
 
+void ReplaceTextureInDrawList(Gfx *dl,u32 texDataToReplace,u32 newTexData, short once);
+void ReplaceAnyTextureInDrawList(Gfx *dl,u32 newTexData, short once);
+
+
 extern OBJECT_BANK	objectBanks[];
 extern int numoftc;
 
