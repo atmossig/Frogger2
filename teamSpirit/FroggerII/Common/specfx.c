@@ -197,13 +197,14 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->Draw = NULL;
 		
 		break;
-	case FXTYPE_EXHAUSTSMOKE:
+	case FXTYPE_SMOKE_STATIC:
+	case FXTYPE_SMOKE_GROWS:
 	case FXTYPE_BUBBLES:
 		effect->lifetime = actFrameCount+life;
-		effect->vel.v[X] = (-2 + Random(5))*speed;
-		effect->vel.v[Y] = (Random(6) + 8)*speed;
-		effect->vel.v[Z] = (-2 + Random(5))*speed;
-		effect->fade = 255 / life;
+		effect->vel.v[X] = (-2 + Random(4))*speed;
+		effect->vel.v[Y] = (Random(4) + 2)*speed;
+		effect->vel.v[Z] = (-2 + Random(4))*speed;
+		effect->fade = 180 / life;
 		effect->size = size;
 		
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
@@ -271,9 +272,9 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 			
 			AddSprite( &effect->sprites[i], NULL );
 
-			effect->particles[i].vel.v[X] = (effect->speed * effect->normal.v[X]) + ((-2*speed) + Random(4));
-			effect->particles[i].vel.v[Y] = (effect->speed * effect->normal.v[Y]) + ((-2*speed) + Random(4));
-			effect->particles[i].vel.v[Z] = (effect->speed * effect->normal.v[Z]) + ((-2*speed) + Random(4));
+			effect->particles[i].vel.v[X] = (effect->speed * effect->normal.v[X]) + (speed*(-2 + Random(4)));
+			effect->particles[i].vel.v[Y] = (effect->speed * effect->normal.v[Y]) + (speed*(-2 + Random(4)));
+			effect->particles[i].vel.v[Z] = (effect->speed * effect->normal.v[Z]) + (speed*(-2 + Random(4)));
 		}
 
 		effect->lifetime = actFrameCount + life;
@@ -360,6 +361,7 @@ void UpdateFXRipple( SPECFX *fx )
 void UpdateFXSmoke( SPECFX *fx )
 {
 	int fo;
+	float dist;
 
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
@@ -378,12 +380,15 @@ void UpdateFXSmoke( SPECFX *fx )
 			fx->sprites->a = 0;
 	}
 
-	AddToVector( &fx->sprites->pos,&fx->vel );
+	fx->sprites->pos.v[X] += fx->vel.v[X] * gameSpeed;
+	fx->sprites->pos.v[Y] += fx->vel.v[Y] * gameSpeed;
+	fx->sprites->pos.v[Z] += fx->vel.v[Z] * gameSpeed;
+	
 	fx->vel.v[X] *= 0.95;
 	fx->vel.v[Y] *= 0.85;
 	fx->vel.v[Z] *= 0.95;
 
-	if( fx->type == FXTYPE_EXHAUSTSMOKE )
+	if( fx->type == FXTYPE_SMOKE_GROWS )
 	{
 		fx->sprites->scaleX += gameSpeed;
 		fx->sprites->scaleY += gameSpeed;
@@ -392,6 +397,17 @@ void UpdateFXSmoke( SPECFX *fx )
 	{
 		fx->sprites->scaleX--;
 		fx->sprites->scaleY--;
+	}
+	else if( fx->type == FXTYPE_BUBBLES )
+	{
+		if( fx->rebound )
+		{
+			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
+			dist = -(DotProduct(&fx->sprites->pos, &fx->rebound->normal) + fx->rebound->J);
+
+			if(dist > 0)
+				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites->pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
+		}
 	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )

@@ -23,6 +23,7 @@ ENEMYLIST enemyList;						// the enemy linked list
 void NMEDamageFrog( int num, ENEMY *nme );
 void RotateWaitingNME( ENEMY *cur );
 void SlerpWaitingFlappyThing( ENEMY *cur );
+void ProcessEnemyEffects( ENEMY *cur );
 
 void UpdatePathNME( ENEMY *cur );
 void UpdateSlerpPathNME( ENEMY *cur );
@@ -99,7 +100,6 @@ void NMEDamageFrog( int num, ENEMY *nme )
 void UpdateEnemies()
 {
 	ENEMY *cur,*next;
-	float fxDist;
 	long i;
 
 	if(enemyList.numEntries == 0)
@@ -189,50 +189,7 @@ void UpdateEnemies()
 
 		// Do Special Effects attached to enemies
 		if( cur->nmeActor->effects )
-		{
-			long r;
-			VECTOR rPos;
-			SPECFX *fx;
-
-			if( cur->nmeActor->value1 )
-				r = Random(cur->nmeActor->value1)+1;
-			else
-				r = 10;
-
-			fxDist = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->nmeActor->actor->pos);
-
-			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
-			{
-				if( cur->nmeActor->effects & EF_RIPPLE_RINGS )
-				{
-					SetVector( &rPos, &cur->nmeActor->actor->pos );
-					rPos.v[Y] = cur->inTile->centre.v[Y];
-					if( cur->flags & ENEMY_NEW_FOLLOWPATH ) // More of a wake effect when moving
-						CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 30, 1/cur->speed, 0.3, 2 );
-					else // Gentle ripples
-						CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 50, 1, 0.1, 3 );
-				}
-				if( cur->nmeActor->effects & EF_SMOKE_CLOUDS )
-					CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0, 0, 1.5 );
-				if( cur->nmeActor->effects & EF_SPARK_BURSTS )
-					CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 4, 0, 2 );
-				if( cur->nmeActor->effects & EF_FLYSWARM )
-				{
-					fx = CreateAndAddSpecialEffect( FXTYPE_FLYSWARM, &cur->nmeActor->actor->pos, &cur->currNormal, 25, 0, 0, 0 );
-					fx->follow = cur->nmeActor->actor;
-					if( cur->flags & ENEMY_NEW_FLAPPYTHING )
-					{
-						fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-						GetPositionForPathNode( &rPos, &cur->path->nodes[0] );
-						SetVector( &fx->rebound->point, &rPos );
-						SetVector( &fx->rebound->normal, &cur->path->nodes[0].worldTile->normal );
-					}
-					cur->nmeActor->effects &= ~EF_FLYSWARM;
-				}
-				if( cur->nmeActor->effects & EF_BUBBLES )
-					CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0, 0, 0.6 );
-			}
-		}
+			ProcessEnemyEffects( cur );
 	}
 }
 
@@ -379,7 +336,7 @@ void UpdateSlerpPathNME( ENEMY *cur )
 	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
 	t = DotProduct(&inVec,&fwd);
 	if (t<-0.999)
-		t=-0.5;
+		t=-0.999;
 	if (t>0.999)
 		t = 0.999;
 	q3.w=acos(t);
@@ -935,7 +892,7 @@ void UpdateFlappyThing( ENEMY *nme )
 		}
 
 		// On a random chance, aim at the closest special node (DOESN'T INCLUDE OFFSET!)
-		if( Random(100)>95 )
+		if( Random(100)>80 )
 			for( i=2; i<path->numNodes; i++ )
 			{
 				t = DistanceBetweenPointsSquared( &act->pos, &path->nodes[i].worldTile->centre );
@@ -1035,6 +992,100 @@ void SlerpWaitingFlappyThing( ENEMY *cur )
 	speed = cur->path->nodes[0].speed * gameSpeed;
 	if( speed > 0.999 ) speed = 0.999;
 	QuatSlerp( &q1, &q2, speed, &cur->nmeActor->actor->qRot );
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ProcessEnemyEffects
+	Purpose			: Add special effects to the enemy
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void ProcessEnemyEffects( ENEMY *cur )
+{
+	long r;
+	VECTOR rPos, up;
+	SPECFX *fx;
+	float fxDist;
+
+	if( cur->nmeActor->value1 )
+		r = Random(cur->nmeActor->value1)+1;
+	else
+		r = 10;
+
+	fxDist = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->nmeActor->actor->pos);
+
+	if(fxDist < ACTOR_DRAWDISTANCEOUTER)
+	{
+		if( !(actFrameCount%r) )
+		{
+			if( cur->nmeActor->effects & EF_RIPPLE_RINGS )
+			{
+				SetVector( &rPos, &cur->nmeActor->actor->pos );
+				rPos.v[Y] = cur->inTile->centre.v[Y];
+				if( cur->flags & ENEMY_NEW_FOLLOWPATH ) // More of a wake effect when moving
+					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 30, 1/cur->speed, 0.3, 2 );
+				else // Gentle ripples
+					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 50, 1, 0.1, 3 );
+			}
+			if( cur->nmeActor->effects & EF_SMOKE_STATIC )
+			{
+				if( cur->nmeActor->effects & EF_FAST )
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.6, 0, 1.5 );
+				else if( cur->nmeActor->effects & EF_SLOW )
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.2, 0, 1.5 );
+				else // EF_MEDIUM
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.4, 0, 1.5 );
+			}
+			if( cur->nmeActor->effects & EF_SMOKE_GROWS )
+			{
+				if( cur->nmeActor->effects & EF_FAST )
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.6, 0, 1.5 );
+				else if( cur->nmeActor->effects & EF_SLOW )
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.2, 0, 1.5 );
+				else // EF_MEDIUM
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.4, 0, 1.5 );
+			}
+			if( cur->nmeActor->effects & EF_SPARK_BURSTS )
+			{
+				if( cur->nmeActor->effects & EF_FAST )
+					CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 6, 0, 2 );
+				else if( cur->nmeActor->effects & EF_SLOW )
+					CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 2, 0, 2 );
+				else // EF_MEDIUM
+					CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 4, 0, 2 );
+			}
+			if( cur->nmeActor->effects & EF_BUBBLES )
+			{
+				if( cur->nmeActor->effects & EF_FAST )
+					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0.7, 0, 0.6 );
+				else if( cur->nmeActor->effects & EF_SLOW )
+					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0.3, 0, 0.6 );
+				else // EF_MEDIUM
+					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0.5, 0, 0.6 );
+
+				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+				SetVector( &up, &cur->path->nodes[0].worldTile->normal );
+				SetVector( &fx->rebound->normal, &up );
+				ScaleVector( &up, cur->nmeActor->radius );
+				AddVector( &fx->rebound->point, &cur->nmeActor->actor->pos, &up );
+			}
+		}
+		if( cur->nmeActor->effects & EF_FLYSWARM )
+		{
+			fx = CreateAndAddSpecialEffect( FXTYPE_FLYSWARM, &cur->nmeActor->actor->pos, &cur->currNormal, 25, 0, 0, 0 );
+			fx->follow = cur->nmeActor->actor;
+			if( cur->flags & ENEMY_NEW_FLAPPYTHING )
+			{
+				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+				GetPositionForPathNode( &rPos, &cur->path->nodes[0] );
+				SetVector( &fx->rebound->point, &rPos );
+				SetVector( &fx->rebound->normal, &cur->path->nodes[0].worldTile->normal );
+			}
+			cur->nmeActor->effects &= ~EF_FLYSWARM;
+		}
+	}
 }
 
 

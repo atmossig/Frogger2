@@ -27,12 +27,16 @@ extern char pauseMode;
 
 // These are used in the editor and translated into effect parameters later
 #define EF_RIPPLE_RINGS					(1 << 0)	// Lillypad thing
-#define EF_SMOKE_CLOUDS					(1 << 1)	// As for mowers
+#define EF_SMOKE_STATIC					(1 << 1)	// Smoke that doesn't grow
 #define EF_SPARK_BURSTS					(1 << 2)	// 
 #define EF_FLAMEBURST					(1 << 3)	// Vent up
 #define EF_FLYSWARM						(1 << 4)
 #define EF_BUBBLES						(1 << 5)
+#define EF_SMOKE_GROWS					(1 << 6)	// Grows as it fades
 
+#define EF_FAST							(1 << 26)
+#define EF_MEDIUM						(1 << 27)
+#define EF_SLOW							(1 << 28)
 #define EF_TINTRED						(1 << 29)
 #define EF_TINTGREEN					(1 << 30)
 #define EF_TINTBLUE						(1 << 31)
@@ -46,7 +50,8 @@ enum
 	FXTYPE_GARIBCOLLECT,
 	FXTYPE_JUMPBLUR,
 	FXTYPE_FROGSTUN,
-	FXTYPE_EXHAUSTSMOKE,
+	FXTYPE_SMOKE_STATIC,
+	FXTYPE_SMOKE_GROWS,
 	FXTYPE_BASICRING,
 	FXTYPE_SPLASH,
 	FXTYPE_SMOKEBURST,
