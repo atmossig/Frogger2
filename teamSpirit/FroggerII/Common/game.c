@@ -116,7 +116,7 @@ void GameProcessController(long pl)
 
 	if((button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP) && player[pl].canJump)
 	{
-		if(!player[pl].inputPause)
+		if(!player[pl].inputPause )
 		{
 			player[pl].inputPause = INPUT_POLLPAUSE;
 			UpdateScore(frog[pl],hopAmt);

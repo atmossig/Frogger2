@@ -325,6 +325,7 @@ void UpdateFrogTongue( int pl )
 							if( !(controllerdata[pl].button & CONT_B) ) RemoveFrogTongue(pl);
 							return;
 						}
+						
 						// Throw the frog - no longer a frog on our tongue, so don't try to remove it later
 						if( i != MAX_FROGS )
 						{

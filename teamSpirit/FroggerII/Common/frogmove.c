@@ -1074,6 +1074,7 @@ void CheckForFroggerLanding(long pl)
 					j = (j+1)%NUM_FROGS;
 				}
 				if( j==pl ) break;
+				if( DistanceBetweenPointsSquared( &frog[pl]->actor->pos, &frog[j]->actor->pos ) > 20*20 ) break;
 
 				player[j].canJump = 0;
 
