@@ -161,19 +161,17 @@ void ProcessShadows()
 
 void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alpha, long tex )
 {
-	FVECTOR tempV[4];//, m;//, fwd;
+	FVECTOR tempV[4];
 	SVECTOR vT[4];
-	IQUATERNION cross, q;//, up;
-	long i;//, zeroZ=0;
+	IQUATERNION cross, q;
+	long i, colour = 8421504;
 	fixed t;
 	static SPECFX fx;
-	unsigned long colour;
 
 //PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
 //	colour = 255>>1;// 191;;
 //	colour += 255>>1 <<8;//255<<8;
 //	colour += 255>>1 <<16;//0<<16;
-	colour = 8421504;
 
 	vT[0].vx = size;
 	vT[0].vy = offset;
@@ -198,15 +196,13 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alp
 	cross.w = -arccos(t);
 	fixedGetQuaternionFromRotation( &q, &cross );
 
-	for( i=0; i<4; i++ )
+	for( i=3; i>=0; i-- )
 	{
 		SetVectorFS(&tempV[i],&vT[i]);
 	   	RotateVectorByQuaternionFF(&tempV[i],&tempV[i],&q);
 	  	SetVectorSF(&vT[i],&tempV[i]);								
 
- 		vT[i].vx += pos->vx;
- 		vT[i].vy += pos->vy;
- 		vT[i].vz += pos->vz;
+		AddToVectorSS( &vT[i], pos );
 	}
 
 	fx.tex = tex;
@@ -778,7 +774,7 @@ void CalcTrailPoints( SVECTOR *vT, SPECFX *trail, int i )
 
 void DrawFXLightning( SPECFX *fx )
 {
-	SVECTOR vT[5], vTPrev[2], tempSvect;
+	SVECTOR vT[4], vTPrev[2], tempSvect;
 	TextureType *tEntry;
 	PARTICLE *p;
 	long i=0, otz, clipped, sz;
@@ -809,7 +805,7 @@ void DrawFXLightning( SPECFX *fx )
 			gte_stszotz(&otz);
 			vT[0].vz = otz;
 			gte_stsz(&sz);
-			if(sz<20 || sz>fog.max) continue;
+			clipped += (sz<20 || sz>fog.max);
 
 			SetVectorSS(&tempSvect, &p->poly[1]);
 			tempSvect.vx = -tempSvect.vx;
@@ -820,7 +816,7 @@ void DrawFXLightning( SPECFX *fx )
 			gte_stszotz(&otz);
 			vT[1].vz = otz;
 			gte_stsz(&sz);
-			if(sz<20 || sz>fog.max) continue;
+			clipped += (sz<20 || sz>fog.max);
 		}
 
 		SetVectorSS(&tempSvect, &p->next->poly[1]);
@@ -832,7 +828,7 @@ void DrawFXLightning( SPECFX *fx )
 		gte_stszotz(&otz);
 		vT[2].vz = otz;
 		gte_stsz(&sz);
-		if(sz<20 || sz>fog.max) continue;
+		clipped += (sz<20 || sz>fog.max);
 
 		SetVectorSS(&tempSvect, &p->next->poly[0]);
 		tempSvect.vx = -tempSvect.vx;
@@ -843,22 +839,15 @@ void DrawFXLightning( SPECFX *fx )
 		gte_stszotz(&otz);
 		vT[3].vz = otz;
 		gte_stsz(&sz);
-		if(sz<20 || sz>fog.max) continue;
+		clipped += (sz<20 || sz>fog.max);
 
 		// Store first 2 vertices of the next segment
 		lmemcpy( (long *)vTPrev, (long *)&vT[3], 2 );
 		lmemcpy( (long *)&vTPrev[1], (long *)&vT[2], 2 );
-		// And back to the first vertex for the second tri
-		lmemcpy( (long *)&vT[4], (long *)&vT[0], 2 );
 
 		// Draw polys, if they're not clipped
-//		if( !clipped )
-//		{
-
-			otz = (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)/4;
-			otz += fx->zDepthOff;
-
-			//draw poly
+		if( !clipped )
+		{
 			BEGINPRIM(ft4, POLY_FT4);
 			setPolyFT4(ft4);
 			*((long*)&ft4->x0) = *((long*)&vT[0].vx);
@@ -882,10 +871,9 @@ void DrawFXLightning( SPECFX *fx )
 
 			ft4->code  |= 2;//semi-trans on
  			ft4->tpage |= 32;//add
-	// 		ft4->tpage = si->tpage | 64;//sub
 
 			ENDPRIM(ft4, (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)>>4, POLY_FT4);
-//		}
+		}
 
 		i++;
 		p = p->next;
