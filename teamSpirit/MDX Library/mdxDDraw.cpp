@@ -141,9 +141,8 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 		case WM_INITDIALOG:
 		{
 			RECT meR;
-			
 			LV_ITEM itm;
-	
+			int index = 0;	
 
 			GetWindowRect(hwndDlg, &meR);
 			ShowWindow(hwndDlg,SW_SHOW);
@@ -176,11 +175,13 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 					itm.iSubItem = 1;
 					
 					SendMessage (list,LVM_SETITEM,lastIdx,(long)&itm);
+
+					if (strcmp(dxDeviceList[i].desc, rVideoDevice) == 0)
+						index = i;
 				}
 			}
 
-	
-			ListView_SetItemState(list, 0, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
+			ListView_SetItemState(list, index, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
 
 			return TRUE;
 			break;
