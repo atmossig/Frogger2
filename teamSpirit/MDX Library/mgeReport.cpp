@@ -8,11 +8,11 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#ifdef __cplusplus
+//#ifdef __cplusplus
 
-extern "C"
-{
-#endif
+//extern "C"
+//{
+//#endif
 
 #include <windows.h>
 #include <crtdbg.h>
@@ -102,6 +102,6 @@ char *rptGetString(unsigned long value, MDX_VALUESTRING *me)
 	return NULL;
 }
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
