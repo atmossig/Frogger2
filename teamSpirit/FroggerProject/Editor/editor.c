@@ -816,8 +816,8 @@ void DrawEditorArrow(int x1, int y1, int x2, int y2, float width, D3DCOLOR col)
 	if (x1 < 0 || x1 > 640 || x2 < 0 || x2 > 640 ||
 		y1 < 0 || y1 > 480 || y2 < 0 || y2 > 480) return;	// pah
 
-	a = (x2 - x1) * width; if (a < 1 && a > -1) a = (a < 0) ? -1 : 1;
-	b = (y2 - y1) * width; if (b < 1 && b > -1) b = (b < 0) ? -1 : 1;
+	a = (x2 - x1) * width; if (a < -1 || a > 1) a = (a < 0) ? -1 : 1;
+	b = (y2 - y1) * width; if (b < -1 || b > 1) b = (b < 0) ? -1 : 1;
 
 	vtx[0].dvSX = x2;
 	vtx[0].dvSY = y2;
