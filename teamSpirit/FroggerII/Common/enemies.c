@@ -468,6 +468,36 @@ static void GetEnemyActiveTile(ENEMY *nme)
 		nme->inTile = nme->path->nodes[0].worldTile;
 	}
 }
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+GAMETILE *FindJoinedTileByDirection(GAMETILE *st,VECTOR *d)
+{
+	float distance = 100000, t;
+	int i;
+	VECTOR un;
+	long closest = 0;
+
+	SetVector (&un,d);
+	MakeUnit (&un);
+
+	for (i=0; i<4; i++)
+	{
+		t = DotProduct(&un,&(st->dirVector[i]));
+		if (t<distance)
+		{
+			distance = t;
+			closest = i;					
+		}
+	}
+
+	return st->tilePtrs[closest];
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateEnemies
@@ -545,6 +575,42 @@ void UpdateEnemies()
 			
 			ScaleVector(&fwd,length);
 			AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
+			
+			if (cur->flags & ENEMY_NEW_PUSHESFROG)
+			{
+				if (DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->nmeActor->actor->pos)<(40*40))
+				{
+					VECTOR direction;
+					VECTOR frogDir;
+					GAMETILE *tile;
+					float len;
+
+					tile = FindJoinedTileByDirection(currTile[0],&fwd);
+					
+					SetVector(&direction,&fwd);
+					MakeUnit(&direction);
+
+					SetVector(&frogDir,&frog[0]->actor->pos);
+					SubFromVector(&frogDir,&cur->nmeActor->actor->pos);
+					
+					len = Magnitude(&frogDir);
+
+					MakeUnit(&frogDir);
+										
+					len = (len * DotProduct(&direction,&frogDir));
+					
+					ScaleVector(&direction,5);//len);	
+
+					AddToVector(&frog[0]->actor->pos,&direction);
+						
+					if (tile)
+						if (DistanceBetweenPointsSquared(&currTile[0]->centre,&frog[0]->actor->pos)>(40*40))
+					{
+						currTile[0] = tile;
+						destTile[0] = currTile[0];
+					}
+				}
+			}
 
 //			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
 //				if (Random(100)>50)
@@ -561,7 +627,13 @@ void UpdateEnemies()
 
 //			NormalToQuaternion(&cur->nmeActor->actor->qRot,&cur->currNormal);
 //			or
-			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+			if (cur->flags & ENEMY_NEW_FORWARDS)
+				Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+			else
+			{
+				ScaleVector (&fwd,-1);
+				Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+			}
 
 
 //--------------------->
