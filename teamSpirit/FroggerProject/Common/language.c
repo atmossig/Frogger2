@@ -174,7 +174,7 @@ char *DIKStrings[256][LANG_NUMLANGS] =
 	"",				"",               	"",             "",             "",                   
 	"",				"",               	"",             "",             "",                   
 	"",				"",               	"",             "",             "",                   
-	"Enter",		"Entr",			   	"Enter",		"Invio",		"Numpad Enter",       
+	"Numpad Enter",	"Entr",			   	"Enter",		"Invio",		"Numpad Enter",       
 	"Right Control","Ctrl droit",	  	"Strg rechts",	"Ctrl destro",	"Right Control",      
 	"",				"",               	"",             "",             "",                   
 	"",				"",               	"",             "",             "",                   
