@@ -311,7 +311,7 @@ void GameProcessController(long pl)
 
 	if((button[pl] & CONT_G) && !(lastbutton[pl] & CONT_G))
 	{
-		TEXTURE *texOld,*texNew;
+/*		TEXTURE *texOld,*texNew;
 
 		if((frameCount & 1) == 0)
 		{
@@ -325,7 +325,7 @@ void GameProcessController(long pl)
 		}
 
 		ReplaceTextureInDrawList(frog[pl]->actor->objectController->drawList,(u32)texOld->data,(u32)texNew->data,YES);
-	}
+*/	}
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{
@@ -589,9 +589,9 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		float tv;
 		flags = 0;
 
-#ifndef PC_VERSION
+//#ifndef PC_VERSION
 		stringChange(ts->name);
-#endif
+//#endif
 
 		theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
 		dprintf"Added actor '%s'\n",ts->name));
@@ -1114,6 +1114,11 @@ void RunGameLoop (void)
 		}
 	}  
 
+#ifdef PC_VERSION
+	//if( NUM_FROGS > 1 )
+		//if( controllerdata[0].button == 0 || controllerdata[0].button != controllerdata[0].lastbutton )
+
+#endif
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 	// displays the tile numbers
