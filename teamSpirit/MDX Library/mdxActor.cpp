@@ -443,13 +443,56 @@ void UpdateAnims(MDX_ACTOR *actor)
 
 unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 {
+	/*
+
+	Currently this function transorms the 8 points in bBox by the matrix m. It then transforms them to screen space, 
+	and checks them against the limits of the screen, and if all are off of one side then the object is culled, and 
+	the funtions returns TRUE.
+
+	Unfortunately this doesn't take account of the Z value of the point, I cant check that here, and this is a source 
+	of errors.
+
+	What you need to do is to check the points with the viewing frustrum.
+
+	The actual FOV variable is used in the 3D->2D xform such that FOV*X3d / Z3d = X2d, you can use this to work out 
+	the angle of the viewing frustrum...
+
+
+	Let  X2d = 640
+	Let  Z3D = 1
+	Let  a = actual FOV angle;
+
+		FOV*X3d / 1 = 640 ==
+		X3d = 640/FOV;
+
+	Since 
+		tan(a) = X3D/Z3D 
+		a = atan(X3D) = atan(640/FOV)
+
+	Use rXRes instead of 640 and you'll be laughing for the X fov angle, 
+	Then do the same for the Y, the angles may be marginally different I think. 
+
+	You can the transform the point into camera space, the same way XfmPoint Does before doing X*FOV/Z and then check against the
+	Angles of the viewing frustrum, all should then work fine.
+
+	As a last piece of code here, it's fairly well documented. ;) 
+
+	Unfortunately not written though.
+
+	Bye all.
+
+	Good luck with the game.
+	Matt.
+	
+  */
+
 	MDX_VECTOR t[8];
 	MDX_VECTOR *r = t;
-	unsigned long pointOn;
+	unsigned long pointOn,onscreen;
 
 	unsigned long left,right,top,bottom;
 	left = top = right = bottom = 0;
-	
+
 	for (int i=8; i; i--)
 	{
 		XfmPoint(r,bBox,m);
@@ -472,6 +515,11 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 	
 	if ((left|right|top|bottom) & (~7))
 		return 1;
+		
+	
+	if (onscreen==0)
+		return 1;
+
 	//if ((left>7) || (right>7) || (top>7) || (bottom>7))
 	
 	return 0;
