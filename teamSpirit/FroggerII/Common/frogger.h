@@ -93,6 +93,7 @@ typedef struct _PLAYER
 	VECTOR			jumpFwdVector;
 	VECTOR			jumpUpVector;
 	VECTOR			jumpOrigin;
+	float			heightJumped;
 
 } PLAYER;
 

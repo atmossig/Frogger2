@@ -461,10 +461,10 @@ void RunSndView ( void )
 		FreeAllLists();
 		
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
-		LoadTextureBank ( SNDVIEW_TEX_BANK );
+//		LoadTextureBank(TITLES_TEX_BANK);
+//		LoadTextureBank ( SNDVIEW_TEX_BANK );
 
-		currFont = bigFont;
+		currFont = smallFont;
 
 		title[0]  = CreateAndAddTextOverlay ( 30, 15, "S", NO,NO, 255, 255, 255, 250, currFont,0,2,0);
 		title[1]  = CreateAndAddTextOverlay ( 30, 50, "O", NO,NO, 255, 255, 255, 200, currFont,0,2,0);

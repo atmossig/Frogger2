@@ -35,6 +35,13 @@ unsigned long standardHopFrames = 7;
 unsigned long superHopFrames	= 18;
 unsigned long longHopFrames		= 24;
 
+unsigned long jumpVariation1	= 3;
+unsigned long jumpVariation2	= 6;
+unsigned long jumpVariation3	= 9;
+
+unsigned long standardHopJumpDownDivisor	= 10;
+unsigned long superHopJumpDownDivisor		= 10;
+
 float frogGravity		= -4.0F;
 float gravityModifier	= 1.0F;
 
@@ -351,7 +358,7 @@ void UpdateFroggerPos(long pl)
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
-		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
 	}
 
   	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
@@ -385,7 +392,7 @@ void UpdateFroggerPos(long pl)
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
-		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
 	}
 
 	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
@@ -415,7 +422,7 @@ void UpdateFroggerPos(long pl)
 				FROGSTATUS_ISWANTINGLONGHOPR|FROGSTATUS_ISWANTINGLONGHOPD);
 		}
 		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
-		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
 	}
 
 	/* ---------------------------------------------------- */
@@ -748,6 +755,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				destPlatform[pl] = NULL;
 				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 			}
+/*
 			else if(PlatformTooLow(destPlatform[pl],pl))
 			{
 				// platform too far below
@@ -767,6 +775,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 				return FALSE;
 			}
+*/
 		}
 
 		// check if gametile is too high to reach
@@ -789,6 +798,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				
 				return FALSE;			
 			}
+/*
 			else if(GameTileTooLow(destTile[pl],pl) && (!( player[pl].frogState & FROGSTATUS_ISFLOATING)))
 			{
 				// platform too far below
@@ -804,6 +814,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 				return FALSE;			
 			}
+*/
 			else if(destTile[pl]->state == TILESTATE_BARRED)
 			{
 				// Can't get into this tile at the moment
@@ -873,20 +884,11 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	// ------------------------------------------------------------------------------------------
 
 	if(player[pl].isSuperHopping)
-	{
 		t = superHopFrames;
-		frogGravity = -2;
-	}
 	else if(player[pl].isLongHopping)
-	{
 		t = longHopFrames;
-		frogGravity = -1;
-	}
 	else
-	{
 		t = standardHopFrames;
-		frogGravity = -4;
-	}
 
 	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
 	{
@@ -902,7 +904,48 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		MakeUnit(&player[pl].jumpFwdVector);
 		sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
 
+		dprintf"sV: %f\n",sV));
+
 		// STAGE 2 - considering vertical motion
+
+		// modify t and a depending on sV - i.e. jumping up or down
+		if(player[pl].isSuperHopping)
+		{
+			frogGravity = -2;
+			if(sV < -40)
+			{
+				// alter t to modify jump heights
+				t += (Fabs(sV) / superHopJumpDownDivisor);
+
+				if(sV < -125)
+				{
+					// frog has fallen too far !!!
+					t += 15;
+					frogGravity = -0.75F;
+					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+				}
+			}
+		}
+		else if(player[pl].isLongHopping)
+		{
+		}
+		else
+		{
+			frogGravity = -4;
+			if(sV < -10)
+			{
+				// alter t to modify jump heights
+				t += (Fabs(sV) / standardHopJumpDownDivisor);
+
+				if(sV < -125)
+				{
+					// frog has fallen too far !!!
+					t += 15;
+					frogGravity = -0.75F;
+					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+				}
+			}
+		}
 
 		// using s = ut + 0.5at^2
 		a = frogGravity;
@@ -936,6 +979,45 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 		// STAGE 2 - considering vertical motion
 
+		// modify t depending on sV - i.e. jumping up or down
+		if(player[pl].isSuperHopping)
+		{
+			frogGravity = -2;
+			if(sV < -40)
+			{
+				// alter t to modify jump heights
+				t += (Fabs(sV) / superHopJumpDownDivisor);
+
+				if(sV < -125)
+				{
+					// frog has fallen too far !!!
+					t += 15;
+					frogGravity = -0.75F;
+					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+				}
+			}
+		}
+		else if(player[pl].isLongHopping)
+		{
+		}
+		else
+		{
+			frogGravity = -4;
+			if(sV < -10)
+			{
+				// alter t to modify jump heights
+				t += (Fabs(sV) / standardHopJumpDownDivisor);
+
+				if(sV < -125)
+				{
+					// frog has fallen too far !!!
+					t += 15;
+					frogGravity = -0.75F;
+					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+				}
+			}
+		}
+
 		// using s = ut + 0.5at^2
 		a = frogGravity;
 		u = ((-a * t * t) + (2 * sV)) / (2 * t);
@@ -953,8 +1035,9 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
 	}
 
-	// get frogs origin of jump
+	// get frogs origin of jump and height jumped between source and dest
 	SetVector(&player[pl].jumpOrigin,&frog[pl]->actor->pos);
+	player[pl].heightJumped = sV;
 
 	// ------------------------------------------------------------------------------------------
 
@@ -983,7 +1066,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 void CheckForFroggerLanding(int whereTo,long pl)
 {
 	VECTOR telePos;
-	unsigned long i,j;
+	unsigned long i;
 	float distance;
 	
 	if(whereTo == JUMPING_TOPLATFORM)
@@ -1062,17 +1145,34 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					FROGSTATUS_ISFLOATING);
 
 				// check tile to see if frog has jumped onto a certain tile type
-				if(destTile[pl]->state == TILESTATE_DEADLY)
+				if((destTile[pl]->state == TILESTATE_DEADLY) || (player[pl].heightJumped < -125.0F))
 				{
 					if(!frog[pl]->action.dead)
 					{
-						CreateAndAddFXRipple(RIPPLE_TYPE_WATER,&destTile[pl]->centre,&upVec,25,1,0.1,30);
+						PLANE2 rebound;
+						SetVector(&rebound.point,&destTile[pl]->centre);
+						SetVector(&rebound.normal,&destTile[pl]->normal);
 
-						frog[pl]->action.deathBy = DEATHBY_DROWNING;
+						if(destTile[pl]->state == TILESTATE_DEADLY)
+						{
+							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_NORMAL,&destTile[pl]->centre,&destTile[pl]->normal,5,30,&rebound,25);
+							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_TRIGGERRIPPLE,&destTile[pl]->centre,&destTile[pl]->normal,8,30,&rebound,30);
+
+							CreateAndAddFXRipple(RIPPLE_TYPE_WATER,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,30);
+							frog[pl]->action.deathBy = DEATHBY_DROWNING;
+							AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.5F,0,0);
+						}
+						else
+						{
+							CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,15);
+							frog[pl]->action.deathBy = DEATHBY_NORMAL;
+							AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.5F,0,0);
+						}
+
 						player[pl].frogState |= FROGSTATUS_ISDEAD;
 						frog[pl]->action.dead = 50;
-						AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.5F,0,0);
-						PlaySample(2,NULL,255,128);
+
+//						PlaySample(2,NULL,255,128);
 					}
 					return;
 				}

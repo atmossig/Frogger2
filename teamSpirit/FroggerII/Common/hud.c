@@ -85,7 +85,7 @@ void UpDateOnScreenInfo ( void )
 		if (player[0].timeSec < 0)
 		{
 			countdownTimer = 0;
-			PlaySample(GEN_TIME_OUT,0,0,0);
+//			PlaySample(GEN_TIME_OUT,0,0,0);
 			sprintf(timeText,"NO BONUS !");
 			if (NUM_FROGS==1)
 				timeTextOver->draw = 50;
@@ -95,12 +95,12 @@ void UpDateOnScreenInfo ( void )
 		{
 			if ( tickTock )
 			{
-				PlaySample(GEN_CLOCK_TOCK,0,0,0);
+//				PlaySample(GEN_CLOCK_TOCK,0,0,0);
 				tickTock = 0;
 			}
 			else
 			{
-				PlaySample(GEN_CLOCK_TICK,0,0,0);
+//				PlaySample(GEN_CLOCK_TICK,0,0,0);
 				tickTock = 1;
 			}
 		}
