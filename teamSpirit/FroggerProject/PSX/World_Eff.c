@@ -659,7 +659,9 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 
 	register long depth asm("$16");
 
-	unsigned long *ot = currentDisplayPage->ot+mesh->extra_depth, min_depth = MIN_MAP_DEPTH, max_depth = fog.max>>2;
+	unsigned long *ot = currentDisplayPage->ot + mesh->extra_depth,
+											min_depth = MIN_MAP_DEPTH,
+											max_depth = fog.max>>2;
 
 	int i, j;
 
@@ -684,11 +686,12 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 
 	transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
 
+	packet = (PACKET *)currentDisplayPage->primPtr;
+
 #define si ((POLY_GT4*)packet)
 #define op ((FMA_GT4 *)opcd)
 
 	op = mesh->gt4s;
-	packet = (PACKET *)currentDisplayPage->primPtr;
 	polyCount += mesh->n_gt4s;
 
 	for( i = mesh->n_gt4s; i != 0; i--, op++ )
@@ -712,7 +715,7 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 
 			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
 
-			addPrimLen ( ot + ( depth + mesh->shift), si, 12, t2 );
+			addPrimLen ( currentDisplayPage->ot + 1023, si, 12, t2 );
 
 			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
 			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
@@ -729,9 +732,9 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 
 			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
 
-			si->code	= op->code | ( op->pad2 & 2 );
-			si->tpage = op->tpage | ( op->pad2 & 96 );
-			if( globalClut ) si->clut = globalClut;
+			//si->code	= op->code;
+			//si->tpage	= op->tpage;
+			//if( globalClut ) si->clut = globalClut;
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
 		}
@@ -768,7 +771,7 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 			continue;
 
 			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
-			addPrimLen ( ot + ( depth + mesh->shift), si, 9, t2 );
+			addPrimLen ( currentDisplayPage->ot + 1023, si, 9, t2 );
 
 			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);
 			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
@@ -780,8 +783,8 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 			*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
 			*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 
-			si->code	= op->code | ( op->pad2 & 2 );
-			si->tpage = op->tpage | ( op->pad2 & 96 );
+			//si->code	= op->code;
+			//si->tpage	= op->tpage;
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT3 ) );
 		}

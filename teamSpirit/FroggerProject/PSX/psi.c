@@ -2774,11 +2774,11 @@ void psiDrawSegments(PSIDATA *psiData)
 		 	modctrl->SortOffs = world->meshdata->sortlistptr[s];
 			modctrl->PrimLeft = world->meshdata->sortlistsize[s];
 
-			/*if ( ( compare = strstr ( psiData->modelName, "BACKDROP" ) ) )
-			{
-				depth = 4095;
+			//if ( ( compare = strstr ( psiData->modelName, "BACKDROP" ) ) )
+			//{
+				//depth = 4095;
 				//modctrl->depthShift = 0;
-			}*/
+			//}
 
 		
 			// JH: Don't bother with this object if it's to close to the camera.

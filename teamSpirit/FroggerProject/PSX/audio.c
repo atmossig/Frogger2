@@ -38,6 +38,15 @@ char *musicNames[] = { "CDA.XA",//
 					   "CDA.XA",//
 					   "CDA.XA"};//
 
+int musicList[] = { 0,//
+											1,//
+					   2,//
+					   6,//
+					   3,//
+					   4,//
+					   5,//
+					   6,//
+					   7};//
 
 /*
 char *musicNames[] = { "CD3.XA",//
@@ -782,26 +791,26 @@ void PrepareSong(short worldID)
 	{
 		//default use first xa file
 		int xaNum = 0;
-		int chan = worldID;
+		int chan = musicList  [ worldID ];
 
 		//do we need to use the second xa file?
-		if(chan > 8)
+		/*if(chan > 8)
 		{
 				xaNum = 0;
 				chan = 7;
-		}
+		}*/
 
-		if ( chan == 5 )
+		/*if ( chan == 5 )
 		{
 			xaNum = 0;
 			chan = 4;
-		}
+		}*/
 
-		if ( chan == 8 )
+		/*if ( chan == 8 )
 		{
 			xaNum = 0;
 			chan = 1;
-		}
+		}*/
 
 		XAstart(1);
 		utilPrintf ( "World ID : %d \n", worldID );
