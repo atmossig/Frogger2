@@ -743,6 +743,7 @@ void mdxLoadBackdrop(const char* filename)
 	if ((res = pDirectDraw7->CreateSurface(&ddsd, &backdrop, NULL)) != DD_OK)
 	{
 		dp("Error creating backdrop surface\n");
+		free(data);
 		ddShowError(res);
 		return;
 	}
