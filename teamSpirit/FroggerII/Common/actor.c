@@ -693,45 +693,47 @@ void DrawActorListOLD()
 	Returns		: void 
 */
 
-void FreeActor(ACTOR2 *c)
+void FreeActor(ACTOR *c)
 {
-	ACTOR2 *cur = c;
-
-	if (!cur)
-		return;
-
-	if((cur->actor->objectController) && (cur->actor->objectController->object))
+	if((c->objectController) && (c->objectController->object))
 	{
-	 	FreeObjectSprites(cur->actor->objectController->object);
+	 	FreeObjectSprites(c->objectController->object);
 
 		// NEW
-		if(cur->actor->objectController->drawList)
+		if(c->objectController->drawList)
 		{
-			JallocFree((UBYTE **)&cur->actor->objectController->vtx[0]);
-			JallocFree((UBYTE **)&cur->actor->objectController->drawList);
+			JallocFree((UBYTE **)&c->objectController->vtx[0]);
+			JallocFree((UBYTE **)&c->objectController->drawList);
 		}
 
 		// NEW
-		RemoveUniqueObject(cur->actor->objectController->object);
-		JallocFree((UBYTE **)&cur->actor->objectController);
+		RemoveUniqueObject(c->objectController->object);
+		JallocFree((UBYTE **)&c->objectController);
 	}
 
-	if(cur->actor->LODObjectController)
-		JallocFree((UBYTE **)&cur->actor->LODObjectController);
+	if(c->LODObjectController)
+		JallocFree((UBYTE **)&c->LODObjectController);
 
-	if(cur->actor->matrix)
-		JallocFree((UBYTE **)&cur->actor->matrix);
+	if(c->matrix)
+		JallocFree((UBYTE **)&c->matrix);
 
-	if(cur->actor->animation)
-		JallocFree((UBYTE **)&cur->actor->animation);
+	if(c->animation)
+		JallocFree((UBYTE **)&c->animation);
 
-	if(cur->actor->shadow)
-		JallocFree((UBYTE **)&cur->actor->shadow);
+	if(c->shadow)
+		JallocFree((UBYTE **)&c->shadow);
 
-	JallocFree((UBYTE**)&cur->actor);
-	JallocFree((UBYTE**)&cur);
+	JallocFree((UBYTE**)&c);
 }
 
+
+void FreeActor2(ACTOR2 *c)
+{
+	if (!c) return;
+	
+	FreeActor(c->actor);
+	JallocFree((UBYTE**)&c);
+}
 
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
@@ -751,15 +753,15 @@ void FreeActorList()
 	while (cur)
 	{
 		next = cur->next;
-		FreeActor(cur);		
+		FreeActor2(cur);		
 		cur = next;
 	}
 	actList = NULL;
 
-	FreeActor(backGnd);		
+	FreeActor2(backGnd);		
 	backGnd = NULL;
 
-	FreeActor(hat[0]);		
+	FreeActor2(hat[0]);		
 	hat[0] = NULL;
 }
 
@@ -1192,6 +1194,22 @@ void RemoveUniqueObject(OBJECT *object)
 		RemoveUniqueObject(object->next);
 		
 	JallocFree((UBYTE**)&obj);
+}
+
+/*	-------------------------------------------------------------
+	Function	: SwapActorObject
+	Purpose		: Swaps the object associated with la la la blah
+	Returns		:
+*/
+void SwapActorObject(ACTOR2 *act, const char* name)
+{
+	VECTOR pos = act->actor->pos;
+
+	FreeActor(act->actor);
+
+	act->actor	= (ACTOR *)JallocAlloc(sizeof(ACTOR),YES,"ACTOR");
+	InitActor(act->actor, (char*)name, pos.v[0], pos.v[1], pos.v[2], INIT_ANIMATION);
+	MakeUniqueActor(act->actor,0);
 }
 
 /*	--------------------------------------------------------------------------------

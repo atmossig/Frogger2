@@ -71,6 +71,8 @@ extern int uniqueActorCRC[];
 extern char numUniqueActors;
 
 ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags);
+void SwapActorObject(ACTOR2 *act, const char* name);
+
 void DrawActorList();
 void FreeActorList();
 
