@@ -419,8 +419,8 @@ void DrawFXRing( SPECFX *fx )
 	GetQuaternionFromRotation( &q3, &cross );
 
 	// Combine the rotations and push
-	QuaternionMultiply( &q1, &q2, &q3 );
-	QuaternionToMatrix( &q1,(MDX_MATRIX *)rMtrx);
+	QuaternionMultiply( &q1, &q3, &q2 );
+	QuaternionToMatrix( &q3,(MDX_MATRIX *)rMtrx);
 	PushMatrix( rMtrx );
 
 	if( fx->type == FXTYPE_CROAK )
@@ -443,7 +443,7 @@ void DrawFXRing( SPECFX *fx )
 				vT[j].sz = ringVtx[vxj].vz*0.000244;
 
 				// Slant the polys
-				tilt = ((i&1)?(j==0||j==3):(j==1||j==2)) ? 1 : tilt2;
+				tilt = (!(i&1)?(j==0||j==3):(j==1||j==2)) ? 1 : tilt2;
 				vT[j].tv = 1-vT[j].tv;
 
 				// Scale and push
