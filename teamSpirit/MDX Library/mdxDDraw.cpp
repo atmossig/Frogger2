@@ -724,7 +724,7 @@ void mdxLoadBackdrop(const char* filename)
 	int xDim,yDim;
 	int pptr = -1;
 
-	void* data = gelfLoad_BMP((char*)filename,NULL,(void**)&pptr,&xDim,&yDim,NULL,GELF_IFORMAT_16BPP565,GELF_IMAGEDATA_TOPDOWN);
+	void* data = gelfLoad_BMP((char*)filename,NULL,(void**)&pptr,&xDim,&yDim,NULL,r565?GELF_IFORMAT_16BPP565:GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
 
 	surface[RENDER_SRF]->GetSurfaceDesc(&ddsd);
 	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
