@@ -124,9 +124,8 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 }
 
 
-// Push a poly onto the buffers
-
 void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf);
+void softDrawTexturedRect(RECT r, D3DCOLOR colour, float u0, float v0, float u1, float v1);
 
 void DrawFlatRect(RECT r, D3DCOLOR colour);
 void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1);

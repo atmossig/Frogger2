@@ -198,6 +198,14 @@ SOURCE=.\mdxPrcTex.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\mdxProbe.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\mdxProbe.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\mdxProfile.cpp
 # End Source File
 # Begin Source File
