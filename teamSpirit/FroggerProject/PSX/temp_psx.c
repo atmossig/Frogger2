@@ -715,6 +715,9 @@ void Actor2ClipCheck(ACTOR2* act)
 //			gte_SetRotMatrix(&GsWSMATRIX);
 //			gte_SetTransMatrix(&tx);
 			
+
+
+/*			
 			gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
 			rY.m[0][0] = rY.m[1][1] = rY.m[2][2] = act->actor->size.vx;
 			rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
@@ -722,7 +725,28 @@ void Actor2ClipCheck(ACTOR2* act)
 			gte_MulMatrix0(&tx, &rY, &tx);
 			gte_SetRotMatrix(&tx);
 			gte_SetTransMatrix(&tx);
-
+*/
+//bbopt
+// - we want a pre set matrix here,
+// - size was set into matrix,
+//   but overwritten by RotMatrixY
+			gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
+			rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
+//			rY.m[0][0] = -act->actor->size.vx;
+//			rY.m[1][1] =  act->actor->size.vy;
+//			rY.m[2][2] = -act->actor->size.vz;
+			rY.m[0][0] = -0x1000;
+			rY.m[1][1] =  0x1000;
+			rY.m[2][2] = -0x1000;
+			gte_MulMatrix0(&tx, &rY, &tx);
+			gte_SetRotMatrix(&tx);
+			gte_SetTransMatrix(&tx);
+			
+			
+			
+			
+			
+			
 			if(FmaActor_ClipCheck(*mesh))
 //				if(FmaActor_ClipCheck_GetSBox(pMesh))
 				act->clipped=0;
