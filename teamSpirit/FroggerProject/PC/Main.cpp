@@ -849,6 +849,13 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		currTime.wDay, currTime.wMonth, currTime.wYear,
 		currTime.wHour, currTime.wMinute, currTime.wSecond);
 
+	// Set up worldvisualdata array (poo)
+	// perhaps not the most clear place to do this - ds
+	memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
+	
+	// Load the game here, mostly for network mode - ds
+	LoadGame();
+
 	GetRegistryInformation();
 	GetArgs(lpCmdLine);
 	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
