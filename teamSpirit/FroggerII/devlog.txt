@@ -65,7 +65,12 @@ Andy Eder:
 
 David Swift:
 ------------------------------------------------
-	Fixed problems with Frogger facing the wrong direction on platforms (added a call to GetTilesMatchingDirection in CheckForFroggerLanding)
+	Spent part of the morning wrestling with the Orientate function - I'm sure
+	there's a simpler way of performing this calculation. The maths eluded me
+	once again.
+	
+	Fixed problems with Frogger facing the wrong direction on platforms (added
+	a call to GetTilesMatchingDirection in CheckForFroggerLanding)
 
 		\/  \/
 		 \__/    Merry Christmas
