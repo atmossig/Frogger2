@@ -553,7 +553,11 @@ int main ( )
 		 		fontSmall = fontLoad("FONT12.FON");
 
 				fontInitButtonSprites();
+#if PALMODE==0
 				gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
+#else
+				font = fontLoad("BIGFONT.FON");
+#endif
 				memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
 				LoadSfx(-1);
 				LoadCodeOverlay(VIDEO_OVERLAY);
@@ -619,6 +623,10 @@ int main ( )
 			DrawOTag(currentDisplayPage->ot+(1024-1));
 		}
 		actFrameCount = 0;
+#if PALMODE==1
+				gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
+#endif
+
 #endif
 #endif
 		FreeBackdrop();

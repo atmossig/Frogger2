@@ -219,10 +219,10 @@ void languageInitialise()
 	keepFade = 0;
 
 
-	utilPrintf("Just Before font Load.\n");
-	font = fontLoad("BIGFONT.FON");
+//	utilPrintf("Just Before font Load.\n");
+//	font = fontLoad("BIGFONT.FON");
 
-	utilPrintf("Loaded the Font file.\n");
+//	utilPrintf("Loaded the Font file.\n");
 
 	imagePtr=0;
 	tex.x = 960;

@@ -39,10 +39,59 @@ char memmessage[256];
 char slotNumStr[4];
 
 
+enum {
+	SAVEMENU_CHECK,
+	SAVEMENU_FULL,
+	SAVEMENU_NOCARD,
+	SAVEMENU_SAVE,
+	SAVEMENU_COMPLETE,
+	SAVEMENU_FAIL,
+	SAVEMENU_FORMATYN,
+	SAVEMENU_FORMAT,
+	SAVEMENU_FORMATFAIL,
+	SAVEMENU_NEEDFORMAT,
+	SAVEMENU_LOAD,
+	SAVEMENU_LOADERROR,
+	SAVEMENU_LOADCOMPLETE,
+	SAVEMENU_SAVEYN,
+	SAVEMENU_CHANGED,
+	SAVEMENU_OVERWRITE,
+	SAVEMENU_FORMATCOMPLETE,
+};
+
+
 int waitCheck;
 int delayTimer;
 int cardChanged = NO;
 #define DELAY_TIME 200
+
+/* SAVE PAGE ***********************************************************************************************************/
+
+
+static void saveMenuSave()
+{
+	if(gameState.mode == LEVELCOMPLETE_MODE)
+		SimpleMessage(GAMESTRING(STR_MCARD_AUTOSAVING), MIN(255,optFrame*60));
+	else
+		SimpleMessage(GAMESTRING(STR_MCARD_SAVING), MIN(255,optFrame*60));
+	if (optFrame++>4)
+	{
+		if (gameSaveHandleSave() != CARDWRITE_OK)
+			saveInfo.saveStage = SAVEMENU_FAIL;
+		else
+		{
+			if(gameState.mode == LEVELCOMPLETE_MODE)
+			{
+				saveInfo.saveFrame = 0;
+				cardChanged = NO;
+			}
+			else
+				saveInfo.saveStage = SAVEMENU_COMPLETE;
+			delayTimer = 0;
+		}
+		StartChooseOption();
+	}
+}
 
 int gameSaveGetCardStatus()
 {
@@ -426,27 +475,6 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 	return 0;
 }
 
-enum {
-	SAVEMENU_CHECK,
-	SAVEMENU_FULL,
-	SAVEMENU_NOCARD,
-	SAVEMENU_SAVE,
-	SAVEMENU_COMPLETE,
-	SAVEMENU_FAIL,
-	SAVEMENU_FORMATYN,
-	SAVEMENU_FORMAT,
-	SAVEMENU_FORMATFAIL,
-	SAVEMENU_NEEDFORMAT,
-	SAVEMENU_LOAD,
-	SAVEMENU_LOADERROR,
-	SAVEMENU_LOADCOMPLETE,
-	SAVEMENU_SAVEYN,
-	SAVEMENU_CHANGED,
-	SAVEMENU_OVERWRITE,
-	SAVEMENU_FORMATCOMPLETE,
-};
-
-
 void StartChooseLoadSave(int load)
 {
 /*	if (XAgetStatus())
@@ -592,39 +620,12 @@ static void saveMenuCheck()
 	}
 }
 
-/* SAVE PAGE ***********************************************************************************************************/
-
-
-static void saveMenuSave()
-{
-	if(gameState.mode == LEVELCOMPLETE_MODE)
-		SimpleMessage(GAMESTRING(STR_MCARD_AUTOSAVING), MIN(255,optFrame*60));
-	else
-		SimpleMessage(GAMESTRING(STR_MCARD_SAVING), MIN(255,optFrame*60));
-	if (optFrame++>4)
-	{
-		if (gameSaveHandleSave() != CARDWRITE_OK)
-			saveInfo.saveStage = SAVEMENU_FAIL;
-		else
-		{
-			if(gameState.mode == LEVELCOMPLETE_MODE)
-			{
-				saveInfo.saveFrame = 0;
-				cardChanged = NO;
-			}
-			else
-				saveInfo.saveStage = SAVEMENU_COMPLETE;
-			delayTimer = 0;
-		}
-		StartChooseOption();
-	}
-}
-
 /* SAVE COMPLETE PAGE **************************************************************************************************/
 
 static void saveMenuComplete()
 {
-	if (((options.mode == -1)/* && (delayTimer++ > DELAY_TIME)*/) || (ChooseOption(GAMESTRING(STR_MCARD_COMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+//	if (((options.mode == -1) && (delayTimer++ > DELAY_TIME)) || (ChooseOption(GAMESTRING(STR_MCARD_COMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+	if (ChooseOption(GAMESTRING(STR_MCARD_COMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL))
 	{
 		saveInfo.saveFrame = 0;
 		cardChanged = NO;
