@@ -645,9 +645,14 @@ void InitActorStructures(ACTOR *tempActor, int initFlags)
 */
 void InitActor(ACTOR *tempActor, char *name, float x, float y, float z, int initFlags)
 {
-	FindObject(&tempActor->objectController, UpdateCRC(name), name,YES);
-	if(!tempActor->objectController)
-		return;
+	if( !(initFlags & INIT_SWARM) )
+	{
+		FindObject(&tempActor->objectController, UpdateCRC(name), name,YES);
+		if(!tempActor->objectController)
+			return;
+	}
+	else
+		tempActor->objectController = NULL;
 
 	InitActorStructures(tempActor, initFlags);
 

@@ -126,7 +126,10 @@ int MemLoadEntities(const void* data, long size)
 			switch (thing)
 			{
 			case CREATE_ENEMY:
-				enemy = CreateAndAddEnemy(type);
+				if( flags & ENEMY_NEW_SWARM )
+					enemy = CreateAndAddEnemy(type,INIT_SWARM);
+				else
+					enemy = CreateAndAddEnemy(type,0);
 				enemy->uid = ID;
 				AssignPathToEnemy(enemy, flags, path, 0);
 				act = enemy->nmeActor;

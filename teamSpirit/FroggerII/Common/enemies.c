@@ -1383,15 +1383,13 @@ void FreeEnemyLinkedList()
 // NEW ENEMY CODE - UNDER DEVELOPMENT - ANDYE - NEW ENEMY CODE - UNDER DEVELOPMENT - ANDYE -
 //------------------------------------------------------------------------------------------------
 
-ENEMY *CreateAndAddEnemy(char *eActorName)
+ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags )
 {
-	int i,enemyType = 0,initFlags = 0;
+	int i,enemyType = 0;
 	float shadowRadius = 0;
 
 	ENEMY *newItem = (ENEMY *)JallocAlloc(sizeof(ENEMY),YES,"NME");
 	AddEnemy(newItem);
-
-	initFlags |= INIT_ANIMATION;
 
 	enemyType = NMETYPE_WASP;
 
@@ -1416,12 +1414,21 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 */
 
 	// check nme type and assign shadow if necessary
-	initFlags |= INIT_ANIMATION;
-	if(enemyType == NMETYPE_WASP)
+	if( !(initFlags & INIT_SWARM) )
 	{
-		initFlags |= INIT_SHADOW;
-		shadowRadius = 20;
-	}
+		initFlags |= INIT_ANIMATION;
+		if(enemyType == NMETYPE_WASP)
+		{
+			initFlags |= INIT_SHADOW;
+			shadowRadius = 20;
+		}
+	}/*
+	else
+	{
+		if( !gstrcmp( eActorName, "crow_swarm" ) )
+			enemyType = NMETYPE_SWARM_CROWS;
+		//etc
+	}*/
 
 	// create and add the nme actor
 	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);

@@ -178,7 +178,7 @@ void ProcessNMEMower(ACTOR2 *nme);
 
 //------------------------------------------------------------------------------------------------
 
-ENEMY *CreateAndAddEnemy(char *eActorName);
+ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags);
 void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags);
 BOOL EnemyHasArrivedAtNode(ENEMY *nme);
 BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);

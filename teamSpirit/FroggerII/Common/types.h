@@ -37,6 +37,7 @@
 
 #define	INIT_ANIMATION	(1 << 0)
 #define	INIT_SHADOW		(1 << 1)
+#define INIT_SWARM		(1 << 2)
 
 //object flags
 #define OBJECT_FLAGS_GOURAUD_SHADED	(1 << 0)
