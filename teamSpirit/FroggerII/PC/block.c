@@ -155,7 +155,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if(!InitInputDevices())
 		ok = 0;
 
-	InitSaveData();
+	//InitSaveData();
 
 	gameState.mode		= FRONTEND_MODE;
 	//frontEndState.mode	= TITLE_MODE;

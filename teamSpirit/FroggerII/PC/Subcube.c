@@ -49,10 +49,10 @@ void DrawObject(OBJECT *obj);
 
 short texture[256*256];
 float nearClip = 10;
-float farClip = 900;
+float farClip = 1100;
 
-float horizClip = 400;
-float vertClip = 300;
+float horizClip = 600;
+float vertClip = 550;
 
 
 long InitTex(void)
@@ -66,8 +66,8 @@ long InitTex(void)
 VECTOR tV[4000];
 float mV[4000];
 
-long DIST=380;
-long FOV=380;
+long DIST=0;
+long FOV=512;
 
 float stx=124,sty=93, stz=864;
 float ctx=124,cty=-224,ctz=451;
@@ -276,8 +276,8 @@ void XfmPoint (VECTOR *vTemp2, VECTOR *in)
 {
 	float c[4][4];
 	guLookAtF(c,
-			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
 			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
+			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
 			//stx,sty,stz,
 			//ctx,cty,ctz,
 			//0,1,0);
@@ -338,8 +338,8 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 	}
 
 	guLookAtF(c,
-			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
 			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
+			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
 			//stx,sty,stz,
 			//ctx,cty,ctz,
 			//0,1,0);
@@ -694,6 +694,9 @@ void XformActor(ACTOR *ptr)
 	Returns 	: 
 	Info 		:
 */
+
+long TestDistanceFromFrog = 0;
+
 void TransformAndDrawObject2(OBJECT *obj, float time, short animStart, short animEnd)
 {
 	QUATERNION	tempQuat;
@@ -959,83 +962,14 @@ void TransformAndDrawObject2(OBJECT *obj, float time, short animStart, short ani
 	{
 		
 		ComputeResultMatrix();		
-//		guMtxF2L(matrixStack.result, &dynamicp->modeling4[objectMatrix]);
-	
 
 		//store the static mtx
-		if(calcMtx == TRUE)
-		{
-			if(staticObjectMtx)
-			{
-//				SetMatrix((float *)staticObjectMtx, (float *)&dynamicp->modeling4[objectMatrix]);
-			//	guMtxF2L(matrixStack.result, staticObjectMtx);
-			}
-		}
-	
 		SetMatrix ((float *)&obj->myMatrix,(float *)matrixStack.result);//&dynamicp->modeling4[objectMatrix]);
-
-//		gSPMatrix(glistp++, 
-//		 OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-//		 G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-		
-//		matrixStackCount++;
-		
-
 	}
 	else
-	{
-//		guMtxF2L(unitMatrix, &dynamicp->modeling4[objectMatrix]);
-
-//->		SetMatrix((float *)&dynamicp->modeling4[objectMatrix], (float *)staticObjectMtx);
-
-//		memcpy(&dynamicp->modeling4[objectMatrix], staticObjectMtx, sizeof(Mtx));
-
-//	    gSPMatrix(glistp++, 
-//		OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-//		G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
 		matrixStackCount++;
 
-	}
-	
-//		/* --------------------------------------------------------/ *Hey.... Nevermind! */
-/*--------------------------------------------
 
-		if(obj->drawList)
-		{
-			gSPDisplayList(glistp++, obj->drawList);
-		}
-		else if(obj->mesh->numFaces)
-		{
-			if(obj->flags & OBJECT_FLAGS_GOURAUD_SHADED)
-			{
-				if(!(obj->flags & OBJECT_FLAGS_PRELIT))
-				{
-					gSPSetGeometryMode(glistp++, G_LIGHTING);
-				}
-				else
-				{
-				    gSPClearGeometryMode(glistp++, G_LIGHTING);
-				}
-				WriteObjectDisplayListGouraud(obj);
-			}
-			else
-			{
-				if(!(obj->flags & OBJECT_FLAGS_PRELIT))
-				{
-					gSPSetGeometryMode(glistp++, G_LIGHTING);
-				}
-				else
-				{
-				    gSPClearGeometryMode(glistp++, G_LIGHTING);
-				}
-				WriteObjectDisplayListFlat(obj);
-			}
-		}
-
-		
-		gSPPopMatrix(glistp++, G_MTX_MODELVIEW);
-		matrixStackCount--;
--------------------------------------------------------------------------------------*/
 	if((calcMtx == TRUE) || (staticObj == FALSE))
 	{
 
@@ -1246,6 +1180,7 @@ void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short anim
 	VECTOR	tempVect;
 	float	tempFloat;
 	int		xluVal;
+	VECTOR	tPos;
 
 //handle position keyframes
 
@@ -1481,11 +1416,12 @@ void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short anim
 //			}
 		}
 
-	
-	    guTranslateF(transmat, XTranslateAmount * actorScale.v[X] * parentScaleStack[parentScaleStackLevel].v[X],
-							   YTranslateAmount * actorScale.v[Y] * parentScaleStack[parentScaleStackLevel].v[Y],
-							   ZTranslateAmount * actorScale.v[Z] * parentScaleStack[parentScaleStackLevel].v[Z]);
+		tPos.v[0] = XTranslateAmount * actorScale.v[X] * parentScaleStack[parentScaleStackLevel].v[X];
+		tPos.v[1] = YTranslateAmount * actorScale.v[Y] * parentScaleStack[parentScaleStackLevel].v[Y];
+		tPos.v[2] = ZTranslateAmount * actorScale.v[Z] * parentScaleStack[parentScaleStackLevel].v[Z];
 
+	    guTranslateF(transmat,tPos.v[0],tPos.v[1],tPos.v[2]);
+					
 		//concatinate rotation and translate matrices quickly
 		rotmat[3][0] = transmat[3][0];
 		rotmat[3][1] = transmat[3][1];
@@ -1591,8 +1527,19 @@ void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short anim
 
 	if(obj->mesh->numFaces)
 	{
-		xl = xluFact / 256.0;
-		PCDrawObject (obj,matrixStack.result);
+		if (!TestDistanceFromFrog)
+		{
+			xl = xluFact / 256.0;
+			PCDrawObject (obj,matrixStack.result);
+		}
+		else
+		{
+			if (DistanceBetweenPointsSquared ( &tPos, &frog[0]->actor->pos ) < 300000.0)
+			{
+				xl = xluFact / 256.0;
+				PCDrawObject (obj,matrixStack.result);
+			}
+		}
 	}
 
 		

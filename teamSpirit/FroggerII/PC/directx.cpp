@@ -746,7 +746,7 @@ void SetupRenderstates(void)
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMIN,D3DFILTER_LINEAR);
 
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SUBPIXEL,TRUE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SUBPIXEL,FALSE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SHADEMODE,D3DSHADE_GOURAUD);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DITHERENABLE,TRUE);
@@ -968,7 +968,7 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 			u2,v2
 		},
 		{
-			x,y+ys,0,0,
+		x,y+ys,0,0,
 			D3DRGB(1,1,1),D3DRGB(0,0,0),
 			u1,v2
 	}};

@@ -204,12 +204,16 @@ jallocFailed:
 
 jallocSuccess:
 	jp->staticUsed += jp->blocks[l].size;
-	memcpy(jp->blocks[l].name,name,strlen(name));
+	
 	if(strlen(name) < JALLOC_NAME_LEN - 1)
+	{
+		memcpy(jp->blocks[l].name,name,strlen(name));
 		jp->blocks[l].name[strlen(name)] = 0;
+	}
+
 	if(clear == TRUE)
 		memclear(dest, size);
-
+	
 	return dest;
 }
 

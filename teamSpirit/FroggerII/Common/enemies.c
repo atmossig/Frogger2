@@ -509,7 +509,7 @@ GAMETILE *FindJoinedTileByDirection(GAMETILE *st,VECTOR *d)
 
 float snapRadius = 75;
 long snapTime = 50;
-
+long SNAPPER_TIME = 10;
 extern float waitScale;
 
 void UpdateEnemies()
@@ -575,7 +575,8 @@ void UpdateEnemies()
 			
 			ScaleVector(&fwd,length);
 			AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
-			
+			MakeUnit (&fwd);
+
 			if (cur->flags & ENEMY_NEW_PUSHESFROG)
 			{
 				if (DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->nmeActor->actor->pos)<(40*40))
@@ -667,20 +668,50 @@ void UpdateEnemies()
 
 				// Test for snap range!
 								
-				if (cur->isSnapping > 1)
-					cur->isSnapping--;
-				else
 				{
 					if (cur->flags & ENEMY_NEW_SNAPFROG)
+					{	
+						if (cur->isSnapping > 1)
+							cur->isSnapping--;
+							
+						if (DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->nmeActor->actor->pos) >= tileRadiusSquared)
+							cur->isSnapping=0;
+						
+						if (cur->isSnapping == 0)
+						{
+							if (Random(1000)>980)
+								AnimateActor(cur->nmeActor->actor,2,NO,NO,1, 0, 0);
+						
+							if (Random(1000)>950)
+							{
+								if (Random(1000)>950)
+									AnimateActor(cur->nmeActor->actor,3,NO,YES,1, 0, 0);
+								else
+									AnimateActor(cur->nmeActor->actor,0,NO,YES,1, 0, 0);
+							}
+						}
+
 						if (DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->nmeActor->actor->pos) < tileRadiusSquared)
 						{
+							if (cur->isSnapping == SNAPPER_TIME)
+								AnimateActor(cur->nmeActor->actor,1,NO,NO,1, 0, 0);
+								
 							if (cur->isSnapping == 0)
+							{
 								cur->isSnapping = cur->path->nodes[0].waitTime;
+							}
 							else
 								if (cur->isSnapping == 1)
 								{
 									cur->isSnapping = 0;
 									frog[0]->action.lives--;
+									
+									SetVector(&swarmPos,&frog[0]->actor->pos);
+									swarmPos.v[Y] += 35;
+									CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,25);
+									swarmPos.v[Y] += 10;
+									CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,35);
+
 									if(frog[0]->action.lives != 0)
 									{
 										cameraShake = 25;
@@ -700,6 +731,7 @@ void UpdateEnemies()
 						}
 						else
 							cur->isSnapping = 0;
+					}
 				}
 			}
 			else

@@ -25,13 +25,14 @@
 #include "incs.h"
 
 
-float ACTOR_DRAWDISTANCEINNER = 100000.0F;
-float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
+float ACTOR_DRAWDISTANCEINNER = 150000.0F;
+float ACTOR_DRAWDISTANCEOUTER = 200000.0F;
 
 int objectMatrix = 0;
 
 ACTOR2 *actList				= NULL;			// entire actor list
 
+extern long TestDistanceFromFrog;
 
 /* --------------------------------------------------------------------------------	
 	Programmer	: Matthew Cloy
@@ -103,7 +104,7 @@ void DrawActorList()
 		
 	objectMatrix = 0;
 //	SetRenderMode();
-
+	
 	cur = actList;
 	while(cur)
 	{
@@ -112,13 +113,30 @@ void DrawActorList()
 		   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
 			if(cur->draw)
-				if (cur->actor->objectController)
+			if (cur->actor->objectController)
 					if (!(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU))
-						DrawActor(cur->actor);
+					{
+						cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
+						if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
+						{
+							StartTimer(6,"GameLoop");
+							
+							if (cur->flags & ACTOR_DRAW_ALWAYS)
+								TestDistanceFromFrog = 1;
+							else
+								TestDistanceFromFrog = 0;
+
+							DrawActor(cur->actor);
+							EndTimer(6);
+						}
+					}
+
 		}
 	
 		cur = cur->next;
 	}
+
+	TestDistanceFromFrog = 0;
 
 	cur = actList;
 	while(cur)
@@ -130,7 +148,15 @@ void DrawActorList()
 			if(cur->draw)
 				if (cur->actor->objectController)
 					if (cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU)
-						DrawActor(cur->actor);
+					{
+						cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
+						if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
+						{
+							StartTimer(6,"GameLoop");
+							DrawActor(cur->actor);
+							EndTimer(6);
+						}
+					}
 		}
 	
 		cur = cur->next;

@@ -462,8 +462,8 @@ void PickupCollectable(GARIB *garib)
 
 				XfmPoint (&m,&garib->sprite.pos);
 				
-				if (m.v[3]>0)
-					AddScreenSpawn(m.v[0], m.v[1],0,0);
+			//	if (m.v[3]>0)
+			//		AddScreenSpawn(m.v[0], m.v[1],0,0);
 			}
 
 			player[0].spawnTimer = SPAWN_SCOREUPTIMER;

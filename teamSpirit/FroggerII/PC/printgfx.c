@@ -190,10 +190,10 @@ SPRITE *PrintSpritesOpaque()
 */
 void PrintSpriteOverlays()
 {
-
 	SPRITEOVERLAY *cur;
 	short *texture,x,y;
 	TEXENTRY *tEntry;
+
 
 	cur = spriteOverlayList.head.next;
 	if (spriteOverlayList.numEntries)

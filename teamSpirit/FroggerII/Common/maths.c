@@ -1694,6 +1694,67 @@ void guNormalise (float *x, float *y, float *z)
 	(*z)/=length;
 }
 
+
+
+
+//-----------------------------------------------------------------------------
+// Name: PositionCamera()
+// Desc: Creates a matrix which is equivalent to having the camera at a
+//       specified position. This matrix can be used to convert vertices to
+//       camera coordinates. Input parameters are the position of the camera,
+//       the direction of the view, and the up vector.
+//-----------------------------------------------------------------------------
+/*
+void guLookAtF (float rm[4][4],
+				float xEye, float yEye, float zEye,
+				float xAt, float yAt, float zAt,
+				float xUp, float yUp, float zUp)
+{
+      // Normalize the direction vector.
+	float m[4][4];
+	int i,j;
+    VECTOR d;
+	VECTOR r;
+	VECTOR u;
+	
+	d.v[0] = xAt - xEye;
+	d.v[1] = yAt - yEye;
+	d.v[2] = zAt - zEye;
+	
+	u.v[0] = xUp;
+	u.v[1] = yUp; 
+	u.v[2] = zUp; 
+
+	MakeUnit (&d);
+	MakeUnit (&u);
+
+    // Project u into the plane defined by d and normalise.
+	//   u = Normalize( u - d * DotProduct( u, d ) );
+	// Find r
+
+	CrossProduct (&r,&d,&u);
+	CrossProduct (&u,&d,&r);
+
+    // Build the matrix INVERTED (all elements are reversed)
+    m[0][0] = r.v[0];  m[1][0] = r.v[1],  m[2][0] = r.v[2];
+    m[0][1] = u.v[0];  m[1][1] = u.v[1],  m[2][1] = u.v[2];
+    m[0][2] = d.v[0];  m[1][2] = d.v[1];  m[2][2] = d.v[2];
+
+    m[0][3] = 0.0f; m[1][3] = 0.0f; m[2][3] = 0.0f; m[3][3] = 1.0f;
+
+    // Multiply the rotation matrix by a translation transform.  The
+    // translation matrix must be applied first (left of rotation).
+    m[3][0] = -(m[0][0] * xAt + m[1][0] * yAt + m[2][0] * zAt);
+    m[3][1] = -(m[0][1] * xAt + m[1][1] * yAt + m[2][1] * zAt);
+    m[3][2] = -(m[0][2] * xAt + m[1][2] * yAt + m[2][2] * zAt);
+		
+	for (i=0; i<4; i++)
+		for (j=0; j<4; j++)
+			rm[i][j] = m[j][i];
+		
+
+}*/
+
 void guLookAtF (float m[4][4],
 				float xEye, float yEye, float zEye,
 				float xAt, float yAt, float zAt,
@@ -1704,9 +1765,9 @@ void guLookAtF (float m[4][4],
 
 	guMtxIdent (m);
 
-	view_dir.v[X] = xAt - xEye;
-	view_dir.v[Y] = yAt - yEye;
-	view_dir.v[Z] = zAt - zEye;
+	view_dir.v[X] = -(xAt - xEye);
+	view_dir.v[Y] = -(yAt - yEye);
+	view_dir.v[Z] = -(zAt - zEye);
 	
 	world_up.v[X] = xUp;
 	world_up.v[Y] = yUp;
@@ -1717,6 +1778,7 @@ void guLookAtF (float m[4][4],
 	from.v[Z] = zAt;
 	
 	MakeUnit(&view_dir);
+    MakeUnit(&world_up);
     
 	CrossProduct(&right, &world_up, &view_dir);
     CrossProduct(&up, &view_dir, &right);

@@ -538,14 +538,23 @@ void SlurpCamPosition(long cam)
 
 	if ( gameState.mode != CAMEO_MODE )
 	{
-		camVect.v[0] -= (camVect.v[0] - currTile[0]->normal.v[0])/camSpeed2;
-		camVect.v[1] -= (camVect.v[1] - currTile[0]->normal.v[1])/camSpeed2;
-		camVect.v[2] -= (camVect.v[2] - currTile[0]->normal.v[2])/camSpeed2;
-//		camVect.v[0] = 0;
-//		camVect.v[1] = 1;
-//		camVect.v[2] = 0;
+		VECTOR t;
+		int i;
+		
+		for (i=0; i<NUM_FROGS; i++)
+		{
+			t.v[0]+=currTile[i]->normal.v[0];
+			t.v[1]+=currTile[i]->normal.v[1];
+			t.v[2]+=currTile[i]->normal.v[2];
+		}
+
+		MakeUnit (&t);
+		
+		camVect.v[0] -= (camVect.v[0] - t.v[0])/camSpeed2;
+		camVect.v[1] -= (camVect.v[1] - t.v[1])/camSpeed2;
+		camVect.v[2] -= (camVect.v[2] - t.v[2])/camSpeed2;
+		
 	}
-	// ENDIF
 
 	xFOV		-= (xFOV - xFOVNew) / (camSpeed*fovSpd);
 	yFOV		-= (yFOV - yFOVNew) / (camSpeed*fovSpd);
@@ -583,23 +592,39 @@ void UpdateCameraPosition(long cam)
 	if ( gameState.mode != CAMEO_MODE && !fixedSource )
 	{
 		float afx,afy,afz;
+		float afx2,afy2,afz2;
+
 		int i;
 		afx = afy = afz = 0;
+		afx2 = afy2 = afz2 = 0;
 
 		for (i=0; i<NUM_FROGS; i++)
 		{
 			afx += frog[i]->actor->pos.v[0];
 			afy += frog[i]->actor->pos.v[1];
 			afz += frog[i]->actor->pos.v[2];
+
+			afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
+			afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
+			afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
+			
+			afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
+			afy2 -= currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
+			afz2 -= currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
+
 		}
 		
 		afx/=NUM_FROGS;
 		afy/=NUM_FROGS;
 		afz/=NUM_FROGS;
+		
+		afx2/=NUM_FROGS;
+		afy2/=NUM_FROGS;
+		afz2/=NUM_FROGS;
 
-		camSource[cam].v[0] = afx+((currTile[0]->normal.v[0]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2]));
-		camSource[cam].v[1] = afy+((currTile[0]->normal.v[1]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2]));
-		camSource[cam].v[2] = afz+((currTile[0]->normal.v[2]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2]));
+		camSource[cam].v[0] = afx+afx2;
+		camSource[cam].v[1] = afy+afy2;
+		camSource[cam].v[2] = afz+afz2;
 	}
 	// ENDIF
 
@@ -648,6 +673,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	while (ts)
 	{
 		float tv;
+		flags = 0;
 
 		theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
 		dprintf"Added actor '%s'\n",ts->name));
@@ -671,6 +697,39 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 //		GetQuaternionFromRotation (&t3,&ts->rot);
 
 //		QuaternionMultiply (&t->actor->qRot,&t2,&t3);
+
+		AnimateActor(theActor->actor,0,YES,NO,1, 0, 0);
+/*		if (ts->name[0] == 'a')
+		{
+			float rMin,rMax,rNum;
+			if (ts->name[2] == '_')
+			{
+				rMin = ts->name[1]-30;
+				if (rMin = 0) 
+					rMin = 10;
+				rMin /= 10.0
+				AnimateActor(theActor->actor,0,YES,NO,rMin, 0, 0);
+			}
+			else
+				if (ts->name[3] == '_')
+				{
+					rMin = ts->name[1]-30;
+					if (rMin == 0) 
+						rMin = 10;
+					rMin /= 10.0
+			
+					rMax = ts->name[1]-30;
+					if (rMax == 0) 
+						rMax = 10;
+					rMax /= 10.0
+
+					rNum = Random(1000);
+
+					rNum= rMin + ((rNum * (rMax-rMin)) / 1000);
+									
+					AnimateActor(theActor->actor,0,YES,NO,rNum, 0, 0);
+				}
+		}*/
 
 		ts = ts->next;
 
@@ -912,8 +971,8 @@ void RunGameLoop (void)
 			DisableTextOverlay(scoreTextOver);
 //				livesIcon->active = 0;
 
-			RunGameOverSequence();
 
+			RunGameOverSequence();
 			gameIsOver--;
 			if(!gameIsOver)
 			{
@@ -1012,26 +1071,22 @@ void RunGameLoop (void)
 		}
 		else
 		{
-			if ( babiesSaved == numBabies )
+			if ((babiesSaved == numBabies) && (numBabies))
 			{
-				camDist.v[X]	= 0;
-				camDist.v[Y]	= 680;
-				camDist.v[Z]	= 192;
+				{
+					camDist.v[X]	= 0;
+					camDist.v[Y]	= 680;
+					camDist.v[Z]	= 192;
 
-				levelIsOver		= 400;	
+					levelIsOver		= 400;	
 
 				
-/*					for ( i = 0; i < 3; i++ )
-				{
-					if ( 90 - ( player[0].timeSec/30 ) < worldHiScoreData[player[0].worldNum].levelScoreData[ player[0].levelNum ].scoreData[i].time )
+					/*for ( i = 0; i < 3; i++ )
 					{
-						EnableTextOverlay ( newLevelScore );
-
-					}
-					// ENDIF
+						if ( 90 - ( player[0].timeSec/30 ) < worldHiScoreData[player[0].worldNum].levelScoreData[ player[0].levelNum ].scoreData[i].time )
+							EnableTextOverlay ( newLevelScore );		
+					}*/
 				}
-				// ENDFOR  */
-
 			}
 			else
 			{
