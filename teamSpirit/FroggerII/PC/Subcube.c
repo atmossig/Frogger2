@@ -327,7 +327,8 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 		//	drawme = 0;
 		if ((obj->name[0] == 'g') && (obj->name[1] == 'l') && (obj->name[2] == '_'))
 		{
-			VECTOR v;
+			VECTOR v,cVect,oVect,cVect2,oVect2;
+			float horiz,horiz2;
 
 			SwapFrame(4);
 			PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
@@ -335,9 +336,21 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 			v.v[X] = obj->objMatrix.matrix[3][0];
 			v.v[Y] = obj->objMatrix.matrix[3][1];
 			v.v[Z] = obj->objMatrix.matrix[3][2];
+						
+			SubVector(&cVect,&currCamSource,&currCamTarget);
+			SubVector(&oVect,&currCamSource,&v);
+			cVect.v[1] = 0;
+			oVect.v[1] = 0;
+			MakeUnit(&cVect);
+			MakeUnit(&oVect);
 			
-			AddHalo(&v,vMatrix[2][0],vMatrix[2][2],SETALPHA(*((long *)(&(((VECTOR *)obj->mesh->vertexNormals)->v[0]))),(long)(0.8*0xff)));
+			horiz = fabs(0.7+acos(DotProduct(&cVect,&oVect))*2.5);
+			horiz = 0.2+fabs(cosf(horiz))*0.8;
+			horiz2 = fabs(1.2+acos(DotProduct(&cVect,&oVect))*2.5);
+			horiz2 = 0.2+fabs(sinf(horiz2))*0.8;
 
+			//AddHalo(&v,vMatrix[2][0],vMatrix[2][2],SETALPHA(*((long *)(&(((VECTOR *)obj->mesh->vertexNormals)->v[0]))),(long)(0.8*0xff)),obj->xlu);
+			AddHalo(&v,horiz,horiz2,SETALPHA(*((long *)(&(((VECTOR *)obj->mesh->vertexNormals)->v[0]))),(long)(0.8*0xff)),obj->xlu);
 			SwapFrame(0);
 		}
 		else

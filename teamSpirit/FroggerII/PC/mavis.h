@@ -43,7 +43,7 @@ cFInfo->nV = cFInfo->nF = 0;	cFInfo->cV = cFInfo->v;	cFInfo->cF = cFInfo->f;	cFI
 // Swap to a different frameset
 #define SwapFrame(to) {cFInfo = &frameInfo[to];}
 
-void AddHalo(VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color);
+void AddHalo(VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color, unsigned long size);
 
 // Push a poly onto the buffers
 #ifdef _DEBUG

@@ -52,6 +52,7 @@ VECTOR haloPoints[MA_MAX_HALOS];
 float flareScales[MA_MAX_HALOS];
 float flareScales2[MA_MAX_HALOS];
 unsigned long haloColor[MA_MAX_HALOS];
+unsigned long haloSize[MA_MAX_HALOS];
 
 unsigned long numHaloPoints;
 void XfmPoint (VECTOR *vTemp2, VECTOR *in);
@@ -80,29 +81,22 @@ void DrawHalos(void)
 		if (haloPoints[i].v[2]>10)
 		{
 			unsigned long c,size,size2;
-			DrawAlphaSprite(haloPoints[i].v[0] - 60,haloPoints[i].v[1] - 60, 0,120,120, 0,0,1,1,haloHandle,haloColor[i]);
-			
-			c = D3DRGB(0.7,0.7,0.7);//haloColor[i];
-			c &= 0x00ffffff;
-			
-			/*
-			DrawAlphaSpriteRotating(&(haloPoints[i].v[0]),3*flareScales2[i],haloPoints[i].v[0] - 30,haloPoints[i].v[1] - 30, 0,60,60, 0,0,1,1,haloHandle3,c | D3DRGBA(0,0,0,1-fabs(flareScales2[i])));
-			DrawAlphaSpriteRotating(&(haloPoints[i].v[0]),1,haloPoints[i].v[0] - 30,haloPoints[i].v[1] - 30, 0,60,60, 0,0,1,1,haloHandle3,c | D3DRGBA(0,0,0,1-fabs(flareScales[i])));
+			size = haloSize[i];
+			size2 = size/2;
+			DrawAlphaSprite(haloPoints[i].v[0] - size2,haloPoints[i].v[1] - size2, 0,size,size, 0,0,1,1,haloHandle,haloColor[i]);
 			
 			c = haloColor[i];
 			c &= 0x00ffffff;
 			
-			size = fabs(400 * flareScales[i]);
+			size = fabs(haloSize[i] * 2 * flareScales[i]);
 			size2 = 40+fabs(20 * flareScales[i]);
+
 			DrawAlphaSpriteRotating(&(haloPoints[i].v[0]),0,haloPoints[i].v[0] - size2/2,haloPoints[i].v[1] - size/2, 0,size2,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales[i])));
-			size = fabs(200 * flareScales2[i]);
+			size = fabs(haloSize[i] * 1.5 * flareScales2[i]);
 			DrawAlphaSpriteRotating(&(haloPoints[i].v[0]),0.5,haloPoints[i].v[0] - 20,haloPoints[i].v[1] - size/2, 0,40,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales2[i])));
-			*/
-		//DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,fabs(200 * flareScales[i]),60 * (fabs(flareScales[i])),D3DRGBA(r,g,b,0.8-fabs(flareScales[i])*0.5),flareS,FULL_TEXTURE,1.57);
-		//DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,fabs(150 * flareScales2[i]),20,D3DRGBA(r,g,b,1-fabs(flareScales2[i])*0.5),flareS,FULL_TEXTURE,1);
-		//DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,30+fabs(80 * flareScales2[i]),30+fabs(80 * flareScales2[i]),D3DRGBA(r,g,b,1-fabs(flareScales2[i])),flareS2,FULL_TEXTURE,3*flareScales2[i]);
-		//DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,30+fabs(80 * flareScales[i]),30+fabs(80 * flareScales[i]),D3DRGBA(r,g,b,1-fabs(flareScales[i])),flareS2,FULL_TEXTURE,0);			
-	
+			size = fabs(haloSize[i] * flareScales[i] * flareScales2[i]);
+			
+			DrawAlphaSpriteRotating(&(haloPoints[i].v[0]),-0.7,haloPoints[i].v[0] - 20,haloPoints[i].v[1] - size/2, 0,40,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales2[i])));
 		}
 	}
 
@@ -186,11 +180,12 @@ void CheckHaloPoints(void)
 }
 
 
-void AddHalo(VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color)
+void AddHalo(VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color, unsigned long size)
 {
 	flareScales[numHaloPoints] = flareScaleA;
 	flareScales2[numHaloPoints] = flareScaleB;
 	haloColor[numHaloPoints] = color;
+	haloSize[numHaloPoints] = size;
 	SetVector(&haloPoints[numHaloPoints++], point);	
 }
 
