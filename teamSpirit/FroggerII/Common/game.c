@@ -106,6 +106,9 @@ void GameProcessController(long pl)
 			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGU;
 
+			// update player idleTime
+			player[pl].idleTime = MAX_IDLE_TIME;
+
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_UP, frameCount );
 			player[pl].extendedHopDir = MOVE_UP;
@@ -122,6 +125,9 @@ void GameProcessController(long pl)
 			player[pl].canJump = 0;
 			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGR;
+
+			// update player idleTime
+			player[pl].idleTime = MAX_IDLE_TIME;
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_RIGHT, frameCount );
@@ -140,6 +146,9 @@ void GameProcessController(long pl)
 			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGD;
 
+			// update player idleTime
+			player[pl].idleTime = MAX_IDLE_TIME;
+
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_DOWN, frameCount );
 			player[pl].extendedHopDir = MOVE_DOWN;
@@ -156,6 +165,9 @@ void GameProcessController(long pl)
 			player[pl].canJump = 0;
 			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGL;
+
+			// update player idleTime
+			player[pl].idleTime = MAX_IDLE_TIME;
 			
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_LEFT, frameCount );
@@ -168,6 +180,55 @@ void GameProcessController(long pl)
     {
 		if ( gameState.mode == CAMEO_MODE )
 			gameState.mode = GAME_MODE;
+
+		// update player idleTime
+		player[pl].idleTime = MAX_IDLE_TIME;
+
+		if((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F))
+		{
+			float t;
+
+			// player is superhopping - make frog double jump
+			t = superHopFrames;
+
+			if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
+			{
+				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
+									&destTile[pl]->centre,&destTile[pl]->normal,t,pl);
+			}
+			else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
+			{
+				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
+									&destPlatform[pl]->pltActor->actor->pos,
+									&destPlatform[pl]->inTile->normal,t,pl);
+			}
+
+			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,2.0F,0,0);
+			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		}
+
+		if((player[pl].isLongHopping) && (player[pl].heightJumped > -125.0F))
+		{
+			float t;
+
+			// player is longhopping - make frog double jump
+			t = longHopFrames;
+
+			if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
+			{
+				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
+									&destTile[pl]->centre,&destTile[pl]->normal,t,pl);
+			}
+			else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
+			{
+				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
+									&destPlatform[pl]->pltActor->actor->pos,
+									&destPlatform[pl]->inTile->normal,t,pl);
+			}
+
+			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,1.0F,0,0);
+			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		}
 
 		if((longHop) && !(player[pl].isLongHopping) && !(player[pl].inputPause))
 		{
@@ -227,6 +288,9 @@ void GameProcessController(long pl)
 		// want to use tongue
 		tongueState	= TONGUE_NONE | TONGUE_SEARCHING;
 		player[pl].hasJumped = 1;
+
+		// update player idleTime
+		player[pl].idleTime = MAX_IDLE_TIME;
 	}
 
 	if((button[pl] & CONT_E) && !(lastbutton[pl] & CONT_E))
@@ -265,7 +329,10 @@ void GameProcessController(long pl)
 		{
 			frog[pl]->action.isCroaking	= 15;
 			player[pl].frogState |= FROGSTATUS_ISCROAKING;
-			PlaySample(218,NULL,255,128);
+			PlayActorBasedSample(218,frog[pl]->actor,255,128);
+
+			// update player idleTime
+			player[pl].idleTime = MAX_IDLE_TIME;
 		}
 	}
 
@@ -803,12 +870,23 @@ void RunGameLoop (void)
 					frog[i]->draw = 0;
 				frog[i]->action.safe--;
 			}
-
-			// play some ambient effects
-			if(Random(50) > 48)
-				PlaySample(Random(3)+226,NULL,92,128);
 		}
 	}  
+
+	// check if player is idle
+	i = NUM_FROGS;
+	while(i--)
+	{
+		player[i].idleTime--;
+		if(!player[i].idleTime)
+		{
+			// play a random idle animation and set new idle time
+			AnimateActor(frog[i]->actor,15 + Random(6),NO,NO,0.8F,0,0);
+			AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.65F,0,0);
+			player[i].idleTime = 400 + Random(200);
+		}
+	}
+
 
 #ifdef PC_VERSION
 	if( NUM_FROGS > 1 )

@@ -86,6 +86,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].isCroakFloating	= 0;
 	player[p].isSinking			= 0;
 	player[p].isQuickHopping	= 0;
+	player[p].idleTime			= MAX_IDLE_TIME;
 
 	player[p].jumpStartFrame	= 0;
 	player[p].jumpEndFrame		= 0;
@@ -924,180 +925,14 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
 	{
-		// STAGE 1 - frog's movement - new stuff - AndyE
-
-		// get the up vector and the jump forward vector (up vector is average of curr and dest normals)
-		SetVector(&player[pl].jumpUpVector,&currTile[pl]->normal);
-		AddToVector(&player[pl].jumpUpVector,&destTile[pl]->normal);
-		ScaleVector(&player[pl].jumpUpVector,0.5F);
-
-		SubVector(&player[pl].jumpFwdVector,&destTile[pl]->centre,&frog[pl]->actor->pos);
-		sH = Magnitude(&player[pl].jumpFwdVector);
-		MakeUnit(&player[pl].jumpFwdVector);
-		sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
-
-		//dprintf"sV: %f\n",sV));
-
-		// STAGE 2 - considering vertical motion
-
-		// modify t and a depending on sV - i.e. jumping up or down
-		if(player[pl].isSuperHopping)
-		{
-			frogGravity = -2;
-			if(sV < -40)
-			{
-				// alter t to modify jump heights
-				t += (Fabs(sV) / superHopJumpDownDivisor);
-
-				if(sV < -125)
-				{
-					// frog has fallen too far !!!
-					t += 15;
-					frogGravity = -0.75F;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
-				}
-			}
-		}
-		else if(player[pl].isLongHopping)
-		{
-			frogGravity = -1;
-			if(sV < -10)
-			{
-				// alter t to modify jump heights
-				t += (Fabs(sV) / longHopJumpDownDivisor);
-
-				if(sV < -125)
-				{
-					// frog has fallen too far !!!
-					t += 25;
-					frogGravity = -0.5F;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
-				}
-			}
-		}
-		else
-		{
-			frogGravity = -4;
-			if(sV < -10)
-			{
-				// alter t to modify jump heights
-				t += (Fabs(sV) / standardHopJumpDownDivisor);
-
-				if(sV < -125)
-				{
-					// frog has fallen too far !!!
-					t += 15;
-					frogGravity = -0.75F;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
-				}
-			}
-		}
-
-		// using s = ut + 0.5at^2
-		a = frogGravity;
-		u = ((-a * t * t) + (2 * sV)) / (2 * t);
-
-		player[pl].vInitialVelocity = u;
-
-		// STAGE 3 - considering horizontal motion
-		a = 0;
-		u = ((-a * t * t) + (2 * sH)) / (2 * t);
-
-		player[pl].hInitialVelocity = u;
-
-		// set variables to process frog's jump
-		player[pl].jumpStartFrame = actFrameCount;
-		player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
+		CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destTile[pl]->centre,&destTile[pl]->normal,t,pl);
 	}
 	else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 	{
-		// STAGE 1 - frog's movement - new stuff - AndyE
-
-		// get the up vector and the jump forward vector (up vector is average of curr and dest normals)
-		SetVector(&player[pl].jumpUpVector,&currTile[pl]->normal);
-		AddToVector(&player[pl].jumpUpVector,&destPlatform[pl]->inTile->normal);
-		ScaleVector(&player[pl].jumpUpVector,0.5F);
-
-		SubVector(&player[pl].jumpFwdVector,&destPlatform[pl]->pltActor->actor->pos,&frog[pl]->actor->pos);
-		sH = Magnitude(&player[pl].jumpFwdVector);
-		MakeUnit(&player[pl].jumpFwdVector);
-		sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
-
-		// STAGE 2 - considering vertical motion
-
-		// modify t depending on sV - i.e. jumping up or down
-		if(player[pl].isSuperHopping)
-		{
-			frogGravity = -2;
-			if(sV < -40)
-			{
-				// alter t to modify jump heights
-				t += (Fabs(sV) / superHopJumpDownDivisor);
-
-				if(sV < -125)
-				{
-					// frog has fallen too far !!!
-					t += 15;
-					frogGravity = -0.75F;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
-				}
-			}
-		}
-		else if(player[pl].isLongHopping)
-		{
-			frogGravity = -1;
-			if(sV < -10)
-			{
-				// alter t to modify jump heights
-				t += (Fabs(sV) / longHopJumpDownDivisor);
-
-				if(sV < -125)
-				{
-					// frog has fallen too far !!!
-					t += 25;
-					frogGravity = -0.5F;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
-				}
-			}
-		}
-		else
-		{
-			frogGravity = -4;
-			if(sV < -10)
-			{
-				// alter t to modify jump heights
-				t += (Fabs(sV) / standardHopJumpDownDivisor);
-
-				if(sV < -125)
-				{
-					// frog has fallen too far !!!
-					t += 15;
-					frogGravity = -0.75F;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
-				}
-			}
-		}
-
-		// using s = ut + 0.5at^2
-		a = frogGravity;
-		u = ((-a * t * t) + (2 * sV)) / (2 * t);
-
-		player[pl].vInitialVelocity = u;
-
-		// STAGE 3 - considering horizontal motion
-		a = 0;
-		u = ((-a * t * t) + (2 * sH)) / (2 * t);
-
-		player[pl].hInitialVelocity = u;
-
-		// set variables to process frog's jump
-		player[pl].jumpStartFrame = actFrameCount;
-		player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
+		CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
+							&destPlatform[pl]->pltActor->actor->pos,
+							&destPlatform[pl]->inTile->normal,t,pl);
 	}
-
-	// get frogs origin of jump and height jumped between source and dest
-	SetVector(&player[pl].jumpOrigin,&frog[pl]->actor->pos);
-	player[pl].heightJumped = sV;
 
 	// ------------------------------------------------------------------------------------------
 
@@ -1552,42 +1387,10 @@ void GetNextTileLongHop(unsigned long direction,long pl)
 
 		if(!longHopDest)
 		{
-			// no destination tile - frog is effectively just superhopping
-
-			// STAGE 1 - frog's movement - new stuff - AndyE
-
-			// get the up vector and the jump forward vector (up vector is average of curr and dest normals)
-			SetVector(&player[pl].jumpUpVector,&currTile[pl]->normal);
-			AddToVector(&player[pl].jumpUpVector,&destTile[pl]->normal);
-			ScaleVector(&player[pl].jumpUpVector,0.5F);
-
-			SubVector(&player[pl].jumpFwdVector,&destTile[pl]->centre,&frog[pl]->actor->pos);
-			sH = Magnitude(&player[pl].jumpFwdVector);
-			MakeUnit(&player[pl].jumpFwdVector);
-			sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
-
-			// STAGE 2 - considering vertical motion
-
-			t = longHopFrames;
-
-			// using s = ut + 0.5at^2
-			a = frogGravity;
-			u = ((-a * t * t) + (2 * sV)) / (2 * t);
-
-			player[pl].vInitialVelocity = u;
-
-			// STAGE 3 - considering horizontal motion
-			a = 0;
-			u = ((-a * t * t) + (2 * sH)) / (2 * t);
-
-			player[pl].hInitialVelocity = u;
-
-			// set variables to process frog's jump
-			player[pl].jumpStartFrame = actFrameCount;
-			player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
-
+			// no destination - frog is effectively just superhopping
+			t = superHopFrames;
+			CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destTile[pl]->centre,&destTile[pl]->normal,t,pl);
 			AnimateFrogHop(direction,pl);
-
 			return;
 		}
 
@@ -1654,38 +1457,8 @@ void GetNextTileLongHop(unsigned long direction,long pl)
 
 		nextCamFacing = newCamFacing;
 		
-		// STAGE 1 - frog's movement - new stuff - AndyE
-
-		// get the up vector and the jump forward vector (up vector is average of curr and dest normals)
-		SetVector(&player[pl].jumpUpVector,&currTile[pl]->normal);
-		AddToVector(&player[pl].jumpUpVector,&longHopDest->normal);
-		ScaleVector(&player[pl].jumpUpVector,0.5F);
-
-		SubVector(&player[pl].jumpFwdVector,&longHopDest->centre,&frog[pl]->actor->pos);
-		sH = Magnitude(&player[pl].jumpFwdVector);
-		MakeUnit(&player[pl].jumpFwdVector);
-		sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
-
-		// STAGE 2 - considering vertical motion
-
 		t = longHopFrames;
-
-		// using s = ut + 0.5at^2
-		a = frogGravity;
-		u = ((-a * t * t) + (2 * sV)) / (2 * t);
-
-		player[pl].vInitialVelocity = u;
-
-		// STAGE 3 - considering horizontal motion
-		a = 0;
-		u = ((-a * t * t) + (2 * sH)) / (2 * t);
-
-		player[pl].hInitialVelocity = u;
-
-		// set variables to process frog's jump
-		player[pl].jumpStartFrame = actFrameCount;
-		player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
-
+		CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&longHopDest->centre,&longHopDest->normal,t,pl);
 		AnimateFrogHop(direction,pl);
 
 		destTile[pl] = longHopDest;
@@ -1734,3 +1507,104 @@ void RotateFrog ( ACTOR2 *frog, unsigned long fFacing )
 //	}
 	// ENDIF
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CalculateFrogJump
+	Purpose			: calculates values to describe frog jump movement
+	Parameters		: VECTOR *,VECTOR *,float,long
+	Returns			: void
+	Info			: 
+*/
+void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTOR *endNormal,float t,long pl)
+{
+	float sH,sV,u,a;
+
+	// STAGE 1 - frog's movement - new stuff - AndyE
+
+	// get the up vector and the jump forward vector (up vector is average of curr and dest normals)
+	SetVector(&player[pl].jumpUpVector,startNormal);
+	AddToVector(&player[pl].jumpUpVector,endNormal);
+	ScaleVector(&player[pl].jumpUpVector,0.5F);
+
+	SubVector(&player[pl].jumpFwdVector,endPos,startPos);
+	sH = Magnitude(&player[pl].jumpFwdVector);
+	MakeUnit(&player[pl].jumpFwdVector);
+	sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
+
+	// STAGE 2 - considering vertical motion
+
+	// modify t and a depending on sV - i.e. jumping up or down
+	if(player[pl].isSuperHopping)
+	{
+		frogGravity = -2;
+		if(sV < -40)
+		{
+			// alter t to modify jump heights
+			t += (Fabs(sV) / superHopJumpDownDivisor);
+
+			if(sV < -125)
+			{
+				// frog has fallen too far !!!
+				t += 15;
+				frogGravity = -0.75F;
+				AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+			}
+		}
+	}
+	else if(player[pl].isLongHopping)
+	{
+		frogGravity = -1;
+		if(sV < -10)
+		{
+			// alter t to modify jump heights
+			t += (Fabs(sV) / longHopJumpDownDivisor);
+
+			if(sV < -125)
+			{
+				// frog has fallen too far !!!
+				t += 25;
+				frogGravity = -0.5F;
+				AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+			}
+		}
+	}
+	else
+	{
+		frogGravity = -4;
+		if(sV < -10)
+		{
+			// alter t to modify jump heights
+			t += (Fabs(sV) / standardHopJumpDownDivisor);
+
+			if(sV < -125)
+			{
+				// frog has fallen too far !!!
+				t += 15;
+				frogGravity = -0.75F;
+				AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+			}
+		}
+	}
+
+	// using s = ut + 0.5at^2
+	a = frogGravity;
+	u = ((-a * t * t) + (2 * sV)) / (2 * t);
+
+	player[pl].vInitialVelocity = u;
+
+	// STAGE 3 - considering horizontal motion
+	a = 0;
+	u = ((-a * t * t) + (2 * sH)) / (2 * t);
+
+	player[pl].hInitialVelocity = u;
+
+	// set variables to process frog's jump
+	player[pl].jumpStartFrame = actFrameCount;
+	player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
+
+	// get frogs origin of jump and height jumped between source and dest
+	SetVector(&player[pl].jumpOrigin,&frog[pl]->actor->pos);
+	player[pl].heightJumped = sV;
+}
+

@@ -91,6 +91,12 @@ extern int frogFacing[4];
 
 extern float frogGravity;
 
+extern unsigned long standardHopFrames;
+extern unsigned long superHopFrames;
+extern unsigned long longHopFrames;
+extern unsigned long quickHopFrames;
+
+
 
 // ----- [ FUNCTION PROTOTYPES ] ---------- //
 
@@ -109,6 +115,8 @@ BOOL KillFrog(long pl);
 void GetNextTileLongHop(unsigned long direction,long pl);
 void RotateFrog(ACTOR2* frog,unsigned long fFacing);
 void AnimateFrogHop(unsigned long direction,long pl);
+
+void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTOR *endNormal,float t,long pl);
 
 
 #endif
