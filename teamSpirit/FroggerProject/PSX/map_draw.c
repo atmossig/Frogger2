@@ -512,17 +512,23 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		gte_stsz(&spritez);		// get screen z
 
 		if ( spritez <= 0 || spritez >= fog.max ) 
-			return 0;
+			continue;
 
 		width = ( 64 * SCALEX ) / spritez;
+		if(width < 2 )
+			continue;
 
  		si->x1 = si->x3 = si->x0 + width;
  		si->x0 = si->x2 = si->x0 - width;
+   		if (si->x1<=-256) continue;
+   		if (si->x0>=256) continue;
 
 		height = ( 64 * SCALEY ) / spritez;
 
 		si->y2 = si->y3 = si->y0 + height;
 		si->y1 = si->y0 = si->y0 - height;
+   		if (si->y2<= -128) continue;
+   		if (si->y0>= 128) continue;
 
 		si->r0 = op->r0;
 		si->g0 = op->g0;

@@ -11,6 +11,7 @@
 #include "frontend.h"
 #include "sprite.h"
 #include "frogger.h"
+#include "game.h"
 
 #include "World_Eff.h"
 
@@ -203,6 +204,7 @@ void SubScenicObject ( SCENICOBJ *scenicObj )
 	FREE(scenicObj);
 }
 
+unsigned long oldperiod=0, oldfr=0;
 void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 {
 	register u_long t1 asm("$16");
@@ -241,19 +243,36 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #define SCALEX 900
 
 	// Is this an sp(m/f/l) type slidy thing? If so, what speed?
-	unsigned short pcStyleSlide = ((flags>>10)&3);
-	int sldSpd;//, rc, rs;
-	unsigned long period1 = frameCount<<5, period2 = frameCount<<7;
+	unsigned short pcStyleSlide;
+	int sldSpd;
+	unsigned long period1, period2, fr;
 
-	// Multiply speed if we have a multiple
-	if( pcStyleSlide )
-		sldSpd = ((frame>>1)*slideSpeeds[pcStyleSlide])%32;
+	if( gameState.mode != PAUSE_MODE )
+	{
+		pcStyleSlide = ((flags>>10)&3);
+
+		period1 = frameCount<<5; period2 = frameCount<<7;
+		oldperiod = period1;
+
+		fr = frame<<5;
+
+		// Multiply speed if we have a multiple
+		if( pcStyleSlide )
+			sldSpd = ((frame>>1)*slideSpeeds[pcStyleSlide])%32;
+		else
+			sldSpd = (frame>>1)%32;
+
+		// Reverse if told to
+		if( mesh->flags & MINUSSLIDING )
+			sldSpd = -sldSpd;
+	}
 	else
-		sldSpd = (frame>>1)%32;
-
-	// Reverse if told to
-	if( mesh->flags & MINUSSLIDING )
-		sldSpd = -sldSpd;
+	{
+		sldSpd = 0;
+		period1 = oldperiod;
+		period2 = oldperiod<<2;
+		fr = oldfr;
+	}
 
 	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
 	{
@@ -322,7 +341,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			// Precalc modge values for this quad
 			if ( mesh->flags & MODGY )
 			{
-				int fr=(frame<<5), vv;
+				int vv;
 				for( j=3; j>=0; j-- )
 				{
 					vv = fr + (mesh->verts[*(&op->vert0+j)].vx * mesh->verts[*(&op->vert0+j)].vz);
@@ -425,7 +444,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			// Precalc modge values for this vertex
 			if ( mesh->flags & MODGY )
 			{
-				int fr=(frame<<5), vv;
+				int vv;
 				for( j=2; j>=0; j-- )
 				{
 					vv = fr+(mesh->verts[*(&op->vert0+j)].vx * mesh->verts[*(&op->vert0+j)].vz);
@@ -526,20 +545,23 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 		gte_stsz(&spritez);		// get screen z
 
 		if ( spritez <= 0 || spritez >= fog.max ) 
-			return 0;
+			continue;
 
 		width = ( 64 * SCALEX ) / spritez;
-
-		height = ( 64 * SCALEY ) / spritez;
-
-		//si->x0 += width/3;
-		//si->y0 -= height;
+		if(width < 2 )
+			continue;
 
  		si->x1 = si->x3 = si->x0 + width;
  		si->x0 = si->x2 = si->x0 - width;
+   		if (si->x1<=-256) continue;
+   		if (si->x0>=256) continue;
+
+		height = ( 64 * SCALEY ) / spritez;
 
 		si->y2 = si->y3 = si->y0 + height;
 		si->y0 = si->y1 = si->y0 - height;
+   		if (si->y2<= -128) continue;
+   		if (si->y0>= 128) continue;
 
 		si->r0 = op->r0;
 		si->g0 = op->g0;
