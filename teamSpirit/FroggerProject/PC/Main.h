@@ -33,7 +33,7 @@ extern "C"
 //#define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
 #define MALLOC0(S)	calloc(1,(S))
 
-
+#define REGISTRY_KEY "Software\\Atari\\Frogger2"
 
 
 typedef struct TAGWININFO

@@ -74,8 +74,6 @@ char textString[255] = "";
 
 char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
-#define REGISTRY_KEY "Software\\Atari\\Frogger2"
-
 char lButton = 0, rButton = 0;
 int editorOk = 0;
 

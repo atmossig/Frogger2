@@ -334,6 +334,38 @@ void RecordButtons(unsigned long b0,unsigned long pnum)
 }
 
 /*	--------------------------------------------------------------------------------
+	Function	: GetControllerSetup
+	Purpose		: saves the current controller setup
+	Parameters	: 
+	Returns		: BOOL - TRUE on success, else FALSE
+	Info		: 
+*/
+int GetControllerSetup(void)
+{
+	HKEY hkey;
+	char name[256], value[256];
+	GUID controller;
+	DWORD len = 256;
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+	{
+		for (int pl=0; pl<4; pl++)
+		{
+			strcpy(name, "Control_");
+			name[6] = pl+'1';
+			
+			if (RegQueryValueEx(hkey, name, NULL, NULL, (unsigned char*)value, &len) == ERROR_SUCCESS)
+			{
+				
+			}
+		}
+		RegCloseKey(hkey);
+	}
+
+	return 1;
+}
+
+/*	--------------------------------------------------------------------------------
 	Function	: InitInputDevices
 	Purpose		: initialises input devices
 	Parameters	: 
