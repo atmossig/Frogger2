@@ -285,11 +285,18 @@ void DrawActorList()
 	waterObject = 0;
 	while(cur)
 	{
+		if((cur->flags & ACTOR_DRAW_NEVER) || (cur->flags & ACTOR_WATER))
+		{
+			// do not display this object yet, if at all
+			cur = cur->next;
+			continue;
+		}
+
 		// slide texture coordinates here for water objects ??? AndyE
 	
-		if(((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController) || (cur->flags & ACTOR_DRAW_LAST))
+		if((!cur->actor->objectController) || (cur->flags & ACTOR_DRAW_LAST))
 		{
-			// ignore this actor for now...not drawing water
+			// don't draw object yet
 			cur = cur->next;
 			continue;
 		}
