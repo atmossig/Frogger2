@@ -426,7 +426,7 @@ void UpdateFroggerPos(long pl)
 
   	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
 
-	if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
+	else if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
 	{
 		int dir;
 		if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPU)		dir = MOVE_UP;
@@ -463,7 +463,7 @@ void UpdateFroggerPos(long pl)
 
 	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
 
-	if(player[pl].frogState & (FROGSTATUS_ISWANTINGLONGHOPU|FROGSTATUS_ISWANTINGLONGHOPL|FROGSTATUS_ISWANTINGLONGHOPR|FROGSTATUS_ISWANTINGLONGHOPD))
+	else if(player[pl].frogState & (FROGSTATUS_ISWANTINGLONGHOPU|FROGSTATUS_ISWANTINGLONGHOPL|FROGSTATUS_ISWANTINGLONGHOPR|FROGSTATUS_ISWANTINGLONGHOPD))
 	{
 		int dir;
 		if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPU)			dir = MOVE_UP;
@@ -494,11 +494,14 @@ void UpdateFroggerPos(long pl)
 
 	/* ---------------------------------------------------- */
 
-	// process frog's jump
-	if((player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE) && (destTile[pl]))
-		CheckForFroggerLanding(JUMPING_TOTILE,pl);
-	else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
-		CheckForFroggerLanding(JUMPING_TOPLATFORM,pl);
+	else
+	{
+		// process frog's jump
+		if((player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE) && (destTile[pl]))
+			CheckForFroggerLanding(JUMPING_TOTILE,pl);
+		else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
+			CheckForFroggerLanding(JUMPING_TOPLATFORM,pl);
+	}
 
 	/* ---------------------------------------------------- */
 
@@ -557,7 +560,7 @@ void GetNextTile(unsigned long direction,long pl)
 	{
 		joiningTile = destTile[pl];
 
-		if((destTile[pl]->state == TILESTATE_SUPERHOP) || (destTile[pl]->state == TILESTATE_JOIN))
+		if((joiningTile->state == TILESTATE_SUPERHOP) || (joiningTile->state == TILESTATE_JOIN))
 		{
 			SetVector(&vecUp,&currTile[pl]->normal);
 
@@ -605,7 +608,7 @@ void GetNextTile(unsigned long direction,long pl)
 
 	if(destTile[pl])
 	{
-		distance = -1000;
+		distance = 0.0;
 		
 		for(i=0; i<4; i++)
 		{
@@ -619,7 +622,7 @@ void GetNextTile(unsigned long direction,long pl)
 
 		nextCamFacing = newCamFacing;
 
-		distance = -1000;
+		distance = 0.0;
 		
 		for(i=0; i<4; i++)
 		{
@@ -1093,7 +1096,11 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					FROGSTATUS_ISONMOVINGPLATFORM | FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING |
 					FROGSTATUS_ISFLOATING);
 
+				// Frog has landed - set camera to new rotation, face frog correctly
 				currTile[pl] = destTile[pl];
+				frogFacing[pl] = nextFrogFacing[pl];
+				if (pl == 0)
+					camFacing = nextCamFacing;
 
 				// check tile to see if frog has jumped onto a certain tile type
 				if((state == TILESTATE_DEADLY) || (player[pl].heightJumped < -125.0F))
@@ -1171,11 +1178,6 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 				// Next, check if frog has landed on a collectable
 				CheckTileForCollectable(destTile[pl],pl);
-
-				frogFacing[pl] = nextFrogFacing[pl];
-
-				if (pl == 0)
-					camFacing = nextCamFacing;
 			}
 		}
 	}
