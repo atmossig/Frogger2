@@ -478,6 +478,9 @@ long GetTilesMatchingDirection(GAMETILE *me, long direction, GAMETILE *next)
 	Parameters		: direction, player
 	Returns			: GAMETILE*
 */
+
+float JUMP_TOOFAR = 70.0F;
+
 GAMETILE *GetNextTile(unsigned long direction,long pl)
 {
 	VECTOR cDir;
@@ -491,7 +494,10 @@ GAMETILE *GetNextTile(unsigned long direction,long pl)
 	float t2,at2;
 		
 	if(pl == 0)
-		dest = currTile[pl]->tilePtrs[(direction + camFacing + 2) & 3]; // hmm...
+	{
+		i = (direction + camFacing + 2) & 3;
+		dest = currTile[pl]->tilePtrs[i]; // hmm...
+	}
 	else
 	{
 		/*	Alas, this only works when this player's tile and player 0's tile are orientated the same
@@ -508,6 +514,14 @@ GAMETILE *GetNextTile(unsigned long direction,long pl)
 
 	if (!dest || dest->state == TILESTATE_BARRED)
 		return NULL;
+
+	// check distance between frog and destination tile
+	distance = DistanceBetweenPointsSquared(&dest->centre,&frog[pl]->actor->pos);
+	if(distance > (JUMP_TOOFAR * JUMP_TOOFAR))
+	{
+		dprintf"Oops ! Too far... %f\n",distance));
+		dest = dest->tilePtrs[(i + 2) & 3];
+	}
 
 	if((dest->state == TILESTATE_SUPERHOP) || (dest->state == TILESTATE_JOIN))
 	{
