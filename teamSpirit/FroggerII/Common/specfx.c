@@ -29,7 +29,6 @@ TEXTURE *txtrStar		= NULL;
 TEXTURE *txtrSolidRing	= NULL;
 TEXTURE *txtrSmoke		= NULL;
 TEXTURE *txtrRing		= NULL;
-TEXTURE *txtrFly		= NULL;
 TEXTURE *txtrBubble		= NULL;
 TEXTURE *txtrFire		= NULL;
 TEXTURE *txtrBlank		= NULL;
@@ -44,6 +43,7 @@ void UpdateFXSwarm( SPECFX *fx );
 void UpdateFXExplode( SPECFX *fx );
 void UpdateFXTrail( SPECFX *fx );
 void UpdateFXLightning( SPECFX *fx );
+void UpdateFXFly( SPECFX *fx );
 
 void CreateBlastRing( );
 void AddTrailElement( SPECFX *fx, int i );
@@ -214,17 +214,13 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Draw = NULL;
 		break;
 	case FXTYPE_FROGSTUN:
-	case FXTYPE_FLYSWARM:
 		effect->numP = 6;
 		i = effect->numP;
 
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE)*effect->numP, YES, "Sprites" );
 		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "Particles" );
 
-		if( effect->type == FXTYPE_FLYSWARM )
-			effect->tex = txtrFly;
-		else
-			effect->tex = txtrStar;
+		effect->tex = txtrStar;
 
 		while(i--)
 		{
@@ -252,6 +248,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Update = UpdateFXSwarm;
 		effect->Draw = NULL;
 		break;
+	case FXTYPE_BATSWARM:
 	case FXTYPE_BUTTERFLYSWARM:
 		effect->numP = (int)lifetime; // Nasty Nasty Nasty
 		i = effect->numP;
@@ -261,7 +258,11 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		while( i-- )
 		{
-			effect->act[i] = CreateAndAddActor( "bfly.obe", 0,0,0, INIT_ANIMATION, 0, 0 );
+			if( effect->type == FXTYPE_BATSWARM )
+				effect->act[i] = CreateAndAddActor( "bat.obe", 0,0,0, INIT_ANIMATION, 0, 0 );
+			else if( effect->type == FXTYPE_BUTTERFLYSWARM )
+				effect->act[i] = CreateAndAddActor( "bfly.obe", 0,0,0, INIT_ANIMATION, 0, 0 );
+
 			if( effect->act[i]->actor->objectController )
 				InitActorAnim( effect->act[i]->actor );
 
@@ -276,6 +277,36 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		}
 
 		effect->Update = UpdateFXSwarm;
+		effect->Draw = NULL;
+
+		break;
+	case FXTYPE_HEALTHFLY:
+		effect->numP = 1;
+		effect->act = (ACTOR2 **)JallocAlloc( sizeof(ACTOR2 *), YES, "Actor2s" );
+
+		effect->act[0] = CreateAndAddActor( "bfly.obe", 0,0,0, INIT_ANIMATION, 0, 0 );
+
+		if( effect->act[0]->actor->objectController )
+			InitActorAnim( effect->act[0]->actor );
+
+		AnimateActor( effect->act[0]->actor,0,YES,NO,1.0F, 0, 0);
+		effect->act[0]->actor->scale.v[X] = effect->scale.v[X];
+		effect->act[0]->actor->scale.v[Y] = effect->scale.v[Y];
+		effect->act[0]->actor->scale.v[Z] = effect->scale.v[Z];
+
+		effect->vel.v[X] = -8 + Random(16);
+		effect->vel.v[Y] = -6 + Random(12);
+		effect->vel.v[Z] = -8 + Random(16);
+
+		AddVector( &effect->act[0]->actor->pos, &effect->origin, &effect->vel );
+
+		SetVector( &effect->act[0]->actor->rotaim, &effect->normal );
+		ScaleVector( &effect->act[0]->actor->rotaim, 50 );
+
+		SetVector( &effect->act[0]->actor->vel, &inVec );
+		ScaleVector( &effect->act[0]->actor->vel, effect->speed );
+
+		effect->Update = UpdateFXFly;
 		effect->Draw = NULL;
 
 		break;
@@ -723,7 +754,7 @@ void UpdateFXSwarm( SPECFX *fx )
 		}
 	}
 
-	if( fx->type != FXTYPE_FLYSWARM && fx->type != FXTYPE_BUTTERFLYSWARM )
+	if( fx->type != FXTYPE_BATSWARM && fx->type != FXTYPE_BUTTERFLYSWARM )
 		if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 			fx->deadCount = 5;
 }
@@ -1017,6 +1048,71 @@ void UpdateFXLightning( SPECFX *fx )
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: UpdateFXFly
+	Purpose			: Only for health fles at the moment, but could be anything
+	Parameters		: 
+	Returns			: 
+	Info			: Uses fx->vel as a local space position, which isn't nice.
+*/
+void UpdateFXFly( SPECFX *fx )
+{
+	VECTOR fwd, down;
+	QUATERNION q1, q2, q3;
+	float t, best = 10000000, speed;
+	ACTOR *act = fx->act[0]->actor;
+	unsigned long i;
+
+	if( fx->deadCount )
+		if( !(--fx->deadCount) )
+		{
+			SubSpecFX(fx);
+			return;
+		}
+
+	// Randomly go to places
+	if( DistanceBetweenPointsSquared( &act->rotaim, &fx->vel ) < 100 )
+	{
+		act->rotaim.v[X] = Random(50)-25;
+		act->rotaim.v[Y] = Random(50)-25;
+		act->rotaim.v[Z] = Random(50)-25;
+	}
+
+	SetQuaternion( &q1, &act->qRot );
+	
+	SubVector(&fwd,&act->rotaim,&fx->vel);
+	MakeUnit(&fwd);
+
+	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
+	t = DotProduct(&inVec,&fwd);
+	if (t<-0.999)
+		t=-0.999;
+	if (t>0.999)
+		t = 0.999;
+	if(t<0.001 && t>-0.001)
+		t = 0.1;
+	q3.w=acos(t);
+	GetQuaternionFromRotation(&q2,&q3);
+
+	speed = fx->accn * gameSpeed;
+	if( speed > 0.999 ) speed = 0.999;
+	QuatSlerp( &q1, &q2, speed, &act->qRot );
+
+	// Forward motion
+	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
+	ScaleVector( &fwd, fx->speed*gameSpeed );
+	AddToVector( &fx->vel, &fwd );
+
+	// Gravity
+	SetVector( &down, &fx->normal );
+	ScaleVector( &down, fx->gravity );
+	AddToVector( &fx->vel, &down );
+
+	// World coordinates
+	AddVector( &act->pos, &fx->vel, &fx->origin );
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: FreeSpecFXList
 	Purpose			: frees the fx linked list
 	Parameters		: 
@@ -1034,7 +1130,6 @@ void InitSpecFXList( )
 	FindTexture(&txtrSolidRing,UpdateCRC("ai_circle.bmp"),YES);
 	FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
-	FindTexture(&txtrFly,UpdateCRC("fly1.bmp"),YES);
 	FindTexture(&txtrBubble,UpdateCRC("watdrop.bmp"),YES);
 	FindTexture(&txtrFire,UpdateCRC("prc_fire1.bmp"),YES);
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
@@ -1307,7 +1402,7 @@ void ProcessAttachedEffects( void *entity, int type )
 				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 2, 0, 5 );
 
 			SetVector( &fx->rebound->point, &tile->centre );
-			SetVector( &fx->rebound->point, &tile->normal );
+			SetVector( &fx->rebound->normal, &tile->normal );
 			fx->gravity = act->radius;
 
 			SetAttachedFXColour( fx, act->effects );
@@ -1364,23 +1459,13 @@ void ProcessAttachedEffects( void *entity, int type )
 		}
 	}
 
-	// Persistent effects
-	if( act->effects & EF_FLYSWARM )
+	if( (act->effects & EF_BUTTERFLYSWARM) || (act->effects & EF_BATSWARM) )
 	{
-		fx = CreateAndAddSpecialEffect( FXTYPE_FLYSWARM, &act->actor->pos, &normal, 25, 0, 0, 0 );
-		fx->follow = act->actor;
-		if( type == 1 && (flags & ENEMY_NEW_FLAPPYTHING) )
-		{
-			fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-			GetPositionForPathNode( &rPos, &path->nodes[0] );
-			SetVector( &fx->rebound->point, &rPos );
-			SetVector( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
-		}
-		act->effects &= ~EF_FLYSWARM;
-	}
-	else if( act->effects & EF_BUTTERFLYSWARM )
-	{
-		fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
+		if( act->effects & EF_BATSWARM )
+			fx = CreateAndAddSpecialEffect( FXTYPE_BATSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
+		else
+			fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
+
 		fx->follow = act->actor;
 		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_FLAPPYTHING) )
 		{
@@ -1391,14 +1476,15 @@ void ProcessAttachedEffects( void *entity, int type )
 		}
 		act->effects &= ~EF_BUTTERFLYSWARM;
 	}
-	else if( act->effects & EF_TRAIL )
+
+	if( act->effects & EF_TRAIL )
 	{
 		if( act->effects & EF_FAST )
-			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 0.6 );
+			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.00, 0.6 );
 		else if( act->effects & EF_SLOW )
-			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 3 );
+			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.00, 3 );
 		else
-			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 2 );
+			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.00, 2 );
 
 		fx->follow = act->actor;
 		SetAttachedFXColour( fx, act->effects );

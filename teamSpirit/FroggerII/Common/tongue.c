@@ -226,9 +226,10 @@ void UpdateFrogTongue( int pl )
 		switch( tongue[pl].type )
 		{
 		case TONGUE_GET_BABY: SetVector( &tongue[pl].target, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos ); break;
-		case TONGUE_GET_GARIB: SetVector( &tongue[pl].target, &((GARIB *)tongue[pl].thing)->sprite.pos ); break;
 		case TONGUE_GET_SCENIC: SetVector( &tongue[pl].target, &((ACTOR2 *)tongue[pl].thing)->actor->pos ); break;
 		case TONGUE_GET_FROG: SetVector( &tongue[pl].target, &((ACTOR2 *)tongue[pl].thing)->actor->pos ); break;
+		case TONGUE_GET_GARIB: SetVector( &tongue[pl].target, &((GARIB *)tongue[pl].thing)->pos ); break;
+		case TONGUE_GET_HEALTH: SetVector( &tongue[pl].target, &((GARIB *)tongue[pl].thing)->fx->act[0]->actor->pos ); break;
 		}
 
 		if( tongue[pl].flags & TONGUE_OUTGOING )
@@ -263,8 +264,13 @@ void UpdateFrogTongue( int pl )
 				if(tongue[pl].type == TONGUE_GET_GARIB)
 				{
 					GARIB *g = (GARIB *)tongue[pl].thing;
-					SetVector( &g->sprite.pos, &tongue[pl].pos );
+					SetVector( &g->pos, &tongue[pl].pos );
 					g->scale *= 0.9;
+				}
+				else if(tongue[pl].type == TONGUE_GET_HEALTH)
+				{
+					GARIB *g = (GARIB *)tongue[pl].thing;
+					SetVector( &g->fx->act[0]->actor->pos, &tongue[pl].pos );
 				}
 				else if( tongue[pl].type == TONGUE_GET_BABY )
 				{
@@ -298,7 +304,7 @@ void UpdateFrogTongue( int pl )
 			{
 				if( tongue[pl].flags & TONGUE_HASITEMONIT )
 				{
-					if( tongue[pl].type == TONGUE_GET_GARIB )
+					if( tongue[pl].type == TONGUE_GET_GARIB || tongue[pl].type == TONGUE_GET_HEALTH )
 						PickupCollectable( (GARIB *)tongue[pl].thing, pl );
 					else if( tongue[pl].type == TONGUE_GET_BABY )
 					{
@@ -352,7 +358,12 @@ void UpdateFrogTongue( int pl )
 		else if( tongue[pl].thing = (void *)BabyFrogIsInRange(tongue[pl].radius,pl) )
 			StartTongue( TONGUE_GET_BABY, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos, pl );
 		else if( tongue[pl].thing = (void *)GaribIsInRange(tongue[pl].radius,pl) )
-			StartTongue( TONGUE_GET_GARIB, &((GARIB *)tongue[pl].thing)->sprite.pos, pl );
+		{
+			if( ((GARIB *)tongue[pl].thing)->type == SPAWN_GARIB )
+				StartTongue( TONGUE_GET_GARIB, &((GARIB *)tongue[pl].thing)->pos, pl );
+			else if( ((GARIB *)tongue[pl].thing)->type == EXTRAHEALTH_GARIB )
+				StartTongue( TONGUE_GET_HEALTH, &((GARIB *)tongue[pl].thing)->fx->act[0]->actor->pos, pl );
+		}
 		else if( tongue[pl].thing = (void *)ScenicIsInRange(tongue[pl].radius,pl) )
 			StartTongue( TONGUE_GET_SCENIC, &((ACTOR2 *)tongue[pl].thing)->actor->pos, pl );
 		else
@@ -535,7 +546,11 @@ GARIB *GaribIsInRange( float radius, int pl )
 	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
 	{
 		// only check for garibs in visual range
-		dist = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&garib->sprite.pos);
+		if( garib->type == SPAWN_GARIB )
+			dist = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&garib->pos);
+		else if( garib->type == EXTRAHEALTH_GARIB )
+			dist = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&garib->fx->act[0]->actor->pos);
+
 		if( dist > (radius * radius) )
 			continue;
 

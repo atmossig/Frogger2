@@ -55,16 +55,22 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 {
 	GARIB *garib;
 	int i;
+	VECTOR *check;
 	
 	// check current tile for a garib
 	for(garib = garibCollectableList.head.next, i = garibCollectableList.numEntries-1;
 		garib != &garibCollectableList.head; garib = garib->next, i--)
 	{
 		// process only garibs in visual range
-		if( DistanceBetweenPointsSquared(&garib->sprite.pos, &frog[0]->actor->pos ) > ACTOR_DRAWDISTANCEINNER)
+		if( DistanceBetweenPointsSquared(&garib->pos, &frog[0]->actor->pos ) > ACTOR_DRAWDISTANCEINNER)
 			continue;
 
-		if( DistanceBetweenPointsSquared(&garib->sprite.pos, &frog[0]->actor->pos ) < PICKUP_RADIUS_SQUARED)
+		if( garib->type == SPAWN_GARIB )
+			check = &garib->pos;
+		else if( garib->type == EXTRAHEALTH_GARIB )
+			check = &garib->fx->act[0]->actor->pos;
+
+		if( DistanceBetweenPointsSquared( check, &frog[0]->actor->pos ) < PICKUP_RADIUS_SQUARED)
 		{
 			garibStoreList[player[0].levelNum-3][i / 8] &= ~(1 << (i & 7));
 			PickupCollectable(garib,pl);
@@ -111,6 +117,7 @@ void ProcessCollectables()
 */
 void PickupCollectable(GARIB *garib, int pl)
 {
+	SPECFX *fx;
 	switch(garib->type)
 	{
 		case SPAWN_GARIB:
@@ -121,14 +128,14 @@ void PickupCollectable(GARIB *garib, int pl)
 				if(player[0].spawnScoreLevel < 5)
 					player[0].spawnScoreLevel++;
 
-				XfmPoint (&m,&garib->sprite.pos);
+				XfmPoint (&m,&garib->pos);
 			}
 
 			player[0].spawnTimer = SPAWN_SCOREUPTIMER;
 
-			CreateAndAddSpawnScoreSprite(&garib->sprite.pos,player[0].spawnScoreLevel);
+			CreateAndAddSpawnScoreSprite(&garib->pos,player[0].spawnScoreLevel);
 
-			CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->sprite.pos, &upVec, 25, 0.0, 0.0, 2.0 );
+			CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->pos, &upVec, 25, 0.0, 0.0, 2.0 );
 
 			player[0].score += (player[0].spawnScoreLevel * 10);
 			player[0].numSpawn++;
@@ -138,12 +145,16 @@ void PickupCollectable(GARIB *garib, int pl)
 				player[0].numSpawn = 0;
 				player[0].numCredits++;
 			}
-			//PlaySample(0,&garib->sprite.pos,192,118 + (player[0].spawnScoreLevel * 10));
+			//PlaySample(0,&garib->pos,192,118 + (player[0].spawnScoreLevel * 10));
 			break;
 
 		case EXTRAHEALTH_GARIB:
 			if( player[0].healthPoints < 3 )
 				player[0].healthPoints++;
+
+			fx = CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->fx->act[0]->actor->pos, &upVec, 25, 0.0, 0.0, 2.0 );
+			SetFXColour( fx, 30, 240, 30 );
+			SubSpecFX( garib->fx );
 			break;
 
 		case EXTRALIFE_GARIB:
@@ -236,7 +247,11 @@ void SubGarib(GARIB *garib)
 	if(garib->next == NULL)
 		return;
 
-	SubSprite(&garib->sprite);
+	if( garib->type == SPAWN_GARIB && garib->sprite )
+		SubSprite( garib->sprite );
+	// Special effects get freed separately
+//	else if( garib->type == EXTRAHEALTH_GARIB && garib->fx )
+//		SubSpecFX( garib->fx );
 
 	garib->prev->next = garib->next;
 	garib->next->prev = garib->prev;
@@ -301,7 +316,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	garib = (GARIB *)JallocAlloc(sizeof(GARIB),YES,"garib");
 	AddGarib(garib);
 
-	SetVector(&garib->sprite.pos,&pos);
+	SetVector(&garib->pos,&pos);
 
 //	garib->gameTile = gameTile;
 //	garib->dropSpeed = dropSpeed;
@@ -310,55 +325,65 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	garib->scale = 0;
 	garib->scaleAim = 1;
 
-#ifndef PC_VERSION
-	memcpy(&garib->shadow.vert,shadowVtx,sizeof(Vtx) * 4);
-#endif
+//#ifndef PC_VERSION
+//	memcpy(&garib->shadow.vert,shadowVtx,sizeof(Vtx) * 4);
+//#endif
 //	garib->shadow.altitude	= 0;
-	garib->shadow.radius	= 20;
-	garib->shadow.alpha		= 192;
+//	garib->shadow.radius	= 20;
+//	garib->shadow.alpha		= 192;
 
-	// Initialise garib sprite
-	InitSpriteAnimation(&garib->sprite,&garibAnimation[garib->type],0);
-	garib->sprite.r = 255;
-	garib->sprite.g = 255;
-	garib->sprite.b = 255;
-	garib->sprite.a = 127;
-	garib->sprite.scaleX = garib->sprite.scaleY = 0;
-	
-#ifndef PC_VERSION
-	garib->sprite.offsetX = -garib->sprite.texture->sx / 2;
-	garib->sprite.offsetY = -garib->sprite.texture->sy / 2;
-	garib->sprite.flags &= -1 - SPRITE_TRANSLUCENT;
-#else
-	garib->sprite.offsetX = -16;
-	garib->sprite.offsetY = -16;
-	garib->sprite.flags &= -1 - SPRITE_TRANSLUCENT;
-#endif
-	if(garib->active)
-		AddSprite(&garib->sprite,NULL);
 	
 	if(garib->type == SPAWN_GARIB)
 	{
-		garib->sprite.flags |= SPRITE_TRANSLUCENT;
-		garib->sprite.a = 200;
+		// Initialise garib sprite
+		garib->sprite = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "GSprite" );
+		SetVector(&garib->sprite->pos,&pos);
+		InitSpriteAnimation( garib->sprite, &garibAnimation[garib->type], 0 );
+		garib->sprite->r = 255;
+		garib->sprite->g = 255;
+		garib->sprite->b = 255;
+		garib->sprite->a = 127;
+		garib->sprite->scaleX = garib->sprite->scaleY = 0;
+		
+#ifndef PC_VERSION
+		garib->sprite->offsetX = -garib->sprite->texture->sx / 2;
+		garib->sprite->offsetY = -garib->sprite->texture->sy / 2;
+		garib->sprite->flags &= -1 - SPRITE_TRANSLUCENT;
+#else
+		garib->sprite->offsetX = -16;
+		garib->sprite->offsetY = -16;
+		garib->sprite->flags &= -1 - SPRITE_TRANSLUCENT;
+#endif
+		if(garib->active)
+			AddSprite( garib->sprite, NULL );
+		garib->sprite->flags |= SPRITE_TRANSLUCENT;
+		garib->sprite->a = 200;
+	}
+	else if( garib->type == EXTRAHEALTH_GARIB )
+	{
+		SPECFX *fx;
+		garib->fx = CreateAndAddSpecialEffect( FXTYPE_HEALTHFLY, &garib->pos, &upVec, 1, 1, 0.06, 0 );
+		garib->fx->gravity = -0.5;
+
+		fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &garib->fx->act[0]->actor->pos, &upVec, 5, 0.95, 0.00, 0.6 );
+		fx->follow = garib->fx->act[0]->actor;
+		SetFXColour( fx, 0, 128, 255 );
 	}
 	else if(garib->type == WHOLEKEY_GARIB)
 	{
-		garib->sprite.flags |= SPRITE_TRANSLUCENT;
-		garib->sprite.a = 200;
+		garib->sprite->flags |= SPRITE_TRANSLUCENT;
+		garib->sprite->a = 200;
 	}
 	else if(garib->type == HALFLKEY_GARIB)
 	{
-		garib->sprite.flags |= SPRITE_TRANSLUCENT;
-		garib->sprite.a = 200;
+		garib->sprite->flags |= SPRITE_TRANSLUCENT;
+		garib->sprite->a = 200;
 	}
 	else if(garib->type == HALFRKEY_GARIB)
 	{
-		garib->sprite.flags |= SPRITE_TRANSLUCENT;
-		garib->sprite.a = 200;
+		garib->sprite->flags |= SPRITE_TRANSLUCENT;
+		garib->sprite->a = 200;
 	}
-
-//	garibListPos++;
 
 	return garib;
 }
@@ -386,27 +411,29 @@ void UpdateGaribs()
 		else if(garib->active > 1)
 			garib->active--;
 
-		garib->distanceFromFrog = DistanceBetweenPointsSquared(&garib->sprite.pos,&frog[0]->actor->pos);
 		radius = 10;
 		scale = garib->scale;
 		scale -= (scale - garib->scaleAim) / 5;
 		garib->scale = scale;
 
-		garib->sprite.scaleX = (64 + SineWave(2,frameCount + garib->type * 2,0) * 10) * scale;
-		garib->sprite.scaleY = (64 + SineWave(2,frameCount + garib->type * 2,0) * 10) * scale;
+		if( garib->sprite )
+		{
+			garib->sprite->scaleX = (64 + SineWave(2,frameCount + garib->type * 2,0) * 10) * scale;
+			garib->sprite->scaleY = (64 + SineWave(2,frameCount + garib->type * 2,0) * 10) * scale;
+		}
 
 		// Drop Garibs.............
 
-		if ( garib->gameTile != NULL )
+		if ( garib->gameTile )
 		{			
 			SetVector ( &actualPos, &garib->gameTile->centre );
 			actualPos.v[Y] += 20;
-			SubVector ( &fwd, &actualPos, &garib->sprite.pos );
+			SubVector ( &fwd, &actualPos, &garib->pos );
 			MakeUnit  ( &fwd );
-			garib->sprite.pos.v[X] += ( fwd.v[X] * garib->dropSpeed );
-			garib->sprite.pos.v[Y] += ( fwd.v[Y] * garib->dropSpeed );
-			garib->sprite.pos.v[Z] += ( fwd.v[Z] * garib->dropSpeed );
-
+			garib->pos.v[X] += ( fwd.v[X] * garib->dropSpeed );
+			garib->pos.v[Y] += ( fwd.v[Y] * garib->dropSpeed );
+			garib->pos.v[Z] += ( fwd.v[Z] * garib->dropSpeed );
+			SetVector( &garib->sprite->pos, &garib->pos );
 		}
 	}
 }

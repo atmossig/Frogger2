@@ -39,12 +39,13 @@ typedef struct TAGGARIB
 	UBYTE				type;
 	float				scale;
 	float				scaleAim;
-	SPRITE				sprite;
-	ACTOR_SHADOW		shadow;
-	float				distanceFromFrog;
+	SPRITE				*sprite;
+	SPECFX				*fx;
+	VECTOR				pos;
 	unsigned long		flags;
 	GAMETILE			*gameTile;
 	float				dropSpeed;
+
 } GARIB;
 
 typedef struct TAGGARIBLIST

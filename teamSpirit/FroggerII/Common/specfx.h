@@ -31,7 +31,7 @@ extern char pauseMode;
 #define EF_SMOKE_STATIC					(1 << 1)	// Smoke that doesn't grow
 #define EF_SPARKBURST					(1 << 2)	// Explosion of smoke
 #define EF_FLAMES						(1 << 3)	// Fire
-#define EF_FLYSWARM						(1 << 4)	// Crappy fly textures
+#define EF_BATSWARM						(1 << 4)	// Crappy fly textures
 #define EF_BUBBLES						(1 << 5)	// From the fishes
 #define EF_SMOKE_GROWS					(1 << 6)	// Grows as it fades
 #define EF_SMOKEBURST					(1 << 7)	// Explosion of smoke
@@ -65,7 +65,7 @@ enum
 	FXTYPE_SPLASH,
 	FXTYPE_SMOKEBURST,
 	FXTYPE_FLAMES,
-	FXTYPE_FLYSWARM,
+	FXTYPE_BATSWARM,
 	FXTYPE_BUBBLES,
 	FXTYPE_SPARKBURST,
 	FXTYPE_FIERYSMOKE,
@@ -75,6 +75,7 @@ enum
 	FXTYPE_TRAIL,
 	FXTYPE_BILLBOARDTRAIL,
 	FXTYPE_LIGHTNING,
+	FXTYPE_HEALTHFLY,
 
 	FXTYPE_NUMTYPES
 };
@@ -134,7 +135,6 @@ extern TEXTURE *txtrStar;
 extern TEXTURE *txtrSolidRing;
 extern TEXTURE *txtrSmoke;
 extern TEXTURE *txtrRing;
-extern TEXTURE *txtrFly;
 extern TEXTURE *txtrBubble;
 extern TEXTURE *txtrFire;
 extern TEXTURE *txtrBlank;
