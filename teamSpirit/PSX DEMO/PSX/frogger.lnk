@@ -1,6 +1,6 @@
 
 
-        org     $00010000
+        org     $00018000
 		regs    pc=__SN_ENTRY_POINT
 
 text    group
@@ -179,7 +179,9 @@ lang	group	over(video),file("lang.bin")
     inclib  "islxa.lib"
     inclib  "islcard.lib"
 
-	inclib  "libsn.lib"
+;    inclib "libsn.lib"                 ;if DEVELOPMENT VERSION
+    inclib	"none2.lib"                ;if DEMO DISC VERSION
+
 	inclib  "libapi.lib"
 	inclib  "libpad.lib"
 	inclib	"libmcrd.lib"

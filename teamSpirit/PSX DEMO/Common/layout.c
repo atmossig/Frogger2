@@ -82,6 +82,8 @@ extern MDX_LANDSCAPE *world;
 #include <pcmisc.h>
 #endif
 
+#include "options.h"
+
 #include "lang.h"
 
 //stuff taken out of PSX main,
@@ -666,6 +668,9 @@ extern unsigned long actTickCount;
 int loadingLevel = NO;
 long numLevelsPlayed = 0;
 extern short numLives[3];
+
+int quitGameDemo = 0;
+
 void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i,temp;
@@ -673,6 +678,25 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	GAMETILE *tempTile;
 
 	// JH : Turn on, the loading screen.
+
+	GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
+
+	if ( worldID == WORLDID_FRONTEND && levelID == LEVELID_FRONTEND1 )
+	{
+		// JH:  Now run the slide show to show off the rest of Frogger2.
+		FreeStakFiles();
+
+		FreeAllObjectBanks();
+		FreeAllTextureBanks();
+		gameState.mode = ARTVIEWER_MODE;
+		SpuSetKey(SPU_OFF,0xffffff);
+		StopSong();
+		GTInit(&artTimer,1);
+		currentArt = 0;
+		goingToArtViewer = 0;
+		return;
+	}
+	// ENDIF
 
 #ifdef PC_VERSION
 	pFrameModifier = 0;
@@ -693,7 +717,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 #ifdef PSX_VERSION
 	//jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
 
-	SpuSetKey(SPU_OFF,0xffffff);
+	//SpuSetKey(SPU_OFF,0xffffff);
 #endif
 
 	loadingLevel = YES;
@@ -1063,6 +1087,19 @@ void FreeAllLists()
 	actorInitialise();
 #endif
 
+#ifdef PSX_VERSION
+	if ( font )
+		fontUnload ( font );
+	// ENDIF
+	font = NULL;
+
+	if ( fontSmall )
+		fontUnload ( fontSmall );
+	// ENDIF
+	fontSmall = NULL;
+
+#endif
+
 	FreeAllObjectBanks();
 	FreeAllTextureBanks();
 	
@@ -1098,19 +1135,6 @@ void FreeAllLists()
 	FreeUniqueActorList();
 #endif
 	
-#ifdef PSX_VERSION
-	if ( font )
-		fontUnload ( font );
-	// ENDIF
-	font = NULL;
-
-	if ( fontSmall )
-		fontUnload ( fontSmall );
-	// ENDIF
-	fontSmall = NULL;
-
-#endif
-
 //	FREE(playKeyList);
 
 	//memoryShow();
@@ -1287,8 +1311,8 @@ void CommonInit(void)
 	quitMainLoop = 0;
 	InitMatrixStack();
 
-	player[0].worldNum = WORLDID_FRONTEND;
-	player[0].levelNum = LEVELID_FRONTEND1;
+	player[0].worldNum = 0;
+	player[0].levelNum = 0;
 	gameState.multi = SINGLEPLAYER;
 
 	GTInit( &modeTimer, 1 );
@@ -1302,7 +1326,7 @@ void CommonInit(void)
 #ifdef E3_DEMO
 	StartE3LevelSelect();
 #else
-	gameState.mode = FRONTEND_MODE;
+	gameState.mode = INGAME_MODE;
 	gameState.difficulty = DIFFICULTY_NORMAL;
 	InitLevel(player[0].worldNum,player[0].levelNum);
 #ifdef PC_VERSION

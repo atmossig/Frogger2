@@ -43,7 +43,7 @@ LIBISL = c:\ps\psx\library\lib\debug
 #ntsc master
 !if $(PAL) == 0
 !if $(MASTER) == 1
-OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=1 -c -O2 -mgpopt -G0 -X0$80018000 -comments-c++
+OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=1 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
 LIBISL = c:\ps\psx\library\lib\release
 !endif
 !endif

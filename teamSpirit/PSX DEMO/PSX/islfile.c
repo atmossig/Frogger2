@@ -154,6 +154,7 @@ static unsigned char filePCLoadBinary(char *fName, char *loc)
 	long	fHandle, size;
 	char	pathName[256];
 
+#if GOLDCD==0
 	printf("\nLoading binary code file %s\n",fName);
 
 	strcpy(pathName, FILEIO_PCROOT);
@@ -174,6 +175,7 @@ static unsigned char filePCLoadBinary(char *fName, char *loc)
 	}
 	PCclose(fHandle);
 
+#endif
 	return 0;
 }
 

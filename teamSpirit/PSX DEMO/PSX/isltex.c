@@ -920,6 +920,8 @@ void textureUnloadBank(TextureBankType *bank)
 			textureUnload(bank->texture+loop);
 	}
 
+	bank->texture = NULL;
+
 	// remove internal reference to bank
 
 	for(loop=0; loop<MAXTEXBANKS; loop++)

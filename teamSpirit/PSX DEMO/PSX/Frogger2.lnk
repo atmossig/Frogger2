@@ -36,8 +36,8 @@ lang	group	over(video),file("lang.bin")
 
 	include	"main.obj"
 
-    inclib "libsn.lib"                                     ;if DEVELOPMENT VERSION
-;    inclib	"none2.lib"                ;if DEMO DISC VERSION
+;    inclib "libsn.lib"                                     ;if DEVELOPMENT VERSION
+    inclib	"none2.lib"                ;if DEMO DISC VERSION
 
 	inclib  "libapi.lib"
 	inclib  "libpad.lib"

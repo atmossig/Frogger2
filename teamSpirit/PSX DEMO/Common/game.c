@@ -64,6 +64,8 @@
 #define TIMER_STOP_ADD3(x)
 #endif
 
+TIMER sceeDemoTimeOut;
+
 
 extern int pauseController;
 //----------------------------------------------------------------------
@@ -131,6 +133,7 @@ void GameProcessController(long pl)
 #ifdef PC_VERSION
 		if(padData.debounce[pl] & PAD_START)
 		{
+			GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 			StartPauseMenu();
 			pauseController = pl;
 			return;
@@ -139,6 +142,7 @@ void GameProcessController(long pl)
 #ifdef FINAL_MASTER
 		if((padData.debounce[pl] & PAD_START) && (gameState.mode != FRONTEND_MODE))
 		{
+			GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 			StartPauseMenu();
 			pauseController = pl;
 			return;
@@ -146,6 +150,7 @@ void GameProcessController(long pl)
 #else
 		if(padData.debounce[pl] & PAD_START)
 		{
+			GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 			StartPauseMenu();
 			pauseController = pl;
 			return;
@@ -174,6 +179,7 @@ void GameProcessController(long pl)
 	{
 		if ((button[pl]&PAD_CROSS) && (player[pl].jumpTime > player[pl].jumpMultiplier/2))
 		{
+			GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 			StartAnimateActor(frog[pl]->actor, FROG_ANIM_FALL, YES, NO, 256, 512);
 			player[pl].frogState |= FROGSTATUS_ISFLOATING;
 		}
@@ -187,6 +193,7 @@ void GameProcessController(long pl)
 
 	if( ((padData.debounce[pl] & PAD_UP) || ((padData.digital[pl] & PAD_UP) && player[pl].autohop.time)) && player[pl].canJump)
 	{
+		GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 		if(!player[pl].inputPause )
 		{
 			player[pl].inputPause = INPUT_POLLPAUSE;
@@ -213,6 +220,7 @@ void GameProcessController(long pl)
 
 	else if( ((padData.debounce[pl] & PAD_RIGHT) || ((padData.digital[pl] & PAD_RIGHT) && player[pl].autohop.time)) && player[pl].canJump)
 	{
+		GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 		if(!player[pl].inputPause)
 		{
 			player[pl].inputPause = INPUT_POLLPAUSE;
@@ -239,6 +247,7 @@ void GameProcessController(long pl)
     
 	else if( ((padData.debounce[pl] & PAD_DOWN) || ((padData.digital[pl] & PAD_DOWN) && player[pl].autohop.time)) && player[pl].canJump)
 	{
+		GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 		if(!player[pl].inputPause)
 		{
 			player[pl].inputPause = INPUT_POLLPAUSE;
@@ -265,6 +274,7 @@ void GameProcessController(long pl)
     
 	else if( ((padData.debounce[pl] & PAD_LEFT) || ((padData.digital[pl] & PAD_LEFT) && player[pl].autohop.time)) && player[pl].canJump)
 	{
+		GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 		if(!player[pl].inputPause)
 		{
 			player[pl].inputPause = INPUT_POLLPAUSE;
@@ -295,6 +305,7 @@ void GameProcessController(long pl)
     {
 		int dir = player[pl].extendedHopDir;
 
+		GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 		if( button[pl] & PAD_UP )
 			dir = MOVE_UP;
 		else if( button[pl] & PAD_DOWN )
@@ -433,6 +444,8 @@ void GameProcessController(long pl)
 //#ifdef PC_VERSION
 		if((padData.debounce[pl] & PAD_CIRCLE) && (tongue[pl].flags & TONGUE_IDLE))
 		{
+			GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
+
 			// want to use tongue
 			tongue[pl].flags = TONGUE_NONE | TONGUE_SEARCHING;
 			//player[pl].hasJumped = 1;
@@ -444,6 +457,7 @@ void GameProcessController(long pl)
 
 		if( (padData.debounce[pl] & PAD_SQUARE) && !player[pl].isCroaking.time )
 		{
+			GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 			player[pl].frogState |= FROGSTATUS_ISCROAKING;
 			GTInit( &player[pl].isCroaking, 2 );
 
@@ -516,6 +530,26 @@ TIMER endLevelTimer;
 void RunGameLoop (void)
 {
 	unsigned long i;
+
+	if ( !sceeDemoTimeOut.time )
+	{
+		if ( !fadingOut )
+			InitLevel ( 8, 0 );
+
+	}
+	else
+	{
+		GTUpdate(&sceeDemoTimeOut, -1);
+
+		if ( !sceeDemoTimeOut.time )
+		{
+			ScreenFade(255,0,30);
+			keepFade = 1;
+		}
+		// ENDIF
+	}
+	// ENDIF
+
 
 	if(player[0].numSpawn == 25)
 	{
@@ -596,9 +630,10 @@ void RunGameLoop (void)
 		SetCamFF(currCamSource,currCamTarget);
 		TIMER_STOP_ADD3(TIMER_SET_CAM);
 
-		if( frameCount > 15 )
-			for (i=0; i<NUM_FROGS; i++)
-				GameProcessController(i);                                      
+		if ( !fadingOut )
+			if( frameCount > 15 )
+				for (i=0; i<NUM_FROGS; i++)
+					GameProcessController(i);                                      
 
 	}
 

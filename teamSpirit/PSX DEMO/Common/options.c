@@ -2655,7 +2655,7 @@ void SetMusicVolume()
 }
 
 
-#define MAX_ARTWORK 22
+#define MAX_ARTWORK 6
 
 #ifdef PSX_VERSION
 // on the PSX everything is read from CD .. we just want to do this specially
@@ -2668,34 +2668,35 @@ void RunArtViewer()
 {
 	char name[32];
 
-	if(padData.digital[0] & PAD_START)
+	if(padData.debounce[0] & PAD_START)
 		currentArt = MAX_ARTWORK;
 
 	GTUpdate(&artTimer,-1);
 	
-	if((artTimer.time == 0) || ((!fadingOut) && (padData.digital[0])))
-	{
-		ScreenFade(255,0,30);
-		keepFade = YES;
-	}
 	if((!fadingOut) && (keepFade))
 	{
 		FreeBackdrop();
 		if(currentArt == MAX_ARTWORK)
 		{
-			gameState.mode = FRONTEND_MODE;
-			InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+			quitMainLoop = 1;
+			//gameState.mode = FRONTEND_MODE;
+			//InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
 
 			frameCount = 0;
 		}
 		else
 		{
-			sprintf(name,"ARTWORK%02d",currentArt);
+			sprintf(name,"SPLASH%02d",currentArt);
 			InitBackdrop(name);
 			currentArt++;
 			ScreenFade(0,255,30);
 			GTInit(&artTimer,10);
 			keepFade = NO;
 		}
+	}
+	if((artTimer.time == 0) || ((!fadingOut) && (padData.debounce[0])))
+	{
+		ScreenFade(255,0,30);
+		keepFade = YES;
 	}
 }

@@ -674,6 +674,7 @@ extern short loadingDisplay;
 
 extern int quitAllVideo;
 
+extern int quitGameDemo;
 
 //----- [ FUNCTION PROTOTYPES ] -----
 

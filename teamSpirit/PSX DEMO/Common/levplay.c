@@ -30,7 +30,7 @@
 #endif
 
 #define DEMO_TIMEOUT	25
-#define NUM_DEMOS		3
+#define NUM_DEMOS		2
 
 unsigned long playKeyCount;
 unsigned long curPlayKey;
@@ -40,7 +40,6 @@ TIMER demoTimeout;
 
 int demoLevels[NUM_DEMOS][2] = {
 	{ WORLDID_GARDEN,	LEVELID_GARDEN1 },
-	{ WORLDID_ANCIENT,	LEVELID_ANCIENT1 },
 	{ WORLDID_HALLOWEEN,LEVELID_HALLOWEEN2 }
 //	{ WORLDID_ANCIENT,	LEVELID_ANCIENT1 }
 };

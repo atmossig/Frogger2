@@ -165,6 +165,10 @@ SOURCE=.\Psx\font.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Psx\frogger.lnk
+# End Source File
+# Begin Source File
+
 SOURCE=.\Psx\Frogger2.lnk
 # End Source File
 # Begin Source File
@@ -226,6 +230,10 @@ SOURCE=.\Psx\Main.h
 # Begin Source File
 
 SOURCE=.\Psx\Makefile.mak
+# End Source File
+# Begin Source File
+
+SOURCE=.\code\makefile.txt
 # End Source File
 # Begin Source File
 

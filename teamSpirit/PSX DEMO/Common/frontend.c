@@ -100,7 +100,6 @@ long backTextY[4] = {160+64,160+64,3640,3640};
 long backWinsTextX[4] = {64+512,3520-200,3520-200,64+512};
 long backWinsTextY[4] = {420+128,420+128,3360-64,3360-64};
 
-
 /*	--------------------------------------------------------------------------------
 	Function		: GameLoop
 	Purpose			: 
@@ -297,14 +296,16 @@ void LevelCompleteProcessController(long pl)
 	
 	if(button[pl] & PAD_UP)
 	{
-		if (cOption>0)
+		if ((cOption>0) && (oText[0]))
 		{
 			cOption--;
 			PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		}
+		GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 	}	    
 	else if(button[pl] & PAD_DOWN)
 	{
+		GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 		if ((cOption<1) && (oText[1]))
 		{
 			cOption++;
@@ -314,6 +315,7 @@ void LevelCompleteProcessController(long pl)
 
 	if(button[pl] & (PAD_CROSS))
     {
+		GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 		PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		showEndLevelScreen = -1;
 
@@ -1198,7 +1200,7 @@ void StartLevelComplete()
 			coinText->xPosTo = 2048;
 			coinIcon = CreateAndAddSpriteOverlay(2048 - 256 - 4096,850+300,"COINMEDAL",512,512,255,0);
 			coinIcon->xPosTo = 2048-256;
-			if(player[0].numSpawn > worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins)
+			/*if(player[0].numSpawn > worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins)
 			{
 				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins = player[0].numSpawn;
 				moreCoins = 1;
@@ -1218,7 +1220,7 @@ void StartLevelComplete()
 				extraText->xPosTo = 2048;
 				extraIcon = CreateAndAddSpriteOverlay(2048-256-4096-4096,850+1050,storySequence[numExtra].iconName,512,512,255,0);
 				extraIcon->xPosTo = 2048-256;
-			}
+			}*/
 			arcadeHud.coinsOver->draw = 0;
 		}
 		else
@@ -1227,8 +1229,8 @@ void StartLevelComplete()
 			coinText = CreateAndAddTextOverlay(2048+4096,850,coinStr,YES,255,font,TEXTOVERLAY_SHADOW);
 			coinText->xPosTo = 2048;
 			coinIcon = NULL;
-	 		extraText = CreateAndAddTextOverlay(2048+4096+4096,850+300,GAMESTRING(STR_NO_BONUS),YES,255,font,TEXTOVERLAY_SHADOW);
-			extraText->xPosTo = 2048;
+	 		/*extraText = CreateAndAddTextOverlay(2048+4096+4096,850+300,GAMESTRING(STR_NO_BONUS),YES,255,font,TEXTOVERLAY_SHADOW);
+			extraText->xPosTo = 2048;*/
 			extraIcon = NULL;
 			arcadeHud.coinsOver->draw = 1;
 			arcadeHud.coinsOver->xPosTo = 3200;
@@ -1322,16 +1324,26 @@ void StartLevelComplete()
 	}
 	else
 	{
-		oText[0] = CreateAndAddTextOverlay(2048+4096, 3220, GAMESTRING(STR_RESTARTLEVEL), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
-		oText[1] = CreateAndAddTextOverlay(2048-4096, 3610, GAMESTRING(STR_QUIT), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
-		oText[0]->xPosTo = 2048;
-		oText[1]->xPosTo = 2048;
+		if ( !(player[0].worldNum == WORLDID_HALLOWEEN) )
+		{
+			oText[0] = CreateAndAddTextOverlay(2048+4096, 3220, GAMESTRING(STR_CONTINUE), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+			oText[1] = CreateAndAddTextOverlay(2048-4096, 3610, GAMESTRING(STR_QUIT), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+			oText[0]->xPosTo = 2048;
+			oText[1]->xPosTo = 2048;
+		}
+		else
+		{
+			oText[1] = CreateAndAddTextOverlay(2048-4096, 3610, GAMESTRING(STR_QUIT), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+			oText[1]->xPosTo = 2048;
+			oText[0] = NULL;
+			cOption = 1;
+		}
 	}
 	nText = NULL;
 	
 	if (grade==0)
 	{
-		sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
+		/*sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
 		nText = CreateAndAddTextOverlay(4096, 3610, currentName, NO, (char)0xFF, font, TEXTOVERLAY_SHADOW);
 #ifdef PSX_VERSION
 		w = fontExtentWScaled(nText->font,nText->text,4096)*4;
@@ -1341,7 +1353,8 @@ void StartLevelComplete()
 		w = (float)(CalcStringWidth(nText->text,(MDX_FONT *)nText->font,1)) / (OVERLAY_X * 2);
 		nText->xPosTo = 2048 - w;
 		nText->xPos = nText->xPosTo + 4096;
-#endif
+#endif*/
+		nText = NULL;
 	}
 	else
 		nText = NULL;
@@ -1392,6 +1405,8 @@ void StartLevelComplete()
 	frog[0]->draw = 1;
 	actorAnimate(frog[0]->actor,froganimnum,NO,NO,froganimspeed,NO);
 	drawLandscape = 0;
+
+	GTInit(&sceeDemoTimeOut, SCEEDEMOTIMEOUT);
 }
 
 int dropSpeed = 40;
@@ -1442,6 +1457,25 @@ void RunLevelComplete()
 
 	sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/600)%600,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/10)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%10);
 	drawLandscape = 0;
+
+	if ( !sceeDemoTimeOut.time )
+	{
+		if ( !fadingOut )
+			InitLevel ( 8, 0 );
+
+	}
+	else
+	{
+		GTUpdate(&sceeDemoTimeOut, -1);
+
+		if ( !sceeDemoTimeOut.time )
+		{
+			ScreenFade(255,0,30);
+			keepFade = 1;
+		}
+		// ENDIF
+	}
+	// ENDIF
 
 #ifdef PSX_VERSION
 	if(saveInfo.saveFrame)
@@ -1651,8 +1685,9 @@ void RunLevelComplete()
 			if(oText[1])
 				oText[1]->speed = 4096*75;
 
-			if(oText[0]->xPos == oText[0]->xPosTo)
-				LevelCompleteProcessController(0);
+			if(oText[1])
+				if(oText[1]->xPos == oText[1]->xPosTo)
+					LevelCompleteProcessController(0);
 
 			for (i=0; i<2; i++)
 			{
@@ -1714,6 +1749,18 @@ void RunLevelComplete()
 				{
 					// todo: place Frogger 
 					gameState.mode = INGAME_MODE;
+
+					if ( player[0].worldNum == WORLDID_GARDEN )
+					{
+						player[0].worldNum = WORLDID_HALLOWEEN;
+						player[0].levelNum = LEVELID_HALLOWEEN2;
+					}
+					else
+					{
+						player[0].worldNum = WORLDID_FRONTEND;
+						player[0].levelNum = LEVELID_FRONTEND1;
+					}
+					// ENDELSEIF
 				}
 //				FreeAllLists();
 				frameCount = 0;

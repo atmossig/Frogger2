@@ -19,6 +19,9 @@
 #include "textover.h"
 
 
+#define SCEEDEMOTIMEOUT 30
+
+
 // Tile status flags.
 #define ATTACH (1<<0)
 
@@ -44,6 +47,8 @@ extern "C" {
 extern struct gameStateStruct gameState;
 
 extern unsigned long INPUT_POLLPAUSE;
+
+extern TIMER sceeDemoTimeOut;
 
 extern SVECTOR *pointOfInterest;
 extern fixed	pOIDistance;

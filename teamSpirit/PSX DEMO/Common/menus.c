@@ -353,6 +353,8 @@ void RunPauseMenu()
 					player[0].lives = player[0].oldLives;
 
 				restartingLevel = YES;
+
+				quitGameDemo = 1;
 				InitLevel(player[0].worldNum,player[0].levelNum);
 
 				frameCount = 0;
@@ -384,6 +386,7 @@ void RunPauseMenu()
 
 					gameState.mode = FRONTEND_MODE;
 					player[0].character = FROG_FROGGER;
+					quitGameDemo = 1;
  					InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
 	#endif
  				}

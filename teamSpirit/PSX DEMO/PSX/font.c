@@ -153,6 +153,7 @@ void fontUnload(psFont *font)
 	FREE(font->txPtr);
 	font->txPtr = NULL;
 	FREE(font);
+	font = NULL;
 }
 
 

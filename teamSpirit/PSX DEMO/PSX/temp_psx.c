@@ -1221,7 +1221,7 @@ void StartVideoPlayback(int num)
 	{
 		LoadCodeOverlay(VIDEO_OVERLAY);
 		ClearImage(&rect, 0,0,0);
-   		sprintf(strname,"\\%s.STR;1",fmv[num].name);
+   		sprintf(strname,"\\FROGGER2\\%s.STR;1",fmv[num].name);
 		str.strName = &strname;
 		utilPrintf("Playing stream %s\n",str.strName);
    		str.mode = STR_MODE24;

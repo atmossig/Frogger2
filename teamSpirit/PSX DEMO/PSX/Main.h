@@ -37,6 +37,10 @@ extern long drawGame;
 extern TextureAnimType* timerAnim;
 extern int animFrame;
 
+extern int demo_mode, demo_timeout, demo_start_track, demo_num_tracks;
+extern int demo_timeoutCounter;
+extern int demo_quit;
+
 #define ASSERT(A)	if(!(A)) {utilPrintf("Debug ASSERT failed at line %d, in "__FILE__, __LINE__);CRASH;}
 #define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
 #define MALLOC02(S,X)	memoryAllocateZero(S, X, __LINE__)

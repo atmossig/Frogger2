@@ -98,7 +98,6 @@ int SnapShot(char *root)
     char *memc;
 	RECT rect;
 
-
 	for(i=0; i<=9999; i++)
 	{
 		sprintf(filename, "%sGRAB%04d.BMP",root,i);
@@ -162,7 +161,6 @@ int SnapShot(char *root)
 	PCclose(file);
 
 	utilPrintf("Grabbed screen %s\n", filename);
-
 	return 1;
 #endif
 }

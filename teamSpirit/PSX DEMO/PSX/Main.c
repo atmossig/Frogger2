@@ -1,3 +1,4 @@
+#define LINKED_NONE
 //#define NUM_16COLOURPALS	500
 //#define NUM_256COLOURPALS	78
 
@@ -105,6 +106,8 @@ SCENICOBJLIST scenicObjList;
 long turbo = 4096;
 int loadCodeOverlays = YES;
 
+extern TIMER demoTimeout;
+
 TextureAnimType* timerAnim = NULL;
 int animFrame;
 
@@ -187,7 +190,7 @@ void LoadCodeOverlay(int num)
 			break;
 	}
 #if GOLDCD == 0
-	strcpy(FILEIO_PCROOT, "x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
+	strcpy(FILEIO_PCROOT, "C:\\WORK\\FROGGERPROJECT\\PSX DEMO\\CODE\\CD\\");
 #endif
 }
 
@@ -472,13 +475,27 @@ int maxInterpretTimer=0;
 int oldStackPointer;
 
 extern char _SN_OVL_video_orgend[];
+
+
+extern int nextDemo;
+
+int demo_mode, demo_timeout, demo_start_track, demo_num_tracks;
+int demo_timeoutCounter = 0;
+int demo_quit = 0;
+
+#ifdef LINKED_NONE
+int main ( int argc, char **argv )
+#else
 int main ( )
+#endif
 {
 	static int frameAdvance = 0;
 	TextureBankType *genBank;
 
+#ifndef LINKED_NONE
 	while ( 1 )
 	{
+#endif
 //		RAMstart = (unsigned long)__bss_orgend;
 
 		RAMstart = (ULONG)_SN_OVL_video_orgend;
@@ -487,11 +504,32 @@ int main ( )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-		//RAMsize = (0x1fff00 - RAMstart)-8192;
-		RAMsize = 6291264;
+		RAMsize = (0x1fff00 - RAMstart)-8192;
+		//RAMsize = 6291264;
 #endif
 
-		memset((void *)0x1f8000,0,0x8000);
+
+#ifdef LINKED_NONE
+	demo_mode					= ((int *)argv)[0];
+  demo_timeout			= ((int *)argv)[1];
+  demo_start_track	= ((int *)argv)[2];
+  demo_num_tracks		= ((int *)argv)[3];
+	
+	utilPrintf ( "\nFrogger 2 Demo Segment" );
+	utilPrintf ( "\nMode: %s, Timeout: %d, StartTrack: %d, NumTracks: %d", demo_mode ? "ATTRACT" : "INTERACTIVE", demo_timeout, demo_start_track, demo_num_tracks);
+#else
+	demo_mode					= 0;//interactive
+  demo_timeout			= 10 *1;//5 minutes
+  demo_start_track	= 0;
+  demo_num_tracks		= 0;
+	
+	utilPrintf ( "\nFrogger 2 Demo Standalone" );
+	utilPrintf ( "\nMode: %s, Timeout: %d, StartTrack: %d, NumTracks: %d", demo_mode ? "ATTRACT" : "INTERACTIVE", demo_timeout, demo_start_track, demo_num_tracks );
+
+	memset((void *)0x1f8000,0,0x8000);
+#endif
+
+
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
 		memoryInitialise(RAMstart, RAMsize, 2048);
@@ -517,11 +555,11 @@ int main ( )
 		StartSound();//mmsfx
 
 #if GOLDCD == NO
-		fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
+		fileInitialise("c:\\WORK\\FROGGERPROJECT\\PSX DEMO\\CODE\\CD\\");
 //		fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
 		//XAsetStatus(CdInit());
 #else
-		fileInitialise("\\FROGGER.DAT;1");
+		fileInitialise("\\FROGGER2\\FROGGER.DAT;1");
 //		XAsetStatus(CdInit());
 #endif
 
@@ -577,7 +615,7 @@ int main ( )
 		loadCodeOverlays = YES;
 
 #if PALMODE==1
-#define ENABLE_LANG_SEL 1
+#define ENABLE_LANG_SEL 0
 #if ENABLE_LANG_SEL==1
 		LoadCodeOverlay(LANG_OVERLAY);
 		languageInitialise();
@@ -665,7 +703,20 @@ int main ( )
 
 		actorInitialise();
 
-		CommonInit();
+		//CommonInit();
+
+		if ( demo_mode == 1 )
+		{
+			utilPrintf("%d : %d\n", vsyncCounter, frame);
+			nextDemo = vsyncCounter & 1;
+			InitDemoMode();
+			GTInit(&demoTimeout, demo_timeout);
+		}
+		else if ( demo_mode == 0 )
+			CommonInit();
+		// ENDELSEIF
+
+
 
 //		loaded in CommonInit
 //		LoadGame();
@@ -722,10 +773,7 @@ int main ( )
 
 			TIMER_START0(TIMER_GAMELOOP);
 //			oldStackPointer = SetSp(0x1f800400);
-			if ( !objViewer )
-				GameLoop();
-			else
-				RunObjectViewer();
+			GameLoop();
 //			SetSp(oldStackPointer);
 			TIMER_STOP0(TIMER_GAMELOOP);
 
@@ -773,8 +821,7 @@ int main ( )
 			}
 			else
 			{
-				if ( !objViewer )
-					MainDrawFunction();
+				MainDrawFunction();
 
 				if( gameState.mode != PAUSE_MODE )
 				{
@@ -894,21 +941,73 @@ totalObjs = 0;
 
 //		SaveGame();
 
-		utilPrintf("\nFROGGER2 QUIT/RESET\n");
+		utilPrintf("\nFROGGER2 DEMO QUIT\n");
+
+		FreeAllLists();
+
+		utilPrintf("\nDrawSync 0\n");
 		DrawSync(0);
+		utilPrintf("\nClear Image\n");
 		ClearImage2(&VRAMarea, 0,0,0);
 
 //		sfxDestroy();//mmsound
 //		sfxStopSound();//mmsound
 
+//		utilPrintf("\nPad Stop\n");
+//		PadStop();
+
+		utilPrintf("\nVSync 10\n");
+		VSync(10);
+
+		utilPrintf("\nSfx Stop Sound\n");
+		sfxStopSound();
+
+		utilPrintf("\nSfx Destroy\n");
+		sfxDestroy();
+
+		utilPrintf("\nReverb Off\n");
+		SpuClearReverbWorkArea(SPU_OFF);
+
+		utilPrintf("\nStop Call Back\n");
 		StopCallback();
 
+		utilPrintf("\nPad Stop Com\n");
+		PadStopCom();
+
+		//utilPrintf("\nPad Stop\n");
+		//PadStop();
+
+		utilPrintf("\nReset Graph 3\n");
 		ResetGraph(3);
+
+		//utilPrintf("\nFREE Display Page\n");
+		//FREE(displayPage[0].ot);
+
+		//utilPrintf("\nFont Unload\n");
+		fontUnload(font);
+		font = NULL;
+
+		fontUnload(fontSmall);
+		fontSmall = NULL;
+
+		utilPrintf("\nVSync 10\n");
 		VSync(10);
+
+		//utilPrintf("\nGame Text Destroy\n");
+		//gameTextDestroy();
+
+		memoryReset();
+		memoryDestroy();
+
+		utilPrintf("\nFROGGER2 DEMO QUIT FINISHED\n");
+
+		//VSync(10);
+#ifndef LINKED_NONE
 	}
 	// ENDWHILE
+#endif
 
-	return 0;
+	return (0);
 }
 
 
@@ -927,16 +1026,16 @@ void MainDrawFunction ( void )
 	if((gameState.mode != MULTI_WINRACE_MODE) && (gameState.mode != MULTI_WINBATTLE_MODE) && (gameState.mode != MULTI_WINCOLLECT_MODE) && (gameState.mode != MULTI_WINMATCH_MODE) && (gameState.mode != LEVELCOMPLETE_MODE) && (!skipTextOverlaysSpecFX))
 	{
 		TIMER_START0(TIMER_DRAW_SPECFX);
-		oldStackPointer = SetSp(0x1f800400);
+		//oldStackPointer = SetSp(0x1f800400);
 		DrawSpecialFX();
-		SetSp(oldStackPointer);
+		//SetSp(oldStackPointer);
 		TIMER_STOP0(TIMER_DRAW_SPECFX);
 	}
 
 	TIMER_START0(TIMER_PRINT_SPRITES);
-	oldStackPointer = SetSp(0x1f800400);
+	//oldStackPointer = SetSp(0x1f800400);
 	PrintSprites();
-	SetSp(oldStackPointer);
+	//SetSp(oldStackPointer);
 	TIMER_STOP0(TIMER_PRINT_SPRITES);
 
 	TIMER_START0(TIMER_DRAW_SCENICS);
@@ -1056,8 +1155,8 @@ void MainReset ( void )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-	//RAMsize = (0x1fff00 - RAMstart)-8192;
-	RAMsize = 6291264;
+	RAMsize = (0x1fff00 - RAMstart)-8192;
+	//RAMsize = 6291264;
 #endif
 
 		//utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);

@@ -57,6 +57,9 @@ extern long pageToStoryLevel[BOOK_NUM_PAGES];
 extern long picOffset;
 extern int staticFlash;
 
+extern TIMER artTimer;
+extern int currentArt;
+extern int goingToArtViewer;
 
 typedef void (*CONTROLFUNC)(void);
 

@@ -28,22 +28,22 @@
 
 int lastSound = -1;
 
-char *musicNames[] = {	"CDA.XA",
-						"CDB.XA",
+char *musicNames[] = {	"FROGGER2\\CDA.XA",
+						"FROGGER2\\CDB.XA",
 					 };
 
-int musicList[] = { 0,//
-					1,//
-					2,//
+int musicList[] = { 0,// GARDEN
+					1,//	HALLOWEEN
+					2,//	LEVEL COMPLETE
+					3,//	GAME OVER
+					4,//	LOOP
+					5,//	
 					6,//
-					3,//
-					4,//
-					5,//
-					6,//
-					7,
-					0,
-					1,
-					2,
+					7,//
+					8,
+					9,
+					10,
+					11,
 };//
 
 
@@ -762,9 +762,13 @@ void PrepareSong ( short worldID,  short loop )
 
 	switch ( worldID )
 	{
-		case AUDIOTRK_GAMEOVER:				worldID = 10; xaNum = 1; break;
-		case AUDIOTRK_LEVELCOMPLETE:		worldID = 9; xaNum = 1; break;
-		case AUDIOTRK_LEVELCOMPLETELOOP:	worldID = 11; xaNum = 1; break;
+		case WORLDID_GARDEN: worldID = 0; break;
+		case WORLDID_HALLOWEEN: worldID = 1; break;
+
+
+		case AUDIOTRK_GAMEOVER:				worldID = 2; xaNum = 1; break;
+		case AUDIOTRK_LEVELCOMPLETE:		worldID = 3; xaNum = 1; break;
+		case AUDIOTRK_LEVELCOMPLETELOOP:	worldID = 4; xaNum = 1; break;
 	}
 
 	chan = musicList  [ worldID ];
@@ -774,7 +778,7 @@ void PrepareSong ( short worldID,  short loop )
 	XAstart(1);
 	songPlaying = 1;
 	utilPrintf			( "World ID : %d \n", worldID );
-	XAplayChannel		( xaFileData[xaNum], chan, loop, 100 );
+	XAplayChannel		( xaFileData[0], chan, loop, 100 );
 	SetMusicVolume();
 	//MAIN_PrintXAData	( xaFileData [ 0 ] );
 
