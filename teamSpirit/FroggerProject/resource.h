@@ -14,7 +14,6 @@
 #define IDD_MULTI_GAMES                 107
 #define IDD_MULTI_START                 108
 #define IDD_CONTROLS                    109
-#define IDI_ICON1                       109
 #define IDD_MULTI_CREATE                110
 #define IDD_KEYPRESS                    112
 #define IDC_LIST2                       1001

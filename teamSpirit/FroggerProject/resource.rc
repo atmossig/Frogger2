@@ -276,7 +276,6 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_FROGGER2            ICON    DISCARDABLE     "frogger2.ico"
-IDI_ICON1               ICON    DISCARDABLE     "icon1.ico"
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
