@@ -142,7 +142,7 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world);
 
 // Draw a platform mesh
 void MapDraw_DrawFMA_Mesh(FMA_MESH_HEADER *mesh);
-void MapDraw_DrawFMA_Water ( WATER *cur );
+//void MapDraw_DrawFMA_Water ( WATER *cur );
 
 int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh);
 int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh);

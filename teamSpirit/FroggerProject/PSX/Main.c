@@ -843,11 +843,11 @@ void MainDrawFunction ( void )
 
 	TIMER_STOP0(TIMER_DRAW_SCENICS);
 	
-	TIMER_START0(TIMER_DRAW_WATER);
-	if ( drawLandscape && drawGame )
+//	TIMER_START0(TIMER_DRAW_WATER);
+//	if ( drawLandscape && drawGame )
 //	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
-		DrawWaterList();
-	TIMER_STOP0(TIMER_DRAW_WATER);
+//		DrawWaterList();
+//	TIMER_STOP0(TIMER_DRAW_WATER);
 
 	TIMER_START0(TIMER_ACTOR_DRAW);
 	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )

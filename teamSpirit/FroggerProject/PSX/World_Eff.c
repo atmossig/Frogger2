@@ -15,14 +15,17 @@
 // JH: Let's define a name so that we can use sprite's in the scenic drawing routines.
 #define NEW_SPRITE_MAPS
 
-#define ADDATIVE			( 1 << 0 ) //1
-#define SUBTRACTIVE		( 1 << 1 ) //2
-#define USLIDDING			( 1 << 4 ) //16
-#define VSLIDDING			( 1 << 5 ) //32
-#define PLUSSLIDDING  ( 1 << 6 ) //64
-#define MINUSSLIDDING ( 1 << 7 ) //128
-#define JIGGLE        ( 1 << 8 ) //256
-#define MODGY         ( 1 << 9 ) //512
+#define ADDITIVE		(1<<0)
+#define SUBTRACTIVE		(1<<1)
+#define USLIDING		(1<<4)
+#define VSLIDING		(1<<5)
+#define PLUSSLIDING		(1<<6)
+#define MINUSSLIDING	(1<<7)
+#define JIGGLE			(1<<8)
+#define MODGY			(1<<9)
+#define SLIDESPEED		(1<<10)
+#define SLIDESPEED2		(1<<11)
+#define SLOWSLIDE		(1<<12)
 
 #define VRAM_STARTX			512
 #define VRAM_PAGECOLS		8
@@ -66,9 +69,6 @@ asm(\
 	*(unsigned long *)(p) = tempvar; \
 }
 
-//#define WATERANIM_1 (u+((rcos(frame<<6))>>11))|((v+((rsin(frame<<6))>>11))<<8)
-//#define WATERANIM_2 (u+((rsin(frame<<6))>>11))|((v+((rcos(frame<<6))>>11))<<8)
-
 #define WATERANIM_1A (u+((rcos(frame<<10)+4096)>>5))|((v+((rsin(frame<<10)+4096)>>5))<<4)
 #define WATERANIM_2B (u+((rsin(frame<<10)+4096)>>5))|((v+((rcos(frame<<10)+4096)>>5))<<8)
 
@@ -86,565 +86,6 @@ asm(\
 
 
 
-void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
-{
-	register u_long t1 asm("$16");
-	register u_long t2 asm("$20");
-
-	register PACKET * packet asm("$17");
-	register char *opcd asm("$18");
-
-	long *tfv;
-	long *tfd;
-
-	#define GETX(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->x )
-	#define GETY(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->y )
-	#define GETV(n)(  *(u_long *)( (int)(tfv) +(n) ) )
-	#define GETD(n)(  *(u_long *)( (int)(tfd) +(n) ) )
-
-	register long depth asm("$16");
-
-	unsigned long *ot = currentDisplayPage->ot+mesh->extra_depth;
-
-//	static SVECTOR *jiggledVerts = NULL;
-
-	int i;
-
-	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
-	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
-
-	//tfv = (long*)transformedVertices;
-	//tfd = (long*)transformedDepths;
-
-	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
-	{
-		tfv = (void *)0x1f800000;
-		tfd = (void *)(0x1f800000 + 512);
-	}
-	else if(mesh->n_verts <= 255)	// Not 256. TransformVerts rounds up to nearest 3, remember
-	{
-		tfv = (void *)0x1f800000;
-		tfd = transformedDepths;
-	}
-	else
-	{
-		tfv = transformedVertices;
-		tfd = transformedDepths;
-	}
-
-
-	if ( max_depth > 1024 - mesh->extra_depth )
-		max_depth = 1024 - mesh->extra_depth;
-
-
-//	if ( !jiggledVerts )
-//		jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
-
-	
-	if ( mesh->flags & JIGGLE )
-	{
-		for ( i = 0; i < mesh->n_verts; i++ )
-		{
-			jiggledVerts[i].vx = mesh->verts[i].vx;// + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 6 );
-			jiggledVerts[i].vy = mesh->verts[i].vy + ( rcos ( ( frame << 6 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 8 );
-			jiggledVerts[i].vz = mesh->verts[i].vz;// + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
-		}
-		// ENDFOR
-
-		//utilPrintf("Jiggle Water!!!\n");
-		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
-	}
-	else
-	{
-		//utilPrintf("Do Not Jiggle Water!!!\n");
-		transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
-	}
-	// ENDELSEIF
-
-	//for ( i = 0; i < mesh->n_verts; i++ )
-	//{
-	//	tfd [ i ] = tfd [ i ] >> 2;
-	//}
-	// ENDFOR
-
-
-	packet = (PACKET *)currentDisplayPage->primPtr;
-
-#define si ((POLY_GT4*)packet)
-#define op ((FMA_GT4 *)opcd)
-
-	polyCount += mesh->n_gt4s;
-
-	op = mesh->gt4s;
-
-	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
-	{
-		char u,v;
-
-		gte_ldsz4 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ), GETD ( op->vert3 ) );
-   	gte_avsz4();
-		gte_stotz_cpu ( depth );
-
-//		depth = depth >> 2;
-
-		if ( depth > min_depth && depth < max_depth )
-		{
-			if( ( ( GETV ( op->vert0 ) & 0xff80ff00 ) + 0x00800100 ) &
-					( ( GETV ( op->vert1 ) & 0xff80ff00 ) + 0x00800100 ) &
-					( ( GETV ( op->vert2 ) & 0xff80ff00 ) + 0x00800100 ) &
-					( ( GETV ( op->vert3 ) & 0xff80ff00 ) + 0x00800100 ) & 0x01000200 )
-			{
-				continue;
-			}
-			// ENDIF
-
-			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
-
-				addPrimLen ( ot + ( depth + mesh->shift), si, 12, t2 );
-			// ENDELSEIF
-
-				if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						u = op->u0 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						u = op->u0 - ( ( frame / 2 ) % 32 );
-					// ENDELSEIF
-					v = op->v0;
-
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						v = op->v0 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						v = op->v0 - ( ( frame / 2 ) % 32 );
-
-					u = op->u0;
-				}
-				else
-				{
-					u = op->u0;
-					v = op->v0;
-				}
-				// ENDELSEIF
-
-
-			if ( mesh->flags & MODGY )
-				t1 = WATERANIM_1A;
-			else
-				t1 = WATERANIM_1;
-
-
-			if ( mesh->flags & ADDATIVE )
-				t1 |= ( op->clut << 16 ) | WATER_TRANS_CLUT;
-			else
-				t1 |= ( op->clut << 16 ) | 0;
-
-				if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						u = op->u1 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						u = op->u1 - ( ( frame / 2 ) % 32 );
-					// ENDELSEIF
-					v = op->v1;
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						v = op->v1 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						v = op->v1 - ( ( frame / 2 ) % 32 );
-					u = op->u1;
-				}
-				else
-				{
-					u = op->u1;
-					v = op->v1;
-				}
-				// ENDELSEIF
-
-	//		t2 = WATERANIM_1 | ( op->tpage << 16 );
-
-
-			if ( mesh->flags & MODGY )
-			{
-				t2 = WATERANIM_2B | ( op->tpage << 16 );
-			}
-			else
-			{
-				t2 = WATERANIM_1 | ( op->tpage << 16 );
-			}
-			// ENDELSEIF
-
-
-			*(u_long *)  (&si->u0) = t1;
-			*(u_long *)  (&si->u1) = t2;
-
-			gte_stsxy3_gt4 ( si );	// The first 3 x's & y's are already in the gte, so we may as well use 'em
-
-				if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						u = op->u2 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						u = op->u2 - ( ( frame / 2 ) % 32 );
-					v = op->v2;
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						v = op->v2 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						v = op->v2 - ( ( frame / 2 ) % 32 );
-					u = op->u2;
-				}
-				else
-				{
-					u = op->u2;
-					v = op->v2;
-				}
-				// ENDELSEIF
-
-			//t1 = WATERANIM_2;
-
-			if ( mesh->flags & MODGY )
-				t1 = WATERANIM_1A;
-			else
-				t1 = WATERANIM_2;
-
-				if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						u = op->u3 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						u = op->u3 - ( ( frame / 2 ) % 32 );
-					v = op->v3;
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						v = op->v3 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						v = op->v3 - ( ( frame / 2 ) % 32 );
-					u = op->u3;
-				}
-				else
-				{
-					u = op->u3;
-					v = op->v3;
-				}
-				// ENDELSEIF
-
-			if ( mesh->flags & MODGY )
-			{
-				t2 = WATERANIM_2B;
-			}
-			else
-			{
-				t2 = WATERANIM_2;
-			}
-			// ENDELSEIF
-
-			//t2 = WATERANIM_2;
-
-			*(u_long *)  (&si->u2) = t1;
-			*(u_long *)  (&si->u3) = t2;
-
-			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
-
-			if ( mesh->flags & ADDATIVE )
-				t1 = ( *( u_long *) ( &op->r0 ) ) | WATER_TRANS_CODE;
-			else
-				t1 = ( *( u_long *) ( &op->r0 ) ) | 0;
-			// ENDIF
-
-			t2 = *(u_long *) (&op->r1);
-
-			*(u_long *)  (&si->r0) = t1;
-			*(u_long *)  (&si->r1) = t2;
-
-			t1 = *(u_long *) (&op->r2);
-			t2 = *(u_long *) (&op->r3);
-
-			*(u_long *)  (&si->r2) = t1;
-			*(u_long *)  (&si->r3) = t2;
-
-
-			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
-		}
-	}
-
-#undef si
-#undef op
-
-#define si ((POLY_GT3*)packet)
-#define op ((FMA_GT3 *)opcd)
-
-	polyCount += mesh->n_gt3s;
-
-	op = mesh->gt3s;
-
-	for ( i = mesh->n_gt3s; i != 0; i--, op++ )
-	{
-		char u,v;
-
-		gte_ldsz3 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ) );
-   	gte_avsz3();
-		gte_stotz_cpu ( depth );
-
-//		depth = depth >> 2;
-
-		if ( depth > min_depth && depth < max_depth )
-		{
-			if( ( ( GETV ( op->vert0 ) & 0xff80ff00 ) + 0x00800100 ) &
-					( ( GETV ( op->vert1 ) & 0xff80ff00 ) + 0x00800100 ) &
-					( ( GETV ( op->vert2 ) & 0xff80ff00 ) + 0x00800100 ) & 0x01000200 )
-			{
-				continue;
-			}
-			// ENDIF
-
-			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
-
-				addPrimLen ( ot + ( depth + mesh->shift), si, 9, t2 );
-			// ENDELSEIF
-
-				if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						u = op->u0 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						u = op->u0 - ( ( frame / 2 ) % 32 );
-					// ENDELSEIF
-					v = op->v0;
-
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						v = op->v0 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						v = op->v0 - ( ( frame / 2 ) % 32 );
-
-					u = op->u0;
-				}
-				else
-				{
-					u = op->u0;
-					v = op->v0;
-				}
-				// ENDELSEIF
-
-
-			if ( mesh->flags & MODGY )
-				t1 = WATERANIM_1A;
-			else
-				t1 = WATERANIM_1;
-
-
-			if ( mesh->flags & ADDATIVE )
-				t1 |= ( op->clut << 16 ) | WATER_TRANS_CLUT;
-			else
-				t1 |= ( op->clut << 16 ) | 0;
-
-				if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						u = op->u1 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						u = op->u1 - ( ( frame / 2 ) % 32 );
-					// ENDELSEIF
-					v = op->v1;
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						v = op->v1 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						v = op->v1 - ( ( frame / 2 ) % 32 );
-					u = op->u1;
-				}
-				else
-				{
-					u = op->u1;
-					v = op->v1;
-				}
-				// ENDELSEIF
-
-	//		t2 = WATERANIM_1 | ( op->tpage << 16 );
-
-
-			if ( mesh->flags & MODGY )
-			{
-				t2 = WATERANIM_2B | ( op->tpage << 16 );
-			}
-			else
-			{
-				t2 = WATERANIM_1 | ( op->tpage << 16 );
-			}
-			// ENDELSEIF
-
-
-			*(u_long *)  (&si->u0) = t1;
-			*(u_long *)  (&si->u1) = t2;
-
-			gte_stsxy3_gt4 ( si );	// The first 3 x's & y's are already in the gte, so we may as well use 'em
-
-				if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						u = op->u2 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						u = op->u2 - ( ( frame / 2 ) % 32 );
-					v = op->v2;
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						v = op->v2 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						v = op->v2 - ( ( frame / 2 ) % 32 );
-					u = op->u2;
-				}
-				else
-				{
-					u = op->u2;
-					v = op->v2;
-				}
-				// ENDELSEIF
-
-			//t1 = WATERANIM_2;
-
-			if ( mesh->flags & MODGY )
-				t1 = WATERANIM_1A;
-			else
-				t1 = WATERANIM_2;
-
-			/*	if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						u = op->u3 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						u = op->u3 - ( ( frame / 2 ) % 32 );
-					v = op->v3;
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						v = op->v3 + ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						v = op->v3 - ( ( frame / 2 ) % 32 );
-					u = op->u3;
-				}
-				else
-				{
-					u = op->u3;
-					v = op->v3;
-				}
-				// ENDELSEIF
-
-			if ( mesh->flags & MODGY )
-			{
-				t2 = WATERANIM_2B;
-			}
-			else
-			{
-				t2 = WATERANIM_2;
-			}
-			// ENDELSEIF*/
-
-			//t2 = WATERANIM_2;
-
-			*(u_long *)  (&si->u2) = t1;
-//			*(u_long *)  (&si->u3) = t2;
-
-//			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
-
-			if ( mesh->flags & ADDATIVE )
-				t1 = ( *( u_long *) ( &op->r0 ) ) | WATER_TRANS_CODE;
-			else
-				t1 = ( *( u_long *) ( &op->r0 ) ) | 0;
-			// ENDIF
-
-			t2 = *(u_long *) (&op->r1);
-
-			*(u_long *)  (&si->r0) = t1;
-			*(u_long *)  (&si->r1) = t2;
-
-			t1 = *(u_long *) (&op->r2);
-//			t2 = *(u_long *) (&op->r3);
-
-			*(u_long *)  (&si->r2) = t1;
-//			*(u_long *)  (&si->r3) = t2;
-
-
-			packet = ADD2POINTER ( packet, sizeof ( POLY_GT3 ) );
-		}
-	}
-
-#undef si
-#undef op
-
-	currentDisplayPage->primPtr = (char *)packet;
-
-//	if ( jiggledVerts )
-//		FREE ( jiggledVerts );
-}
-
-
-
-/*
-void CreateAndAddScenicObject ( char *name, short posx, short posy, short posz, int newFlags )
-{
-	SCENICOBJ *newItem;
-
-	newItem = ( SCENICOBJ* ) MALLOC0 ( sizeof ( SCENICOBJ ) );
-
-	AddScenicObj ( newItem );
-
-	newItem->position.vx = posx;
-	newItem->position.vy = posy;
-	newItem->position.vz = posz;
-
-	newItem->flags = newFlags;
-	
-	utilPrintf("Creating Scenic Object : %s\n", name);
-//	utilUpperStr ( name );
-
-	newItem->fmaObj = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( name ) );
-
-//	utilPrintf("Creating Scenic Object : %lu\n", utilStr2CRC ( name ));
-
-	if ( newItem->fmaObj )
-	{
-		SetUpWaterMesh ( newItem->fmaObj );
-	}
-	else
-	{
-		utilPrintf("Could Not Create Scenic Object.\n");
-	}
-	// ENDIF
-
-}
-*/
 void CreateAndAddScenicObject(SCENIC *sc)
 {
 	SCENICOBJ *newItem;
@@ -675,8 +116,6 @@ void CreateAndAddScenicObject(SCENIC *sc)
 	{
 		utilPrintf("Could Not Create Scenic Object.\n");
 	}
-	// ENDIF
-
 }
 
 
@@ -684,80 +123,27 @@ void CreateAndAddScenicObject(SCENIC *sc)
 void DrawScenicObjList ( void )
 {
 	int i;
-
-	SCENICOBJ *cur, *next;
-
+	SCENICOBJ *cur;
 	FMA_MESH_HEADER **mesh;
-
 
 	if ( scenicObjList.numEntries == 0 )
 		return;
 
-	for ( cur = scenicObjList.head.next; cur != &scenicObjList.head; cur = next)
+	for ( cur = scenicObjList.head.next; cur != &scenicObjList.head; cur = cur->next)
 	{
-		next = cur->next;
-
 		if ( cur->fmaObj )
 		{
 			mesh = ADD2POINTER(cur->fmaObj,sizeof(FMA_WORLD));
 
 			for ( i = cur->fmaObj->n_meshes; i != 0; i--, mesh++ )
 			{
-//bb dont need this, they don't move/rotate, just animate.
-//				MapDraw_SetMatrix ( *mesh, *-mesh->posx, *mesh->posy, *mesh->posz );
-				//MapDraw_SetMatrix ( *mesh, -cur->matrix.t[0], cur->matrix.t[1], cur->matrix.t[2] );
 				MapDraw_SetScenicMatrix(*mesh, cur);
 
-//				MATRIX temp;
-//				MulMatrix0(&GsWSMATRIX, &cur->matrix, &temp);
-//				MulMatrix0(&cur->matrix, &GsWSMATRIX, &temp);
-//				gte_SetRotMatrix(&temp);
-//				gte_SetTransMatrix(&temp);
-
-//				gte_SetRotMatrix(&cur->matrix);
-//				gte_SetTransMatrix(&cur->matrix);
 				if ( MapDraw_ClipCheck ( *mesh ) )
-				{
-					//utilPrintf("Drawing Scenic Object...................................................\n");
 					DrawScenicObj ( *mesh, cur->flags );
-				}
-				// ENDIF
 			}
-			// ENDFOR
-
 		}
-		// ENDIF	    
 	}
-	// ENDFOR
-
-
-
-
-
-
-/*	FMA_WORLD *waterObj = cur->fma_water;
-
-
-	FMA_MESH_HEADER **mesh;
-
-	mesh = ADD2POINTER(waterObj,sizeof(FMA_WORLD));
-
-	for ( i = waterObj->n_meshes; i != 0; i--, mesh++ )
-	{
-		MapDraw_SetMatrix ( *mesh, -cur->position.vx, cur->position.vy, cur->position.vz );
-
-		if ( MapDraw_ClipCheck ( *mesh ) )
-		{
-			DrawWater ( *mesh, cur->flags );
-		}
-		// ENDIF
-	}*/
-	// ENDFOR
-
-
-
-
-
 }
 
 
@@ -792,7 +178,6 @@ void FreeScenicObjectList ( void )
 		next = cur->next;
 		SubScenicObject(cur);
 	}
-//	FREE(specFXList.head);
 }
 
 
@@ -865,35 +250,25 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frameCount << 7 ) + ( mesh->verts[i].vx ^ mesh->verts[i].vz ) ) >> 6 );
 			jiggledVerts[i].vz = mesh->verts[i].vz + ( rcos ( ( frameCount << 5 ) + ( mesh->verts[i].vx | mesh->verts[i].vz ) ) >> 7 );
 		}
-		// ENDFOR
-		
-//		utilPrintf("Jiggle Scenic!!!\n");
+
 		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
 	}
 	else
 	{
-		//utilPrintf("Do Not Jiggle Scenic!!!\n");
 		transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
 	}
-	// ENDELSEIF
-
 
 #define si ((POLY_GT4*)packet)
 #define op ((FMA_GT4 *)opcd)
 
 	op = mesh->gt4s;
-
 	packet = (PACKET *)currentDisplayPage->primPtr;
-
-
 	polyCount += mesh->n_gt4s;
 
 	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
 	{
-
-
 		gte_ldsz4 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ), GETD ( op->vert3 ) );
-   	gte_avsz4();
+	   	gte_avsz4();
 		gte_stotz_cpu ( depth );
 
 		if ( depth > min_depth && depth < max_depth )
@@ -905,8 +280,6 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			{
 				continue;
 			}
-			// ENDIF
-
 
 			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
 
@@ -915,38 +288,35 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
 			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
 
-			if ( mesh->flags & USLIDDING )
+			if ( mesh->flags & USLIDING )
 			{
-				if ( mesh->flags & PLUSSLIDDING )
+				if ( mesh->flags & PLUSSLIDING )
 				{
 					si->u0 += ( ( frame / 2 ) % 32 );
 					si->u1 += ( ( frame / 2 ) % 32 );
 				}
 
-				if ( mesh->flags & MINUSSLIDDING )
+				if ( mesh->flags & MINUSSLIDING )
 				{
 					si->u0 -= ( ( frame / 2 ) % 32 );
 					si->u1 -= ( ( frame / 2 ) % 32 );
 				}
-				// ENDIF
 			}
-			else if ( mesh->flags & VSLIDDING )
+			else if ( mesh->flags & VSLIDING )
 			{
-				if ( mesh->flags & PLUSSLIDDING )
+				if ( mesh->flags & PLUSSLIDING )
 				{
 					si->v0 += ( ( frame / 2 ) % 32 );
 					si->v1 += ( ( frame / 2 ) % 32 );
 				}
 
-				if ( mesh->flags & MINUSSLIDDING )
+				if ( mesh->flags & MINUSSLIDING )
 				{
 					si->v0 -= ( ( frame / 2 ) % 32 );
 					si->v1 -= ( ( frame / 2 ) % 32 );
 				}
 
 			}
-			// ENDELSEIF
-			
 
 			if ( mesh->flags & MODGY )
 			{
@@ -963,53 +333,40 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 				si->u1 = ( u + ( (rsin(frame<<6) + 4096) >> 11 ) );
 				si->v1 = ( v + ( (rcos(frame<<6) + 4096) >> 11 ) );
 			}
-			// ENDIF*
 			
 			gte_stsxy3_gt4(si);
 								
 			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
 			*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
 
-				if ( mesh->flags & USLIDDING )
+				if ( mesh->flags & USLIDING )
 				{
-					if ( mesh->flags & PLUSSLIDDING )
+					if ( mesh->flags & PLUSSLIDING )
 					{
 						si->u2 += ( ( frame / 2 ) % 32 );
 						si->u3 += ( ( frame / 2 ) % 32 );
 					}
 
-					if ( mesh->flags & MINUSSLIDDING )
+					if ( mesh->flags & MINUSSLIDING )
 					{
 						si->u2 -= ( ( frame / 2 ) % 32 );
 						si->u3 -= ( ( frame / 2 ) % 32 );
 					}
-					// ENDELSEIF
-					//v = op->v2;
 				}
-				else if ( mesh->flags & VSLIDDING )
+				else if ( mesh->flags & VSLIDING )
 				{
-					if ( mesh->flags & PLUSSLIDDING )
+					if ( mesh->flags & PLUSSLIDING )
 					{
 						si->v2 += ( ( frame / 2 ) % 32 );
 						si->v3 += ( ( frame / 2 ) % 32 );
 					}
 
-					if ( mesh->flags & MINUSSLIDDING )
+					if ( mesh->flags & MINUSSLIDING )
 					{
 						si->v2 -= ( ( frame / 2 ) % 32 );
 						si->v3 -= ( ( frame / 2 ) % 32 );
 					}
-					//u = op->u2;
 				}
-				else
-				{
-					//u = op->u2;
-					//v = op->v2;
-				}
-				// ENDELSEIF
-
-			//*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
-			//*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
 
 			if ( mesh->flags & MODGY )
 			{
@@ -1025,7 +382,6 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 				si->u3 = (u+((rcos(frame<<6)+4096)>>11));
 				si->v3 = ((v+((rsin(frame<<6)+4096)>>11)));
 			}
-			// ENDIF
 
 			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
 			*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
@@ -1034,29 +390,10 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
 
-
-			//si->code	= op->code;
-			//si->tpage = op->tpage;
-
 			si->code	= op->code | ( op->pad2 & 2 );
 			si->tpage = op->tpage | ( op->pad2 & 96 );
 
-/*			if ( mesh->flags & ADDATIVE )
-			{
-				si->code  |= 2;
- 				si->tpage |= 32;
-			}
-			// ENDIF
-
-			if ( mesh->flags & SUBTRACTIVE )
-			{
-				si->code  |= 2;
- 				si->tpage = si->tpage | 64;
-			}
-			// ENDIF*/
-
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
-
 		}
 	}
 #undef op
@@ -1067,17 +404,12 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	op = mesh->gt3s;
 
-	//packet = (PACKET *)currentDisplayPage->primPtr;
-
-
 	polyCount += mesh->n_gt3s;
 
 	for ( i = mesh->n_gt3s; i != 0; i--, op++ )
 	{
-
-
 		gte_ldsz3 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ) );
-   	gte_avsz3();
+	   	gte_avsz3();
 		gte_stotz_cpu ( depth );
 
 		if ( depth > min_depth && depth < max_depth )
@@ -1094,65 +426,44 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 
 			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
-
-				addPrimLen ( ot + ( depth + mesh->shift), si, 9, t2 );
-			// ENDELSEIF
-
+			addPrimLen ( ot + ( depth + mesh->shift), si, 9, t2 );
 
 			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);
 			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
 
-				if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						si->u0 += ( ( frame / 2 ) % 32 );
+			if ( mesh->flags & USLIDING )
+			{
+				if ( mesh->flags & PLUSSLIDING )
+					si->u0 += ( ( frame / 2 ) % 32 );
 
-					if ( mesh->flags & MINUSSLIDDING )
-						si->u0 -= ( ( frame / 2 ) % 32 );
-					// ENDELSEIF
-					//v = op->v0;
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						si->v0 += ( ( frame / 2 ) % 32 );
+				if ( mesh->flags & MINUSSLIDING )
+					si->u0 -= ( ( frame / 2 ) % 32 );
+			}
+			else if ( mesh->flags & VSLIDING )
+			{
+				if ( mesh->flags & PLUSSLIDING )
+					si->v0 += ( ( frame / 2 ) % 32 );
 
-					if ( mesh->flags & MINUSSLIDDING )
-						si->v0 -= ( ( frame / 2 ) % 32 );
-					//u = op->u0;
-				}
-				else
-				{
-					//u = op->u0;
-					//v = op->v0;
-				}
-				// ENDELSEIF
+				if ( mesh->flags & MINUSSLIDING )
+					si->v0 -= ( ( frame / 2 ) % 32 );
+			}
 
-				if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						si->u1 += ( ( frame / 2 ) % 32 );
+			if ( mesh->flags & USLIDING )
+			{
+				if ( mesh->flags & PLUSSLIDING )
+					si->u1 += ( ( frame / 2 ) % 32 );
 
-					if ( mesh->flags & MINUSSLIDDING )
-						si->u1 -= ( ( frame / 2 ) % 32 );
-					// ENDELSEIF
-					//v = op->v1;
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						si->v1 += ( ( frame / 2 ) % 32 );
+				if ( mesh->flags & MINUSSLIDING )
+					si->u1 -= ( ( frame / 2 ) % 32 );
+			}
+			else if ( mesh->flags & VSLIDING )
+			{
+				if ( mesh->flags & PLUSSLIDING )
+					si->v1 += ( ( frame / 2 ) % 32 );
 
-					if ( mesh->flags & MINUSSLIDDING )
-						si->v1 -= ( ( frame / 2 ) % 32 );
-					//u = op->u1;
-				}
-				else
-				{
-					//u = op->u1;
-					//v = op->v1;
-				}
-				// ENDELSEIF
+				if ( mesh->flags & MINUSSLIDING )
+					si->v1 -= ( ( frame / 2 ) % 32 );
+			}
 
 //			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
 //			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
@@ -1161,44 +472,36 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			{
 				u = si->u0;
 				v = si->v0;
-			
 				si->u0 = ( u + ( ( rsin ( frame << 6 ) + 4096 ) >> 10 ) );
 				si->v0 = ( ( v + ( ( rcos ( frame << 6 ) + 4096 ) >> 10 ) ) );
 
-
 				u = si->u1;
 				v = si->v1;
-
 				si->u1 = (u+((rsin(frame<<6)+4096)>>10));
 				si->v1 = ((v+((rcos(frame<<6)+4096)>>10)));
 			}
-			// ENDIF*/
 			
 			gte_stsxy3_gt3(si);
 								
 
 			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
 
-			if ( mesh->flags & USLIDDING )
+			if ( mesh->flags & USLIDING )
 			{
-				if ( mesh->flags & PLUSSLIDDING )
+				if ( mesh->flags & PLUSSLIDING )
 					si->u2 += ( ( frame / 2 ) % 32 );
 
-				if ( mesh->flags & MINUSSLIDDING )
+				if ( mesh->flags & MINUSSLIDING )
 					si->u2 -= ( ( frame / 2 ) % 32 );
-				// ENDELSEIF
-				//v = op->v2;
 			}
-			else if ( mesh->flags & VSLIDDING )
+			else if ( mesh->flags & VSLIDING )
 			{
-				if ( mesh->flags & PLUSSLIDDING )
+				if ( mesh->flags & PLUSSLIDING )
 					si->v2 += ( ( frame / 2 ) % 32 );
 
-				if ( mesh->flags & MINUSSLIDDING )
+				if ( mesh->flags & MINUSSLIDING )
 					si->v2 -= ( ( frame / 2 ) % 32 );
-				//u = op->u2;
 			}
-			// ENDELSEIF
 
 			if ( mesh->flags & MODGY )
 			{
@@ -1207,9 +510,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 				si->u2 = (u+((rcos(frame<<6)+4096)>>11));
 				si->v2 = ((v+((rsin(frame<<6)+4096)>>11)));
-
 			}
-			// ENDIF
 
 			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
 			*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
@@ -1219,16 +520,12 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			si->tpage = op->tpage | ( op->pad2 & 96 );
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT3 ) );
-
 		}
 	}
 #undef op
 #undef si
 
 	currentDisplayPage->primPtr = (char *)packet;
-
-//	if ( jiggledVerts )
-//		FREE ( jiggledVerts );
 }
 
 

@@ -46,26 +46,26 @@ void CreateAndAddWaterObject ( SCENIC *water )
 }
 
 
-void DrawWaterList ( void )
-{
-	WATER *cur, *next;
+//void DrawWaterList ( void )
+//{
+//	WATER *cur, *next;
 
-	if ( waterList.numEntries == 0 )
-		return;
+//	if ( waterList.numEntries == 0 )
+//		return;
 
-	for ( cur = waterList.head.next; cur != &waterList.head; cur = next)
-	{
-		next = cur->next;
+//	for ( cur = waterList.head.next; cur != &waterList.head; cur = next)
+//	{
+//		next = cur->next;
 
-		if ( cur->fma_water )
-		{
-			MapDraw_DrawFMA_Water ( cur );
-		}
-		// ENDIF	    
-	}
+//		if ( cur->fma_water )
+//		{
+//			MapDraw_DrawFMA_Water ( cur );
+//		}
+//		// ENDIF	    
+//	}
 	// ENDFOR
 
-}
+//}
 
 
 void InitWaterLinkedList ( void )

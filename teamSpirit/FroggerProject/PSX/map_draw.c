@@ -885,29 +885,29 @@ void MapDraw_SetWaterMatrix ( FMA_MESH_HEADER* mesh, WATER* sc )
 	gte_SetTransMatrix(&tx);
 }
 
-void MapDraw_DrawFMA_Water ( WATER *cur )
-{
+//void MapDraw_DrawFMA_Water ( WATER *cur )
+//{
 
-	FMA_WORLD *waterObj = cur->fma_water;
+//	FMA_WORLD *waterObj = cur->fma_water;
 
-	int i;
+//	int i;
 
-	FMA_MESH_HEADER **mesh;
+//	FMA_MESH_HEADER **mesh;
 
-	mesh = ADD2POINTER(waterObj,sizeof(FMA_WORLD));
+//	mesh = ADD2POINTER(waterObj,sizeof(FMA_WORLD));
 
-	for ( i = waterObj->n_meshes; i != 0; i--, mesh++ )
-	{
-		//MapDraw_SetMatrix ( *mesh, -cur->position.vx, cur->position.vy, cur->position.vz );
+//	for ( i = waterObj->n_meshes; i != 0; i--, mesh++ )
+//	{
+//		//MapDraw_SetMatrix ( *mesh, -cur->position.vx, cur->position.vy, cur->position.vz );
 
-		MapDraw_SetWaterMatrix(*mesh, cur);
+//		MapDraw_SetWaterMatrix(*mesh, cur);
 
-		if ( MapDraw_ClipCheck ( *mesh ) )
-		{
-			DrawWater ( *mesh, cur->flags );
-		}
-		// ENDIF
-	}
+//		if ( MapDraw_ClipCheck ( *mesh ) )
+//		{
+//			DrawWater ( *mesh, cur->flags );
+//		}
+//		// ENDIF
+//	}
 	// ENDFOR
 
-}
+//}
