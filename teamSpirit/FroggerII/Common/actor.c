@@ -208,7 +208,7 @@ void DrawActorList()
 				cur->actor->objectController->object->flags &= ~OBJECT_FLAGS_XLU;
 			}
 
-			if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
+			if(gameState.mode == INGAME_MODE || gameState.mode == OBJVIEW_MODE || 
 			   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 			   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 			{
@@ -235,7 +235,7 @@ void DrawActorList()
 			continue;
 		}
 
-		if( gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
+		if( gameState.mode == INGAME_MODE || gameState.mode == OBJVIEW_MODE || 
 			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
@@ -257,7 +257,7 @@ void DrawActorList()
 
 		if( cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU )
 		if( !((cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER)) )
-		if( gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
+		if( gameState.mode == INGAME_MODE || gameState.mode == OBJVIEW_MODE || 
 			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
