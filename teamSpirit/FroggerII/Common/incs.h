@@ -35,7 +35,7 @@
 #include <assert.h>
 #include <pr/os.h>
 #include <pr/gu.h>
-//#include <pr/gs2dex.h>
+#include <pr/gs2dex.h>
 
 #include <inttypes.h>
 #include <stdio.h>
@@ -86,8 +86,8 @@
 #include "frogmove.h"
 #include "cam.h"
 #include "tongue.h"
-//#include "event.h"
-//#include "eventfuncs.h"
+#include "event.h"
+#include "eventfuncs.h"
 
 #ifndef PC_VERSION
 #include "develop.h"
