@@ -922,44 +922,15 @@ void UpdateHomingNME( ENEMY *cur )
 {
 	GAMETILE *chTile;
 	VECTOR tVec, moveVec;
-	float distance=10000, best=-2;
-	short bFlag = 0;
+	float distance, best=-100000, result;
 	unsigned long i;
 
+	// For now, screw tiles completely and just move. Make radius based if they need to collide
 	SubVector( &moveVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
 	MakeUnit( &moveVec );
-	chTile = FindJoinedTileByDirection( cur->inTile, &moveVec );
 
-	// Do check for close direction vector from tile. If none match closely, do not move.
-	for( i=0; i<4; i++ )
-		if( chTile->tilePtrs[i] )
-		{
-			// Direction to tile
-			SubVector( &tVec, &chTile->tilePtrs[i]->centre, &chTile->centre );
-			MakeUnit( &tVec );
-			// Cosine of angle between vectors
-			distance = DotProduct(&tVec,&moveVec);
-			if( distance > best )
-				best = distance;
-		}
-		else
-			bFlag = 1; // There is some invalid tile
-
-	// If the best direction match is close enough we can carry on (approx 45 degrees)
-	// Also check that we're over a tile.
-	if( best > 0.7 )
-	{
-		ScaleVector( &moveVec, cur->speed * gameSpeed );
-		AddVector( &tVec, &moveVec, &cur->nmeActor->actor->pos );
-		chTile = FindNearestTile( tVec );
-		if( bFlag )
-		{
-			SubVector( &moveVec, &chTile->centre, &tVec );
-			distance = abs(Magnitude( &moveVec ));
-		}
-		if( distance < 35 || !bFlag )
-			cur->nmeActor->actor->pos = tVec;
-	}
+	ScaleVector( &moveVec, cur->speed * gameSpeed );
+	AddVector( &cur->nmeActor->actor->pos, &moveVec, &cur->nmeActor->actor->pos );
 }
 
 
