@@ -34,7 +34,7 @@
 #define PLATFORM_NEW_NONMOVING			(1 << 13)	// platform does not move
 #define PLATFORM_NEW_REGENERATES		(1 << 14)	// platform regenerates after specified time
 #define PLATFORM_NEW_NOWALKUNDER		(1 << 15)	// platform cannot be walked under
-
+#define PLATFORM_NEW_KILLSFROG			(1 << 16)	// platform kills when it moves over frog
 
 
 typedef struct TAGPLATFORM
