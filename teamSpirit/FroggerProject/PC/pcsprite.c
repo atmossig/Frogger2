@@ -301,15 +301,14 @@ void PrintSpriteOverlays(long num)
 */
 void PrintSprite(SPRITE *sprite)
 {
-	MDX_VECTOR m, sc;
-	MDX_VECTOR s = {1,1,0};
+	MDX_VECTOR m, sc, s = {1,1,0};
 	float distx,disty;
 	MDX_TEXENTRY *tEntry;
 
 	if((!sprite->texture) || (sprite->scaleX == 0) || (sprite->scaleY == 0))
 		return;
 
-	SetVector( &sc, (MDX_VECTOR *)&sprite->sc );
+	SetVector( &sc, &sprite->sc );
 	
 	tEntry = ((MDX_TEXENTRY *)sprite->texture);
 
@@ -323,12 +322,12 @@ void PrintSprite(SPRITE *sprite)
 		if (sprite->flags & SPRITE_ADDITIVE)
 			D3DSetupRenderstates(xluAddRS);
 
-/*		if(sprite->flags & SPRITE_FLAGS_ROTATE)
+		if(sprite->flags & SPRITE_FLAGS_ROTATE)
 		{
 			DrawAlphaSpriteRotating( &sc,(float)sprite->angle/57.6,sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
 				0,0,1,1,tEntry,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 		}
-		else*/
+		else
 		{
 			DrawAlphaSprite(sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
 				0,0,1,1,tEntry,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
