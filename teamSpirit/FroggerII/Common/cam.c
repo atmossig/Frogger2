@@ -507,7 +507,6 @@ void UpdateCameraPosition(long cam)
 
 	SlurpCamPosition(0);
 
-	// Had to take this out because it was driving everyone nuts
 	if( swingCam )
 		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt) * camDist.v[2]) / 350.0;
 }
