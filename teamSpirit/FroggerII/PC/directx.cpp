@@ -38,7 +38,7 @@ extern "C"
 {
 #include <ultra64.h>
 #include "incs.h"
-#include "i13n.h"
+#include "l13n.h"
 //#include "block.h"
 
 HWND win;
@@ -602,22 +602,21 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 			SetWindowPos(hwndDlg, HWND_TOPMOST, (GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
 
-	    hCombo = GetDlgItem( hwndDlg, IDC_SOUNDCOMBO );
-	    lpGUID = (LPGUID)lParam;
+			hCombo = GetDlgItem( hwndDlg, IDC_SOUNDCOMBO );
+			lpGUID = (LPGUID)lParam;
 
-	    if( DirectSoundEnumerate( (LPDSENUMCALLBACK)DSEnumProc, &hCombo ) != DS_OK )
-		{
-		EndDialog( hwndDlg, TRUE );
-		return( TRUE );
-		}
-	    if( ComboBox_GetCount( hCombo ))
-		ComboBox_SetCurSel( hCombo, 0 );
-	    else
-		{
-		EndDialog( hwndDlg, TRUE );
-		return( TRUE );
-		}
-		
+			if( DirectSoundEnumerate( (LPDSENUMCALLBACK)DSEnumProc, &hCombo ) != DS_OK )
+			{
+				EndDialog( hwndDlg, TRUE );
+				return( TRUE );
+			}
+			if( ComboBox_GetCount( hCombo ))
+				ComboBox_SetCurSel( hCombo, 0 );
+			else
+			{
+				EndDialog( hwndDlg, TRUE );
+				return( TRUE );
+			}
 
  			return TRUE;
 		}
@@ -1419,12 +1418,10 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
 	long i;
 	HWND list;
-
-    static HWND   hCombo;
-    static LPGUID lpGUID;
-    LPGUID        lpTemp;
 	static DWORD keyIndex = 0;
+	static long kMapSet = 0;
 	LV_ITEM itm;
+	HRESULT hRes;
 
     switch(msg)
 	{
@@ -1478,31 +1475,78 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 
 			SetWindowPos(hDlg,HWND_TOPMOST,(GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
 
-			lpGUID = (LPGUID)lParam;
-
  			return TRUE;
 		}
 
         case WM_CLOSE:
 			keyIndex = 0;
+			kMapSet = 0;
 			EndDialog(hDlg,TRUE);
             return TRUE;
-		
+
+		case WM_NOTIFY:
+			switch( wParam )
+			{
+				case IDC_KEYMAPLIST:
+					switch( ((LPNMHDR)lParam)->code )
+					{
+						case LVN_KEYDOWN:
+							if( kMapSet == 14 )
+								kMapSet = 0;
+
+							hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
+							if(FAILED(hRes))
+								break;
+
+							for( i=0; i<256; i++ )
+								if( KEYPRESS( i ) )
+								{
+									keymap[keyIndex+kMapSet].key = i;
+
+									list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
+
+									itm.mask = LVIF_TEXT ;
+									itm.iItem = kMapSet; 
+									itm.iSubItem = 1;
+									itm.state = 0;
+									itm.stateMask = 0; 
+									itm.cchTextMax = 255; 
+									itm.iImage = NULL; 
+									itm.lParam = kMapSet;
+									itm.pszText = DIKStrings[keymap[keyIndex+kMapSet].key];
+
+									SendMessage( list,LVM_SETITEM,0,(long)&itm );
+
+									// Set next key with next keypress
+									kMapSet++;
+									break;
+								}
+
+							break;
+					}
+					break;
+			}
+			break;
+
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
 			{
 				case IDC_CONTROLLER1:
 					// Set pointer to correct part of keymap and refresh display
 					keyIndex = 0;
+					kMapSet = 0;
 					break;
 				case IDC_CONTROLLER2:
 					keyIndex = 14;
+					kMapSet = 0;
 					break;
 				case IDC_CONTROLLER3:
 					keyIndex = 28;
+					kMapSet = 0;
 					break;
 				case IDC_CONTROLLER4:
 					keyIndex = 42;
+					kMapSet = 0;
 					break;
 
 				// And some more commands for setting entries in the keymap
@@ -1510,12 +1554,14 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 				
 				case IDCANCEL:
 					keyIndex = 0;
+					kMapSet = 0;
 					EndDialog(hDlg,FALSE);
 					break;
 
 				case IDOK:
 					// TODO: Write keymap to disk
 					keyIndex = 0;
+					kMapSet = 0;
 					EndDialog(hDlg,TRUE);
 					break;
 			}

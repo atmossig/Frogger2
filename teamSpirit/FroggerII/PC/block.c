@@ -158,6 +158,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
     MSG msg;
 	FILE *fpp;
 	int ok = 1;
+	long i;
 	long zero = 0;
 	HRESULT	dsrVal;
 	
