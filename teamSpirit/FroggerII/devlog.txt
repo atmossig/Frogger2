@@ -736,6 +736,14 @@ Matt Cloy:
 Andy Eder:
 ------------------------------------------------
 
+	Morning:
+
+	Oops, can't remember (am)
+
+	Afternoon:
+
+	Oops, can't remember (pm)
+
 
 David Swift:
 ------------------------------------------------
@@ -803,6 +811,14 @@ Matt Cloy:
 Andy Eder:
 ------------------------------------------------
 
+	Morning:
+
+	Oops, can't remember (am)
+
+	Afternoon:
+
+	Oops, can't remember (pm)
+
 
 David Swift:
 ------------------------------------------------
@@ -858,6 +874,14 @@ Matt Cloy:
 Andy Eder:
 ------------------------------------------------
 
+	Morning:
+
+	Oops, can't remember (am)
+
+	Afternoon:
+
+	Oops, can't remember (pm)
+
 
 David Swift:
 ------------------------------------------------
@@ -908,6 +932,14 @@ Matt Cloy:
 Andy Eder:
 ------------------------------------------------
 
+	Morning:
+
+	Oops, can't remember (am)
+
+	Afternoon:
+
+	Oops, can't remember (pm)
+
 
 David Swift:
 ------------------------------------------------
@@ -951,6 +983,14 @@ Matt Cloy:
 
 Andy Eder:
 ------------------------------------------------
+
+	Morning:
+
+	Oops, can't remember (am)
+
+	Afternoon:
+
+	Oops, can't remember (pm)
 
 
 David Swift:
@@ -997,6 +1037,14 @@ Matt Cloy:
 
 Andy Eder:
 ------------------------------------------------
+
+	Morning:
+
+	Oops, can't remember (am)
+
+	Afternoon:
+
+	Oops, can't remember (pm)
 
 
 David Swift:
@@ -1075,6 +1123,14 @@ Matt Cloy:
 Andy Eder:
 ------------------------------------------------
 
+	Morning:
+
+	Oops, can't remember (am)
+
+	Afternoon:
+
+	Oops, can't remember (pm)
+
 
 David Swift:
 ------------------------------------------------
@@ -1146,6 +1202,15 @@ Got to sleep at around 6:00. Poo.
 Andy Eder:
 ------------------------------------------------
 
+	Morning:
+
+	Still looking into DirectX and Direct3D, along with PC code. All with a view to getting the
+	Dreamcast devkit.
+
+	Afternoon:
+
+	(As this morning)
+
 
 David Swift:
 ------------------------------------------------
@@ -1206,6 +1271,14 @@ Matt Cloy:
 Andy Eder:
 ------------------------------------------------
 
+	Morning:
+
+	I was sick and remained at home. And I'm still sick according to analysts in white coats...
+
+	Afternoon:
+
+	Still icky-poo.
+
 
 David Swift:
 ------------------------------------------------
@@ -1240,3 +1313,59 @@ Chris Wilson:
 
 
 
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+06/01/00 - Thursday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+	Morning:
+
+	Not feeling particularly well. Was looking forward to receiving the Dreamcast devkit...
+	...but hear it will be a couple of weeks or so before it arrives. Been taken off looking at
+	the DirectX and Direct3D stuff for now - bug fixing to be done starting with Lab 1.....
+
+	Mary, Mary yellow canary,
+	How does your garden grow,
+	Give pills to snails and drugs to slugs,
+	Apart from that I don't know.
+
+	Humpty Dumpty sat on a wall,
+	He was a lazy git like that anyway....
+
+	Old McDonald had a farm,
+	Ee-ay-ee-ay- *ouch*
+
+
+	Afternoon:
+
+	(Fill in afternoon avtivitivitivities here....)
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
+Chris Wilson:
+------------------------------------------------
