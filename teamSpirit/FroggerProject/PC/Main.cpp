@@ -67,6 +67,7 @@
 #include "net\netgame.h"
 
 
+UINT msgAutoplayDisable = 0;
 psFont *font = 0;
 psFont *fontSmall = 0;
 psFont *fontWhite = 0;
@@ -599,6 +600,9 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 
 	default:
+		if (msg && msg==msgAutoplayDisable)	
+			return TRUE; // cancel autoplay
+
 		return 1;
 	}
 
@@ -889,6 +893,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// Set up worldvisualdata array (poo)
 	// perhaps not the most clear place to do this - ds
 	memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
+
+	msgAutoplayDisable = RegisterWindowMessage(TEXT("QueryCancelAutoPlay")); 
 	
 	GetRegistryInformation();
 	GetArgs(lpCmdLine);

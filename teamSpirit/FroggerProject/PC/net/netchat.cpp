@@ -172,7 +172,7 @@ bool SetupChatDialog(HWND hdlg)
 	// Timer 1 is used for checking the player list and footling through the message buffers
 	SetTimer(hdlg, 1, 250, NULL);
 
-	SetDlgItemText(hdlg, IDCANCEL,	GAMESTRING(STR_PCSETUP_OK));
+	SetDlgItemText(hdlg, IDCANCEL,	GAMESTRING(STR_PCSETUP_CANCEL));
 	SetDlgItemText(hdlg, IDC_START,	GAMESTRING(STR_NET_READY));
 	SetDlgItemText(hdlg, IDC_PLAYERSLABEL, GAMESTRING(STR_NET_PLAYERS));
 	
