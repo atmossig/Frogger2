@@ -1111,6 +1111,29 @@ BOOL ExecuteCommand(UBYTE **p)
 			break;
 		}
 
+	case EV_PLAYSOUND:
+		{
+			char name[32];
+			short length;
+			ENEMY *nme;
+
+			length = MEMGETBYTE(p);
+			if( length > 31 )
+			{
+				dprintf"Sample name too long! Max 32 characters\n"));
+				return 0;
+			}
+			memcpy( name, *p, length );
+			name[length] = '\0';
+			(*p) += length;
+
+			nme = GetEnemyFromUID(MEMGETWORD(p));
+			if( !nme ) return 0;
+
+			PlaySample( FindSample(UpdateCRC(name)), &nme->path->nodes->worldTile->centre, 0, SAMPLE_VOLUME, -1 );
+			break;
+		}
+
 /*
 	case EV_HURTFROG:
 		{
