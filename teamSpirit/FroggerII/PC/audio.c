@@ -457,6 +457,8 @@ DWORD stopCDTrack ( HWND hWndNotify )
 	// Close device
 	mciSendCommand(mciDevice, MCI_CLOSE, MCI_NOTIFY, (DWORD)(LPMCI_GENERIC_PARMS)&parms);
 
+	mciDevice = 0;
+
 	return TRUE;
 }
 
@@ -472,26 +474,36 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
     MCI_SET_PARMS mciSetParms;
     MCI_PLAY_PARMS mciPlayParms;
 
-    // Open the CD audio device by specifying the device name.
-    mciOpenParms.lpstrDeviceType = "cdaudio";
+	if( !mciDevice )
+	{
+		// Open the CD audio device by specifying the device name.
+		mciOpenParms.lpstrDeviceType = "cdaudio";
 
-    if ( dwReturn = mciSendCommand ( NULL, MCI_OPEN, MCI_OPEN_TYPE, ( DWORD ) ( LPVOID ) &mciOpenParms ) )
-    {
-        // Failed to open device. Don't close it; just return error.
-        return dwReturn;
-    }
+		if ( dwReturn = mciSendCommand ( NULL, MCI_OPEN, MCI_OPEN_TYPE, ( DWORD ) ( LPVOID ) &mciOpenParms ) )
+		{
+			dprintf"Failed to open device %s\n",mciOpenParms.lpstrDeviceType));
+			// Failed to open device. Don't close it; just return error.
+			return dwReturn;
+		}
 
-    // The device opened successfully; get the device ID.
-    wDeviceID = mciOpenParms.wDeviceID;
+		// The device opened successfully; get the device ID.
+		wDeviceID = mciOpenParms.wDeviceID;
 
-    // Set the time format to track/minute/second/frame (TMSF).
-    mciSetParms.dwTimeFormat = MCI_FORMAT_TMSF;
+		// Set the time format to track/minute/second/frame (TMSF).
+		mciSetParms.dwTimeFormat = MCI_FORMAT_TMSF;
 
-    if (dwReturn = mciSendCommand ( wDeviceID, MCI_SET,MCI_SET_TIME_FORMAT, ( DWORD )  ( LPVOID ) &mciSetParms ) )
-    {
-        mciSendCommand ( wDeviceID, MCI_CLOSE, 0, NULL );
-		return dwReturn;
-    }
+		if (dwReturn = mciSendCommand ( wDeviceID, MCI_SET,MCI_SET_TIME_FORMAT, ( DWORD )  ( LPVOID ) &mciSetParms ) )
+		{
+			dprintf"Failed to set time format for cd device\n"));
+
+			mciSendCommand ( wDeviceID, MCI_CLOSE, 0, NULL );
+			return dwReturn;
+		}
+	}
+	else // Repeat performance
+	{
+		wDeviceID = mciDevice;
+	}
 	
 	// Begin playback from the given track and play until the beginning 
     // of the next track. 
@@ -501,6 +513,8 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
     mciPlayParms.dwCallback = ( DWORD ) hWndNotify;
     if ( dwReturn = mciSendCommand ( wDeviceID, MCI_PLAY,MCI_FROM | MCI_TO | MCI_NOTIFY, (DWORD)(LPVOID) &mciPlayParms ) )
     {
+		dprintf"Couldn't play cd track %i\n",bTrack));
+
         mciSendCommand ( wDeviceID, MCI_CLOSE, 0, NULL );
         return dwReturn;
     }
