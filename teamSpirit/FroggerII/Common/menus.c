@@ -82,16 +82,18 @@ void RunDemoOption ( void )
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(TITLES_TEX_BANK);
 
-		currFont	= smallFont;
-		demoText	= CreateAndAddTextOverlay(100,122,"play demo world",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,6,0);
+		myBackdrop = CreateAndInitBackdrop ( NULL, "objvscrn.bmp", 0, 0, 0, 0, 0, 320, 240, 1024, 1024, 0 );
 
-		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
+//		currFont	= smallFont;
+		//demoText	= CreateAndAddTextOverlay(100,122,"play demo world",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,6,0);
 
-		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
+		//konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
 
-		CreateOverlays();
+		//atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
 
-		ResetParameters();
+		//CreateOverlays();
+
+		//ResetParameters();
 
 //		runningDevStuff = 1;
 
@@ -99,7 +101,7 @@ void RunDemoOption ( void )
 	}
 	// ENDIF
 
-	button = controllerdata [ ActiveController ].button;
+/*	button = controllerdata [ ActiveController ].button;
 
 	if((button & CONT_UP) && !(lastbutton & CONT_UP))
     {
@@ -127,7 +129,7 @@ void RunDemoOption ( void )
 			FreeAllLists();
 			frameCount = 0;
 			lastbutton = 0;
-			frontEndState.mode	= ALL_LEVELSELECT_MODE;
+//			frontEndState.mode	= ALL_LEVELSELECT_MODE;
 			PlaySample ( 2,NULL,255,128);
 		}
 
@@ -161,7 +163,7 @@ void RunDemoOption ( void )
 				/*if ( currentSelection == 0 && currentLevelSelection == 0 )
 					gameState.mode	  = CAMEO_MODE;
 				else*/
-					gameState.mode	  = GAME_MODE;
+/*					gameState.mode	  = GAME_MODE;
 				// ENDELSEIF
 				frameCount = 0;
 				lastbutton = 0;
@@ -171,20 +173,20 @@ void RunDemoOption ( void )
 					lastbutton			= 0;
 					frontEndState.mode	= SLOT_SELECT_MODE;
 					PlaySample ( 2, NULL, 255, 128 ); */
-					return;
+/*					return;
 			}
 		}			
 	
 		switch (currentSelection)
 		{
 			case 0:
-				demoText->waveAmplitude = 6.0F;
-				demoText->r = demoText->g = demoText->b = 255;
+				//demoText->waveAmplitude = 6.0F;
+				//demoText->r = demoText->g = demoText->b = 255;
 				break;
 		}
 	}
 
-	lastbutton = button;
+	lastbutton = button;*/
 }
 
 
@@ -201,7 +203,7 @@ void RunSelectAllLevels ( void )
 	static unsigned long currentWorldSelect = 0;	// Which world
 	static unsigned long currentLevelSelect = 0;	// Which level
 
-	static LNAMESTRUCT lNames[MAX_LEVELS];
+//	static LNAMESTRUCT lNames[MAX_LEVELS];
 
 	unsigned int i,j;
 
@@ -229,11 +231,11 @@ void RunSelectAllLevels ( void )
 		// Draw list of levels in current selected world on right
 		for( i=0; i < MAX_LEVELS; i++ )
 		{
-			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
-			levelSelText[i] = CreateAndAddTextOverlay( 180, (i*20)+30,
-														lNames[i].name,
-														NO,NO,255,255,255,100,		
-														currFont,TEXTOVERLAY_NORMAL,0,0);
+			//sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
+			//levelSelText[i] = CreateAndAddTextOverlay( 180, (i*20)+30,
+			//											lNames[i].name,
+			//											NO,NO,255,255,255,100,		
+			//											currFont,TEXTOVERLAY_NORMAL,0,0);
 		}
 
 		ResetParameters();
@@ -340,8 +342,8 @@ void RunSelectAllLevels ( void )
 	if( currentWorldSelect != oldWorldSelect )
 	{
 		// Change old level textovers
-		for( i=0; i < MAX_LEVELS; i++ )
-			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
+//		for( i=0; i < MAX_LEVELS; i++ )
+//			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
 	}
 
 /*
@@ -376,7 +378,7 @@ void RunSelectAllLevels ( void )
 
 			InitLevel ( currentWorldSelect, currentLevelSelect );
 
-			gameState.oldMode = ALL_LEVELSELECT_MODE;
+//			gameState.oldMode = ALL_LEVELSELECT_MODE;
 			gameState.mode = GAME_MODE;
 
 			frameCount = 0;
@@ -1567,7 +1569,7 @@ void RunOptionsMode()
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(TITLES_TEX_BANK);
 
-		myBackdrop = CreateAndInitBackdrop("objvscrn.bmp");
+//		myBackdrop = CreateAndInitBackdrop("objvscrn.bmp");
 
 		currFont = bigFont;		//smallFont;
 		sound	= CreateAndAddTextOverlay(0,100,"sound",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,1,0);
