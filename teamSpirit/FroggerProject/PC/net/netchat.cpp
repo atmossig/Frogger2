@@ -49,6 +49,10 @@ MULTILEVEL multiLevels[NUM_MULTI_LEVELS] = {
 	{ WORLDID_TEST, 3 },
 };
 
+struct	MSG_LEVELSEL
+{
+	UBYTE msg, level;
+};
 
 struct	MSG_GAMESETUP
 {
@@ -306,8 +310,18 @@ BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 				StartPlayers(hDlg);
 
 				EndDialog(hDlg, 0);
-				return TRUE;
 			}
+			return TRUE;
+
+		case IDC_LEVEL:
+			if (HIWORD(wParam)==CBN_SELCHANGE)
+			{
+				MSG_LEVELSEL msg = { APPMSG_LEVELSEL, 0 };
+				msg.level = SendDlgItemMessage(hDlg, IDC_LEVEL, CB_GETCURSEL, 0, 0);
+
+				NetBroadcastUrgentMessage(&msg, sizeof(msg));
+			}
+			return TRUE;
 		}
 		break;
 
@@ -348,6 +362,13 @@ int ChatHandler(void *data, unsigned long size, NETPLAYER *player)
 {
 	switch (*(unsigned char*)data)
 	{
+	case APPMSG_LEVELSEL:
+		{
+			MSG_LEVELSEL *msg = (MSG_LEVELSEL*)data;
+			SendDlgItemMessage(hwndChat, IDC_LEVEL, CB_SETCURSEL, msg->level, 0);
+		}
+		return 0;
+
 	case APPMSG_CHAT:
 		{
 			char buffer[1024], name[256];

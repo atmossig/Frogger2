@@ -257,6 +257,17 @@ void NetgameGameloop()
 			nextPing += PING_PERIOD;
 		}
 
+		for (int i=1; i<NUM_FROGS; i++)
+		{
+			FroggerHop(i);
+			if (player[i].jumpTime > 4096)
+			{
+				player[i].jumpTime = -1;
+				SetVectorSS(&frog[i]->actor->position, &currTile[i]->centre);
+				actorAnimate(frog[i]->actor, FROG_ANIM_BREATHE, YES, YES, FROG_BREATHE_SPEED, NO);
+			}
+		}
+
 		bool wasDead = player[0].frogState & FROGSTATUS_ISDEAD;
 
 		if( endTimer.time ) // If finished the race then wait before replaying
@@ -274,18 +285,6 @@ void NetgameGameloop()
 		if (player[0].frogState & FROGSTATUS_ISDEAD && !wasDead)
 			NetgameDeath();
 
-		int i;
-
-		for (i=1; i<NUM_FROGS; i++)
-		{
-			FroggerHop(i);
-			if (player[i].jumpTime > 4096)
-			{
-				player[i].jumpTime = -1;
-				SetVectorSS(&frog[i]->actor->position, &currTile[i]->centre);
-				actorAnimate(frog[i]->actor, FROG_ANIM_BREATHE, YES, YES, FROG_BREATHE_SPEED, NO);
-			}
-		}
 	}
 	else
 	{

@@ -26,6 +26,8 @@
 #include "multi.h"
 #include "hud.h"
 
+#include "lang.h"
+
 void *recieveBuffer;
 DWORD recieveBufferSize = 1024;
 
@@ -35,7 +37,7 @@ DPID	dpidLocalPlayer;
 HANDLE	hLocalPlayerEvent;
 
 char	sessionName[256]	= "Frogger2";
-char	playerName[32]		= "Player";
+char	playerName[16]		= "Player";
 bool	isHost			= false;
 
 //void HandleApplicationMessage(LPDPMSG_GENERIC, DWORD, DPID, DPID);
@@ -373,7 +375,7 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 		{
 			LPDPMSG_CREATEPLAYERORGROUP lp = (LPDPMSG_CREATEPLAYERORGROUP) lpMsg;
 
-			wsprintf(message, "'%s' joined the game", lp->dpnName.lpszShortNameA);
+			wsprintf(message, GAMESTRING(STR_NET_JOINED), lp->dpnName.lpszShortNameA);
 			NetShowMessage(message, CHAT_SYSTEM);
 			utilPrintf("NET: %s\n", message);
 
@@ -385,7 +387,7 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 		{
 			LPDPMSG_DESTROYPLAYERORGROUP lp = (LPDPMSG_DESTROYPLAYERORGROUP) lpMsg;
 
-			wsprintf(message, "'%s' left the game", lp->dpnName.lpszShortNameA);
+			wsprintf(message, GAMESTRING(STR_NET_LEFT), lp->dpnName.lpszShortNameA);
 			NetShowMessage(message, CHAT_SYSTEM);
 			utilPrintf("NET: %s\n", message);
 
@@ -393,6 +395,7 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 		}
 		break;
 
+/*
 		case DPSYS_SESSIONLOST:
 		{
 			LPDPMSG_SESSIONLOST lp = (LPDPMSG_SESSIONLOST)lpMsg;
@@ -402,10 +405,11 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 			utilPrintf("NET: %s\n", message);
 		}
 		break;
+*/
 
 		case DPSYS_HOST:
 		{
-			wsprintf(message, "This computer is now the host");
+			wsprintf(message, GAMESTRING(STR_NET_HOST));
 			NetShowMessage(message, CHAT_SYSTEM);
 			utilPrintf("NET: %s\n", message);
 			// we are now the host

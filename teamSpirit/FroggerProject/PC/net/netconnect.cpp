@@ -381,7 +381,7 @@ BOOL CALLBACK EnumSessions(const DPSESSIONDESC2 *pdpsd, LPDWORD lptimeout, DWORD
 {
     DPSessionInfo* pDPSINew = NULL;
 
-	if (flags & DPESC_TIMEDOUT)
+	if (flags & DPESC_TIMEDOUT || pdpsd->dwFlags & DPSESSION_JOINDISABLED)
 		return FALSE;
 
     // Found a good session, save it
@@ -395,9 +395,6 @@ BOOL CALLBACK EnumSessions(const DPSESSIONDESC2 *pdpsd, LPDWORD lptimeout, DWORD
     pDPSINew->guidSession = pdpsd->guidInstance;
     sprintf( pDPSINew->szSession, "%s (%d/%d)", pdpsd->lpszSessionNameA, 
              pdpsd->dwCurrentPlayers, pdpsd->dwMaxPlayers );
-
-	if (pdpsd->dwFlags & DPSESSION_JOINDISABLED)
-		strcat(pDPSINew->szSession, " (in progress)");
 
     // Add pDPSINew to the circular linked list, g_pDPSIFirst
     pDPSINew->next = DPSIHead.next;
