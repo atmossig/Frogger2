@@ -347,7 +347,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		}
 		if(appActive)
 		{
-#ifdef _DEBUG
 			if (KEYPRESS(DIK_F1))
 				camDist.v[1]+=2*gameSpeed;
 
@@ -391,11 +390,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 						displayingTile=!displayingTile;
 				}
 			}
-#endif
 
 			if (keyDelay<1)
 			{
-#ifdef _DEBUG
 				if (KEYPRESS(DIK_F9))
 				{
 					actTickCountModifier -= modFactor;
@@ -445,7 +442,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 					keyDelay = 20;
 				}
-#endif
 /*
 				if( KEYPRESS(DIK_SPACE) )
 				{
@@ -487,8 +483,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			//if (speedKill)
 			//	Sleep(speedKill);
 
-			//DirectXFlip();
-			DDrawFlip();
+			//	DirectXFlip();
+			if (actFrameCount>10)
+				DDrawFlip();
 			
 			DDrawClearSurface(RENDER_SRF, 0, DDBLT_COLORFILL);
 			DDrawClearSurface(ZBUFFER_SRF, -1, DDBLT_DEPTHFILL);
@@ -764,14 +761,15 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 
 		case MM_MCINOTIFY:
 		{
+			// Loop cd track when it finishes
 			switch( (int)wParam )
 			{
 			case MCI_NOTIFY_SUCCESSFUL:
-				dprintf"CD track complete, playing it again...\n"));
-				// Loop cd track when it finishes
 				PrepareSongForLevel( player[0].worldNum, player[0].levelNum );
 				break;
 			}
+
+			break;
 		}
 	}
 
@@ -980,7 +978,6 @@ void DrawGraphics()
 	EndTimer(1);
 	EndTimer(0);
 
-#ifdef _DEBUG
 	if (drawTimers)
 	if (drawTimers<3)
 	{
@@ -1002,11 +999,10 @@ void DrawGraphics()
 			}
 		}
 	}
-
+	
 	if (KEYPRESS(DIK_F6))
 		HoldTimers();
-#endif
-
+		
 	ClearTimers();
 	StartTimer(1,"Draw Gfx");
 	StartTimer(0,"Everything");
