@@ -920,7 +920,6 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 	}
 	else
 	{
-		ssBeginScene(softScreen, 1280);
 		ssSetRenderState(SSRENDERSTATE_SHADEMODE,SSSHADEMODE_GOURAUD);
 		verts = (D3DTLVERTEX *)lpvVertices;
 		for (int i=0; i<dwIndexCount; i+=3)
@@ -1022,7 +1021,6 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 				
 				ssDrawPrimitive(v, 3);
 			}
-			ssEndScene();	
 		}
 	}
 		/*

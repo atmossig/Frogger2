@@ -60,6 +60,8 @@
 
 #include "mdx.h"
 #include "mdxException.h"
+#include "softstation.h"
+
 #include "..\resource.h"
 #include "..\network.h"
 #include "..\netchat.h"
@@ -707,13 +709,22 @@ long DrawLoop(void)
 		BlankAllFrames();
 	}
 
+	// Begin software overlay drawing - rather than use ssbeginscene in every call to drawpoly :)
+	if( !rHardware )
+		ssBeginScene(softScreen, 1280);
+
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();
+
 	D3DSetupRenderstates(cullNoneRS);
 	PrintSpriteOverlays(1);	
 
 	if (editorOk)
 		DrawEditor();
+
+	// End software overlay draw
+	if( !rHardware )
+		ssEndScene();
 
 	if( chatFlags && gameState.mode == INGAME_MODE )
 		DrawChatBuffer( 100, 20, 540, 150 );
