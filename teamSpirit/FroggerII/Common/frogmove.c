@@ -51,6 +51,7 @@ float floatGravity		= -1.0F;
 
 BOOL cameoMode			= FALSE;
 
+
 /*	--------------------------------------------------------------------------------
 	Function		: SetFroggerStartPos
 	Purpose			: sets initial position of Frogger on the world
@@ -247,6 +248,7 @@ void UpdateFroggerPos(long pl)
 		CheckForFroggerLanding(JUMPING_TOTILE,pl);
 		return;
 	}
+
 
 	/*	--------------------------------------------------------------------------------------------
 		Consider effects of special tile types
@@ -617,7 +619,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	GAMETILE *dest, *from;
 	float sH,sV,t,u,a,t2;
 	unsigned long dirFlag = 0;
-
+	VECTOR landPos;
+	
 	// clear movement request flags
 	player[pl].frogState &=	~(	FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | 
 								FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR);
@@ -858,8 +861,9 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	{
 		t = standardHopFrames;
 		t2 = hopGravity;
-
 	}
+
+	// determine where frog is going to land...
 
 	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
 	{	
@@ -904,7 +908,9 @@ void CheckForFroggerLanding(int whereTo,long pl)
 	// Frog has landed - set camera to new rotation, face frog correctly, blahblahblah
 
 	frogFacing[pl] = nextFrogFacing[pl];
-	if (pl == 0) camFacing = nextCamFacing;
+	
+	if (pl == 0)
+		camFacing = nextCamFacing;
 
 	frog[pl]->action.deathBy = -1;
 	frog[pl]->action.dead	 = 0;
@@ -918,6 +924,9 @@ void CheckForFroggerLanding(int whereTo,long pl)
 		// ok - frog has landed
 		SetVector(&frog[pl]->actor->pos,&destPlatform[pl]->pltActor->actor->pos);
 
+		if(pl == 0)
+			camFacing = GetTilesMatchingDirection(currTile[pl],camFacing,destPlatform[pl]->inTile[0]);
+
 		destPlatform[pl]->flags		|= PLATFORM_NEW_CARRYINGFROG;
 		player[pl].frogState		|= FROGSTATUS_ISONMOVINGPLATFORM;
 
@@ -929,6 +938,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 		player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISFLOATING |
 									FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING);
+
 		currPlatform[pl] = destPlatform[pl];
 
 		if(player[pl].heightJumped < -125.0F)
