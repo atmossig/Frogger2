@@ -411,6 +411,7 @@ void AnimateSprites()
 */
 void AnimateSprite(SPRITE *sprite)
 {
+/*
 	SPRITE_ANIMATION *anim = &sprite->anim;
 
 	if(anim->lifespan > 0)
@@ -487,6 +488,106 @@ void AnimateSprite(SPRITE *sprite)
 				{
 					sprite->flags &= -1 - SPRITE_REVERSING;
 				}
+			}
+		}
+	}
+*/
+
+	SPRITE_ANIMATION *anim = &sprite->anim;
+	float fLifespan;
+
+	fLifespan = (float)anim->lifespan;
+	if(fLifespan > 0)
+	{
+		fLifespan -= gameSpeed;
+		anim->lifespan = ROUND2SHORT(fLifespan);
+		if(fLifespan < 0)
+		{
+			anim->lifespan  = 0;
+			sprite->texture = NULL;
+			anim->type		= SPRITE_ANIM_NONE;
+			return;
+		}
+	}
+
+	if(anim->type == SPRITE_ANIM_LIFETIME)
+		return;
+
+	// sort out alphas...
+	if(anim->endAlpha != anim->startAlpha)
+	{
+		if(fLifespan > 0)
+//			sprite->a = anim->endAlpha + ((anim->startAlpha - anim->endAlpha) * anim->lifetime) / fLifespan;
+			sprite->a = anim->endAlpha + ((anim->startAlpha - anim->endAlpha));	// * anim->lifetime) / fLifespan;
+		else
+			sprite->a = anim->endAlpha + ((anim->startAlpha - anim->endAlpha) * (anim->frameList->numFrames - anim->currentFrame - 1)) / (anim->frameList->numFrames - 1);
+	}
+
+	// sort out scales...
+	if(anim->endScale != anim->startScale)
+	{
+		if(fLifespan > 0)
+//			sprite->scaleX = sprite->scaleY = anim->endScale + ((anim->startScale - anim->endScale) * anim->lifetime) / fLifespan;
+			sprite->scaleX = sprite->scaleY = anim->endScale + ((anim->startScale - anim->endScale));	// * anim->lifetime) / fLifespan;
+		else
+			sprite->scaleX = sprite->scaleY = anim->endScale + ((anim->startScale - anim->endScale) * (anim->frameList->numFrames - anim->currentFrame - 1)) / (anim->frameList->numFrames - 1);
+	}
+
+	if(anim->type != SPRITE_ANIM_SCALE_ALPHA)
+	{
+		anim->currentFrame = (unsigned short)anim->counter;
+
+		if(anim->currentFrame >= anim->frameList->numFrames)
+		{
+			if(anim->type == SPRITE_ANIM_CYCLE)
+//				anim->currentFrame = 0;
+				anim->currentFrame = ROUND2SHORT(gameSpeed) - 1;
+			else if(anim->type == SPRITE_ANIM_ONESHOT)
+			{
+				sprite->texture = NULL;
+				return;
+			}
+		}
+		else if((anim->type == SPRITE_ANIM_REVERSE) && (anim->currentFrame == 0))
+		{
+			sprite->texture = NULL;
+			return;
+		}
+
+		sprite->texture = *(anim->frameList->texture + anim->currentFrame);
+
+		if(sprite->flags & SPRITE_REVERSING)
+		{
+			anim->counter += gameSpeed * 0.4;
+			if(anim->counter > anim->frameList->numFrames)
+			{
+				anim->counter = 0;
+				anim->currentFrame = 0;
+			}
+		}
+		else
+		{
+			anim->counter -= gameSpeed * 0.4;
+			if(anim->counter < 0)
+			{
+				anim->counter = anim->frameList->numFrames - 1;
+				anim->currentFrame = anim->frameList->numFrames - 1;
+			}
+		}
+
+		if(anim->type == SPRITE_ANIM_FLIPFLOP)
+		{
+			if(anim->counter > anim->frameList->numFrames)
+			{
+				sprite->flags |= SPRITE_REVERSING;
+				anim->counter = anim->frameList->numFrames - 1;
+				anim->currentFrame = anim->frameList->numFrames - 1;
+			}
+			else if(anim->counter < 0)
+			{
+				sprite->flags &= -1 - SPRITE_REVERSING;
+				anim->counter = 0;
+				anim->currentFrame = 0;
 			}
 		}
 	}
