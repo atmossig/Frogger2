@@ -531,6 +531,34 @@ Vis:
 	return 1;
 }
 
+
+int MovePlatform(PLATFORM *plt, int flag)
+{
+	if (flag > 0 && flag < plt->path->numNodes)
+	{
+		plt->path->toNode = flag;
+		plt->inTile[0] = plt->path->nodes[flag].worldTile;
+		plt->isWaiting = 1;
+		plt->path->endFrame = actFrameCount;
+		RecalculatePlatform(plt);
+		plt->destOrientation = plt->srcOrientation;
+	}
+	return 1;
+}
+
+int MoveEnemy(ENEMY *nme, int flag)
+{
+	if (flag > 0 && flag < nme->path->numNodes)
+	{
+		// Cunning cheat (that probably flies apart)6
+		nme->path->toNode = flag;
+		nme->path->endFrame = actFrameCount;
+		UpdateEnemyPathNodes(nme);
+		nme->inTile = nme->path->nodes[nme->path->fromNode].worldTile;
+	}
+	return 1;
+}
+
 /*	-------------------------------------------------------------------------------- */
 
 
@@ -742,44 +770,12 @@ BOOL ExecuteCommand(UBYTE **p)
 		}
 
 	case EV_MOVEENEMY:
-		{
-			ENEMY *nme;
-			int flag;
-
-			nme = GetEnemyFromUID(MEMGETWORD(p));
-			if (!nme) return 0;
-
-			flag = MEMGETWORD(p);
-			if (flag > 0 && flag < nme->path->numNodes)
-			{
-				// Cunning cheat (that probably flies apart)6
-				nme->path->toNode = flag;
-				nme->path->endFrame = actFrameCount;
-				UpdateEnemyPathNodes(nme);
-				nme->inTile = nme->path->nodes[nme->path->fromNode].worldTile;
-			}
-			break;
-		}
+		EnumEnemies(MEMGETWORD(p), MoveEnemy, MEMGETWORD(p));
+		break;
 
 	case EV_MOVEPLAT:
-		{
-			PLATFORM *plt;
-			int flag;
-
-			plt = GetPlatformFromUID(MEMGETWORD(p));
-			if (!plt) return 0;
-
-			flag = MEMGETWORD(p);
-			if (flag > 0 && flag < plt->path->numNodes)
-			{
-				plt->path->toNode = flag;
-				plt->inTile[0] = plt->path->nodes[flag].worldTile;
-				plt->isWaiting = 1;
-				plt->path->endFrame = actFrameCount;
-				RecalculatePlatform(plt);
-			}
-			break;
-		}
+		EnumPlatforms(MEMGETWORD(p), MovePlatform, MEMGETWORD(p));
+		break;
 
 	case EV_DROPGARIB:
 		{
