@@ -150,13 +150,21 @@ void DoEnemyCollision( ENEMY *cur )
 
 void NMEDamageFrog( int num, ENEMY *nme )
 {
-		if( !nme || (player[num].frogState & FROGSTATUS_ISSAFE))
+	if( !nme || (player[num].frogState & FROGSTATUS_ISSAFE))
 		return;
 
 	if( nme->flags & ENEMY_NEW_ONEHITKILL )
+	{
 		frog[num]->action.healthPoints = 0;
+	}
 	else
+	{
 		frog[num]->action.healthPoints--;
+
+		#ifdef N64_VERSION
+		StartRumble(120,1.5,5,ActiveController);
+		#endif
+	}
 	
 	if(frog[num]->action.healthPoints != 0)
 	{
