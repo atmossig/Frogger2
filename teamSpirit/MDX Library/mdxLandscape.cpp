@@ -24,6 +24,7 @@
 #include "mdxLandscape.h"
 #include "mdxPoly.h"
 #include "gelf.h"
+#include "mdxException.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -32,16 +33,16 @@ extern "C"
 
 MDX_LANDSCAPE *ConvertDataToLandscape(short *data, unsigned long xs, unsigned long ys, float scaleFlat, float scaleVert, LPDIRECTDRAWSURFACE7 tex)
 {
-	MDX_LANDSCAPE *me = new MDX_LANDSCAPE;
+	MDX_LANDSCAPE *me = (MDX_LANDSCAPE *) AllocMem(sizeof(MDX_LANDSCAPE));
 	unsigned long numVerts = xs * ys;
 	unsigned long numFaces = ((xs-1) * (ys-1))*2;
 	unsigned long i,j;
-	me->vertices = new MDX_VECTOR[numVerts];
-	me->textures = new LPDIRECTDRAWSURFACE7[numFaces];
-
-	me->faceIndex = new short[numFaces];
-	me->xfmVert = new D3DTLVERTEX[numFaces * 3];
+	me->vertices = (MDX_VECTOR *) AllocMem(sizeof(MDX_VECTOR)*numVerts);
+	me->textures = (LPDIRECTDRAWSURFACE7 *) AllocMem(sizeof(LPDIRECTDRAWSURFACE7)*numFaces);
 	
+	me->faceIndex = (short *) AllocMem(sizeof(short)*numFaces);
+	me->xfmVert = (D3DTLVERTEX *) AllocMem(sizeof(D3DTLVERTEX)*numFaces*3);
+		
 	for (i=0; i<numFaces; i++)
 		me->textures[i] = tex;
 
@@ -61,7 +62,7 @@ MDX_LANDSCAPE *ConvertDataToLandscape(short *data, unsigned long xs, unsigned lo
 
 MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 {
-	MDX_LANDSCAPE *me = new MDX_LANDSCAPE;
+	MDX_LANDSCAPE *me = (MDX_LANDSCAPE *) AllocMem(sizeof(MDX_LANDSCAPE));
 	unsigned long i;
 
 	me->vertices = 0;
@@ -74,7 +75,8 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 	// Copy the vertices and the faces
 	if (me->numVertices = obj->mesh->numVertices)
 	{
-		me->vertices = new MDX_VECTOR[me->numVertices];
+		me->vertices = (MDX_VECTOR *) AllocMem(sizeof(MDX_VECTOR)*me->numVertices);
+			
 		for (int i=0; i<me->numVertices; i++)
 		{
 			guMtxXFMF(obj->objMatrix.matrix,obj->mesh->vertices[i].vx,obj->mesh->vertices[i].vy,obj->mesh->vertices[i].vz,
@@ -87,11 +89,11 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 	if (me->numFaces = obj->mesh->numFaces)
 	{
 		short *tFace;
-		me->faceIndex = new short[me->numFaces * 3];
+		me->faceIndex = (short *) AllocMem(sizeof(short)*me->numFaces * 3);
 		//me->clipFlags = new long[me->numFaces * 3];
-		me->xfmVert = new D3DTLVERTEX[me->numFaces * 3];
-		me->textures = new LPDIRECTDRAWSURFACE7[me->numFaces];
-		me->tEntrys = new MDX_TEXENTRY *[me->numFaces];
+		me->xfmVert = (D3DTLVERTEX *) AllocMem(sizeof(D3DTLVERTEX) * me->numFaces * 3);
+		me->textures = (LPDIRECTDRAWSURFACE7 *) AllocMem(sizeof(LPDIRECTDRAWSURFACE7)*me->numFaces);
+		me->tEntrys = (MDX_TEXENTRY **) AllocMem (sizeof(MDX_TEXENTRY *)*me->numFaces);
 
 		memcpy (me->faceIndex,obj->mesh->faceIndex,sizeof(short)*me->numFaces*3);
 
@@ -150,16 +152,16 @@ void FreeLandscape(MDX_LANDSCAPE **me)
 	MDX_LANDSCAPE *children = (*me)->children;
 	
 	if ((*me)->vertices)
-		delete (*me)->vertices;
+		FreeMem ((*me)->vertices);
 	//if ((*me)->clipFlags)
 	//	delete (*me)->clipFlags;
 	if ((*me)->faceIndex)
-		delete (*me)->faceIndex;
+		FreeMem ((*me)->faceIndex);
 	if ((*me)->xfmVert)
-		delete (*me)->xfmVert;
+		FreeMem ((*me)->xfmVert);
 	if ((*me)->textures)
-		delete (*me)->textures;
-	delete *me;
+		FreeMem ((*me)->textures);
+	FreeMem (*me);
 	*me = NULL;
 
 	FreeLandscape(&next);

@@ -31,6 +31,7 @@
 #include "mdxProfile.h"
 #include "mdxWindows.h"
 #include "gelf.h"
+#include "mdxException.h"
 #include <stdio.h>
 
 
@@ -83,11 +84,11 @@ MDX_TEXPAGE *GetFreeTexturePage(void)
 		// The texture page is full, start another
 		if (ret->numTex >= maxTexturesInPage)
 		{
-			ret = new MDX_TEXPAGE;
+			ret = (MDX_TEXPAGE *) AllocMem(sizeof(MDX_TEXPAGE));
 			if ((ret->surf = D3DCreateTexSurface(TEX_PAGE_SIZE,TEX_PAGE_SIZE, 0xf81f, 0, 1)) == NULL)
 			{
 				dp("Could not allocate a texture page!\n");
-				delete ret;
+				FreeMem (ret);
 				return NULL;
 			}
 
@@ -99,12 +100,12 @@ MDX_TEXPAGE *GetFreeTexturePage(void)
 	}
 	
 	// We need to make our very first texture page (ahhhhhh)
-	ret = new MDX_TEXPAGE;
+	ret = (MDX_TEXPAGE *) AllocMem(sizeof(MDX_TEXPAGE));
 	
 	if ((ret->surf = D3DCreateTexSurface(TEX_PAGE_SIZE,TEX_PAGE_SIZE, 0xf81f, 0, 1)) == NULL)
 	{
 		dp("Could not allocate a texture page!\n");
-		delete ret;
+		FreeMem (ret);
 		return NULL;
 	}
 	ret->next = NULL;
@@ -152,7 +153,7 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 	if (strncmp(mys,"prc",3)==0)
 		texType = TEXTURE_PROCEDURAL;
 
-	newE = new MDX_TEXENTRY;
+	newE = (MDX_TEXENTRY *) AllocMem(sizeof(MDX_TEXENTRY));
 	
 	newE->next = texList;
 	if (texList)
@@ -295,7 +296,7 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 				newE->softData = NULL;
 			else
 			{
-				newE->softData = new long[xDim*yDim];
+				newE->softData = (long *) AllocMem(sizeof(long)*xDim*yDim);
 
 				for (int i=0; i<xDim; i++)
 					for (int j=0; j<yDim; j++)
@@ -423,8 +424,8 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 					sscanf(line,"%lu",&me->numFrames);					
 					dp("texFrames: %s %lu",me->name,me->numFrames);
 					
-					me->frameTimes = new float[me->numFrames];
-					me->frames = new LPDIRECTDRAWSURFACE7[me->numFrames];
+					me->frameTimes = (float *) AllocMem(sizeof(float)*me->numFrames);
+					me->frames = (LPDIRECTDRAWSURFACE7 *) AllocMem(sizeof(LPDIRECTDRAWSURFACE7)*me->numFrames);
 					me->lastGameFrame = me->lastFrame = 0;
 					me->updated = 0;
 					for (int i=0; i<me->numFrames; i++)
@@ -450,7 +451,6 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 	}
 	else
 		dp("Could not load bank %s\n",fName);
-
 	
 	// Update CRC's in framelists with relevant surfaces (Will need to add the softdata, when software is implemented!)
 	
@@ -523,15 +523,17 @@ void FreeAllTextureBanks()
 			cur2 = cur2->nextFrame;
 		}
 */
-		if( cur->data ) delete cur->data;
-		if( cur->softData ) delete cur->softData;
+		if( cur->data ) 
+			gelfDefaultFree(cur->data);
+		if( cur->softData ) 
+			FreeMem (cur->softData);
 
 		if (cur->numFrames > 1)
 		{
 			// Reset the frame to the origional.
 			cur->surf = cur->frames[0];
-			delete cur->frameTimes;
-			delete cur->frames;
+			FreeMem (cur->frameTimes);
+			FreeMem (cur->frames);
 		}
 
 		if( cur->surf )	
@@ -540,12 +542,13 @@ void FreeAllTextureBanks()
 			surfacesMade--;
 		}
 
-		delete cur;
+		FreeMem (cur);
 	}
 
 	dp("Freed %d Textures\n",numTextures);
 	dp("%lu Surfaces Made=========================================================================\n",surfacesMade);
 
+	Show_Mem();
 //CrtMemCheckpoint(&state2);
 //CrtMemDifference(&state3,&state2,&state1);
 	

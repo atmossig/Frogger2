@@ -29,6 +29,7 @@
 #include "mdxRender.h"
 #include "mdxPoly.h"
 #include "mdxProfile.h"
+#include "mdxException.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -502,14 +503,14 @@ void InitActorStructures(MDX_ACTOR *tempActor, int initFlags)
 	{
 		if((tempActor->objectController) && (tempActor->objectController->animation))
 		{
-			tempActor->animation = new MDX_ACTOR_ANIMATION;
+			tempActor->animation = (MDX_ACTOR_ANIMATION *)AllocMem(sizeof(MDX_ACTOR_ANIMATION));
 			InitAnims(tempActor);
 		}
 	}
 
 	if(initFlags & INIT_SHADOW)
 	{
-		tempActor->shadow = new MDX_ACTOR_SHADOW;
+		tempActor->shadow = (MDX_ACTOR_SHADOW *) AllocMem(sizeof(MDX_ACTOR_SHADOW));
 		tempActor->shadow->alpha = 255;
 		tempActor->shadow->draw = 1;
 	}
@@ -532,6 +533,7 @@ void InitActor(MDX_ACTOR *tempActor, char *name, float x, float y, float z, int 
 	tempActor->scale.vx = tempActor->scale.vy = tempActor->scale.vz = 1;
 	tempActor->flags = 0;
 	tempActor->overrideTex = 0;
+
 	ZeroQuaternion(&tempActor->qRot);
 }
 
@@ -549,7 +551,7 @@ void FreeUniqueObject(MDX_OBJECT *object)
 	if (object)
 	{
 		if (object->numSprites)
-			delete object->sprites;
+			FreeMem (object->sprites);
 
 		if(object->children)
 			FreeUniqueObject(object->children);
@@ -557,7 +559,7 @@ void FreeUniqueObject(MDX_OBJECT *object)
 		if(object->next)
 			FreeUniqueObject(object->next);	
 
-		delete object;
+		FreeMem (object);
 	}
 }
 
@@ -577,10 +579,10 @@ void FreeActor(MDX_ACTOR **toFree)
 	else
 		actorList = a->next;
 
-	delete a->animation;
+	FreeMem (a->animation);
 
 	//MC - 0xcdcdcdcd - if( a->shadow ) delete a->shadow;
-	delete a;
+	FreeMem (a);
 
 	*toFree = 0;
 }
@@ -595,13 +597,13 @@ MDX_OBJECT *MakeUniqueObject(MDX_OBJECT *object)
 	MDX_OBJECTSPRITE **spr, *tempSpr;
 		
 	obj = object;
-	object = new MDX_OBJECT;
+	object = (MDX_OBJECT *) AllocMem(sizeof(MDX_OBJECT));
 	memcpy(object, obj, sizeof(MDX_OBJECT));
 
 	if(obj->numSprites)
 	{
 		spr = &object->sprites;
-		tempSpr = new MDX_OBJECTSPRITE[obj->numSprites];
+		tempSpr = (MDX_OBJECTSPRITE *) AllocMem(sizeof(MDX_OBJECTSPRITE)*obj->numSprites);		
 		memcpy(tempSpr, *spr, sizeof(MDX_OBJECTSPRITE) * obj->numSprites);
 		*spr = tempSpr;
 	}
@@ -645,7 +647,7 @@ void MakeUniqueActor(MDX_ACTOR *actor,int type)
 	}	
 
 	objCont = actor->objectController;
-	actor->objectController = new MDX_OBJECT_CONTROLLER;
+	actor->objectController = (MDX_OBJECT_CONTROLLER *) AllocMem(sizeof(MDX_OBJECT_CONTROLLER));
 	memcpy(actor->objectController, objCont, sizeof(MDX_OBJECT_CONTROLLER));
 	actor->objectController->object = MakeUniqueObject(actor->objectController->object);
 	
@@ -663,13 +665,13 @@ void MakeUniqueActor(MDX_ACTOR *actor,int type)
 MDX_ACTOR *CreateActor(char *name, unsigned long flags)
 {
 	MDX_ACTOR *t;
-	t = new MDX_ACTOR;
+	t = (MDX_ACTOR *) AllocMem(sizeof(MDX_ACTOR));
 	
 	InitActor(t,name,0,0,0,flags);
 
 	if (!t->objectController)
 	{
-		delete t;
+		FreeMem (t);
 		return NULL;
 	}
 

@@ -25,6 +25,7 @@
 #include "mgeReport.h"
 #include "mdxTiming.h"
 #include "gelf.h"
+#include "mdxException.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -91,17 +92,17 @@ void SubdivideObject(MDX_OBJECT *me)
 	mesh = me->mesh;
 	
 	// Allocate enough vertices for double the current number of faces - too many at present, but enough just in case
-	newVerts = new MDX_VECTOR[(mesh->numFaces*3) * 2];
+	newVerts = (MDX_VECTOR *) AllocMem(sizeof(MDX_VECTOR)*(mesh->numFaces*3) * 2);
 
 	// The face structure should be the correct size.
-	newFace = new MDX_SHORTVECTOR[mesh->numFaces * 2];
-	newFaceTC = new MDX_USHORT2DVECTOR[(mesh->numFaces*3) * 2];
+	newFace = (MDX_SHORTVECTOR *) AllocMem(sizeof(MDX_SHORTVECTOR)*mesh->numFaces * 2);
+	newFaceTC = (MDX_USHORT2DVECTOR *) AllocMem(sizeof(MDX_USHORT2DVECTOR)*(mesh->numFaces*3) * 2);
 	
 	// Gouraud colors!
-	newGouraudColors = new MDX_QUATERNION[(mesh->numFaces*3) * 2];
+	newGouraudColors = (MDX_QUATERNION *) AllocMem(sizeof(MDX_QUATERNION)*(mesh->numFaces*3) * 2);
 	
 	// Texture ID's
-	newTextures = new MDX_TEXENTRY *[mesh->numFaces * 2];
+	newTextures = (MDX_TEXENTRY **) AllocMem(sizeof(MDX_TEXENTRY *) * mesh->numFaces * 2);
 
 	for (i=0; i<mesh->numFaces; i++)
 	{
@@ -169,11 +170,11 @@ void SubdivideObject(MDX_OBJECT *me)
 
 	if (me->flags & OBJECT_FLAGS_SUBDIVIDED)
 	{
-		delete mesh->vertices;
-		delete mesh->faceIndex;
-		delete mesh->faceTC;
-		delete mesh->gouraudColors;
-		delete mesh->textureIDs;
+		FreeMem (mesh->vertices);
+		FreeMem (mesh->faceIndex);
+		FreeMem (mesh->faceTC);
+		FreeMem (mesh->gouraudColors);
+		FreeMem (mesh->textureIDs);
 	}
 
 	mesh->numVertices = mesh->numFaces*4;
@@ -555,8 +556,8 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 	{
 		float r,g,b,a;
 		unsigned long dupCount = 0;
-	
-		obj->mesh->d3dVtx = new D3DTLVERTEX[obj->mesh->numFaces * 3];
+
+		obj->mesh->d3dVtx = (D3DTLVERTEX *) AllocMem(sizeof(D3DTLVERTEX)*obj->mesh->numFaces * 3);
 	
 		// Sort object by texture for speedy drawing! OPTIMISE! Put in bankmanager!
 		if (obj->mesh->numFaces)
@@ -757,8 +758,28 @@ void LoadObjBank(char *bank, char *baseDir)
 	return;
 }
 
+void FreeObjectData(MDX_OBJECT *obj)
+{
+	if (obj->mesh)
+		FreeMem(obj->mesh->d3dVtx);
+
+	if(obj->children)
+		FreeObjectData(obj->children);
+	if(obj->next)
+		FreeObjectData(obj->next);
+}
+
 void FreeObjectBank(long i)
 {
+	long y = 0;
+
+	for (y=0; y<objectBanks[i].numObjects; y++)
+	{		
+		if (objectBanks[i].freePtr)			   
+			FreeObjectData(objectBanks[i].objList[y].objCont->object);
+		y++;
+	}
+
 	FreeLibrary((HINSTANCE)(objectBanks[i].freePtr));
 	objectBanks[i].freePtr = NULL;
 }

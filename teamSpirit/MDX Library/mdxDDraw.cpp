@@ -22,7 +22,7 @@
 #include "gelf.h"
 #include "commctrl.h"
 #include "majikPR.h"
-
+#include "mdxException.h"
 #include "resource.h"
 
 LPDIRECTDRAW7			pDirectDraw7;
@@ -86,8 +86,8 @@ BOOL WINAPI  EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverN
 
 	lpDD->GetDeviceIdentifier(&ddId,0);
 
-	dxDeviceList[dxNumDevices].desc = new char [strlen (ddId.szDescription)+1];
-	dxDeviceList[dxNumDevices].name = new char [strlen (ddId.szDriver)+1];
+	dxDeviceList[dxNumDevices].desc = (char *) AllocMem(sizeof(char)*strlen (ddId.szDescription)+1);
+	dxDeviceList[dxNumDevices].name = (char *) AllocMem(sizeof(char)*strlen (ddId.szDriver)+1);
 	
 	strcpy(dxDeviceList[dxNumDevices].desc, ddId.szDescription);
 	strcpy(dxDeviceList[dxNumDevices].name, ddId.szDriver);
@@ -102,7 +102,7 @@ BOOL WINAPI  EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverN
 
     if (lpGUID)													// This is NULL for the primary display device
 	{
-	    dxDeviceList[dxNumDevices].guid = new GUID;
+	    dxDeviceList[dxNumDevices].guid = (GUID *) AllocMem(sizeof(GUID));
 		memcpy(dxDeviceList[dxNumDevices].guid, lpGUID, sizeof(GUID));		
 	}
 	else
@@ -243,8 +243,8 @@ unsigned long DDrawInitObject (GUID *guid)
 	// Create a base DirectDraw object
 	DirectDrawEnumerateEx(EnumDDDevices, guid, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
 
-	dxDeviceList[dxNumDevices].desc = new char [strlen (softwareString)+1];
-	dxDeviceList[dxNumDevices].name = new char [strlen (softwareDriver)+1];
+	dxDeviceList[dxNumDevices].desc = (char *) AllocMem(sizeof(char)*(strlen (softwareString)+1));
+	dxDeviceList[dxNumDevices].name = (char *) AllocMem(sizeof(char)*(strlen (softwareDriver)+1));
 	
 	strcpy(dxDeviceList[dxNumDevices].desc, softwareString);
 	strcpy(dxDeviceList[dxNumDevices].name, softwareDriver);

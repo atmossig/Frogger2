@@ -12,6 +12,7 @@ extern "C"
 #include "mgeReport.h"
 #include "mdxInfo.h"
 #include "mdxDDraw.h"
+#include "mdxException.h"
 
 struct DDDEVICE
 {
@@ -74,8 +75,8 @@ static BOOL FAR PASCAL EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR
 	}
 	
 	// If we get here, then we have a device we can possibly use, so add it to the list.
-	strcpy( devices.list[devices.num].desc = new char [strlen (ddId.szDescription)],ddId.szDescription);
-	strcpy( devices.list[devices.num].name = new char [strlen (ddId.szDriver)],ddId.szDriver);
+	strcpy( devices.list[devices.num].desc = (char *) AllocMem(sizeof(char)*strlen (ddId.szDescription)),ddId.szDescription);
+	strcpy( devices.list[devices.num].name = (char *) AllocMem(sizeof(char)*strlen (ddId.szDriver)),ddId.szDriver);
 
 	// Implicit structure copy.
 	devices.list[devices.num].caps = ddCaps;						
@@ -84,7 +85,7 @@ static BOOL FAR PASCAL EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR
 	if (lpGUID)
 	{
 		// Make a copy of the guid
-	    devices.list[devices.num].guid = new GUID;
+	    devices.list[devices.num].guid = (GUID *) AllocMem(sizeof(GUID));
 		memcpy(devices.list[devices.num].guid, lpGUID, sizeof(GUID));		
 	}
 	else

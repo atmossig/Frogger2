@@ -32,6 +32,7 @@
 #include "commctrl.h"
 #include "gelf.h"
 #include "stdio.h"
+#include "mdxException.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -100,8 +101,8 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 
 		DDrawCopyToSurface(tFont->surf[surf],(unsigned short *)tData,0,dim,dim,0);
 
-		tFont->vPtrs[surf] = new D3DTLVERTEX[FONT_NUM32*FONT_NUM32];
-		tFont->widths[surf] = new long [FONT_NUM32*FONT_NUM32];
+		tFont->vPtrs[surf] = (D3DTLVERTEX *) AllocMem(sizeof(D3DTLVERTEX)*FONT_NUM32*FONT_NUM32);			
+		tFont->widths[surf] = (long *) AllocMem(sizeof(long)*FONT_NUM32*FONT_NUM32);
 		
 		size = dim/8;
 
@@ -130,7 +131,7 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 			}
 		tFont->dim = dim;	
 
-		tFont->softData[surf] = new long[dim*dim];
+		tFont->softData[surf] = (long *) AllocMem(sizeof(long)*dim*dim);
 
 		for (int i=0; i<dim; i++)
 			for (int j=0; j<dim; j++)
@@ -181,7 +182,7 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 
 MDX_FONT *InitFont(char *bank,char *baseDir)
 {
-	MDX_FONT *tFont = new MDX_FONT;
+	MDX_FONT *tFont = (MDX_FONT *) AllocMem(sizeof(MDX_FONT));
 
 	char fPath[MAX_PATH];
 
@@ -189,7 +190,7 @@ MDX_FONT *InitFont(char *bank,char *baseDir)
 	if (!AddCharsToFont(tFont, bank, fPath, 0))
 	{
 		dp("Couldnt create surface 0 for font %s",bank);
-		delete tFont;
+		FreeMem (tFont);
 		return false;
 	}
 
@@ -197,7 +198,7 @@ MDX_FONT *InitFont(char *bank,char *baseDir)
 	if (!AddCharsToFont(tFont, bank, fPath, 1))
 	{
 		dp("Couldnt create surface 1 for font %s",bank);
-		delete tFont;
+		FreeMem (tFont);
 		return false;
 	}
 

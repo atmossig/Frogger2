@@ -58,14 +58,82 @@ int Eval_Exception (int n_except,LPEXCEPTION_POINTERS exceptinf)
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-void *AllocMem(unsigned long size)
+typedef struct TAG_MEMINFO
 {
-	return (void *)new char[size];
+	char file[MAX_PATH];
+	long line;
+
+	void *data;
+	long size;
+
+	long number;
+	long numprints;
+
+	TAG_MEMINFO *next,*prev;
+} MEMINFO;
+
+MEMINFO *memList = NULL;
+unsigned long numAllocs = 0;
+
+void *Alloc_Mem(unsigned long size,char *file, long line)
+{
+	MEMINFO *nMem = new MEMINFO;
+	nMem->prev = NULL;
+	nMem->next = memList;
+	if (memList)
+		memList->prev = nMem;
+	memList = nMem;
+
+
+	nMem->data = (void *)new char[size];
+	nMem->size = size;
+	nMem->numprints = 0;
+
+	strcpy (nMem->file,file);
+	nMem->line = line;
+	
+	nMem->number = numAllocs++;
+
+	return nMem->data;
 }
 
-void *FreeMem(unsigned long size)
+void Show_Mem(void)
 {
-	return (void *)new char[size];
+	MEMINFO *cur = memList;
+	while (cur)
+	{
+		dp("Memory Block number #%lu - Size:%lu   File:%s   Line:%lu - %lu prints\n",cur->number,cur->size,cur->file,cur->line,cur->numprints++);
+		cur = cur->next;
+	}
+}
+
+void Free_Mem(void *me,char *file, long line)
+{
+	MEMINFO *cur = memList;
+
+	if (cur)
+	{
+		while (cur && cur->data != me )
+			cur = cur->next;
+
+		if (!cur)
+			dp("DATA BLOCK NOT FOUND - File: %s   Line: %lu\n",file,line);
+		else
+		{
+			if (memList == cur)
+				memList = cur->next;
+			else
+				cur->prev->next = cur->next;
+
+			if (cur->next)
+				cur->next->prev = cur->prev;
+		}
+
+		delete cur;
+	}
+	else
+		dp("Free Before Alloc - File: %s   Line: %lu\n",file,line);
+	delete me;
 }
 
 #ifdef __cplusplus
