@@ -662,7 +662,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	}
 
 	// check if a platform is in the destination tile
-	dprintf"Checking for destination platform..."));
 	destPlatform[pl] = JumpingToTileWithPlatform(dest,pl);
 
 	// ---------------------------------------------------------
@@ -709,8 +708,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	if(destPlatform[pl])
 	{
-		dprintf"detected\n"));
-
 		// check if platform is too high to reach
 		if(PlatformTooHigh(destPlatform[pl],pl))
 		{
@@ -739,7 +736,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	
 	if (!destPlatform[pl])
 	{
-		dprintf"NOT detected\n"));
 		if(GameTileTooHigh(dest, pl))
 		{			
 			// gametile is too high
