@@ -544,7 +544,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i;
 
-	frameCount = 1;
+	frameCount = 0;
 
 	// prepare screen for fade in
 	fadeOut		= 255;
