@@ -1540,7 +1540,7 @@ Get_Screenxy(VERT *v0,LONG *xy){
 	RETURNS:	
 **************************************************************************/
 
-static void psiSortPrimitives()
+/*static void psiSortPrimitives()
 {
 	register long *tfd = transformedDepths;
 	register long *tfv = transformedVertices;
@@ -1564,7 +1564,7 @@ static void psiSortPrimitives()
 		switch (opcd->cd & (0xff - 2))
 		{
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define op ((TMD_P_FT3I*)opcd)
+/*#define op ((TMD_P_FT3I*)opcd)
 
 		case GPU_COM_TF3:
 			if((tfd[op->v2] > modctrl->nearclip) && (tfd[op->v2] < modctrl->farclip))
@@ -1590,7 +1590,7 @@ static void psiSortPrimitives()
 
 #undef op			
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define op ((TMD_P_FT4I*)opcd)
+/*#define op ((TMD_P_FT4I*)opcd)
 
 		case GPU_COM_TF4:
 			if((tfd[op->v2] > modctrl->nearclip) && (tfd[op->v2] < modctrl->farclip))
@@ -1615,7 +1615,7 @@ static void psiSortPrimitives()
 
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define op ((TMD_P_GT3I*)opcd)
+/*#define op ((TMD_P_GT3I*)opcd)
 
 		case GPU_COM_TG3:
 			if((tfd[op->v2] > modctrl->nearclip) && (tfd[op->v2] < modctrl->farclip))
@@ -1640,7 +1640,7 @@ static void psiSortPrimitives()
 
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define op opcd
+/*#define op opcd
 		case GPU_COM_TG4:
 			if((tfd[op->v2] > modctrl->nearclip) && (tfd[op->v2] < modctrl->farclip))
 			{
@@ -1666,7 +1666,7 @@ static void psiSortPrimitives()
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 
-#define op ((TMD_P_FT4I*)opcd)
+/*#define op ((TMD_P_FT4I*)opcd)
 		case GPU_COM_TF4SPR:
 			if((tfd[op->v0] > modctrl->nearclip) && (tfd[op->v0] < modctrl->farclip))
 			{
@@ -1682,7 +1682,7 @@ static void psiSortPrimitives()
 #undef op
 
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define op ((TMD_P_FG4I*)opcd)
+/*#define op ((TMD_P_FG4I*)opcd)
 
 		case GPU_COM_G4:
 		case GPU_COM_F4:
@@ -1709,7 +1709,7 @@ static void psiSortPrimitives()
 
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define op ((TMD_P_FG3I*)opcd)
+/*#define op ((TMD_P_FG3I*)opcd)
 		case GPU_COM_G3:
 		case GPU_COM_F3:
 			if((tfd[op->v2] > modctrl->nearclip) && (tfd[op->v2] < modctrl->farclip))
@@ -1734,13 +1734,13 @@ static void psiSortPrimitives()
 
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-		default:
+	/*	default:
 			break;
 		}
 		primsleft --;
 	}
 }
-
+*/
 
 /**************************************************************************
 	FUNCTION:	PSIDrawSortedPrims
@@ -2649,9 +2649,9 @@ void psiDrawSegments(PSIDATA *psiData)
 
 	tfv = tfvbase;
 	tfd = tfdbase;
-#else
-	tfv = transformedVertices;
-	tfd = transformedDepths;
+//#else
+//	tfv = transformedVertices;
+//	tfd = transformedDepths;
 #endif
 
 	tfTotal = 0;
@@ -2714,8 +2714,8 @@ void psiDrawSegments(PSIDATA *psiData)
 
 #ifdef DCACHE_OPTIMISATION
 	 	dcachePsiCalcMaxMin ( psiData, tfdbase );
-#else
-	 	psiCalcMaxMin ( psiData );
+//#else
+	 	//psiCalcMaxMin ( psiData );
 #endif
 
 		world = (PSIOBJECT*)psiData->objectTable[0];
@@ -2734,8 +2734,8 @@ void psiDrawSegments(PSIDATA *psiData)
 
 #ifdef DCACHE_OPTIMISATION
 		dcachePsiSortPrimitives ( tfvbase, tfdbase );
-#else
-		psiSortPrimitives();
+//#else
+//		psiSortPrimitives();
 #endif
 
 		modctrl->polysdrawn = sortCount;
@@ -2746,8 +2746,8 @@ void psiDrawSegments(PSIDATA *psiData)
 			//psiDrawSortedPrimitives(depth >> modctrl->depthShift);
 #ifdef DCACHE_OPTIMISATION
 		dcache_LSCAPE_DrawSortedPrimitives ( depth/* >> modctrl->depthShift*/, tfvbase );
-#else
-		LSCAPE_DrawSortedPrimitives ( depth >> modctrl->depthShift );
+//#else
+//		LSCAPE_DrawSortedPrimitives ( depth >> modctrl->depthShift );
 #endif
 	}
 	else
@@ -2788,8 +2788,8 @@ void psiDrawSegments(PSIDATA *psiData)
 
 #ifdef DCACHE_OPTIMISATION
 			dcacheCustomDrawPrimitives2 ( depth >> modctrl->depthShift, tfvbase, tfdbase );
-#else
-			customDrawPrimitives2 ( depth >> modctrl->depthShift );
+//#else
+//			customDrawPrimitives2 ( depth >> modctrl->depthShift );
 #endif
 			//customDrawFunction2();
 		}

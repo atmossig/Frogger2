@@ -32,7 +32,7 @@ TEXTOVERLAY *levelNames [ MAX_LEVELS ];
 ACTOR2 *objViewerActorList [ MAX_OBJVIEWER_ACTORS ];
 
 void customDrawPrimitives2(int depth);
-void LSCAPE_DrawSortedPrimitives(int depth);
+//void LSCAPE_DrawSortedPrimitives(int depth);
 
 void InitObjectViewer ( void )
 {
@@ -79,8 +79,8 @@ void RunBankSelect ( void )
 		actorAnimate ( objViewerActorList[0]->actor, 0, 1, 0, 128, 0 );
 
 //		psiRegisterDrawFunction (customDrawPrimitives2);
-		psiRegisterDrawFunction(LSCAPE_DrawSortedPrimitives);
-		psiRegisterDrawFunction2(customDrawPrimitives2);
+//		psiRegisterDrawFunction(LSCAPE_DrawSortedPrimitives);
+	//	psiRegisterDrawFunction2(customDrawPrimitives2);
 
 		psiAllocWorkspace();
 

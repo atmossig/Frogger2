@@ -53,7 +53,7 @@ unsigned short globalClut;
 	RETURNS:	
 **************************************************************************/
 
-void customDrawPrimitives2 ( int depth )
+/*void customDrawPrimitives2 ( int depth )
 {
 	register PACKET		*packet;
 
@@ -90,7 +90,7 @@ void customDrawPrimitives2 ( int depth )
 		switch (opcd->cd & (0xff-2))
 		{
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT3*)packet)
+/*#define si ((POLY_FT3*)packet)
 #define op ((TMD_P_FT3I*)opcd)
 			case GPU_COM_TF3:
 
@@ -130,7 +130,7 @@ void customDrawPrimitives2 ( int depth )
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT4*)packet)
+/*#define si ((POLY_FT4*)packet)
 #define op ((TMD_P_FT4I*)opcd)
 			case GPU_COM_TF4:
 
@@ -175,7 +175,7 @@ void customDrawPrimitives2 ( int depth )
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_GT3*)packet)
+/*#define si ((POLY_GT3*)packet)
 #define op ((TMD_P_GT3I*)opcd)
 			case GPU_COM_TG3:
 			
@@ -221,7 +221,7 @@ void customDrawPrimitives2 ( int depth )
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_GT4*)packet)
+/*#define si ((POLY_GT4*)packet)
 #define op opcd
 			case GPU_COM_TG4:
 		
@@ -272,7 +272,7 @@ void customDrawPrimitives2 ( int depth )
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT4*)packet)
+/*#define si ((POLY_FT4*)packet)
 #define op ((TMD_P_FT4I*)opcd)
 			case GPU_COM_TF4SPR :
 
@@ -294,7 +294,7 @@ void customDrawPrimitives2 ( int depth )
 					//width = ((op->v2 * gteH) / (tfd[op->v0]));
 					//height = ((op->v3 * gteH) / (tfd[op->v0]));
 
-					width = (op->v2 * SCALEX) / (tfd[op->v0]*20);
+		/*			width = (op->v2 * SCALEX) / (tfd[op->v0]*20);
 					height = (op->v3 * SCALEY) / (tfd[op->v0]*20);
 
 					// JH : Temp Fix
@@ -320,7 +320,7 @@ void customDrawPrimitives2 ( int depth )
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_G4*)packet)
+/*#define si ((POLY_G4*)packet)
 #define op ((TMD_P_FG4I*)opcd)
 			case GPU_COM_G4:
 			case GPU_COM_F4:
@@ -368,7 +368,7 @@ void customDrawPrimitives2 ( int depth )
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_G3*)packet)
+/*#define si ((POLY_G3*)packet)
 #define op ((TMD_P_FG3I*)opcd)
 			
 			case GPU_COM_G3:
@@ -416,17 +416,17 @@ void customDrawPrimitives2 ( int depth )
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-			default:
+	/*		default:
 				break;
 		}
 		primsleft--;
 	}
 }
-
+*/
 
 extern long globalFadeVal;
 
-void LSCAPE_DrawSortedPrimitives ( int depth )
+/*void LSCAPE_DrawSortedPrimitives ( int depth )
 {
 	register PACKET			*packet;//, *packetNext;
 
@@ -457,13 +457,13 @@ void LSCAPE_DrawSortedPrimitives ( int depth )
 	depth += actorShiftDepth;
 
 	// SL: get the fogdepth, and modge it accordingly.
-	fogdepth = 10000;//(depth << (2+1/*LSCAPE_Data.depthshift*/));
+	fogdepth = 10000;//(depth << (2+1/*LSCAPE_Data.depthshift*//*));*/
 
 //	if(fogdepth > LSCAPE_Data.fogendz)
 //		return;
 
 	// SL: work out the fog fade. in advance. It's the same for the whole model, so this is fine here.
-	fogFade=globalFadeVal;//255-((255*(fogdepth-3000/*-LSCAPE_Data.fogstartz*/))/(3500-3000/*LSCAPE_Data.fogendz-LSCAPE_Data.fogstartz*/));
+/*	fogFade=globalFadeVal;//255-((255*(fogdepth-3000/*-LSCAPE_Data.fogstartz*//*))/(3500-3000/*LSCAPE_Data.fogendz-LSCAPE_Data.fogstartz*//*));
 	// SL: shift everythang into the same rez as the landscape, etc...
 //	depth = (depth >> LSCAPE_Data.depthshift) & MAXDEPTH;
 
@@ -493,7 +493,7 @@ void LSCAPE_DrawSortedPrimitives ( int depth )
 		switch (opcd->cd & (0xff-2))
 		{
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT3*)packet)
+/*#define si ((POLY_FT3*)packet)
 #define siNext ((POLY_FT3*)packetNext)
 #define op ((TMD_P_FT3I*)opcd)
 
@@ -540,7 +540,7 @@ void LSCAPE_DrawSortedPrimitives ( int depth )
 #undef siNext
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT4*)packet)
+/*#define si ((POLY_FT4*)packet)
 #define siNext ((POLY_FT4*)packetNext)
 #define op ((TMD_P_FT4I*)opcd)
 				
@@ -590,7 +590,7 @@ void LSCAPE_DrawSortedPrimitives ( int depth )
 #undef siNext
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_GT3*)packet)
+/*#define si ((POLY_GT3*)packet)
 #define siNext ((POLY_GT3*)packetNext)
 #define op ((TMD_P_GT3I*)opcd)
 
@@ -649,7 +649,7 @@ void LSCAPE_DrawSortedPrimitives ( int depth )
 #undef siNext
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_GT4*)packet)
+/*#define si ((POLY_GT4*)packet)
 #define siNext ((POLY_GT4*)packetNext)
 #define op opcd
 
@@ -717,7 +717,7 @@ void LSCAPE_DrawSortedPrimitives ( int depth )
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
 
-#define si ((POLY_FT4*)packet)
+/*#define si ((POLY_FT4*)packet)
 #define op ((TMD_P_FT4I*)opcd)
 
 			case GPU_COM_TF4SPR :
@@ -733,7 +733,7 @@ void LSCAPE_DrawSortedPrimitives ( int depth )
 				//width = ((op->v2 * gteH) / tfd[op->v0]);
 				//height = ((op->v3 * gteH) / tfd[op->v0]);
 
-					width = (((op->v2 * gteH) / (tfd[op->v0]<<2))*2)/3;
+		/*			width = (((op->v2 * gteH) / (tfd[op->v0]<<2))*2)/3;
 					height = (((op->v3 * gteH) / (tfd[op->v0]<<2))*2)/6;
 
  				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
@@ -762,7 +762,7 @@ void LSCAPE_DrawSortedPrimitives ( int depth )
 //	TimerStop(&poly);
 //	utilPrintf("Timer Taken To Draw Polys : %d\n", poly.total);
 }
-
+*/
 
 
 void DrawSortedPrimitivesFaded ( int depth )
