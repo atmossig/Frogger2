@@ -440,6 +440,7 @@ void CalcMPCamera( VECTOR *target )
 void CalcRaceCamera( VECTOR *target )
 {
 	int lead=0, i, bestLap=0, bestCheck=0;
+	float t;
 
 	for( i=0; i<NUM_FROGS; i++ )
 		if( racer[i].lap >= bestLap && racer[i].check >= bestCheck && player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
@@ -449,7 +450,19 @@ void CalcRaceCamera( VECTOR *target )
 			lead = i;
 		}
 
-	SetVector( target, &frog[lead]->actor->pos );
+	t = player[lead].jumpTime;
+	if( t > 0 )	// jumping; calculate linear position
+	{
+		VECTOR v;
+		SetVector(target, &player[lead].jumpOrigin);
+		SetVector(&v, &player[lead].jumpFwdVector);
+		ScaleVector(&v, t);
+		AddToVector(target, &v);
+	}										
+	else
+	{
+		SetVector( target, &frog[lead]->actor->pos );
+	}
 }
 
 void CalcBattleCamera( VECTOR *target )
