@@ -266,6 +266,12 @@ James Healey:
 Mike Movel:
 ------------------------------------------------
 
+	Morning:
+		Began integrating mine and James' code changes. Quite a few problems.
+
+	Afternoon:
+		Helped Byron sort out the includes after taking incs.h out.
+
 
 Byron Blay:
 ------------------------------------------------
@@ -318,6 +324,8 @@ James Healey:
 
 Mike Movel:
 ------------------------------------------------
+	Morning:
+		Carried on helping Byron with the includes.
 
 
 Byron Blay:
