@@ -83,79 +83,6 @@ PLANE2 debug_plane2;
 	Parameters	: (void)
 	Returns		: void 
 */
-
-void GameProcessController2(void)
-{
-	static u16 button,lastbutton;
-	static s16 stickX, stickY,lastStickX,lastStickY;
-    
-	button = controllerdata[ActiveController+2].button;
-	stickX = controllerdata[ActiveController+2].stick_x;
-	stickY = controllerdata[ActiveController+2].stick_y;
-
-	if((button & CONT_F) && !(lastbutton & CONT_F))
-    {
-		camFacing2--;
-		camFacing2 &= 3;		
-	}
-
-	if((button & CONT_C) && !(lastbutton & CONT_C))
-    {
-		camFacing2++;
-		camFacing2 &= 3;		
-	}
-
-	if((button & CONT_UP) && (autoHop?1:!(lastbutton & CONT_UP)) && (frogState2 & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
-	{
-		if(!playerInputPause2)
-		{
-			frogState2 |= FROGSTATUS_ISWANTINGU;
-//			playerInputPause2 = INPUT_POLLPAUSE;
-		}
-		else
-			playerInputPause2 += INPUT_PENALTY;
-	}	    
-
-	if((button & CONT_RIGHT) && (autoHop?1:!(lastbutton & CONT_RIGHT)) &&
-	   (frogState2 & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
-	{
-		if(!playerInputPause2)
-		{
-			frogState2 |= FROGSTATUS_ISWANTINGR;
-//			playerInputPause2 = INPUT_POLLPAUSE;
-		}
-		else
-			playerInputPause2 += INPUT_PENALTY;
-	}
-    
-	if((button & CONT_DOWN) && (autoHop?1:!(lastbutton & CONT_DOWN)) && (frogState2 & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
-	{
-		if(!playerInputPause2)
-		{
-			frogState2 |= FROGSTATUS_ISWANTINGD;
-//			playerInputPause2 = INPUT_POLLPAUSE;
-		}
-		else
-			playerInputPause2 += INPUT_PENALTY;
-	}
-    
-	if((button & CONT_LEFT) && (autoHop?1:!(lastbutton & CONT_LEFT)) && (frogState2 & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
-	{
-		if(!playerInputPause2)
-		{			
-			frogState2 |= FROGSTATUS_ISWANTINGL;			
-//			playerInputPause2 = INPUT_POLLPAUSE;
-		}
-		else
-			playerInputPause2 += INPUT_PENALTY;
-	}
-  
-	lastbutton = button;
-	lastStickX = stickX;
-	lastStickY = stickY;
-}
-
-
 void GameProcessController(long pl)
 {
 	static u16 button[4],lastbutton[4];
@@ -1092,12 +1019,6 @@ void RunGameLoop (void)
                         else
 							GameProcessController(i);                                      
         			}
-
-					if (!frog2->action.dead)
-					{
-						GameProcessController2();
-					}
-					// ENDIF
 				}
 				// ENDIF  
 				if(frog[0])
@@ -1126,10 +1047,6 @@ void RunGameLoop (void)
 							//switch ( turnDir )
 						}
 					}
-					
-					// ENDELSEIF
-					SitAndFace(frog2,currTile2,frogFacing2);
-
 				}	  
 			}
 			// ENDIF 
@@ -1179,8 +1096,6 @@ void RunGameLoop (void)
 		}
 	}
 	
-	UpdateFroggerPos2();
-
 	UpDateOnScreenInfo();
 
 	if(player[0].frogState & FROGSTATUS_ISSTANDING)
@@ -1218,12 +1133,6 @@ void RunGameLoop (void)
 		if (frog[i]->actor)
 		{
 			frog[i]->actor->xluOverride=100;
-	
-			if (!multiplayerRun)
-				frog2->actor->xluOverride=0;
-			else
-				frog2->actor->xluOverride=100;
-
 		} 
 		if (frog[i]->action.safe) 
 		{
