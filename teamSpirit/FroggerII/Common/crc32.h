@@ -24,5 +24,6 @@ void InitCRCTable();
 unsigned long UpdateCRC(char *ptr);
 unsigned long UpdateCRCData(char *ptr,int numBytes);
 
+extern unsigned long objectCRC;
 
 #endif
