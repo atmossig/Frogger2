@@ -146,7 +146,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 			GetWindowRect(hwndDlg, &meR);
 			ShowWindow(hwndDlg,SW_SHOW);
-			SetWindowPos(hwndDlg, HWND_TOPMOST, (GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
+			SetWindowPos(hwndDlg, HWND_NOTOPMOST, (GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
 			list = GetDlgItem(hwndDlg,IDC_LIST2);
 		
 			for (i=NUM_LANGUAGES; i>0; i--)
