@@ -437,7 +437,7 @@ void DrawFXRing( SPECFX *fx )
 				vT[j].sz = ringVtx[vxj].vz*0.000244;
 
 				// Slant the polys
-				tilt = ((i&1)?(j==0||j==3):(j==1||j==2)) ? tilt2 : 1;
+				tilt = ((i&1)?(j==0||j==3):(j==1||j==2)) ? 1 : tilt2;
 				vT[j].tv = 1-vT[j].tv;
 
 				// Scale and push
@@ -448,7 +448,7 @@ void DrawFXRing( SPECFX *fx )
 				MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
 				guMtxXFMF( dMtrx, vT[j].sx, vT[j].sy, vT[j].sz, &tempVect.vx, &tempVect.vy, &tempVect.vz );
 
-				if( j==3 ) SetVectorSR( &fxpos, &tempVect );
+				if( j==2 ) SetVectorSR( &fxpos, &tempVect );
 
 				XfmPoint( &m, &tempVect, NULL );
 
