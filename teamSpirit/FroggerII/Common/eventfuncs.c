@@ -120,14 +120,6 @@ void ChangeActorScale( EVENT *event )
 */
 void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 {
-	if ( worldID == WORLDID_GARDEN )
-	{
-		if ( levelID == LEVELID_GARDENLAWN )
-		{
-		}
-	} // etc
-
-/* ***********EXAMPLE***********
 	void **args;
 	TRIGGER *trigger;
 	EVENT *event;
@@ -135,35 +127,48 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 	VECTOR *scale = (VECTOR *)JallocAlloc( sizeof(VECTOR),YES,"Vector" );
 	float *rad;
 
-	InitTriggerList( );
+	if ( worldID == WORLDID_GARDEN )
+	{
+		if ( levelID == LEVELID_GARDENLAWN )
+		{
+		}
+		else if( levelID == LEVELID_GARDENMAZE )
+		{
+		}
+		else if( levelID == LEVELID_GARDENVEGPATCH )
+		{
+			return;
 
-	pos->v[0] = -75.0;
-	pos->v[1] = 0.0;
-	pos->v[2] = -375.0;
-	
-	rad = (float *)JallocAlloc( sizeof(float),YES,"Float" );
-	*rad = 100;
+			InitTriggerList( );
 
-	// Test trigger
-	args = (void **)JallocAlloc( (sizeof(void *)*3),YES,"EventData" );
-	args[0] = (void *)frog[0]->actor;
-	args[1] = (void *)pos;
-	args[2] = (void *)rad;
+			pos->v[0] = -75.0;
+			pos->v[1] = 0.0;
+			pos->v[2] = -375.0;
+			
+			rad = (float *)JallocAlloc( sizeof(float),YES,"Float" );
+			*rad = 100;
 
-	trigger = MakeTrigger( ActorWithinRadius, 3, args );
+			// Test trigger
+			args = (void **)JallocAlloc( (sizeof(void *)*3),YES,"EventData" );
+			args[0] = (void *)frog[0]->actor;
+			args[1] = (void *)pos;
+			args[2] = (void *)rad;
 
-	scale->v[0] = 3.0;
-	scale->v[1] = 3.0;
-	scale->v[2] = 3.0;
+			trigger = MakeTrigger( ActorWithinRadius, 3, args );
 
-	// Test event
-	args = (void **)JallocAlloc( (sizeof(void *)*2),YES,"EventData" );
-	args[0] = (void *)frog[0]->actor;
-	args[1] = (void *)scale;
+			scale->v[0] = 2.0;
+			scale->v[1] = 2.0;
+			scale->v[2] = 2.0;
 
-	event = MakeEvent( ChangeActorScale, 2, args );
+			// Test event
+			args = (void **)JallocAlloc( (sizeof(void *)*2),YES,"EventData" );
+			args[0] = (void *)frog[0]->actor;
+			args[1] = (void *)scale;
 
-	// Attach event to trigger
-	AttachEvent( trigger, event );
-	*/
+			event = MakeEvent( ChangeActorScale, 2, args );
+
+			// Attach event to trigger
+			AttachEvent( trigger, event );
+		}
+	} // etc
 }
