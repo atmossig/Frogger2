@@ -437,9 +437,9 @@ int main ( )
 			}
 			TIMER_STOP(TIMER_GAMELOOP);
 */
-//			TIMER_START(TIMER_GAMELOOP);
+			TIMER_START(TIMER_GAMELOOP);
 			GameLoop();
-//			TIMER_STOP(TIMER_GAMELOOP);
+			TIMER_STOP(TIMER_GAMELOOP);
 			
 			TIMER_START(TIMER_UPDATE_WATER);
 			UpdateWater();
@@ -473,8 +473,8 @@ int main ( )
 			TIMER_STOP(TIMER_DRAW_WATER);
 
 			TIMER_START(TIMER_ACTOR_DRAW);
-			//if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
-			//	DrawActorList();
+			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
+				DrawActorList();
 			TIMER_STOP(TIMER_ACTOR_DRAW);
 
 // 			if ( !( frameCount % 10 ) )
