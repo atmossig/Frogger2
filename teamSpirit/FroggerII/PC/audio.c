@@ -18,7 +18,7 @@
 
 #define VOLUME_MIN		-5000
 #define VOLUME_PERCENT (VOLUME_MIN/100)
-#define PITCH_STEP		(DSBFREQUENCY_MAX/512)
+#define PITCH_STEP		(DSBFREQUENCY_MAX/256)
 
 SAMPLE *genSfx[NUM_GENERIC_SFX];
 SAMPLE **sfx_anim_map = NULL;
@@ -252,7 +252,7 @@ int PlaySample( SAMPLE *sample, VECTOR *pos, long radius, short volume, short pi
 		lpdsBuffer = sample->lpdsBuffer;
 	}
 
-	lpdsBuffer->lpVtbl->SetFrequency( lpdsBuffer, pitch*PITCH_STEP );
+	lpdsBuffer->lpVtbl->SetFrequency( lpdsBuffer, (pitch==-1)?(DSBFREQUENCY_ORIGINAL):(pitch*PITCH_STEP) );
 	lpdsBuffer->lpVtbl->SetVolume( lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
 	lpdsBuffer->lpVtbl->SetPan( lpdsBuffer, pan );
 	lpdsBuffer->lpVtbl->Play( lpdsBuffer, 0, 0, flags );
@@ -286,7 +286,7 @@ void PlaySfxMappedSample( ACTOR *act, long radius, short volume, short pitch )
 		return;
 	}
 
-	PlaySample( sample, &act->pos, radius, volume, pitch );
+	PlaySample( sample, &act->pos, radius, volume, -1/*pitch*/ );
 }
 
 
@@ -326,7 +326,7 @@ int UpdateLoopingSample( AMBIENT_SOUND *sample )
 	// Now test if the sample is playing - if it is then make a buffered instance of it to play.
 	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
 
-	sample->lpdsBuffer->lpVtbl->SetFrequency( sample->lpdsBuffer, sample->pitch*PITCH_STEP );
+	sample->lpdsBuffer->lpVtbl->SetFrequency( sample->lpdsBuffer, (sample->pitch==-1)?(DSBFREQUENCY_ORIGINAL):(sample->pitch*PITCH_STEP) );
 	sample->lpdsBuffer->lpVtbl->SetVolume( sample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
 	sample->lpdsBuffer->lpVtbl->SetPan( sample->lpdsBuffer, pan );
 
@@ -347,7 +347,7 @@ void SetSampleFormat( SAMPLE *sample )
 
 	memset ( &wfx, 0, sizeof ( WAVEFORMATEX ) ); 
 	wfx.wFormatTag		= WAVE_FORMAT_PCM; 
-	wfx.nChannels		= 2;
+	wfx.nChannels		= 1;
 	wfx.nSamplesPerSec	= 22050;
 	wfx.wBitsPerSample	= 16;
 	wfx.nBlockAlign		= wfx.wBitsPerSample / 8 * wfx.nChannels;
@@ -891,7 +891,7 @@ SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor )
 			if( type == 3 )
 			{
 				// Make an ambient sound if we've attached a sound to a scenic
-				AddAmbientSound( sfx_anim_map[index], &actor->pos, 2000, 50, 128, 0, 0, actor );
+				AddAmbientSound( sfx_anim_map[index], &actor->pos, 2000, 50, -1/*128*/, 0, 0, actor );
 				return NULL;
 			}
 			else
