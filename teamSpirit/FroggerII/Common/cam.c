@@ -695,6 +695,8 @@ void InitCamera(void)
 
 	SetVector(&currCamSource[0], &camSource[0]);
 	SetVector(&currCamTarget[0], &camTarget[0]);
+
+	cam_shakiness = 0;
 }
 
 
