@@ -380,6 +380,8 @@ void ShowSounds(void)
 	r.bottom = rYRes - 1;
 	
 	DrawTexturedRect(r,D3DRGBA(0,0,0,0.8),NULL,0,0,1,1);
+
+	EndDraw( );
 	
 	HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
 	if ((res == DD_OK))

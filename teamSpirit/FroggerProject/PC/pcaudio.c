@@ -763,6 +763,7 @@ void RemoveBufSample( BUFSAMPLE *bufSample )
 void FreeSampleList( void )
 {
 	SAMPLE *cur,*next;
+	unsigned long stat;
 
 	// check if any elements in list
 	if( !soundList.numEntries )
@@ -777,11 +778,17 @@ void FreeSampleList( void )
 	{
 		next = cur->next;
 
+		cur->lpdsBuffer->lpVtbl->GetStatus( cur->lpdsBuffer, &stat );
+		if( stat & DSBSTATUS_PLAYING )
+			cur->lpdsBuffer->lpVtbl->Stop( cur->lpdsBuffer );
+
 		RemoveSample( cur );
 	}
 
 	if( sfx_anim_map ) FREE( sfx_anim_map );
 	sfx_anim_map = NULL;
+
+	dispSample = NULL;
 
 	// initialise list for future use
 	InitSampleList();
@@ -790,6 +797,7 @@ void FreeSampleList( void )
 
 void FreeBufSampleList ( void )
 {
+	unsigned long stat;
 	BUFSAMPLE *cur,*next;
 
 	// check if any elements in list
@@ -802,6 +810,10 @@ void FreeBufSampleList ( void )
 	for ( cur = bufferList.head.next; cur != &bufferList.head; cur = next )
 	{
 		next = cur->next;
+	
+		cur->lpdsBuffer->lpVtbl->GetStatus( cur->lpdsBuffer, &stat );
+		if( stat & DSBSTATUS_PLAYING )
+			cur->lpdsBuffer->lpVtbl->Stop( cur->lpdsBuffer );
 
 		RemoveBufSample( cur );
 	}
