@@ -159,7 +159,10 @@ void Animate(MDX_ACTOR *actor, int animNum, char loop, char queue, float speed)
 			actorAnim->animTime = anim->animEnd;
 		else
 			actorAnim->animTime = anim->animStart;
-		QueueFlush(actor);		
+		QueueFlush(actor);
+
+//		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] )
+//			PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 	}
 	else
 	{
@@ -200,7 +203,7 @@ void UpdateAnims(MDX_ACTOR *actor)
 	actorAnim->reachedEndOfAnimation = FALSE;
 	actorAnim->animTime += (actorAnim->animationSpeed) * timeInfo.speed;
 
-	if (((actorAnim->animTime > anim->animEnd) || (actorAnim->animTime < anim->animStart)) && (actorAnim->loopAnimation == 0))
+	if( ((actorAnim->animTime > anim->animEnd) || (actorAnim->animTime < anim->animStart)) && (!actorAnim->loopAnimation || actorAnim->numberQueued) )
 	{
 		actorAnim->animTime = Bound(actorAnim->animTime,anim->animStart,anim->animEnd);
 		actorAnim->reachedEndOfAnimation = actorAnim->currentAnimation+1;
@@ -236,6 +239,9 @@ void UpdateAnims(MDX_ACTOR *actor)
 				*actorAnim->queueLoopAnimation = -1;
 				*actorAnim->queueAnimationSpeed = -1;
 			}
+
+			//if( actorAnim->sfxMapping )
+			//	PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 		}
 	}
 	else
@@ -246,6 +252,9 @@ void UpdateAnims(MDX_ACTOR *actor)
 		else if(actorAnim->animTime > anim->animEnd)
 		{
 			actorAnim->animTime -= (anim->animEnd - anim->animStart);
+
+//			if( actorAnim->sfxMapping )
+//				PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 		}
 		else if(actorAnim->animTime < anim->animStart)
 			actorAnim->animTime += (anim->animEnd - anim->animStart);			
