@@ -793,7 +793,7 @@ void LoadSfxMapping( int world )
 	void *buffer;
 	HANDLE h;
 	char *filename, wnum[3];
-	long num, size, read, index, type, i, count;
+	long num, size, read, index, type, i, count, uid;
 
 	index = strlen(baseDirectory) + 24;
 	filename = (char *)JallocAlloc( index, YES, "fname" );
@@ -832,13 +832,24 @@ void LoadSfxMapping( int world )
 	while( count < size-4 )
 	{
 		// Actor uid
-		sfx_anim_map[index++] = (SAMPLE *)MEMGETINT(&in);
+		uid = MEMGETINT(&in);
 		count+=4;
 
 		// Actor type
 		type = MEMGETINT(&in);
-		sfx_anim_map[index++] = (SAMPLE *)type;
 		count+=4;
+
+		// If a tile based sample, skip the normal mapping load and just make an ambient
+		if( type == 4 )
+		{
+			AddAmbientSound( FindSample(MEMGETINT(&in)), &firstTile[uid].centre, 1200, 50, -1, 0, 0, NULL );
+			count+=4;
+			continue;
+		}
+
+		// If not tile based, store the previously loaded stuff in the sample map
+		sfx_anim_map[index++] = (SAMPLE *)uid;
+		sfx_anim_map[index++] = (SAMPLE *)type;
 
 		switch( type )
 		{
@@ -846,6 +857,7 @@ void LoadSfxMapping( int world )
 //		case 1: num = NUM_MULTI_ANIMS; break;
 		case 2: num = NUM_NME_ANIMS; break;
 		case 3: num = 1; break; // NUM_SCENIC_ANIMS
+		case 4: num = 1; break; // NUM_SCENIC_ANIMS
 		default: num = 0; break;
 		}
 
@@ -891,7 +903,7 @@ SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor )
 			if( type == 3 )
 			{
 				// Make an ambient sound if we've attached a sound to a scenic
-				AddAmbientSound( sfx_anim_map[index], &actor->pos, 2000, 50, -1/*128*/, 0, 0, actor );
+				AddAmbientSound( sfx_anim_map[index], &actor->pos, 1200, 50, -1/*128*/, 0, 0, actor );
 				return NULL;
 			}
 			else
