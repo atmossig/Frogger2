@@ -21,6 +21,17 @@ FX_EXPLODEPARTICLELIST explodeParticleFXList;
 VECTOR debug_globalVectorPoint	= { 0,0,0 };
 VECTOR debug_globalVectorNormal = { 0,1,0 };
 
+char doScreenFade	= 0;
+char fadeDir		= FADE_OUT;
+short fadeOut		= 255;
+short fadeStep		= 4;
+
+char testPause		= 0;
+UBYTE testR			= 0;
+UBYTE testG			= 0;
+UBYTE testB			= 0;
+UBYTE testA			= 170;
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddFXRipple

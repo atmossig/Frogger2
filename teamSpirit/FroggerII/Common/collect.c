@@ -1290,7 +1290,9 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	garib->scale = 0;
 	garib->scaleAim = 1;
 
+#ifndef PC_VERSION
 	memcpy(&garib->shadow.vert,shadowVtx,sizeof(Vtx) * 4);
+#endif
 	garib->shadow.altitude	= 0;
 	garib->shadow.radius	= 20;
 	garib->shadow.alpha		= 192;

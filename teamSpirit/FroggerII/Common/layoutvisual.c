@@ -381,9 +381,11 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 
 	StartDrawing("initlev");
 
+#ifndef PC_VERSION
 	MusSetMasterVolume(MUSFLAG_SONGS,16500);
 #ifdef N64_PLAY_SONG
 	PrepareSong(1);
+#endif
 #endif
 }
 

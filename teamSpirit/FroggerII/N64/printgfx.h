@@ -22,7 +22,9 @@
 #define G_CC_COLOURBLEND_SPRITE_AFTERLIGHT	TEXEL0,0,PRIMITIVE,0,TEXEL0,0,PRIMITIVE,0
 #define G_CC_COLOURBLEND_SPRITE_AFTERLIGHT2	ENVIRONMENT,COMBINED,ENV_ALPHA,COMBINED,0,0,0,COMBINED
 
-extern int objectMatrix;
+extern Vtx shadowVtx[4];
+extern Sprite template_sprite;
+
 
 extern Gfx rspInitForSprites_dl[];
 extern Gfx rdpInitForSprites_dl[];
@@ -50,5 +52,6 @@ extern void PrintSpritesTranslucent(SPRITE *sprite);
 extern void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,int scaleY);
 extern void PrintSprite(SPRITE *sprite);
 
+extern void ScreenShot();
 
 #endif

@@ -14,7 +14,9 @@
 
 //----- [ DEFINE / FLAGS ] ---------------------------------------------------//
 
-#define MAX_FRAMES 17
+#define NUM_template_BMS		2
+
+#define MAX_FRAMES				17
 
 #define MOVE_WEST				( 1 << 0 )
 #define MOVE_EAST				( 1 << 1 )

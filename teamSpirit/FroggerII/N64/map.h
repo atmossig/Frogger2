@@ -22,16 +22,12 @@ enum
 };
 
 extern char *mapBank;
-extern unsigned long numBabies;
 extern unsigned long numSafe;
 extern unsigned long numPwrups;
 
-extern GAMETILE **bTStart;
 extern GAMETILE **bTSafe;
-extern GAMETILE **gTStart;
 extern GAMETILE **pwrupTStart;
 
-extern GAMETILE *firstTile;
 
 extern SCENIC *Sc_000;
 

@@ -15,9 +15,20 @@
 #include "incs.h"
 
 
+//------ [ GLOBALS ] ---------------------------------------------------------------------------//
+
 struct frontEndStateStruct frontEndState;
 
-long multiplayerRun = 0;
+int frameCount			= 0;
+int	frameCount2			= 0;
+int dispFrameCount		= 0;
+
+long multiplayerRun		= 0;
+
+char ActiveController	= 0;
+
+
+//------ [ FUNCTION IMPLEMENTATION ] -----------------------------------------------------------//
 
 void RunFrontEnd ( void )
 {

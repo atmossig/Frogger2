@@ -16,9 +16,6 @@
 extern char runningDevStuff;
 extern char runningWaterStuff;
 
-extern char testPause;
-extern UBYTE testR,testG,testB,testA;
-
 extern void RunDevelopmentMenu();
 extern void RunDevelopmentRoutines();
 extern void FreeAllLists();

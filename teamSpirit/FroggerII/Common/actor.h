@@ -73,6 +73,7 @@ typedef struct _ACTOR2
 extern float ACTOR_DRAWDISTANCEINNER;
 extern float ACTOR_DRAWDISTANCEOUTER;
 
+extern int objectMatrix;
 
 extern ACTOR2 *actList;
 

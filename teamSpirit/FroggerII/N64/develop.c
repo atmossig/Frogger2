@@ -23,9 +23,6 @@ TEXTOVERLAY *testTxt = NULL;
 char runningDevStuff = 0;
 char runningWaterStuff = 0;
 
-char testPause = 0;
-UBYTE testR = 0,testG = 0,testB = 0,testA = 170;
-
 Vtx verts[32];
 Vtx *vtxp;
 

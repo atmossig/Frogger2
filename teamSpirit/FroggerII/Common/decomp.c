@@ -32,6 +32,7 @@ static WORD		LZhistoryOff;
 
 
 
+#ifndef PC_VERSION
 
 void memset(char *source, char val, int size)
 {
@@ -42,7 +43,7 @@ void memset(char *source, char val, int size)
 
 }
 
-
+#endif
 
 
 static void DecompressOutputByte(UBYTE data)

@@ -66,7 +66,7 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "PC_VERSION" /YX /FD /c
+# ADD CPP /nologo /w /W0 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "PC_VERSION" /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
@@ -87,6 +87,14 @@ LINK32=link.exe
 # Begin Group "Common"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\Common\actor.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\actor.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\Common\anim.c
@@ -313,6 +321,22 @@ SOURCE=.\Common\sndview.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\specfx.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\specfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\sprite.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\sprite.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\textoverlays.c
 # End Source File
 # Begin Source File
@@ -377,32 +401,6 @@ SOURCE=.\N64\makefile
 
 # End Source File
 # End Group
-# Begin Source File
-
-SOURCE=.\N64\actor.c
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\N64\actor.h
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
 # Begin Source File
 
 SOURCE=.\N64\audio.c
@@ -795,58 +793,6 @@ SOURCE=.\N64\Sfx.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\N64\specfx.c
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\N64\specfx.h
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\N64\sprite.c
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\N64\sprite.h
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\N64\Static.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
@@ -966,6 +912,22 @@ SOURCE=.\N64\Zbuffer.c
 # Begin Group "PC"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\Pc\Controll.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\Controll.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\font.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\font.h
+# End Source File
 # End Group
 # Begin Group "Editor"
 

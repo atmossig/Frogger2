@@ -213,9 +213,6 @@ enum
 //#define MAX_MATRICES		128*4
 #define MAX_MATRICES		128*8
 
-#define FADE_IN				0
-#define FADE_OUT			1
-
 
 //-----------------------------------------------------------------------------//
 
@@ -318,8 +315,6 @@ extern char					aiSurf;
 
 extern char					mirrorTextures;
 
-extern int					frameCount,frameCount2,dispFrameCount;
-
 extern short				farPlaneDist;
 extern short				nearPlaneDist;
 
@@ -337,14 +332,6 @@ extern OSIoMesg				dmaIOMessageBuf;
 extern OSMesgQueue			main_msgQ;
 
 extern unsigned int			TicksPerFrame;
-
-extern char					doScreenFade;
-extern char					fadeDir;
-extern short				fadeOut;
-extern short				fadeStep;
-
-
-extern struct gameStateStruct gameState;
 
 extern void					ApplyGlobalTransformations();
 extern void					ClearViewing();

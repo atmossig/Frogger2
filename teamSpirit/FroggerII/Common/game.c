@@ -26,6 +26,11 @@ unsigned long currTileNum = 0;
 
 //----------------------------------------------------------------------
 
+struct gameStateStruct gameState;
+
+GAMETILE *firstTile;
+GAMETILE **gTStart;
+
 float rZ = 0,rX = 0 ,rY = 0;
 long hopAmt = 10;
 
@@ -66,78 +71,6 @@ VECTOR debug_globalEffectPos = { 0,0,0 };
 PLANE2 debug_plane2;
 
 
-void ScreenShot()
-{
-	static int picnum = 0;
-	char	filename[16];
-	int	file;
-	int x, y;
-	u16 *screen = cfb_16_a;
-	u16 pixel;
-	u8	col;
-	u8	line[SCREEN_WD * 4];
-	int	linePos;
-	char header[] =	   {0x42,0x4D,0x36,0x84,0x03,0x00,0x00,0x00,0x00,0x00,0x36,0x00,0x00,0x00,0x28,0x00,
-						0x00,0x00,0x40,0x01,0x00,0x00,0xF0,0x00,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,
-						0x00,0x00,0x00,0x84,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-						0x00,0x00,0x00,0x00,0x00,0x00};
-
-
-	StopDrawing("scchot");
-	dontClearScreen = TRUE;
-//help	disableGraphics = TRUE;
-
-	dprintf"==================\n"));
-	dprintf"Taking screen shot\n"));
-
-
-	sprintf(filename, "c:\\n64%04d.bmp", picnum++);
-	file = PCcreat(filename, 0);
-	if(file == -1)
-	{
-		StartDrawing("scsho");
-//help		disableGraphics = FALSE;
-		dprintf"FILEERROR:could not open file:\n"));
-		return;
-	}
-
-	PCwrite(file, header, sizeof(header));	
-
-	y = SCREEN_HT-1;
-	while (y >= 0)
-	{
-		linePos = 0;
-		for(x = 0; x < SCREEN_WD; x++)
-		{
-			pixel = screen[x + SCREEN_WD * y];
-
-			col = ((pixel>>1)<<3)&0xFF;
-			line[linePos++] = col;
-			col = ((pixel>>6)<<3)&0xFF;
-			line[linePos++] = col;
-			col = ((pixel>>11)<<3)&0xFF;
-			line[linePos++] = col;
-
-
-		}
-		y--;
-
-			PCwrite(file, line, linePos);	
-		
-	}
-
-
-//	PCwrite(file, cfb_ptrs[1 - draw_buffer], SCREEN_WD*SCREEN_HT * 2);	
-	PCclose(file);
-	dontClearScreen = FALSE;
-	StartDrawing("bum");
-//help	disableGraphics = FALSE;
-
-}
-
-
-
-
 
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
@@ -174,7 +107,7 @@ void GameProcessController2(void)
 		if(!playerInputPause2)
 		{
 			frogState2 |= FROGSTATUS_ISWANTINGU;
-			playerInputPause2 = INPUT_POLLPAUSE;
+//			playerInputPause2 = INPUT_POLLPAUSE;
 		}
 		else
 			playerInputPause2 += INPUT_PENALTY;
@@ -186,7 +119,7 @@ void GameProcessController2(void)
 		if(!playerInputPause2)
 		{
 			frogState2 |= FROGSTATUS_ISWANTINGR;
-			playerInputPause2 = INPUT_POLLPAUSE;
+//			playerInputPause2 = INPUT_POLLPAUSE;
 		}
 		else
 			playerInputPause2 += INPUT_PENALTY;
@@ -197,7 +130,7 @@ void GameProcessController2(void)
 		if(!playerInputPause2)
 		{
 			frogState2 |= FROGSTATUS_ISWANTINGD;
-			playerInputPause2 = INPUT_POLLPAUSE;
+//			playerInputPause2 = INPUT_POLLPAUSE;
 		}
 		else
 			playerInputPause2 += INPUT_PENALTY;
@@ -208,7 +141,7 @@ void GameProcessController2(void)
 		if(!playerInputPause2)
 		{			
 			frogState2 |= FROGSTATUS_ISWANTINGL;			
-			playerInputPause2 = INPUT_POLLPAUSE;
+//			playerInputPause2 = INPUT_POLLPAUSE;
 		}
 		else
 			playerInputPause2 += INPUT_PENALTY;
@@ -296,8 +229,8 @@ void GameProcessController(void)
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_UP, frameCount );
 			iceMoveDir = MOVE_UP;
-			if(!autoHop)
-				playerInputPause = INPUT_POLLPAUSE;
+//			if(!autoHop)
+//				playerInputPause = INPUT_POLLPAUSE;
 		}
 		else
 			if (playerInputPause>=INPUT_PENALTY)
@@ -315,8 +248,8 @@ void GameProcessController(void)
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_RIGHT, frameCount );
 			iceMoveDir = MOVE_RIGHT;
-			if(!autoHop)
-				playerInputPause = INPUT_POLLPAUSE;
+//			if(!autoHop)
+//				playerInputPause = INPUT_POLLPAUSE;
 		}
 		else
 			if (playerInputPause>=INPUT_PENALTY)
@@ -334,8 +267,8 @@ void GameProcessController(void)
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_DOWN, frameCount );
 			iceMoveDir = MOVE_DOWN;
-			if(!autoHop)
-				playerInputPause = INPUT_POLLPAUSE;
+//			if(!autoHop)
+//				playerInputPause = INPUT_POLLPAUSE;
 		}
 		else
 			if (playerInputPause>=INPUT_PENALTY)
@@ -353,8 +286,8 @@ void GameProcessController(void)
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_LEFT, frameCount );
 			iceMoveDir = MOVE_LEFT;
-			if(!autoHop)
-				playerInputPause = INPUT_POLLPAUSE;
+//			if(!autoHop)
+//				playerInputPause = INPUT_POLLPAUSE;
 		}
 		else
 			if (playerInputPause>=INPUT_PENALTY)
@@ -898,9 +831,6 @@ void RunGameLoop (void)
 		if (multiplayerRun)
 			playMode = 1;
 
-		UseAAMode = 2;
-		UseZMode = 1;
-
 		currCamSetting = 1;
 		ChangeCameraSetting();
 
@@ -980,7 +910,7 @@ void RunGameLoop (void)
 			}
 		}
 
-		runningWaterStuff = 0;
+//		runningWaterStuff = 0;
 		ChangeCameraSetting();
 
 		//StartDrawing("game");
@@ -1034,7 +964,7 @@ void RunGameLoop (void)
 				FreeAllLists();
 				gameState.mode = FRONTEND_MODE;
 				frontEndState.mode = DEMO_MODE;
-				runningDevStuff = 0;
+//				runningDevStuff = 0;
 				frameCount = 0;
 				StartDrawing ( "game over" );
 				return;
@@ -1084,7 +1014,7 @@ void RunGameLoop (void)
 
 				frog = NULL;
 				frameCount = 0;
-				runningWaterStuff = 0;
+//				runningWaterStuff = 0;
 
 				//gameState.mode = FRONT_END_MODE;
 				player[0].levelNum++;
@@ -1348,26 +1278,4 @@ void RunLevelCompleteSequence()
 				EnableSpriteOverlay(bronzeCup[i]);
 			break;
 	}
-}
-
-void UpdateScoreTables ( void )
-{
-	int c;
-
-	for ( c = 0; c < 3; c++ )
-	{
-		if ( player[0].score > levelTable[ (player [0].worldNum+1)*c].score )
-		{
-			levelTable[ (player [0].worldNum+1) *c].score	= player[0].score;
-			sprintf ( levelTable[ (player [0].worldNum+1) *c].name, player[0].name );
-
-			dprintf"%d\n", sizeof(LEVEL_HISCORE) ));
-			SaveLevelScores();
-
-
-			return;
-		}
-		// ENDIF
-	}
-	// ENDFOR
 }

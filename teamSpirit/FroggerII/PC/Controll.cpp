@@ -29,6 +29,9 @@ LPDIRECTINPUTDEVICE lpMouse	= NULL;
 BYTE keyTable[256];
 DIMOUSESTATE mouseState;
 
+unsigned long	playerInputPause;
+unsigned long	playerInputPause2;
+
 
 /*	--------------------------------------------------------------------------------
 	Function	: InitInputDevices

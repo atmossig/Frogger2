@@ -116,6 +116,8 @@ extern BOOL MoveToRequestedDestination(int dir);
 extern void GetNextTile(unsigned long direction);
 
 extern void SlurpFroggerPosition(int whereTo);
+extern void SlurpFroggerPosition2(int whereTo);
+
 extern void CheckForFroggerLanding(int whereTo);
 extern void CheckForFroggerLanding2(int whereTo);
 extern void SlideFroggerPosition ( ACTOR2 *actor2 );

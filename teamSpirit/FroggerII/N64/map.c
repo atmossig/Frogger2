@@ -21,15 +21,10 @@ char *levBank;
 char *aMapBank = NULL;
 char *aLevBank = NULL;
 
-unsigned long numBabies = 3;
 unsigned long numSafe = 1;
 unsigned long numPwrups = 3;
 
-GAMETILE *firstTile;
-
-GAMETILE **bTStart;
 GAMETILE **bTSafe;
-GAMETILE **gTStart;
 GAMETILE **pwrupTStart;
 
 SCENIC *Sc_000;

@@ -36,7 +36,6 @@ extern PLAYER player[4];
 
 
 
-
 extern float CROAK_SOUND_RANGE;
 
 /**/

@@ -585,12 +585,12 @@ void RunSndView ( void )
 	{
 		if ( sfx )
 		{
-			MusHandleStop ( musresult, 0 );
+//			MusHandleStop ( musresult, 0 );
 		}
 		else
 		{
-			MusHandleStop ( audioCtrl.musicHandle, 0 );
-			audioCtrl.currentTrack = 0;
+//			MusHandleStop ( audioCtrl.musicHandle, 0 );
+//			audioCtrl.currentTrack = 0;
 		}
 		// ENDIF
 	}

@@ -15,12 +15,15 @@
 
 #define NUM_BABIES 5
 
+extern GAMETILE **bTStart;
+
 extern ACTOR2 *babies[NUM_BABIES];
 extern ACTOR2 *nearestBaby;
 extern ACTOR2 *lastBabySaved;
 
 extern SPRITEOVERLAY *babyIcons[6];
 extern unsigned long babiesSaved;
+extern unsigned long numBabies;
 
 extern void CreateBabies(unsigned long createActors,unsigned long createOverlays);
 extern void RunBabySavedSequence(ACTOR2 *baby);

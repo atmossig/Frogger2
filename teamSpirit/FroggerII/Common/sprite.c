@@ -240,32 +240,6 @@ void FreeAnimationList ( void )
 
 //----- [ SPRITE RELATED ] ----------------------------------------------------------------------//
 
-#define NUM_template_BMS	2
-
-static Bitmap template_bm[NUM_template_BMS];
-static Gfx template_dl[NUM_DL(NUM_template_BMS)];
-
-Sprite template_sprite =
-{
-	0,0,						// xy position
-	0,0,						// sprite size in xy (in texels)
-	1.0,1.0,					// sprite scale in xy
-	0,0,						// explosion spacing
-	SP_TRANSPARENT,				// sprite attributes
-	0x00,						// sprite depth in z
-	255,255,255,255,			// sprite RGBA colour
-	0,1,NULL,					// CLUT : start index, length, address
-	0,1,						// sprite bitmap index: start index, step increment
-	NUM_template_BMS,			// number of bitmaps
-	NUM_DL(NUM_template_BMS),	// number of allocated dl locations
-	128,208,					// sprite bm height: used height, physical height
-	G_IM_FMT_RGBA,				// sprite image format
-	G_IM_SIZ_16b,				// sprite bitmap texel size
-	template_bm,				// ptr to bitmaps
-	template_dl,				// dl memory
-	NULL,						// HACK : dynamic_dl ptr
-};
-
 
 // FRAMELISTS FOR SPRITE ANIMS
 

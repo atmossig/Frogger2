@@ -86,20 +86,14 @@ void RunDemoOption ( void )
 		demoText	= CreateAndAddTextOverlay(100,122,"play demo world",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,6,0);
 
 		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
-		//konami = CreateAndAddSpriteOverlay(230,52,"konami003.bmp",32,32,255,255,255,122,0 );
-		//konami = CreateAndAddSpriteOverlay(262,20,"konami002.bmp",32,32,255,255,255,122,0 );
-		//konami = CreateAndAddSpriteOverlay(262,52,"konami004.bmp",32,32,255,255,255,122,0 );
 
 		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
-		//atari = CreateAndAddSpriteOverlay(30,52,"atari003.bmp",32,32,255,255,255,122,0 );
-		//atari = CreateAndAddSpriteOverlay(62,20,"atari002.bmp",32,32,255,255,255,122,0 );
-		//atari = CreateAndAddSpriteOverlay(62,52,"atari004.bmp",32,32,255,255,255,122,0 );
 
 		CreateOverlays();
 
 		ResetParameters();
 
-		runningDevStuff = 1;
+//		runningDevStuff = 1;
 
 		StartDrawing ( "demo option" );
 	}
@@ -129,7 +123,7 @@ void RunDemoOption ( void )
 	{
 		if ((button & CONT_B) && !(lastbutton & CONT_B))
 		{
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 			FreeAllLists();
 			frameCount = 0;
 			lastbutton = 0;
@@ -144,11 +138,11 @@ void RunDemoOption ( void )
 		{
 		//	osMotorStart ( &rumble );
 
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 			switch ( currentSelection )
 			{
 				case 0:   // British
-				runningDevStuff = 0;
+//				runningDevStuff = 0;
 				FreeAllLists();
 				worldNum = 0;
 				levelNum = 0;
@@ -312,7 +306,7 @@ void RunSaveLoadSelect ( void )
 
 		ResetParameters();
 
-		runningDevStuff = 1;
+//		runningDevStuff = 1;
 
 		StartDrawing ( "save load select" );
 	}
@@ -355,7 +349,7 @@ void RunSaveLoadSelect ( void )
 								lastbutton		= 0;
 							break;
 						case 2:
-								runningDevStuff = 0;
+//								runningDevStuff = 0;
 								FreeAllLists();
 								frontEndState.mode = TITLE_MODE;
 								frameCount		= 0;
@@ -654,7 +648,7 @@ void RunSaveLoadSelect ( void )
 					if ( currentLetterSlot == 3 )
 					{
 						sprintf ( player[0].name, "%s", enteredName );
-						runningDevStuff = 0;
+//						runningDevStuff = 0;
 						FreeAllLists();
 						frameCount		= 0;
 						lastbutton		= 0;
@@ -737,7 +731,7 @@ void RunTitleScreen()
 
 		ResetParameters();
 
-		runningDevStuff = 1;
+//		runningDevStuff = 1;
 
 		StartDrawing("title screen");
 	}	
@@ -773,14 +767,14 @@ void RunTitleScreen()
 			frontEndState.mode = TITLE_MODE;
 			frameCount = 0;
 			lastbutton = 0;
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 			return;
 		}
 
 		if (((button & CONT_A) && !(lastbutton & CONT_A)) ||
 		   ((button & CONT_START) && !(lastbutton & CONT_START)))
 		{
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 			frameCount = 0;
 			lastbutton = 0;
 			FreeAllLists();
@@ -954,7 +948,7 @@ void RunLevelSelect ( void )
 		CreateAndAddSpriteOverlay(232,185,"isl2.bmp",32,32,255,255,255,255,0);
 		CreateAndAddSpriteOverlay(264,185,"isl3.bmp",32,32,255,255,255,255,0);
 
-		runningDevStuff = 1;
+//		runningDevStuff = 1;
 
 		StartDrawing ( "levelsel" );
 	}
@@ -1107,7 +1101,7 @@ void RunLevelSelect ( void )
 		{
 			if ( worldVisualData[currentSelection].levelVisualData[currentLevelSelection].levelOpen & LEVEL_OPEN )
 			{
-				runningDevStuff = 0;
+//				runningDevStuff = 0;
 				FreeAllLists();
 				worldNum = currentSelection;
 				levelNum = currentLevelSelection;
@@ -1181,7 +1175,7 @@ void RunGameMode()
 
 		ResetParameters();
 
-		runningDevStuff = 1;
+//		runningDevStuff = 1;
 
 		StartDrawing("gamemode");
 	}	
@@ -1213,13 +1207,13 @@ void RunGameMode()
 			frontEndState.mode = TITLE_MODE;
 			frameCount = 0;
 			lastbutton = 0;
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 		}
 
 		if (((button & CONT_A) && !(lastbutton & CONT_A)) ||
 		   ((button & CONT_START) && !(lastbutton & CONT_START)))
 		{
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 			switch (currentSelection)
 			{
 				case 0:   // Single Player Mode
@@ -1415,7 +1409,7 @@ void RunOptionsMode()
 		if(	((button & CONT_START) && !(lastbutton & CONT_START)) ||
 			((button & CONT_A) && !(lastbutton & CONT_A)))
 		{
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 			FreeAllLists();
 			frameCount		= 0;
 			lastbutton		= 0;
@@ -1551,7 +1545,7 @@ void RunSoundAdjust()
 		sprintf ( musVolText->text, "%lu", musicVol );
 		sprintf ( sfxVolText->text, "%lu", sfxVol );
 
-		runningDevStuff = 1;
+//		runningDevStuff = 1;
 
 		StartDrawing ( "sound adjust" );
 	}

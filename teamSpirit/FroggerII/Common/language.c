@@ -41,7 +41,7 @@ void RunLanguageSelect()
 
 		ResetParameters();
 
-		runningDevStuff = 1;
+//		runningDevStuff = 1;
 
 		StartDrawing ( "language select" );
 	}
@@ -72,7 +72,7 @@ void RunLanguageSelect()
 		if (((button & CONT_A) && !(lastbutton & CONT_A)) ||
 		   ((button & CONT_START) && !(lastbutton & CONT_START)))
 		{
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 			switch ( currentSelection )
 			{
 				case 0:   // British

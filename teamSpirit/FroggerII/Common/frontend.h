@@ -43,12 +43,22 @@ struct frontEndStateStruct
 	unsigned long mode;
 };
 
+
+//----- [ GLOBALS ] ----------------------------------------------------------------------------//
+
 extern struct frontEndStateStruct frontEndState;
 
+extern int frameCount;
+extern int frameCount2;
+extern int dispFrameCount;
 
-//****************************************************************************************************
-//	Function Prototypes
+extern char	ActiveController;
+
+
+//----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
 extern void RunFrontEnd			( void );
+
+
 
 #endif

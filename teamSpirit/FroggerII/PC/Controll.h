@@ -18,6 +18,10 @@ extern "C"
 {
 #endif
 
+extern unsigned long	playerInputPause;
+extern unsigned long	playerInputPause2;
+
+
 //----- [ PC RELATED ] -------------------------------------------------------------------------//
 
 

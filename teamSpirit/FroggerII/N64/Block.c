@@ -14,9 +14,12 @@
 #define F3DEX_GBI
 
 #include <ultra64.h>
-#include <PR/ramrom.h>					// Needed for argument passing into the app
 #include <assert.h>
+
+#ifndef PC_VERSION
+#include <PR/ramrom.h>					// Needed for argument passing into the app
 #include <pr/os.h>
+#endif
 
 #include "incs.h"
 
@@ -58,8 +61,6 @@ OSMesg			dummyMesg;
 
 char			outputMessageBuffer[256];
 
-char			ActiveController;
-
 char			ShadingMode         =  LIGHTING;
 int             UseGlobalTransforms =  0;
 int             ChangeVideoModes    =  0;
@@ -85,9 +86,6 @@ short			nearPlaneDist		= 6;
 int				rdp_output_size		= RDP_OUTPUT_BUF_LEN;
 u64				rdp_output_len;
 u8				rdpSendBuffer[2000];
-
-int				frameCount,frameCount2;
-int				dispFrameCount		= 0;
 
 char			mirrorTextures		= FALSE;
 char			viewTextures		= 1;
@@ -139,11 +137,6 @@ char			currentTask			= 1;
 unsigned int	TicksPerFrame;
 float			TicksPerSec;
 
-char			doScreenFade		= 0;
-char			fadeDir				= FADE_OUT;
-short			fadeOut				= 255;
-short			fadeStep			= 4;
-
 
 enum
 {
@@ -161,7 +154,6 @@ int dontClearScreen = 0;
 
 u64				dram_stack[SP_DRAM_STACK_SIZE64+2];	// For RSP tasks - used for matrix stack
     
-struct gameStateStruct gameState;
 
 //----- [ FORWARD DECLARATIONS ] -----//
 
@@ -1245,6 +1237,9 @@ static void GameLoop (void)
 			if(frameCount == 15)
 				StartDrawing("gameloop");
 
+			UseAAMode = 2;
+			UseZMode = 1;
+		
 			RunGameLoop();
 			frameCount++;
 			break;
@@ -1265,7 +1260,7 @@ static void GameLoop (void)
 
 
 		case FRONTEND_MODE:
-			currFont = bigFont;
+//			currFont = bigFont;
 			desiredFrameRate = newDesiredFrameRate = 1;
 			if ( frameCount == 15 )
 				StartDrawing ( "gameloop" );

@@ -125,11 +125,6 @@ typedef struct
 
 typedef struct
 {
-	int cx,cy;
-}SIZE;
-
-typedef struct
-{
 	VECTOR	normal;
 	float	J;
 	VECTOR	vertex[3];

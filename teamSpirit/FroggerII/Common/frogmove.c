@@ -1846,7 +1846,7 @@ BOOL KillFrog(ACTOR2 *frogAct)
 		player[0].lives--;
 		if(!player[0].lives)
 		{
-			runningDevStuff = 1;
+//			runningDevStuff = 1;
 			gameIsOver = 250;
 			return FALSE;
 		}

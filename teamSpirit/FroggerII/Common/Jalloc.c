@@ -542,6 +542,8 @@ ShowJalloc()
 
 
 
+#ifndef PC_VERSION
+
 /*	--------------------------------------------------------------------------------
 	Function 	: 
 	Purpose 	: 
@@ -666,6 +668,11 @@ void DMAMemory(char *ramPtr, u32 ROMStart, u32 ROMEnd)
 		dprintf"DMAMemory:%d\n", bankSize));
 	}
 }
+
+
+#endif
+
+
 
 /*	--------------------------------------------------------------------------------
 	Function 	: 

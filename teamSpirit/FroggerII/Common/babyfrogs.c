@@ -16,11 +16,15 @@
 #include "incs.h"
 
 
+GAMETILE **bTStart;
+
 ACTOR2 *babies[NUM_BABIES];
 ACTOR2 *nearestBaby		= NULL;
 ACTOR2 *lastBabySaved	= NULL;
 
 SPRITEOVERLAY *babyIcons[6];
+
+unsigned long numBabies = 0;
 
 
 void CreateBabies(unsigned long createActors,unsigned long createOverlays)

@@ -16,7 +16,39 @@
 
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//
 
-int objectMatrix = 0;
+Vtx shadowVtx[4] =
+{
+	{ 1,0,1,0,		0,0,63,63,63,255 },
+	{ 1,0,-1,0,		0,1024,63,63,63,255 },
+	{ -1,0,-1,0,	1024,1024,63,63,63,255 },
+	{ -1,0,1,0,		1024,0,63,63,63,255 }
+};
+
+static Bitmap template_bm[NUM_template_BMS];
+static Gfx template_dl[NUM_DL(NUM_template_BMS)];
+
+Sprite template_sprite =
+{
+	0,0,						// xy position
+	0,0,						// sprite size in xy (in texels)
+	1.0,1.0,					// sprite scale in xy
+	0,0,						// explosion spacing
+	SP_TRANSPARENT,				// sprite attributes
+	0x00,						// sprite depth in z
+	255,255,255,255,			// sprite RGBA colour
+	0,1,NULL,					// CLUT : start index, length, address
+	0,1,						// sprite bitmap index: start index, step increment
+	NUM_template_BMS,			// number of bitmaps
+	NUM_DL(NUM_template_BMS),	// number of allocated dl locations
+	128,208,					// sprite bm height: used height, physical height
+	G_IM_FMT_RGBA,				// sprite image format
+	G_IM_SIZ_16b,				// sprite bitmap texel size
+	template_bm,				// ptr to bitmaps
+	template_dl,				// dl memory
+	NULL,						// HACK : dynamic_dl ptr
+};
+
+
 
 //----- [ RENDER STATES ] ----------------------------------------------------------------------//
 
@@ -414,6 +446,13 @@ void DrawFXRipples()
 		V((&ripple->verts[3]),-r,0,-r,0,1024,1024,ripple->r,ripple->g,ripple->b,ripple->alpha);
 
 		theTexture = ripple->txtr;
+		if(!theTexture || !ripple->txtr)
+		{
+			dprintf"FECK FECK FECK !!!\n"));
+			gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
+			return;
+		}
+
 		gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 		gSPVertex(glistp++,&ripple->verts[0],4,0);
@@ -970,4 +1009,81 @@ void PrintSprite(SPRITE *sprite)
 	gDPPipeSync(glistp++);
 
 	spriteList.lastTexture = sprite->texture;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ScreenShot
+	Purpose			: performs a screen grab
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void ScreenShot()
+{
+	static int picnum = 0;
+	char	filename[16];
+	int	file;
+	int x, y;
+	u16 *screen = cfb_16_a;
+	u16 pixel;
+	u8	col;
+	u8	line[SCREEN_WD * 4];
+	int	linePos;
+	char header[] =	   {0x42,0x4D,0x36,0x84,0x03,0x00,0x00,0x00,0x00,0x00,0x36,0x00,0x00,0x00,0x28,0x00,
+						0x00,0x00,0x40,0x01,0x00,0x00,0xF0,0x00,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,
+						0x00,0x00,0x00,0x84,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+						0x00,0x00,0x00,0x00,0x00,0x00};
+
+
+	StopDrawing("scchot");
+	dontClearScreen = TRUE;
+//help	disableGraphics = TRUE;
+
+	dprintf"==================\n"));
+	dprintf"Taking screen shot\n"));
+
+
+	sprintf(filename, "c:\\n64%04d.bmp", picnum++);
+	file = PCcreat(filename, 0);
+	if(file == -1)
+	{
+		StartDrawing("scsho");
+//help		disableGraphics = FALSE;
+		dprintf"FILEERROR:could not open file:\n"));
+		return;
+	}
+
+	PCwrite(file, header, sizeof(header));	
+
+	y = SCREEN_HT-1;
+	while (y >= 0)
+	{
+		linePos = 0;
+		for(x = 0; x < SCREEN_WD; x++)
+		{
+			pixel = screen[x + SCREEN_WD * y];
+
+			col = ((pixel>>1)<<3)&0xFF;
+			line[linePos++] = col;
+			col = ((pixel>>6)<<3)&0xFF;
+			line[linePos++] = col;
+			col = ((pixel>>11)<<3)&0xFF;
+			line[linePos++] = col;
+
+
+		}
+		y--;
+
+			PCwrite(file, line, linePos);	
+		
+	}
+
+
+//	PCwrite(file, cfb_ptrs[1 - draw_buffer], SCREEN_WD*SCREEN_HT * 2);	
+	PCclose(file);
+	dontClearScreen = FALSE;
+	StartDrawing("bum");
+//help	disableGraphics = FALSE;
+
 }

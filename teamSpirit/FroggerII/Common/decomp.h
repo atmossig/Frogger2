@@ -40,7 +40,10 @@ typedef short			WORD;			// Signed word (16-bits)
 */
 
 int DecompressBuffer(UBYTE *inBuf, UBYTE *outBuf);
+
+#ifndef PC_VERSION
 void memset(char *source, char val, int size);
+#endif
 
 
 

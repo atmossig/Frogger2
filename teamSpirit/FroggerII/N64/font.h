@@ -13,10 +13,24 @@
 #define FONT_H_INCLUDED
 
 
-#include "types2dgfx.h"
-
+#define MAX_FONT_CHARS	48							// Number of characters in our font - letters,numbers,etc.
 
 //----- [ DATA STRUCTURES ] --------------------------------------------------------------------//
+
+typedef struct TAGFONT
+{
+	unsigned char *data;							// Ptr to our 'incbin' data (see link file)
+	unsigned long offset[MAX_FONT_CHARS];			// Offset of font chars in data chunk
+	unsigned long palOffset;						// Offset of palette in data chunk
+		
+	unsigned long width;							// Width of our font characters (e.g. 16x16, 32x32, etc.)
+	unsigned long height;							// Height of our font characters (e.g. 16x16, 32x32, etc.)
+
+	unsigned long xSpacing[MAX_FONT_CHARS];			// X spacing for our individual font characters
+	unsigned long ySpacing[MAX_FONT_CHARS];			// Y spacing for our individual font characters
+
+} FONT;
+
 
 typedef struct _TEXTLIST2
 {

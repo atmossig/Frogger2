@@ -12,16 +12,22 @@
 #define F3DEX_GBI
 
 #include <ultra64.h>
+
+#ifndef PC_VERSION
 #include <PR/ramrom.h>					// Needed for argument passing into the app
 #include <PR/gbi.h>
+#include <PR/os.h>
+#endif
+
 #include <assert.h>
-#include <pr/os.h>
 
 #include "incs.h"
 
 
 float ACTOR_DRAWDISTANCEINNER = 100000.0F;
 float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
+
+int objectMatrix = 0;
 
 ACTOR2 *actList				= NULL;			// entire actor list
 

@@ -12,6 +12,12 @@
 #define SPECFX_H_INCLUDED
 
 
+//----- [ DEFINES & ENUMS ] --------------------------------------------------------------------//
+
+#define FADE_IN				0
+#define FADE_OUT			1
+
+
 enum
 {
 	RIPPLE_TYPE_CROAK,
@@ -54,8 +60,6 @@ typedef struct TAGFX_RIPPLELIST
 
 } FX_RIPPLELIST;
 
-extern FX_RIPPLELIST rippleFXList;
-
 
 //----- [ SMOKE SPECIAL FX ] -----//
 
@@ -65,8 +69,6 @@ typedef struct TAGFX_SMOKELIST
 	FX_SMOKE			head;
 
 } FX_SMOKELIST;
-
-extern FX_SMOKELIST smokeFXList;
 
 
 //----- [ SWARM SPECIAL FX ] -----//
@@ -78,8 +80,6 @@ typedef struct TAGFX_SWARMLIST
 
 } FX_SWARMLIST;
 
-extern FX_SWARMLIST swarmFXList;
-
 
 //----- [ PAPTICLE EXPLODE SPECIAL FX ] -----//
 
@@ -90,11 +90,24 @@ typedef struct TAGFX_EXPLODEPARTICLELIST
 
 } FX_EXPLODEPARTICLELIST;
 
-extern FX_EXPLODEPARTICLELIST explodeParticleFXList;
 
+//----- [ GLOBALS ] -----------------------------------------------------------------------------//
+
+extern FX_RIPPLELIST rippleFXList;
+extern FX_SMOKELIST smokeFXList;
+extern FX_SWARMLIST swarmFXList;
+extern FX_EXPLODEPARTICLELIST explodeParticleFXList;
 
 extern VECTOR debug_globalVectorPoint;
 extern VECTOR debug_globalVectorNormal;
+
+extern char doScreenFade;
+extern char	fadeDir;
+extern short fadeOut;
+extern short fadeStep;
+
+extern char testPause;
+extern UBYTE testR,testG,testB,testA;
 
 
 //----- [ FUNCTION PROTOTYPES ] -----------------------------------------------------------------//
