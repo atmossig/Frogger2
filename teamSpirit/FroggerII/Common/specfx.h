@@ -88,7 +88,7 @@ typedef struct TAGSPECFX
 	float speed, accn, angle, size, spin;
 	long lifetime, deadCount, numP;				// numP is number of particles
 
-	unsigned char r, g, b, a;
+	unsigned char r, g, b, a, gravity;
 
 	SPRITE *sprites;
 	TEXTURE *tex;

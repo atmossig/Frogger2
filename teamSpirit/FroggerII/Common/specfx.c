@@ -203,7 +203,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 	case FXTYPE_SMOKE_STATIC:
 	case FXTYPE_SMOKE_GROWS:
 	case FXTYPE_BUBBLES:
-	case FXTYPE_FLAMES:
 		effect->lifetime = actFrameCount+life;
 		effect->vel.v[X] = (-2 + Random(4))*speed;
 		effect->vel.v[Y] = (Random(4) + 2)*speed;
@@ -216,8 +215,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 
 		if( effect->type == FXTYPE_BUBBLES )
 			effect->sprites->texture = txtrBubble;
-		else if( effect->type == FXTYPE_FLAMES )
-			effect->sprites->texture = txtrFire;
 		else
 			effect->sprites->texture = txtrSmoke;
 
@@ -246,6 +243,8 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 	case FXTYPE_SMOKEBURST:
 	case FXTYPE_SPLASH:
 	case FXTYPE_SPARKBURST:
+	case FXTYPE_FLAMES:
+	case FXTYPE_FIERYSMOKE:
 		effect->numP = 10;
 		i = effect->numP;
 
@@ -257,11 +256,25 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		SetVector( &effect->rebound->normal, &effect->normal );
 
 		if( effect->type == FXTYPE_SPLASH )
+		{
 			effect->tex = txtrBubble;
+			effect->gravity = 1;
+		}
 		else if( effect->type == FXTYPE_SPARKBURST )
+		{
 			effect->tex = txtrSolidRing;
-		else if( effect->type == FXTYPE_SMOKEBURST )
+			effect->gravity = 1;
+		}
+		else if( effect->type == FXTYPE_FLAMES )
+		{
+			effect->tex = txtrFire;
+			effect->gravity = 0;
+		}
+		else if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
+		{
 			effect->tex = txtrSmoke;
+			effect->gravity = 0;
+		}
 
 		effect->fade = 4;
 		effect->speed = (float)Random(10) * speed;
@@ -547,8 +560,12 @@ void UpdateFXExplode( SPECFX *fx )
 
 		// update particle velocities
 		fx->particles[i].vel.v[X] *= 0.95F;
-		fx->particles[i].vel.v[Y] += -1.1F;
 		fx->particles[i].vel.v[Z] *= 0.95F;
+
+		if( fx->gravity )
+			fx->particles[i].vel.v[Y] += -1.1F;
+		else
+			fx->particles[i].vel.v[Y] *= 0.95F;
 
 		fx->sprites[i].pos.v[X] += fx->particles[i].vel.v[X];
 		fx->sprites[i].pos.v[Y] += fx->particles[i].vel.v[Y];
@@ -582,15 +599,29 @@ void UpdateFXExplode( SPECFX *fx )
 		}
 
 		fo = (Random(4) + fx->fade) * gameSpeed ;
-		if( fx->sprites->a > fo ) fx->sprites->a -= fo;
-		else fx->sprites->a = 0;
 
-		if( fx->sprites[i].a < 16 )
+		// For fiery (of whatever colour) smoke, fade to black then fade out
+		if( fx->type == FXTYPE_FIERYSMOKE && (fx->sprites[i].r || fx->sprites[i].g || fx->sprites[i].b) )
 		{
-			fx->sprites[i].scaleX	= 0;
-			fx->sprites[i].scaleY	= 0;
-			fx->sprites[i].a		= 0;
-			fx->particles[i].bounce = 2;
+			if( fx->sprites[i].r > fo ) fx->sprites[i].r -= fo;
+			else fx->sprites[i].r = 0;
+			if( fx->sprites[i].g > fo ) fx->sprites[i].g -= fo;
+			else fx->sprites[i].g = 0;
+			if( fx->sprites[i].b > fo ) fx->sprites[i].b -= fo;
+			else fx->sprites[i].b = 0;
+		}
+		else
+		{
+			if( fx->sprites[i].a > fo ) fx->sprites[i].a -= fo;
+			else fx->sprites[i].a = 0;
+
+			if( fx->sprites[i].a < 16 )
+			{
+				fx->sprites[i].scaleX	= 0;
+				fx->sprites[i].scaleY	= 0;
+				fx->sprites[i].a		= 0;
+				fx->particles[i].bounce = 2;
+			}
 		}
 	}
 
@@ -867,6 +898,17 @@ void ProcessAttachedEffects( void *entity, int type )
 					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 0.5, 0, 0.7 );
 				else // EF_MEDIUM
 					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 1.5, 0, 0.7 );
+
+				SetAttachedFXColour( fx, act->effects );
+			}
+			if( act->effects & EF_FIERYSMOKE )
+			{
+				if( act->effects & EF_FAST )
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 2.5, 0, 2 );
+				else if( act->effects & EF_SLOW )
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 0.5, 0, 2 );
+				else // EF_MEDIUM
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 1.2, 0, 2 );
 
 				SetAttachedFXColour( fx, act->effects );
 			}
