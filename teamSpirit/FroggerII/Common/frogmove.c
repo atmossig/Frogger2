@@ -161,6 +161,8 @@ BOOL UpdateFroggerControls(long pl)
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGL)	dir = MOVE_LEFT;
 		else dir = MOVE_RIGHT;
 
+		player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
+
 		frogFacing[pl] = (camFacing + dir) & 3;
 
 		//nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
@@ -199,6 +201,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		PlaySample(genSfx[GEN_SUPER_HOP],&frog[pl]->actor->pos,0,255,64);
 
+		player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 
 		prevTile = currTile[pl];
@@ -707,16 +710,14 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 			player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 	}
 */
-
+	// clear all movement flags
+	player[pl].frogState &= ~(FROGSTATUS_ALLHOPFLAGS | FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM);
 	
 	SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
 	
 	tiledir = dir;
 	dest = GetNextTile(&tiledir, pl);
 	
-	// clear all movement flags
-	player[pl].frogState &= ~(FROGSTATUS_ALLHOPFLAGS | FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM);
-
 	if (!dest || player[pl].isSinking )
 	{
 		player[pl].canJump = 1;
@@ -754,6 +755,9 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	// ------------------------------------------------------------------------------------------
 	// If we get this far, it's a valid jump (to a tile)
+
+	// clear all movement flags
+	player[pl].frogState &= ~(FROGSTATUS_ALLHOPFLAGS | FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM);
 
 	from = currTile[pl];
 	destTile[pl] = dest;
