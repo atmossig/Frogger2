@@ -390,7 +390,7 @@ void FreePlatformLinkedList()
 }
 
 
-PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,float animSpeed)
+PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,float animSpeed,unsigned char facing)
 {
 	int initFlags,i;
 	int platformType = 0;
@@ -399,6 +399,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,flo
 	PLATFORM *newItem = (PLATFORM *)JallocAlloc(sizeof(PLATFORM),YES,"PLAT");
 	AddPlatform(newItem);
 	newItem->flags = flags;
+	newItem->facing = facing;
 
 	initFlags |= INIT_ANIMATION;
 
@@ -466,6 +467,8 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,flo
 		newItem->Update = UpdateNonMovingPlatform;
 	else if(newItem->flags & PLATFORM_NEW_STEPONACTIVATED)
 		newItem->Update = UpdateStepOnActivatedPlatform;
+	else if( newItem->pltActor->actor && newItem->path && newItem->path->nodes )
+		Orientate( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &inVec, &newItem->path->nodes->worldTile->normal );
 
 	return newItem;
 }
@@ -874,6 +877,9 @@ void UpdatePathPlatform(PLATFORM *plat)
 
 		QuatSlerp(&plat->srcOrientation, &plat->destOrientation, length, &plat->pltActor->actor->qRot);
 	}
+	else
+		Orientate( &plat->pltActor->actor->qRot, &plat->path->nodes->worldTile->dirVector[plat->facing], &inVec, &plat->inTile[0]->normal );
+
 }
 
 

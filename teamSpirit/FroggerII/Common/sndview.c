@@ -412,7 +412,7 @@ void RunSndView()
 
 		FreeMenuItems();
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
+//		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
 		title = CreateAndAddTextOverlay(30,24,"sound player",NO,255,smallFont,0,0);
 		titleShadow = CreateAndAddTextOverlay(32,26,"sound player",NO,255,smallFont,0,0);

@@ -410,7 +410,7 @@ void UpdatePathNME( ENEMY *cur )
 		if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
 			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
 		else // Need to do this so normals still work
-			Orientate(&cur->nmeActor->actor->qRot,&inVec,&inVec,&cur->currNormal);
+			Orientate( &cur->nmeActor->actor->qRot, &cur->path->nodes->worldTile->dirVector[cur->facing], &inVec, &cur->currNormal );
 
 	// check if this enemy has arrived at a path node
 	if( actFrameCount >= cur->path->endFrame )
@@ -843,7 +843,7 @@ void UpdateVent( ENEMY *cur )
 
 				GetPositionForPathNode( &p1, &path->nodes[0] );
 				GetPositionForPathNode( &p2, &path->nodes[path->numNodes-1] );
-				CreateLightningEffect( &p1, &p2, act->effects, (60*path->nodes[0].speed)/act->value1 );
+				CreateLightningEffect( &p1, &p2, act->effects, (60*path->nodes[0].speed)/(act->value1+1) );
 			}
 		}
 
@@ -1418,7 +1418,7 @@ void SlerpWaitingFlappyThing( ENEMY *cur )
 }
 
 
-ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float animSpeed )
+ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float animSpeed, unsigned char facing )
 {
 	float shadowRadius = 0;
 	int initFlags,i;
@@ -1426,6 +1426,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	ENEMY *newItem = (ENEMY *)JallocAlloc(sizeof(ENEMY),YES,"NME");
 	AddEnemy(newItem);
 	newItem->flags = flags;
+	newItem->facing = facing;
 
 	initFlags |= INIT_ANIMATION;
 
@@ -1520,6 +1521,11 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	{
 		newItem->Update = UpdateTileHomingNME;
 		AnimateActor(newItem->nmeActor->actor,NMEANIM_HOMER_IDLE,YES,NO,animSpeed, 0, 0);
+	}
+	else // No update function - probably single flag nme
+	{
+		if( newItem->nmeActor->actor && newItem->path && newItem->path->nodes )
+			Orientate( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &inVec, &newItem->path->nodes->worldTile->normal );
 	}
 
 	if( newItem->flags & ENEMY_NEW_BABYFROG )
@@ -1713,6 +1719,9 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 		if( flags & ENEMY_NEW_PINGPONG )
 			nme->flags	^= (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN);
 	}
+
+	if( path->nodes[path->fromNode].sample )
+		PlaySample( path->nodes[path->fromNode].sample, &nme->nmeActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
 
 	nme->speed		= path->nodes[path->fromNode].speed;
 	nme->isWaiting	= path->nodes[path->fromNode].waitTime;

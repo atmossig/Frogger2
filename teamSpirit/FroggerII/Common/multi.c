@@ -14,6 +14,8 @@ void CalcBattleCamera( VECTOR *target );
 void CalcCTFCamera( VECTOR *target );
 void CalcRaceCamera( VECTOR *target );
 
+MPINFO mpl[4];
+
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateCTF
 	Purpose			: Do game mechanics for Capture the Frog multiplayer mode
@@ -103,8 +105,6 @@ void UpdateCTF( )
 	Returns			: 
 	Info			:
 */
-RACEINFO racer[4];
-
 void UpdateRace( )
 {
 	static TIMER endTimer, multiTimer;
@@ -143,9 +143,9 @@ void UpdateRace( )
 			for( i=0; i<NUM_FROGS; i++ )
 			{
 				player[i].canJump = 1;
-				racer[i].check = 0;
-				racer[i].lap = 0;
-				racer[i].lasttile = TILESTATE_FROGGER1AREA;
+				mpl[i].check = 0;
+				mpl[i].lap = 0;
+				mpl[i].lasttile = TILESTATE_FROGGER1AREA;
 			}
 		}
 	}
@@ -183,25 +183,25 @@ void UpdateRace( )
 			else if( currTile[i]->state >= TILESTATE_FROGGER1AREA && currTile[i]->state <= TILESTATE_FROGGER4AREA )
 			{
 				// If last tile state was type 4 and this is type 1 then we've got around another lap
-				if( currTile[i]->state == TILESTATE_FROGGER1AREA && racer[i].lasttile == TILESTATE_FROGGER4AREA )
+				if( currTile[i]->state == TILESTATE_FROGGER1AREA && mpl[i].lasttile == TILESTATE_FROGGER4AREA )
 				{
-					racer[i].lap++;
-					racer[i].lasttile = currTile[i]->state;
-					racer[i].check = 0;
+					mpl[i].lap++;
+					mpl[i].lasttile = currTile[i]->state;
+					mpl[i].check = 0;
 
 					// Start of a new lap - if more then the defined number of maps for the race then this player is the winner
-					if( racer[i].lap >= MULTI_RACE_NUMLAPS )
+					if( mpl[i].lap >= MULTI_RACE_NUMLAPS )
 					{
 						sprintf( timeTextOver->text, "P%i won", i );
 						GTInit( &endTimer, 5 );
 					}
 				}
 				// Else if we've just got to another checkpoint (unlimited repetitions of 2,3,4. Tilestate 1 is used to signal lap changes)
-				else if( currTile[i]->state == racer[i].lasttile+1 || (racer[i].lasttile == TILESTATE_FROGGER4AREA && currTile[i]->state == TILESTATE_FROGGER2AREA) )
+				else if( currTile[i]->state == mpl[i].lasttile+1 || (mpl[i].lasttile == TILESTATE_FROGGER4AREA && currTile[i]->state == TILESTATE_FROGGER2AREA) )
 				{
 					timeTextOver->text[0] = '\0';
-					racer[i].check++;
-					racer[i].lasttile = currTile[i]->state;
+					mpl[i].check++;
+					mpl[i].lasttile = currTile[i]->state;
 				}
 			}
 		}
@@ -219,22 +219,37 @@ void UpdateRace( )
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: UpdateRace
-	Purpose			: Do game mechanics for mulitplayer race mode
+	Function		: UpdateBattle
+	Purpose			: Do game mechanics for lightcycles mode
 	Parameters		: 
 	Returns			: 
 	Info			:
 */
+
 void UpdateBattle( )
 {
 	static TIMER endTimer;
-	int i, j;
+	int i, j, res, dead;
 
 	if( !started )
 	{
 		timeTextOver->text[0] = '\0';
-		GTInit( &endTimer, 0 );
-		started = 1;
+
+		if( frameCount > 50 )
+		{
+			int count=0;
+			for( i=0; i<NUM_FROGS; i++ )
+			{
+				if( controllerdata[i].button != controllerdata[i].lastbutton ) mpl[i].ready = 1;
+				if( mpl[i].ready ) count++;
+			}
+
+			if( count == NUM_FROGS )
+			{
+				GTInit( &endTimer, 0 );
+				started = 1;
+			}
+		}
 	}
 
 	if( endTimer.time )
@@ -255,31 +270,35 @@ void UpdateBattle( )
 		}
 		return;
 	}
-	else // Is anyone still alive?
-	{
-		char dead[4] = {1,1,1,1};
 
-		for( i=0,j=0; i<NUM_FROGS; i++ )
-			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) ) 
+	for( i=0; i<NUM_FROGS; i++ )
+	{
+		// Check for frog off screen - death
+		if( started )
+		{
+
+			// If the frog can move then continue in current direction
+			if( player[i].canJump )
 			{
-				dead[i] = 0;
-				j++;
+				res = MoveToRequestedDestination( ((frogFacing[i] - camFacing) & 3), i );
 			}
 
-		if( !j )
-		{
-			GTInit( &endTimer, 10 );
-			fixedPos = fixedDir = 1;
-		}
-		else if( j==1 )
-		{
-			for( i=0,j=0; i<4; i++ )
-				if( !dead[i] ) j = i;
+			// If move failed then we've hit summat, so die
 
-			sprintf( timeTextOver->text, "P%i won", j+1 );
+			// If we've moved to a nasty tile or one that's got a trail on it, die again
 
-			GTInit( &endTimer, 10 );
 		}
+
+		if( !(player[i].healthPoints) || (player[i].frogState & FROGSTATUS_ISDEAD) ) dead++;
+	}
+
+	// The last player alive wins!
+
+	// Or if everyone is dead, declare a draw
+	if( dead == NUM_FROGS )
+	{
+		GTInit( &endTimer, 5 );
+		fixedPos = fixedDir = 1;
 	}
 }
 
@@ -364,9 +383,9 @@ void RaceRespawn( int pl )
 	TeleportActorToTile(frog[pl],tile,pl);
 
 	// Update progress info
-	racer[pl].check = racer[respawn].check;
-	racer[pl].lap = racer[respawn].lap;
-	racer[pl].lasttile = racer[respawn].lasttile;
+	mpl[pl].check = mpl[respawn].check;
+	mpl[pl].lap = mpl[respawn].lap;
+	mpl[pl].lasttile = mpl[respawn].lasttile;
 	destTile[pl] = tile;
 }
 
@@ -446,21 +465,30 @@ void ResetMultiplayer( )
 	started = 0;
 	playerFocus = 0;
 
+	for( i=0; i<NUM_FROGS; i++ )
+	{
+		mpl[i].ready = 0;
+	}
+
 	switch( multiplayerMode )
 	{
 	case MULTIMODE_CTF:
 		break;
 
 	case MULTIMODE_BATTLE:
+		for( i=0; i<NUM_FROGS; i++ )
+		{
+			mpl[i].trail = MULTI_BATTLE_TRAILLEN;
+		}
 		break;
 
 	case MULTIMODE_RACE_NORMAL:
 	case MULTIMODE_RACE_KNOCKOUT:
 		for( i=0; i<NUM_FROGS; i++ )
 		{
-			racer[i].check = -1;
-			racer[i].lap = 0;
-			racer[i].lasttile = TILESTATE_FROGGER1AREA;
+			mpl[i].check = -1;
+			mpl[i].lap = 0;
+			mpl[i].lasttile = TILESTATE_FROGGER1AREA;
 		}
 		break;
 	}
@@ -496,10 +524,10 @@ void CalcRaceCamera( VECTOR *target )
 	float t;
 
 	for( i=0; i<NUM_FROGS; i++ )
-		if( racer[i].lap >= bestLap && racer[i].check >= bestCheck && player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
+		if( mpl[i].lap >= bestLap && mpl[i].check >= bestCheck && player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
 		{
-			bestLap = racer[i].lap;
-			bestCheck = racer[i].check;
+			bestLap = mpl[i].lap;
+			bestCheck = mpl[i].check;
 			lead = i;
 		}
 
@@ -560,3 +588,72 @@ void CalcCTFCamera( VECTOR *target )
 	if (l > 1)
 		ScaleVector(target, 1.0f/l);
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateRace
+	Purpose			: Do game mechanics for mulitplayer race mode
+	Parameters		: 
+	Returns			: 
+	Info			:
+*/
+
+/*
+void UpdateDM( )
+{
+	static TIMER endTimer;
+	int i, j;
+
+	if( !started )
+	{
+		timeTextOver->text[0] = '\0';
+		GTInit( &endTimer, 0 );
+		started = 1;
+	}
+
+	if( endTimer.time )
+	{
+		GTUpdate( &endTimer, -1 );
+
+		if( !endTimer.time )
+		{
+			StopDrawing("game over");
+			FreeAllLists();
+
+			InitLevel(player[0].worldNum,player[0].levelNum);
+			gameState.mode = INGAME_MODE;
+
+			started = frameCount = 0;
+			fixedPos = fixedDir = 0;
+			StartDrawing("game over");
+		}
+		return;
+	}
+	else // Is anyone still alive?
+	{
+		char dead[4] = {1,1,1,1};
+
+		for( i=0,j=0; i<NUM_FROGS; i++ )
+			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) ) 
+			{
+				dead[i] = 0;
+				j++;
+			}
+
+		if( !j )
+		{
+			GTInit( &endTimer, 10 );
+			fixedPos = fixedDir = 1;
+		}
+		else if( j==1 )
+		{
+			for( i=0,j=0; i<4; i++ )
+				if( !dead[i] ) j = i;
+
+			sprintf( timeTextOver->text, "P%i won", j+1 );
+
+			GTInit( &endTimer, 10 );
+		}
+	}
+}
+*/

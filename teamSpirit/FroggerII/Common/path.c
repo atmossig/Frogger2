@@ -90,32 +90,6 @@ void GetPositionForPathNodeOffset2(VECTOR *vecPos,PATHNODE *pNode)
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: SetPathNodeSpeed
-	Purpose			: sets the speed for entities reaching this node
-	Parameters		: PATHNODE *,float
-	Returns			: void
-	Info			: 
-*/
-void SetPathNodeSpeed(PATHNODE *pNode,float speed)
-{
-	pNode->speed = speed;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: SetPathNodeWaitTime
-	Purpose			: sets the pause time for entities reaching this node
-	Parameters		: PATHNODE *,short
-	Returns			: void
-	Info			: 
-*/
-void SetPathNodeWaitTime(PATHNODE *pNode,short pause)
-{
-	pNode->waitTime = pause;
-}
-
-
-/*	--------------------------------------------------------------------------------
 	Function		: SetAllPathNodesToSetSpeed
 	Purpose			: sets all nodes in specified path to specified speed
 	Parameters		: PATH *,float
@@ -126,7 +100,7 @@ void SetAllPathNodesToSetSpeed(PATH *pPath,float speed)
 {
 	int i = pPath->numNodes;
 	while(i--)
-		SetPathNodeSpeed(&pPath->nodes[i],speed);
+		pPath->nodes[i].speed = speed;
 }
 
 
@@ -141,7 +115,7 @@ void SetAllPathNodesToSetWaitTime(PATH *pPath,short pause)
 {
 	int i = pPath->numNodes;
 	while(i--)
-		SetPathNodeWaitTime(&pPath->nodes[i],pause);
+		pPath->nodes[i].waitTime = pause;
 }
 
 
@@ -175,7 +149,7 @@ void AssignRandomSpeedsToPathNodes(PATH *path,float minSpeed,float maxSpeed)
 {
 	int i = path->numNodes;
 	while(i--)
-		SetPathNodeSpeed(&path->nodes[i],Random(maxSpeed) + minSpeed);
+		path->nodes[i].speed = Random(maxSpeed) + minSpeed;
 }
 
 
@@ -190,7 +164,7 @@ void AssignRandomWaitTimesToPathNodes(PATH *path,short minPause,float maxPause)
 {
 	int i = path->numNodes;
 	while(i--)
-		SetPathNodeWaitTime(&path->nodes[i], (short)(Random(maxPause)+minPause));
+		path->nodes[i].waitTime = (short)(Random(maxPause)+minPause);
 }
 
 /*	--------------------------------------------------------------------------------

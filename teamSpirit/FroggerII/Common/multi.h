@@ -8,15 +8,28 @@
 #define MULTIMODE_BATTLE			4
 
 
-typedef struct
-{
-	char lap;
-	short check;
-	short lasttile;
-
-} RACEINFO;
+#define MULTI_BATTLE_TRAILLEN		4
 
 #define MULTI_RACE_NUMLAPS 3
+
+typedef struct
+{
+	union
+	{
+		char lap;
+		char babyCount;
+	};
+
+	union
+	{
+		short check;
+		short trail;
+	};
+
+	char ready;
+	short lasttile;
+
+} MPINFO;
 
 
 extern int multiplayerMode;

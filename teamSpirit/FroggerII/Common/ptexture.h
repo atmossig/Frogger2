@@ -50,6 +50,8 @@ extern void ProcessPTWaterWaves( PROCTEXTURE *pt );
 extern void ProcessPTSteam( PROCTEXTURE *pt );
 extern void ProcessPTCandle( PROCTEXTURE *pt );
 
+extern void ProcessPTFrogger( PROCTEXTURE *pt );
+
 extern void ProcessPTWaterRipplesBM( PROCTEXTURE *pt );
 
 #endif

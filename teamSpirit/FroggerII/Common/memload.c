@@ -8,7 +8,7 @@
 
 /*	-------------------------------------------------------------------------------- */
 
-#define MEMLOAD_ENTITY_VERSION 13
+#define MEMLOAD_ENTITY_VERSION 14
 #define MEMLOAD_SCRIPT_VERSION 2
 
 typedef enum { CREATE_ENEMY, CREATE_PLATFORM, CREATE_GARIB, CREATE_CAMERACASE, CREATE_PLACEHOLDER } CREATETYPE;
@@ -109,6 +109,7 @@ int MemLoadEntities(const void* data, long size)
 			node->offset2 = MEMGETFLOAT(&p);
 			node->speed = MEMGETFLOAT(&p);
 			node->waitTime = MEMGETINT(&p);
+			node->sample = FindSample((unsigned long)MEMGETINT(&p));
 			
 			node++;
 		}
@@ -133,7 +134,8 @@ int MemLoadEntities(const void* data, long size)
 		case CREATE_PLACEHOLDER:
 			{
 				char type[20];
-				int count, flags, numNodes, startNode, n, ID, effects, pathIndex;
+				unsigned char facing;
+				int count, flags, numNodes, startNode, n, ID, effects, pathIndex, objFlags;
 				float scale, radius, animSpeed, value1;
 				PATH *path;
 				ENEMY *enemy;
@@ -148,6 +150,8 @@ int MemLoadEntities(const void* data, long size)
 				radius	= MEMGETFLOAT(&p);
 				animSpeed = MEMGETFLOAT(&p);
 				value1 = MEMGETFLOAT(&p);
+				facing = MEMGETBYTE(&p);
+				objFlags = MEMGETINT(&p);
 				effects = MEMGETINT(&p);
 				startNode = MEMGETINT(&p);
 
@@ -160,7 +164,7 @@ int MemLoadEntities(const void* data, long size)
 				switch (thing)
 				{
 				case CREATE_ENEMY:
-					enemy = CreateAndAddEnemy(type,flags,ID,path,animSpeed);
+					enemy = CreateAndAddEnemy(type,flags,ID,path,animSpeed,facing);
 					act = enemy->nmeActor;
 					break;
 
@@ -174,7 +178,7 @@ int MemLoadEntities(const void* data, long size)
 					break;
 
 				case CREATE_PLATFORM:
-					platform = CreateAndAddPlatform(type,flags,ID,path,animSpeed);
+					platform = CreateAndAddPlatform(type,flags,ID,path,animSpeed,facing);
 					act = platform->pltActor;
 
 #ifdef PLATFORM_NEW_SHAKABLESCENIC
@@ -207,6 +211,8 @@ int MemLoadEntities(const void* data, long size)
 					act->actor->scale.v[Z] = scale;
 					act->animSpeed = animSpeed;
 					act->value1 = value1;
+					// PUT IN LATER
+//					act->actor->objectController->object->flags = objFlags;
 
 					if( thing == CREATE_ENEMY && !(enemy->flags & ENEMY_NEW_BABYFROG) )
 						act->effects = effects;

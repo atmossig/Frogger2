@@ -90,6 +90,7 @@ typedef struct TAGENEMY
 	short					isWaiting;				// enemy pause time at node
 	long					isSnapping;				// enemy is snapping (snapping time left)
 	short					isIdle;					// enemy idle state for starting animation
+	unsigned char			facing;					// For face forward nmes, the tile vector they face
 
 	GAMETILE				*inTile;				// tile enemy is currently 'in'
 	PATH					*path;					// ptr to enemy path data
@@ -127,7 +128,7 @@ void UpdateEnemies();
 
 //------------------------------------------------------------------------------------------------
 
-ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float animSpeed);
+ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float animSpeed, unsigned char facing);
 void AssignPathToEnemy(ENEMY *nme,PATH *path,unsigned long pathFlags);
 BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
 void UpdateEnemyPathNodes(ENEMY *nme);

@@ -66,6 +66,7 @@ typedef struct TAGPLATFORM
 	VECTOR					deltaNormal;			// platform delta normal (for linear interp)
 */
 	float					countdown;				// countdown for disappear/regenerate
+	unsigned char			facing;					// For face forward platforms, which tilevector it is aligned to
 
 	GAMETILE				*inTile[2];				// tile(s) platform is(are) currently 'in'
 	PATH					*path;					// ptr to platform path data
@@ -116,7 +117,7 @@ void FrogLeavePlatform(long pl);
 
 //------------------------------------------------------------------------------------------------
 
-PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,float animSpeed);
+PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,float animSpeed,unsigned char facing);
 void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags);
 
 BOOL PlatformHasArrivedAtNode(PLATFORM *pform);

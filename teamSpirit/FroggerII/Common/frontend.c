@@ -353,7 +353,7 @@ void StartGameIntro()
 
 	// load the generic banks
 	LoadTextureBank(SYSTEM_TEX_BANK);
-	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
+//	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 	LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
 
 	InitGameLists();

@@ -655,6 +655,8 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 	}
 	else if( name[4]=='c' && name[5]=='n' && name[6]=='d' && name[7]=='l' )
 		pt->Update = ProcessPTCandle;
+	else if( name[4]=='f' && name[5]=='r' && name[6]=='o' && name[7]=='g' )
+		pt->Update = ProcessPTFrogger;
 }
 
 
@@ -730,4 +732,144 @@ void FreeRandomPolyList( )
 		// And free the object
 		JallocFree( (UBYTE **)&p );
 	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ProcessProcTextures
+	Purpose			: Call update function pointers for all procedural textures
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+enum
+{
+	FGT_FROG,
+	FGT_PLTSLOW,
+	FGT_PLTFAST,
+	FGT_NMESLOW,
+	FGT_NMEFAST,
+	FGT_GROUND,
+	FGT_WATER,
+};
+
+#define FGG_CREATED		(1<<12)
+#define FGG_ACTIVE		(1<<13)
+#define FGG_WIN			(1<<14)
+
+#define FGR_DIR			(1<<12)
+#define FGR_TYPE		(1<<13)
+#define FGR_SPD			(1<<14)
+#define FGR_UPDATE		(1<<15)
+
+// Game info stored in alpha bits of palette entry 251.
+// Row info stored in (250 - row number)
+// Frogger data is in [252, 253, 254] as 5, 5, 2 (x, y, state)
+#define FG_GAMEDATA		251
+
+void ProcessPTFrogger( PROCTEXTURE *pt )
+{
+	unsigned long i,j,p;
+	unsigned char *tmp, x, y, lives;
+	unsigned short state, gameData;
+
+	// Copy resultant buffer into texture
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->buf1, pt->palette );
+#else
+	memcpy(pt->tex->data,pt->buf1,1024);
+#endif
+
+	gameData = pt->palette[FG_GAMEDATA];
+
+	if( gameData & FGG_CREATED ) // Extract existing data
+	{
+		state = ((pt->palette[FG_GAMEDATA+1]&0xF000)<<8) | ((pt->buf1[FG_GAMEDATA+2]&0xF000)<<4) | (pt->buf1[FG_GAMEDATA+3]&0xF000); // Alpha in high order nibble
+		x = state & 0xF800;	// High five bits
+		y = state & 0x07C0;
+		lives = state & 0x0030; // Eleventh and twelth bits
+	}
+	else	// make the gameplan if first time through
+	{
+		gameData |= FGG_CREATED;
+		x = y = 15;
+		lives = 3;
+		for( i=0; i<16; i++ ) pt->palette[FG_GAMEDATA-(i+1)] = Random(16)<<12; // Set alpha bits of palette to store row info
+		pt->palette[FG_GAMEDATA-1] = pt->palette[FG_GAMEDATA-17] = 0; // First and last rows are never updated
+
+		for( i=0,p=0; i<31; i+=2 )
+			for( j=0; j<31; j+=2, p=(i<<5)+j )
+				if( !i )
+				{
+					if( !(j%8) ) { pt->buf1[p] = pt->buf1[p+1] = pt->buf1[p+32] = pt->buf1[p+33] = FGT_GROUND; }
+					else { pt->buf1[p] = pt->buf1[p+1] = pt->buf1[p+32] = pt->buf1[p+33] = FGT_WATER; }
+				}
+				else if( !(pt->palette[FG_GAMEDATA-((i>>1)+1)] & FGR_UPDATE) )
+				{ 
+					pt->buf1[p] = pt->buf1[p+1] = pt->buf1[p+32] = pt->buf1[p+33] = FGT_GROUND; 
+				}
+				else if( pt->palette[FG_GAMEDATA-((i>>1)+1)] & FGR_TYPE ) // Platform
+				{
+					if( !(j%8) ) { pt->buf1[p] = pt->buf1[p+1] = pt->buf1[p+32] = pt->buf1[p+33] = (pt->palette[FG_GAMEDATA-((i>>1)+1)] & FGR_SPD)?FGT_PLTFAST:FGT_PLTSLOW; }
+					else { pt->buf1[p] = pt->buf1[p+1] = pt->buf1[p+32] = pt->buf1[p+33] = FGT_WATER; }
+				}
+				else // Enemy
+				{
+					if( !(j%8) ) { pt->buf1[p] = pt->buf1[p+1] = pt->buf1[p+32] = pt->buf1[p+33] = (pt->palette[FG_GAMEDATA-((i>>1)+1)] & FGR_SPD)?FGT_NMEFAST:FGT_NMESLOW; }
+					else { pt->buf1[p] = pt->buf1[p+1] = pt->buf1[p+32] = pt->buf1[p+33] = FGT_GROUND; }
+				}
+
+	}
+
+	// Main loop - go through and shift rows along by speed
+	for( i=0; i<32; i++ )
+	{
+		state = pt->palette[FG_GAMEDATA-((i>>1)+1)]&0xF000;
+		p = (i<<5);
+
+		if( state & FGR_UPDATE )
+		{
+			if( state & FGR_DIR )
+			{
+				if( state & FGR_SPD )
+				{
+					lmemcpy( (unsigned long *)&pt->buf2[p+2], (unsigned long *)&pt->buf1[p], 7 ); // Move to the right by two squares
+					cmemcpy( &pt->buf2[p], &pt->buf1[p+30], 2 );
+					cmemcpy( &pt->buf2[p+30], &pt->buf1[p+28], 2 );
+				}
+				else
+				{
+					lmemcpy( (unsigned long *)&pt->buf2[p+1], (unsigned long *)&pt->buf1[p], 7 ); // Move to the right by one square
+					pt->buf2[p] = pt->buf1[p+31];
+					cmemcpy( &pt->buf2[p+29], &pt->buf1[p+28], 3 );
+				}
+			}
+			else
+			{
+				if( state & FGR_SPD )
+				{
+					lmemcpy( (unsigned long *)&pt->buf2[p], (unsigned long *)&pt->buf1[p+2], 7 ); // Move to the right by two squares
+					cmemcpy( &pt->buf2[p+28], &pt->buf1[p+30], 2 );
+					cmemcpy( &pt->buf2[p+30], &pt->buf1[p], 2 );
+				}
+				else
+				{
+					lmemcpy( (unsigned long *)&pt->buf2[p], (unsigned long *)&pt->buf1[p+1], 7 ); // Move to the right by one square
+					pt->buf2[p+31] = pt->buf1[p];
+					cmemcpy( &pt->buf2[p+28], &pt->buf1[p+29], 3 );
+				}
+			}
+		}
+		else
+		{
+			lmemcpy( (unsigned long *)&pt->buf2[p], (unsigned long *)&pt->buf1[p], 8 ); // buffer to buffer copy
+		}
+	}
+
+	pt->palette[FG_GAMEDATA] = gameData;
+
+	// Swap buffers
+	tmp = pt->buf1;
+	pt->buf1 = pt->buf2;
+	pt->buf2 = tmp;
 }

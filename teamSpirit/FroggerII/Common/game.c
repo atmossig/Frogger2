@@ -988,7 +988,21 @@ void RunGameLoop (void)
 				frog[i]->draw = 1;
 				if (player[i].safe.time)
 				{
+					SPECFX *fx;
+					VECTOR pos;
+
 					GTUpdate( &player[i].safe, -1 );
+
+					SetVector( &pos, &currTile[i]->normal );
+					ScaleVector( &pos, 15 );
+					pos.v[X] += Random(2)?(Random(20)+5):(-Random(20)-5);
+					pos.v[Y] += Random(2)?(Random(20)+5):(-Random(20)-5);
+					pos.v[Z] += Random(2)?(Random(20)+5):(-Random(20)-5);
+					AddToVector( &pos, &frog[i]->actor->pos );
+
+					fx = CreateAndAddSpecialEffect( FXTYPE_TWINKLE, &pos, &currTile[i]->normal, 20+Random(10), 0, 0, Random(3)+1 );
+					fx->tilt = 2;
+					SetFXColour( fx, 220, 220, 255 );
 				}
 
 				if( player[i].idleEnable )

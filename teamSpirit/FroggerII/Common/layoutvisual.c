@@ -636,7 +636,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 	// load the system and in-game generic texture banks
 	LoadTextureBank(SYSTEM_TEX_BANK);
-	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
+//	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
 	// load relevant collison, texture and object banks
 	LoadMapBank(worldVisualData[worldID].levelVisualData[levelID].collBank);
