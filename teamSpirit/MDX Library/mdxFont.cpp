@@ -285,7 +285,7 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 
 	while (*c)
 	{
-/*		switch(*c)
+		switch(*c)
 		{
 			case '@':
 				c++;
@@ -312,8 +312,8 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 			default:*/
 				cx += DrawFontCharAtLoc(cx,y,*c,color,font,scale);
 				c++;
-//				break;
-//		}
+				break;
+		}
 	}
 
 	return cx;
@@ -355,7 +355,7 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 	
 	while (*c)
 	{
-/*		switch(*c)
+		switch(*c)
 		{
 			case '@':
 				c++;
@@ -381,8 +381,8 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 			default:*/
 				width += font->characters[*c].width;
 				c++;
-//				break;
-//		}
+				break;
+		}
 	}
 
 	return width;
