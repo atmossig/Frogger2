@@ -219,7 +219,7 @@ void LoadObjectBank ( int objectBank )
 	}
 	// ENDELSEIF - 	if ( numObjectBanks < MAX_OBJECT_BANKS )
 
-	ExtractPsiNames();
+//	ExtractPsiNames();
 
 
 }

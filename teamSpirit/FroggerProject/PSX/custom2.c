@@ -549,7 +549,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 	lightmode = modctrl->lighting;
 	opcd = 0;
-	TimerStart(&poly);
+//	TimerStart(&poly);
 	//utilPrintf("Polys To Draw : %d\n", primsleft);
 	while(primsleft)
 	{
@@ -614,7 +614,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				}
 				else
 				{
-					// SL: modge the RGBs accordingly
+	/*				// SL: modge the RGBs accordingly
 					si->r0 = ((fogFade*(short)si->r0)/255);
 					si->g0 = ((fogFade*(short)si->g0)/255);
 					si->b0 = ((fogFade*(short)si->b0)/255);
@@ -627,7 +627,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 					*(u_long *)  (&si->r0) = t1;*/
 
 					// SL: put in the additive poly...
-					setPolyFT3(si);
+/*					setPolyFT3(si);
 					// SL: store the pre-modification tpage...
 					oldtpage = si->tpage;
 					// make it additive...
@@ -657,7 +657,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 					siNext->tpage = oldtpage | 64;
 
 					// SL: put it in t' table
-					ENDPRIM(siNext, depth, POLY_FT3);
+					ENDPRIM(siNext, depth, POLY_FT3);*/
 				}
 
 
@@ -720,7 +720,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				else
 				{
 					// SL: modge the RGBs accordingly
-					si->r0 = ((fogFade*(short)si->r0)/255);
+/*					si->r0 = ((fogFade*(short)si->r0)/255);
 					si->g0 = ((fogFade*(short)si->g0)/255);
 					si->b0 = ((fogFade*(short)si->b0)/255);
 
@@ -756,7 +756,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 					siNext->tpage = oldtpage | 64;
 
 					// SL: put it in t' table
-					ENDPRIM(siNext, depth, POLY_FT4);
+					ENDPRIM(siNext, depth, POLY_FT4);*/
 				}
 
 // END FOG CODE: --------------------------------------------------------
@@ -821,7 +821,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				else
 				{
 					// SL: modge the RGBs accordingly
-					si->r0 = ((fogFade*(short)si->r0)/255);
+/*					si->r0 = ((fogFade*(short)si->r0)/255);
 					si->g0 = ((fogFade*(short)si->g0)/255);
 					si->b0 = ((fogFade*(short)si->b0)/255);
 					si->r1 = ((fogFade*(short)si->r1)/255);
@@ -863,7 +863,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 					siNext->tpage = oldtpage | 64;
 
 					// SL: put it in t' table
-					ENDPRIM(siNext, depth, POLY_GT3);
+					ENDPRIM(siNext, depth, POLY_GT3);*/
 				}
 
 // END FOG CODE: --------------------------------------------------------
@@ -942,7 +942,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				else
 				{
 					// SL: modge the RGBs accordingly
-					si->r0 = ((fogFade*(short)si->r0)/255);
+/*					si->r0 = ((fogFade*(short)si->r0)/255);
 					si->g0 = ((fogFade*(short)si->g0)/255);
 					si->b0 = ((fogFade*(short)si->b0)/255);
 					si->r1 = ((fogFade*(short)si->r1)/255);
@@ -990,7 +990,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 					siNext->tpage = oldtpage | 64;
 
 					// SL: put it in t' table
-					ENDPRIM(siNext, depth, POLY_GT4);
+					ENDPRIM(siNext, depth, POLY_GT4);*/
 				}
 
 // END FOG CODE: --------------------------------------------------------
@@ -1092,7 +1092,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
  				ENDPRIM(si, depth, POLY_FT4);
 				op = op->next;*/
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_G4*)packet)
+/*#define si ((POLY_G4*)packet)
 #define siNext ((POLY_G4*)packetNext)
 #define op ((TMD_P_FG4I*)opcd)
 			case GPU_COM_G4:
@@ -1219,7 +1219,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 #undef siNext
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_G3*)packet)
+/*#define si ((POLY_G3*)packet)
 #define siNext ((POLY_G3*)packetNext)
 #define op ((TMD_P_FG3I*)opcd)
 			
@@ -1334,6 +1334,6 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 			break;
 		}
 	}
-	TimerStop(&poly);
+//	TimerStop(&poly);
 //	utilPrintf("Timer Taken To Draw Polys : %d\n", poly.total);
 }

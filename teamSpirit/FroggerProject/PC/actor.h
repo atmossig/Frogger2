@@ -18,6 +18,7 @@
 #include "libgte.h"
 
 #include "fixed.h"
+#include "types.h"
 
 typedef struct
 {
@@ -53,8 +54,13 @@ typedef struct
 	FVECTOR					vel;
 	ACTOR_ANIMATION animation;
 
+	//bb
+	IQUATERNION qRot;
+
 } ACTOR;
 
+void actorFree(ACTOR *actor);
+void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe);
 
 
 

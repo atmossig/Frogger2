@@ -512,7 +512,7 @@ void SetUpWaterMesh(FMA_WORLD *pFMA)
 
 		for(v=0; v<pMh->n_verts; v++)
 		{
-			utilPrintf("vert %d is used %d times\n", v, pMh->verts[v].pad);
+//			utilPrintf("vert %d is used %d times\n", v, pMh->verts[v].pad);
 		}
 
 	}

@@ -3,6 +3,7 @@
 
 #include "game.h"
 #include <isltex.h>
+#include "specfx.h"
 
 void DrawSpecialFX();
 void ProcessShadows();

@@ -1,6 +1,7 @@
 #ifndef _TEXTURES_H_INCLUDE
 #define _TEXTURES_H_INCLUDE
 
+#include <isltex.h>
 #include "sonylibs.h"
 
 #define MAX_TEXTURE_BANKS		5

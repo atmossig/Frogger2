@@ -106,6 +106,14 @@ typedef struct
 extern ACTORLIST	actorList;
 
 
+//extern int MAXMODELS;
+extern PSIMODEL **psiModelList;
+extern long *psiModelListCRC;
+extern int	psiModelListLen;
+extern char *PSIname;
+
+
+
 // functions
 
 void actorInitialise();
@@ -156,6 +164,9 @@ u8 actorIsVisible(ACTOR *actor);
 #define ACTORGETANIMFRAMESTART(actor,anim)	(actor)->animSegments[ (anim)*2]
 
 #define ACTORGETANIMFRAMEEND(actor,anim)		(actor)->animSegments[((anim)*2)+1]
+
+void ScalePsi(PSIMESH* pPSI);
+
 
 
 #endif //__ACTOR_H__

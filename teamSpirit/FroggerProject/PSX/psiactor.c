@@ -95,13 +95,6 @@ void actorFree(ACTOR *actor)
 }
 
 
-void actor2Free(ACTOR2 *actor)
-{
-	actorFree(actor->actor);
-	FREE(actor);
-}
-
-
 
 static ULONG 	*segTable;
 static PSIOBJECT *psiobNext;
@@ -1278,4 +1271,43 @@ int actorCalcSegments(ACTOR *actor)
 void actorSetBounding(ACTOR *actor,int frame)
 {
 	actorSetBoundingRotated(actor,frame,0,0,0);
+}
+
+
+void ScalePsi(PSIMESH* pMesh)
+{
+	int m,v;
+	SVKEYFRAME* pK;
+	int i;
+
+	//loop verts
+	for(v=pMesh->vern-1; v>=0; v--)
+	{
+		pMesh->vertop[v].vx *= SCALE;
+		pMesh->vertop[v].vy *= SCALE;
+		pMesh->vertop[v].vz *= SCALE;
+	}
+
+
+	pK = pMesh->movekeys;
+	for(i=0; i<pMesh->numMoveKeys; i++, pK++)
+	{
+		pK->vect.x *= SCALE;
+		pK->vect.y *= SCALE;
+		pK->vect.z *= SCALE;
+	}
+
+		//loop scalekeys
+// 		for(v=curMesh->numScaleKeys-1; v>=0; v--)
+// 		{
+// 			curMesh->scalekeys[v].vect.x *= SCALE;
+// 			curMesh->scalekeys[v].vect.y *= SCALE;
+// 			curMesh->scalekeys[v].vect.z *= SCALE;
+// 		}
+
+	if(pMesh->child)
+		ScalePsi(pMesh->child);
+
+	if(pMesh->next)
+		ScalePsi(pMesh->next);
 }

@@ -14,8 +14,8 @@
 #include "gelf.h"
 //#include <commctrl.h>
 //#include <ddraw.h>
-#include "directx.h"
-#include "texture.h"
+//#include "directx.h"
+//#include "texture.h"
 
 #include "mdxddraw.h"
 

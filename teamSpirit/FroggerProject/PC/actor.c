@@ -376,12 +376,12 @@ extern long FOV;
 	Returns		: void 
 */
 
-void FreeActor(ACTOR2 *c)
-{
- 	ACTOR2 *cur = c;
- 
- 	if (!cur)
- 		return;
+//void FreeActor(ACTOR2 *c)
+//{
+ 	//ACTOR2 *cur = c;
+ //
+ 	//if (!cur)
+ 		//return;
  
 // 	if((cur->actor->objectController) && (cur->actor->objectController->object))
 // 	{
@@ -413,7 +413,7 @@ void FreeActor(ACTOR2 *c)
 // 
 // 	FREE((UBYTE**)&cur->actor);
 // 	FREE((UBYTE**)&cur);
-}
+//}
 
 
 /* --------------------------------------------------------------------------------
@@ -1154,4 +1154,21 @@ void RemoveUniqueActor(ACTOR *actor,int type)
 	FREE(actor);
 }*/
 
+
+void actorFree(ACTOR *actor)
+{
+//pc	FREE(actor->psiData.objectTable);
+
+//	if (actor->shadow)
+//	{
+//		FREE((UBYTE **)&actor->shadow);//IF SHADOWS ARE ADDED...mm
+//	}
+
+//pc	actorSub(actor);
+//pc	FREE(actor);
+}
+
+void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe)
+{
+}
 

@@ -7,4 +7,11 @@ typedef struct
 	unsigned char tu, tv;
 } VERT;
 
+typedef struct {
+	long    vpx, vpy, vpz;
+	long    vrx, vry, vrz;
+	long    rz;
+//	GsCOORDINATE2 *super;
+}       GsRVIEW2;
+
 #endif

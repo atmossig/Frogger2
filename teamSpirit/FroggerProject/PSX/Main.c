@@ -35,7 +35,7 @@
 #include "frogger.h"
 #include "frontend.h"
 #include "Game.h"
-#include "Block.h"
+//#include "Block.h"
 #include "Actor2.h"
 
 #include "bbtimer.h"
@@ -55,6 +55,16 @@ extern USHORT EXPLORE_black_CLUT;
 
 
 GsRVIEW2	camera;
+
+fixed gameSpeed = 4096;
+unsigned long actFrameCount = 0;
+unsigned long lastActFrameCount = 0;
+char UseAAMode = 0;
+char UseZMode = 1;
+
+
+
+
 
 #define PROJECTION 0x220
 
@@ -496,10 +506,10 @@ int main ( )
 //		sfxStartSound();
 
 	//	psiInitialise();
-		psiInitialise(100);
-		psiInitLights();
+//		psiInitialise(100);
+//		psiInitLights();
 
-		psiRegisterDrawFunction(LSCAPE_DrawSortedPrimitives);
+//		psiRegisterDrawFunction(LSCAPE_DrawSortedPrimitives);
 
 	// SL: Right... here, I make up and store the index for an all black palette, used to do true transparency...
 	EXPLORE_black_CLUT = textureAddCLUT16(EXPLORE_black_ref_palette);
@@ -507,7 +517,7 @@ int main ( )
 //		psiRegisterDrawFunction2(customDrawPrimitives2);
 //		psiRegisterDrawFunction(customDrawSortedPrimitives);
 
-		psiSetAmbient(128,128,128);
+//		psiSetAmbient(128,128,128);
 
 
 		frameCount=1;
