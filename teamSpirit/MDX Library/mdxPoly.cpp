@@ -129,6 +129,29 @@ unsigned long xluSemiRS[] =
 	D3DRENDERSTATE_FORCE_DWORD,			NULL
 };
 
+unsigned long cullNoneRS[] = 
+{
+	D3DRENDERSTATE_CULLMODE,D3DCULL_NONE,
+	//
+	D3DRENDERSTATE_FORCE_DWORD,			NULL
+};
+
+unsigned long cullCWRS[] = 
+{
+	D3DRENDERSTATE_CULLMODE,D3DCULL_CW,
+	//
+	D3DRENDERSTATE_FORCE_DWORD,			NULL
+};
+
+unsigned long cullCCWRS[] = 
+{
+	D3DRENDERSTATE_CULLMODE,D3DCULL_CCW,
+	//
+	D3DRENDERSTATE_FORCE_DWORD,			NULL
+};
+
+
+
 long dPoly = 0;
 
 void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
