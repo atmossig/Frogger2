@@ -430,7 +430,8 @@ unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short
 	dY = (float)ys/(float)nys;
 	cY = 0;
 	
-	while (pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	if (pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0)!=DD_OK)
+		return 0;
 
 	for (y = 0; y<nxs; y++)
 	{
@@ -596,8 +597,8 @@ unsigned long DDrawCopyToSurface2(LPDIRECTDRAWSURFACE7 pSurface, unsigned short 
 	
 	// Copy the data into the surface manually
 	DDINIT(ddsd);
-	while (pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
-
+	if (pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0)!=DD_OK)
+		return 0;
 	
 	rShift = r565; 		
 	
@@ -635,7 +636,8 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *
 	
 	// Copy the data into the surface manually
 	DDINIT(ddsd);
-	while (pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	if (pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0)!=DD_OK)
+		return 0;
 
 	if (convert)
 	{

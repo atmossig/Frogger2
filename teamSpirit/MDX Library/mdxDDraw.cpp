@@ -709,7 +709,7 @@ void DDrawFlip(void)
 		if (rFlipOK)
 			surface[PRIMARY_SRF]->Flip(NULL,DDFLIP_WAIT);
 		else
-			while (surface[PRIMARY_SRF]->Blt(NULL,surface[RENDER_SRF],NULL,NULL,NULL)!=DD_OK);
+			while (surface[PRIMARY_SRF]->Blt(NULL,surface[RENDER_SRF],NULL,DDBLT_WAIT,NULL)!=DD_OK);
 	}
 	else
 	{
@@ -739,7 +739,7 @@ void DDrawFlip(void)
 		}
 
 		// Blt it, I suppose if we aren't scaling I could used BltFast, but is it worth it? I dont think so
-		while (surface[PRIMARY_SRF]->Blt(&windowR,surface[RENDER_SRF],&clientR,NULL,NULL)!=DD_OK);
+		surface[PRIMARY_SRF]->Blt(&windowR,surface[RENDER_SRF],&clientR,DDBLT_WAIT,NULL);
 	}
 }
 
@@ -760,7 +760,7 @@ void DDrawClearSurface(unsigned long srfN, unsigned long value, unsigned long fi
 	m.dwFillDepth = m.dwFillColor = value;
 
 	// Fill it, innefecient, I would recomend not waiting!
-	while (surface[srfN]->Blt(NULL,NULL,NULL,DDBLT_WAIT | fillType,&m)!=DD_OK);	
+	surface[srfN]->Blt(NULL,NULL,NULL,DDBLT_WAIT | fillType,&m);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -916,7 +916,7 @@ void ScreenShot()
 		return;
 	}
 
-	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	if (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0) != DD_OK) return 0;
 	
 	screen = (short *)ddsd.lpSurface;
 	pitch = ddsd.lPitch/2;

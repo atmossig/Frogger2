@@ -220,7 +220,8 @@ void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
 		
 	DDINIT(ddsd);
 	
-	while (srf->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	if (srf->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0)!=DD_OK)
+		return;
 	
 	mPitch = ddsd.lPitch * 2;
 	cPitch = ddsd.lPitch;
@@ -1696,7 +1697,7 @@ void LockRender(void)
 {
 	DDSURFACEDESC2		ddsd;
 	DDINIT(ddsd);
-	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	if (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0)!=DD_OK) return;
 	surface[RENDER_SRF]->Unlock(NULL);
 }
 
@@ -1708,7 +1709,7 @@ void StoreHaloPoints(void)
 	if (numHaloPoints)
 	{
 		DDINIT(ddsd);
-		while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_READONLY,0)!=DD_OK);
+		if (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_READONLY|DDLOCK_WAIT,0)!=DD_OK) return;
 		
 		ddsd.lPitch /= sizeof(short);
 
@@ -1748,7 +1749,7 @@ void GetHaloPoints(void)
 	if (numHaloPoints)
 	{
 		DDINIT(ddsd);
-		while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_READONLY,0)!=DD_OK);
+		if (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_READONLY|DDLOCK_WAIT,0)!=DD_OK) return;
 		
 		ddsd.lPitch /= sizeof(short);
 
@@ -1820,7 +1821,7 @@ void ReadHaloPoints(void)
 	if (numHaloPoints)
 	{
 		DDINIT(ddsd);
-		while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT | DDLOCK_READONLY,0)!=DD_OK);
+		if (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT | DDLOCK_READONLY,0)!=DD_OK) return;
 		
 		ddsd.lPitch /= sizeof(short);
 
@@ -1867,7 +1868,7 @@ void CheckHaloPoints(void)
 	if (numHaloPoints)
 	{
 		DDINIT(ddsd);
-		while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_READONLY ,0)!=DD_OK);
+		if (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_READONLY|DDLOCK_WAIT,0)!=DD_OK) return;
 		
 		ddsd.lPitch /= sizeof(short);
 

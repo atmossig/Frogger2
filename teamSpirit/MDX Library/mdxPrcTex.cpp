@@ -79,7 +79,7 @@ void UpdateWater(void)
 
 	wOffset = timeInfo.frameCount;//2;
 	
-	while (testS->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	if (testS->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0)!=DD_OK) return;
 	
 	tPtr = (short *)ddsd.lpSurface;
 	p = ddsd.lPitch>>1;
