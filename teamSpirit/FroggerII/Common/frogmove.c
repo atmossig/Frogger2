@@ -40,13 +40,21 @@ unsigned long conveyorFrames[3] = { 60, 30, 15 };
 unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
 
-/*
-float superGravity		= -0.7F;
-float hopGravity		= -5.0F;
-float frogGravity		= -9.0F;
-float doubleGravity		= -0.5F;
-float floatGravity		= -1.0F;
-*/
+struct {
+	int lastHopOn;
+	int freq;
+	int Time;
+	int Addr;
+	int Subr;
+	int Max;
+	int Min;
+} frogPitch = { 0, 128, 15, 2, 8, 128, 110 };
+
+
+#define MAX_HOP_HEIGHT			25.0f
+#define MAX_SUPERHOP_HEIGHT		50.0f
+#define DROP_HURT_HEIGHT			100.0f
+#define DROP_KILL_HEIGHT			150.0f
 
 float	hopHeight		= 30;
 float	superhopHeight	= 50;
@@ -119,15 +127,6 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	Info			:
 */
 
-unsigned long lastHopOn;
-unsigned long freq = 128;
-
-unsigned long frogPitchTime = 15;
-unsigned long frogPitchAddr = 2;
-unsigned long frogPitchSubr = 8;
-unsigned long frogPitchMax = 128;
-unsigned long frogPitchMin = 110;
-
 BOOL UpdateFroggerControls(long pl)
 {
 	/* ----------------------- Frog wants to HOP u/d/l/r ----------------------------- */
@@ -150,18 +149,18 @@ BOOL UpdateFroggerControls(long pl)
 		//nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 		
 		
-		if ((actFrameCount-lastHopOn)<frogPitchTime)
+		if ((actFrameCount-frogPitch.lastHopOn)<frogPitch.Time)
 		{
-			if (freq<frogPitchMax)
-				freq+=frogPitchAddr;
+			if (frogPitch.freq<frogPitch.Max)
+				frogPitch.freq+=frogPitch.Addr;
 		}
 		else
-			freq = frogPitchMin;
+			frogPitch.freq = frogPitch.Min;
 		
-		actF = freq+Random(10);
+		actF = frogPitch.freq+Random(10);
 		
 		PlaySample(GEN_FROG_HOP,&frog[pl]->actor->pos,0,100-Random(15),actF);
-		lastHopOn = actFrameCount;
+		frogPitch.lastHopOn = actFrameCount;
 
 		if (!MoveToRequestedDestination(dir,pl))
 		{
@@ -544,7 +543,7 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 	if (!dest || dest->state == TILESTATE_BARRED)
 		return NULL;
 
-	if(dest->state == TILESTATE_JOIN)	// || dest->state == TILESTATE_SUPERHOP
+	while (dest->state == TILESTATE_JOIN)	// || dest->state == TILESTATE_SUPERHOP
 	{
 		GAMETILE *joiningTile = dest;
 
@@ -744,12 +743,18 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
-	// If we're just hopping, check if there's a platform to jump to
-	// This should help fix tile->platform and platform->platform jumping
+	/* If we're just hopping, check if there's a platform to jump to
+	   This should help fix tile->platform and platform->platform jumping
+
+	   note to the PSX guys - apart from the height check, these maths are
+	   just a simple radius check and could easily use straight integer maths
+	   and still work
+	*/
 	if (!player[pl].isSuperHopping)
 	{
 		PLATFORM *plat; int n;
-		VECTOR v;
+		VECTOR v, w;
+		float height;
 
 //		SubVector(&v, &destTile[pl]->centre, &currTile[pl]->centre);
 //		SubVector(&v, &frog[pl]->actor->pos, &currTile[pl]->dirVector[tiledir]);
@@ -766,10 +771,16 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 			if ((currPlatform[pl] && (40*40) > DistanceBetweenPointsSquared(&v, &plat->pltActor->actor->pos)) ||
 				(plat->inTile[0] == dest))
 			{
+				// Check we're not trying to jump too high!
+				SubVector(&w, &plat->pltActor->actor->pos, &frog[pl]->actor->pos);
+				height = DotProduct(&w, &destTile[pl]->normal);
 				
-				destPlatform[pl] = plat;
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+				if (height <= MAX_HOP_HEIGHT)
+				{
+					destPlatform[pl] = plat;
+					player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+					player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+				}
 				break;
 			}
 		}
@@ -949,7 +960,7 @@ void CheckForFroggerLanding(long pl)
 		currTile[pl] = tile;
 		destPlatform[pl] = NULL;
 
-		if(player[pl].heightJumped < -125.0F)
+		if(player[pl].heightJumped < -DROP_KILL_HEIGHT)
 		{
 			if(!player[pl].dead.time)
 			{
@@ -962,7 +973,10 @@ void CheckForFroggerLanding(long pl)
 
 				//PlayActorBasedSample(2,frog[pl]->actor,255,128);
 			}
-			return;
+		}
+		else if (player[pl].heightJumped < -DROP_HURT_HEIGHT)
+		{
+			// TODO: Hurt frog!
 		}
 
 		CheckTileForCollectable(NULL,0);
@@ -996,25 +1010,34 @@ void CheckForFroggerLanding(long pl)
 		player[pl].frogState &= ~(FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
 			FROGSTATUS_ISONMOVINGPLATFORM | FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISFLOATING);
 
-
-		// check tile to see if frog has jumped onto a certain tile type
-		if((state == TILESTATE_DEADLY) || (player[pl].heightJumped < -125.0F))
+		if(player[pl].heightJumped < -DROP_KILL_HEIGHT)
 		{
 			if(!player[pl].dead.time)
 			{
-				if(state == TILESTATE_DEADLY)
-				{
-					SPECFX *fx;
-					CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 20, 0.8, 0.1, 0.6 );
-					player[pl].deathBy = DEATHBY_DROWNING;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
-				}
-				else
-				{
-					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &tile->centre, &tile->normal, 25, 1, 0.1, 1 );
-					player[pl].deathBy = DEATHBY_NORMAL;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
-				}
+				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &tile->centre, &tile->normal, 25, 1, 0.1, 0.8 );
+				player[pl].deathBy = DEATHBY_NORMAL;
+				AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,1.0f,0,0);
+
+				player[pl].frogState |= FROGSTATUS_ISDEAD;
+				GTInit( &player[pl].dead, 3 );
+
+				//PlayActorBasedSample(2,frog[pl]->actor,255,128);
+			}
+		}
+		else if (player[pl].heightJumped < -DROP_HURT_HEIGHT)
+		{
+			// TODO: Hurt frog!
+		}
+		else	// check tile to see if frog has jumped onto a certain tile type
+
+		if(state == TILESTATE_DEADLY)
+		{
+			if(!player[pl].dead.time)
+			{
+				SPECFX *fx;
+				CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 20, 0.8, 0.1, 0.6 );
+				player[pl].deathBy = DEATHBY_DROWNING;
+				AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
 				GTInit( &player[pl].dead, 3 );
@@ -1149,20 +1172,9 @@ BOOL GameTileTooHigh(GAMETILE *tile,long pl)
 	MakeUnit(&diff);
 	height = (h * DotProduct(&diff,&tile->normal));
 
-	if(height > 51.0F)
-	{
-		// cannot be jumped up to either with or without superhop
-		return TRUE;
-	}
-
-	if(height > 25.0F && !player[pl].isSuperHopping)
-	{
-		// too high - need superhop for this jump up
-		return TRUE;
-	}
-
-	// tile can be jumped to
-	return FALSE;
+	return
+		(height > MAX_HOP_HEIGHT) ||
+		(player[pl].isSuperHopping && height > MAX_SUPERHOP_HEIGHT);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1477,5 +1489,5 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 
 	pl->jumpMultiplier = m;
 	pl->jumpTime = 0;
-	pl->heightJumped = height;
+	pl->heightJumped = diff;
 }
