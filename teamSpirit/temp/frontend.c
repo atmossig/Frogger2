@@ -923,9 +923,10 @@ void RunMultiWinMatch( )
 
 }
 
+extern int storeFrameCount;
 void SetTimeForLevel( )
 {
-	timeForLevel = actFrameCount/6;
+	timeForLevel = (actFrameCount - storeFrameCount)/6;
 }
 
 TEXTOVERLAY *menuText[2] = {NULL,NULL};

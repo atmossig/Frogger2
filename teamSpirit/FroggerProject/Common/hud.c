@@ -106,6 +106,7 @@ int timeBarStep = 16;
 char timeBarStr[16];
 
 // -----------------------------------------------
+int storeFrameCount = 0;
 
 void InitArcadeHUD(void)
 {
@@ -429,6 +430,7 @@ void EnableMultiHUD( )
 
 void InitHUD(void)
 {
+	storeFrameCount = 0;
 	if (gameState.multi == SINGLEPLAYER)
 		InitArcadeHUD();		
 	else
@@ -634,7 +636,6 @@ void UpDateMultiplayerInfo( void )
 	}
 }
 
-long storeFrameCount;
 
 void UpDateOnScreenInfo ( void )
 {
@@ -811,9 +812,11 @@ void UpDateOnScreenInfo ( void )
 	{
 		if(goTimer.time)
 		{
-			player[0].canJump = 0;
 			if(goTimer.time > 1)
+			{
 				storeFrameCount = actFrameCount;
+				player[0].canJump = 0;
+			}
 			oldTime = goTimer.time;
 			GTUpdate(&goTimer,-1);
 			if(oldTime != goTimer.time)
@@ -827,6 +830,7 @@ void UpDateOnScreenInfo ( void )
 						break;
 
 					case 1:
+						player[0].canJump = 1;
 						PlaySample( FindSample(utilStr2CRC("racehorngo")), NULL, 0, SAMPLE_VOLUME, -1 );
 						break;
 				}
@@ -841,7 +845,6 @@ void UpDateOnScreenInfo ( void )
 					break;
 				case 1:
 				case 0:
-					player[0].canJump = 1;
 					sprintf(goStr,GAMESTRING(STR_GO));
 					break;
 				default:
@@ -989,7 +992,7 @@ void UpDateOnScreenInfo ( void )
 			DEC_ALPHA(arcadeHud.timeBarText);
 			timeFrames += 6*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime - worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime*6;
 			if(timeFrames > 0)
-				arcadeHud.timeBar->width = max(0,(timeFrames*timeBarWidth)/(60*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime));
+				arcadeHud.timeBar->width = max(0,(timeFrames*timeBarWidth)/(6*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime));
 			else
 			{
 				player[0].canJump = 0;
