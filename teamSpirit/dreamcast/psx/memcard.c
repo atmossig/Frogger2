@@ -92,10 +92,10 @@ void DrawBox(int x0, int y0, int x1, int y1)
 
 int gameSaveGetCardStatus()
 {
-	long	cmds, result;
+//	long	cmds, result;
 
-	result = cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
-	if(result == CARDREAD_NOTFOUND)
+	return cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
+/*	if(result == CARDREAD_NOTFOUND)
 	{
 		return -1;
 	}
@@ -103,7 +103,7 @@ int gameSaveGetCardStatus()
 	{
 		return result;
 	}
-
+*/
 /*ma
 	switch(MemCardSync(1, &cmds, &result))
 	{
@@ -485,7 +485,7 @@ static void saveMenuFull()
 		useMemCard = 0;
 		break;
 	}
-	switch(gameSaveGetCardStatus())
+	switch( CheckVMUs() )//gameSaveGetCardStatus())
 	{
    	case McErrCardNotExist:
    	case McErrCardInvalid:
@@ -678,7 +678,7 @@ static void saveMenuFail()
 		saveInfo.saveStage = SAVEMENU_CHECK;
 		StartChooseOption();
 	}
-	switch(gameSaveGetCardStatus())
+	switch(CheckVMUs())//gameSaveGetCardStatus())
 	{
    	case McErrCardNotExist:
    	case McErrCardInvalid:
@@ -701,7 +701,7 @@ static void saveMenuOverwrite()
 		StartChooseOption();
 		break;
 	}
-	switch(gameSaveGetCardStatus())
+	switch(CheckVMUs())//gameSaveGetCardStatus())
 	{
    	case McErrCardNotExist:
    	case McErrCardInvalid:
@@ -726,7 +726,7 @@ static void saveMenuFormatYN()
 		StartChooseOption();
 		break;
 	}
-	switch(gameSaveGetCardStatus())
+	switch(CheckVMUs())//gameSaveGetCardStatus())
 	{
    	case McErrCardNotExist:
    	case McErrCardInvalid:
@@ -766,7 +766,7 @@ static void saveMenuSaveYN()
 		useMemCard = 0;
 		break;
 	}
-	switch(gameSaveGetCardStatus())
+	switch(CheckVMUs())//gameSaveGetCardStatus())
 	{
    	case McErrCardNotExist:
    	case McErrCardInvalid:
@@ -833,7 +833,7 @@ void saveMenuNeedFormat()
 		useMemCard = 0;
 		break;
 	}
-	switch(gameSaveGetCardStatus())
+	switch(CheckVMUs())//gameSaveGetCardStatus())
 	{
    	case McErrCardNotExist:
    	case McErrCardInvalid:
@@ -850,7 +850,7 @@ void ChooseLoadSave()
 
 	if(saveInfo.load == 0)
 	{
-		switch(gameSaveGetCardStatus())
+		switch(CheckVMUs())//gameSaveGetCardStatus())
 		{
    		case McErrNewCard:
 			if(cardChanged == NO)
@@ -953,7 +953,11 @@ int CheckVMUs( )
 	// If not the first check then don't search
 	if( vmuChosen )
 	{
-		return cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
+		res = buGetDiskFree(vmuDriveToUse,BUD_FILETYPE_NORMAL);
+		if( res >= 0 && res < 7)
+			return CARDREAD_NOTFOUNDANDFULL;
+		else
+			return cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
 	}
 
 	// Check 4 pads
@@ -971,7 +975,14 @@ int CheckVMUs( )
 			vmuPortToUse = portNos[portIndex];
 			// 2 drives per controller
 			vmuDriveToUse = portIndex;
-			res = cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
+
+			// For some reason buGetLastError() prefers FILENOTFOUND over DISKFULL (Duuuuh)
+			// so check for full disk separately first.
+			res = buGetDiskFree(vmuDriveToUse,BUD_FILETYPE_NORMAL);
+			if( res >= 0 && res < 7)
+				res = CARDREAD_NOTFOUNDANDFULL;
+			else
+				res = cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
 
 			// Store state of first expansion of firstPad
 			if( !i && !j ) 
