@@ -33,6 +33,14 @@
 #define DEMO_TIMEOUT	25
 #define NUM_DEMOS		3
 
+
+// *ASL* 12/08/2000 - Show intro every n passes
+#define	SHOW_INTRO_NOOF_PASSES	2
+
+
+// -------
+// Globals
+
 unsigned long playKeyCount;
 unsigned long curPlayKey;
 unsigned long *playKeyList;
@@ -50,6 +58,26 @@ int demoLevels[NUM_DEMOS][2] = {
 
 int nextDemo = 0;
 
+
+// *ASL* 12/08/2000
+// user quit flag
+int userQuit = 0;
+// show intro pass count
+int showIntroPass = SHOW_INTRO_NOOF_PASSES;
+
+
+// -------------------
+// Function Prototypes
+
+// *ASL* 12/08/2000 - main,c - show all legal screens and FMV
+extern void showLegalFMV(int allowQuit);
+
+/*	--------------------------------------------------------------------------------
+	Function		: LoadDemoFile
+	Purpose			: load demo file
+	Parameters		: 
+	Returns			: 
+*/
 void LoadDemoFile(int world, int level)
 {
 	char filename[128]; int count;
@@ -62,8 +90,8 @@ void LoadDemoFile(int world, int level)
 }
 
 /*	--------------------------------------------------------------------------------
-	Function		: RunDemoLoop
-	Purpose			: Runs the demo-mode game loop
+	Function		: InitDemoMode
+	Purpose			: Initialise demo mode
 	Parameters		: 
 	Returns			: 
 */
@@ -102,6 +130,9 @@ void InitDemoMode()
 	GTInit(&demoTimeout, DEMO_TIMEOUT);
 
 	DisableHUD();
+
+	// *ASL* 12/08/2000 - Clear user quit flag
+	userQuit = 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -126,6 +157,22 @@ void RunDemoMode()
 		if ((++nextDemo) == NUM_DEMOS)
 			nextDemo = 0;
 
+		// *ASL* 12/08/2000 - Determine whether to show FMV intro
+		if (userQuit == 1)
+		{
+			// on user quit.. show next time
+			showIntroPass = 0;
+		}
+		else
+		{
+			// need to show this pass?
+			if (--showIntroPass <= 0)
+			{
+				showIntroPass = SHOW_INTRO_NOOF_PASSES;
+				showLegalFMV(1);
+			}
+		}
+
 #ifdef E3_DEMO
 		StartE3LevelSelect();
 #else
@@ -148,6 +195,10 @@ void RunDemoMode()
 
 	if (padData.debounce[0] || curPlayKey >= playKeyCount || !demoTimeout.time)
 	{
+		// *ASL* 12/08/2000 - User quit demo?
+		if (padData.debounce[0])
+			userQuit = 1;
+
 		quittingDemo = YES;
 		ScreenFade(255,0,30);
 		keepFade = 0;
