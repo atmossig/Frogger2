@@ -15,9 +15,6 @@
 #include <commctrl.h>
 #include <ddraw.h>
 
-extern "C"
-{
-
 short mouseX = 20;
 short mouseY = 20;
 
@@ -285,9 +282,6 @@ void PrintTimers(void)
 	}
 
 	
-}
-
-
 }
 
 void LoadTextureForTrophy( TEXTURE *tex )
