@@ -780,6 +780,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	from = currTile[pl];
 	destPlatform[pl] = NULL;
+	player[pl].hasJumped = 1;
 
 	// Platform tests
 

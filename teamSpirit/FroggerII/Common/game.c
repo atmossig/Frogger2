@@ -149,7 +149,6 @@ void GameProcessController(long pl)
 //			UpdateScore(frog[pl],hopAmt);
 
 			player[pl].canJump = 0;
-			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGU;
 
 			// update player idleTime
@@ -170,7 +169,6 @@ void GameProcessController(long pl)
 //			UpdateScore(frog[pl],hopAmt);
 
 			player[pl].canJump = 0;
-			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGR;
 
 			// update player idleTime
@@ -191,7 +189,6 @@ void GameProcessController(long pl)
 //			UpdateScore(frog[pl],hopAmt);
 	    	
 			player[pl].canJump = 0;
-			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGD;
 
 			// update player idleTime
@@ -212,7 +209,6 @@ void GameProcessController(long pl)
 //			UpdateScore(frog[pl],hopAmt);
 
 			player[pl].canJump = 0;
-			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGL;
 
 			// update player idleTime
@@ -307,7 +303,6 @@ void GameProcessController(long pl)
 			{
 				// frog is wanting superhop
 				player[pl].isSuperHopping = 1;
-				player[pl].hasJumped = 1;
 				player[pl].hasDoubleJumped = 0;
 
 				player[pl].inputPause = INPUT_POLLPAUSE;
