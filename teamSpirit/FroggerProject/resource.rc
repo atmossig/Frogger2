@@ -80,16 +80,16 @@ CAPTION "Control setup"
 FONT 8, "MS Sans Serif"
 BEGIN
     GROUPBOX        "Controls",IDC_TXT_CONTROLS,7,7,227,99
-    LTEXT           "Player &1",IDC_STATIC,17,24,26,8
+    LTEXT           "Player &1",IDC_P1,17,24,26,8
     COMBOBOX        IDC_PLAYER1,50,23,171,51,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "Player &2",IDC_STATIC,17,43,26,8
+    LTEXT           "Player &2",IDC_P2,17,43,26,8
     COMBOBOX        IDC_PLAYER2,50,41,171,53,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "Player &3",IDC_STATIC,17,63,26,8
+    LTEXT           "Player &3",IDC_P3,17,63,26,8
     COMBOBOX        IDC_PLAYER3,50,61,171,45,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "Player &4",IDC_STATIC,17,84,26,8
+    LTEXT           "Player &4",IDC_P4,17,84,26,8
     COMBOBOX        IDC_PLAYER4,50,82,171,42,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,245,7,50,14

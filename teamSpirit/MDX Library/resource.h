@@ -60,6 +60,10 @@
 #define IDC_SELECTA                     1055
 #define IDC_PLAYERSLABEL                1056
 #define IDC_GAMENAME_LABEL              1057
+#define IDC_P1                          1058
+#define IDC_P2                          1059
+#define IDC_P3                          1060
+#define IDC_P4                          1061
 #define IDC_PLAYER1                     1100
 #define IDC_PLAYER2                     1101
 #define IDC_PLAYER3                     1102
@@ -72,7 +76,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        115
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1058
+#define _APS_NEXT_CONTROL_VALUE         1062
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
