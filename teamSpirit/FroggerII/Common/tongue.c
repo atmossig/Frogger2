@@ -182,7 +182,10 @@ void UpdateFrogTongue()
 				else if( tongueToCollect == TONGUE_GET_SCENIC )
 					SetVector(&nearestScenic->actor->pos,&nearestScenic->actor->oldpos);
 				else
-					PutFrogOnGrapplePoint(nearestGrapple);
+				{
+					currTile[0] = nearestGrapple;
+					SetVector( &frog[0]->actor->pos, &nearestGrapple->centre );
+				}
 
 				// Check if frog has something in his mouth
 				player[0].frogState &= ~FROGSTATUS_ISTONGUEING;

@@ -470,22 +470,6 @@ void PickupCollectable(GARIB *garib, int pl)
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: PutFrogOnGrapplePoint
-	Purpose			: Sets frog tile to gametile
-	Parameters		: GAMETILE *
-	Returns			: void
-	Info			:
-*/
-void PutFrogOnGrapplePoint( GAMETILE *tile )
-{
-	currTile[0] = tile;
-	frog[0]->actor->pos.v[0] = tile->centre.v[0];
-	frog[0]->actor->pos.v[1] = tile->centre.v[1];
-	frog[0]->actor->pos.v[2] = tile->centre.v[2];
-}
-
-
-/*	--------------------------------------------------------------------------------
 	Function		: PickupBabyFrog
 	Purpose			: called when a baby frog is picked up...
 	Parameters		: ACTOR2

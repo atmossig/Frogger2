@@ -575,8 +575,10 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	LoadMapBank(worldVisualData[worldID].levelVisualData[levelID].collBank);
 	LoadVisualBanksForWorld(worldID,levelID);
 
-#ifdef USE_AUDIO
 	InitSampleList();
+	InitAmbientSoundList( );
+
+#ifdef USE_AUDIO
 	LoadSfx(worldID);
 #endif
 
@@ -649,11 +651,10 @@ void FreeAllLists()
 #endif
 
 #ifdef PC_VERSION
-#ifdef USE_AUDIO
-	stopCDTrack( winInfo.hWndMain );
+	StopSong( );
+#endif
 	FreeSampleList();
-#endif
-#endif
+	FreeAmbientSoundList( );
 
 	dprintf"----- FREEING ALL LISTS -----\n"));
 
