@@ -212,7 +212,11 @@ void RunLevelComplete( )
 		if( showEndLevelScreen )
 		{
 			player[0].worldNum = WORLDID_FRONTEND;
+#ifdef PC_VERSION
 			player[0].levelNum = LEVELID_FRONTEND2;
+#else
+			player[0].levelNum = LEVELID_FRONTEND1;
+#endif
 
 #ifndef PC_VERSION
 			StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0

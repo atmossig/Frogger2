@@ -973,11 +973,13 @@ void RunLevelCompleteSequence()
 			award = 0;
 	}
 
+#ifdef PC_VERSION
 	clock->draw = 1;
 	spawn->draw = 1;
 	
 	spawnCollected->draw = 1;
 	time->draw = 1;
+#endif
 
 	nextLev1->draw = 1;
 	nextLev2->draw = 1;
