@@ -157,6 +157,9 @@ void RunDemoMode()
 		if ((++nextDemo) == NUM_DEMOS)
 			nextDemo = 0;
 
+		// just mute all ambient sounds until the InitLevel call below releases all properly
+		sfxStopSound();
+
 		// *ASL* 12/08/2000 - Determine whether to show FMV intro
 		if (userQuit == 1)
 		{

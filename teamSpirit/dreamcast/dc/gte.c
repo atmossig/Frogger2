@@ -1063,6 +1063,7 @@ void gte_rtps(void)
 }
 #endif
 
+
 // Same with no nop
 void gte_rtps_b(void)
 {
@@ -1080,7 +1081,188 @@ void RotTrans(SVECTOR *v0, VECTOR *v1, long *flag)
 		+ (RotMatrix.m[2][2] * v0->vz)) >> 12);
 }
 
+
+
+// *ASL* 16/08/2000
+/* ---------------------------------------------------------
+   Function : gte_rtpt
+   Purpose : PSX gte emulation transform to screen function
+   Parameters : internal vars
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
 // (rt * v0) + tr for all 3
+#pragma inline(gte_rtpt)
+#if 0
+// ** Hopefully optimised PSX emulation transform
+void gte_rtpt(void)
+{
+	short			*scrs;
+	// load all vr regs into floats
+	float			vr0x = (float)vr0.vx, vr0y = (float)vr0.vy, vr0z = (float)vr0.vz;
+	float			vr1x = (float)vr1.vx, vr1y = (float)vr1.vy, vr1z = (float)vr1.vz;
+	float			vr2x = (float)vr2.vx, vr2y = (float)vr2.vy, vr2z = (float)vr2.vz;
+	float			ps, psz;
+	// working world space floats
+	float			worlds[3*3], *wp;
+
+	register float	tx = fTransVector[0], ty = fTransVector[1], tz = fTransVector[2];
+	register float	screenvx, screenvy, screenvz;
+	register float	*mp = &fRotMatrix[0][0];
+
+
+	// ** vector transform
+
+	wp = worlds;
+
+	// load and calc all xs
+	screenvx = *mp++; screenvy = *mp++; screenvz = *mp++;
+	psz = 
+	ps =  screenvx * vr0x; ps += screenvy * vr0y; ps += screenvz * vr0z; ps += tx;
+	*wp++ = ps;
+	ps =  screenvx * vr1x; ps += screenvy * vr1y; ps += screenvz * vr1z; ps += tx;
+	*wp++ = ps;
+	ps =  screenvx * vr2x; ps += screenvy * vr2y; ps += screenvz * vr2z; ps += tx;
+	*wp++ = ps;
+	// load and calc all ys
+	screenvx = *mp++; screenvy = *mp++; screenvz = *mp++;
+	ps =  screenvx * vr0x; ps += screenvy * vr0y; ps += screenvz * vr0z; ps += ty;
+	*wp++ = ps;
+	ps =  screenvx * vr1x; ps += screenvy * vr1y; ps += screenvz * vr1z; ps += ty;
+	*wp++ = ps;
+	ps =  screenvx * vr2x; ps += screenvy * vr2y; ps += screenvz * vr2z; ps += ty;
+	*wp++ = ps;
+
+	ps =  screenvx * vr1x;
+	ps += screenvy * vr1y;
+	ps += screenvz * vr1z;
+	ps += tx;
+	*wp++ = ps;
+	ps =  screenvx * vr2x;
+	ps += screenvy * vr2y;
+	ps += screenvz * vr2z;
+	ps += tx;
+	*wp++ = ps;
+
+
+
+	// load and calc all ys
+	screenvx = *mp++; screenvy = *mp++; screenvz = *mp++;
+	*wp++ = screenvx * vr0x + screenvy * vr0y + screenvz * vr0z + ty;
+	*wp++ = screenvx * vr1x + screenvy * vr1y + screenvz * vr1z + ty;
+	*wp++ = screenvx * vr2x + screenvy * vr2y + screenvz * vr2z + ty;
+	// load and calc all zs
+	screenvx = *mp++; screenvy = *mp++; screenvz = *mp;
+	*wp++ = screenvx * vr0x + screenvy * vr0y + screenvz * vr0z + tz;
+	*wp++ = screenvx * vr1x + screenvy * vr1y + screenvz * vr1z + tz;
+	*wp++ = screenvx * vr2x + screenvy * vr2y + screenvz * vr2z + tz;
+
+
+	// ** Vertex 0
+
+	// limit perpspective calculation
+	screenvz = *--wp;
+	if (screenvz < fGShHalf)
+	{
+		ps = fGShHalf;
+		psz = fGSh / screenvz;
+	}
+	else
+	{
+		ps = psz = fGSh / screenvz;
+	}
+
+	// perspective calculation
+	screenvx = worlds[0] *= ps;
+	screenvy = worlds[3] *= ps;
+	screenvx += fGSx;
+	screenvy += fGSy;
+
+	if (screenvx < -1024.0f)
+		screenvx = -1024.0f;
+	else if (screenvx > 1023.0f)
+		screenvx = 1023.0f;
+	if (screenvy < -1024.0f)
+		screenvy = -1024.0f;
+	else if (screenvy > 1023.0f)
+		screenvy = 1023.0f;
+
+	scrs = &screenxy[0].vx;
+	*scrs++ = (short)screenvx;
+	*scrs++ = (short)screenvy;
+	*scrs   = (short)screenvz;
+	
+
+	// ** Vertex 1
+	screenvz = *--wp;
+	if (screenvz < fGShHalf)
+	{
+		ps = fGShHalf;
+		psz = fGSh / screenvz;
+	}
+	else
+	{
+		ps = psz = fGSh / screenvz;
+	}
+
+	screenvx = worlds[1] * ps;
+	screenvy = worlds[4] * ps;
+	screenvx += fGSx;
+	screenvy += fGSy;
+
+	if (screenvx < -1024.0f)
+		screenvx = -1024.0f;
+	else if (screenvx > 1023.0f)
+		screenvx = 1023.0f;
+	if (screenvy < -1024.0f)
+		screenvy = -1024.0f;
+	else if (screenvy > 1023.0f)
+		screenvy = 1023.0f;
+
+	scrs = &screenxy[1].vx;
+	*scrs++ = (short)screenvx;
+	*scrs++ = (short)screenvy;
+	*scrs   = (short)screenvz;
+
+
+	// ** Vertex 2
+	screenvz = *--wp;
+	if (screenvz < fGShHalf)
+	{
+		ps = fGShHalf;
+		psz = fGSh / screenvz;
+	}
+	else
+	{
+		ps = psz = fGSh / screenvz;
+	}
+
+	// calculate PSX opz
+	opz = (dqb + (dqa * psz) * 4096.0f) * 16.0f;
+
+	screenvx = worlds[2] *= ps;
+	screenvy = worlds[5] *= ps;
+	screenvx += fGSx;
+	screenvy += fGSy;
+
+	if (screenvx < -1024.0f)
+		screenvx = -1024.0f;
+	else if (screenvx > 1023.0f)
+		screenvx = 1023.0f;
+	if (screenvy < -1024.0f)
+		screenvy = -1024.0f;
+	else if (screenvy > 1023.0f)
+		screenvy = 1023.0f;
+
+	scrs = &screenxy[2].vx;
+	*scrs++ = (short)screenvx;
+	*scrs++ = (short)screenvy;
+	*scrs   = (short)screenvz;
+}
+
+#else
+
 void gte_rtpt(void)
 {
 	register float calc1[3];
@@ -1206,6 +1388,8 @@ void gte_rtpt(void)
 	if (screenxy[2].vy > 32767) screenxy[2].vy = 32767;
 	if (screenxy[2].vz > 32767) screenxy[2].vz = 32767;
 }
+#endif
+
 	
 // Same with no nop
 void gte_rtpt_b(void)
