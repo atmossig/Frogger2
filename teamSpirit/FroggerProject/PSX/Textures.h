@@ -19,6 +19,23 @@ typedef struct _LOADPAL_PCPalette16Str
 extern TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ];
 
 
+typedef struct _TEXTUREANIM
+{
+	struct _TEXTUREANIM *next, *prev;			// ptr to next / prev platform
+	int numFrames;
+	int waitTime;
+	char txtName[20];
+	TextureAnimType *animation;
+} TEXTUREANIM;
+
+typedef struct _TEXTUREANIMLIST
+{
+	int				numEntries;
+	TEXTUREANIM	head;
+} TEXTUREANIMLIST;
+
+extern TEXTUREANIMLIST textureAnimList;
+
 extern char *palNames [ 5 ];
 
 // For PSX, no need to add .bmp extension
@@ -27,5 +44,13 @@ extern char *palNames [ 5 ];
 void LoadTextureBank			( int textureBank );
 void FreeTextureBank			( TextureBankType *textureBank );
 void FreeAllTextureBanks	( void );
+
+void CreateTextureAnimation			( char *fileName, TextureType *dummy, int numFrames );
+void InitTextureAnimLinkedList	( void );
+void FreeTextureAnimList				( void );
+void AddTextureAnim							( TEXTUREANIM *textureAnim );
+void SubTextureAnim							( TEXTUREANIM *textureAnim );
+
+
 
 #endif

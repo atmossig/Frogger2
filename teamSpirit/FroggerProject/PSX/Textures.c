@@ -1,3 +1,19 @@
+#define VRAM_STARTX			512
+#define VRAM_PAGECOLS		8
+#define VRAM_PAGEROWS		2
+#define VRAM_PAGES			16
+#define VRAM_PAGEW			32
+#define VRAM_PAGEH			32
+#define VRAM_SETX(X)		(X)
+#define VRAM_SETY(Y)		((Y)*VRAM_PAGEW)
+#define VRAM_SETXY(X,Y)		((X)+((Y)*VRAM_PAGEW))
+#define VRAM_SETPAGE(P)		((P)<<16)
+#define VRAM_GETX(HND)		((HND) & (VRAM_PAGEW-1))
+#define VRAM_GETY(HND)		(((HND)/VRAM_PAGEW) & (VRAM_PAGEW-1))
+#define VRAM_GETXY(HND)		((HND) & 0xffff)
+#define VRAM_GETPAGE(HND)	((HND)>>16)
+#define VRAM_CALCVRAMX(HND)	(512+((VRAM_GETPAGE(HND)%(VRAM_PAGECOLS))*64)+(VRAM_GETX(HND)*2))
+#define VRAM_CALCVRAMY(HND)	(((VRAM_GETPAGE(HND)/(VRAM_PAGECOLS))*256)+(VRAM_GETY(HND)*8))
 #define LOADPAL_PRINT_OUT_PALETTE
 
 #include "Ultra64.h"
@@ -11,6 +27,8 @@
 #include "Textures.h"
 
 #include "Main.h"
+#include "memload.h"
+#include "shell.h"
 
 int numTextureBanks = 0;
 
@@ -18,6 +36,11 @@ int numTextureBanks = 0;
 char *palNames [ 5 ] = { "GREENBABY.PAL", "YELLOWBABY.PAL", "BLUEBABY.PAL", "PINKBABY.PAL", "REDBABY.PAL"};
 
 TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ] = { NULL, NULL, NULL, NULL, NULL };
+
+
+
+TEXTUREANIMLIST textureAnimList;
+
 
 void LoadTextureBank ( int textureBank )
 {
@@ -285,3 +308,150 @@ static int LOADPAL_LoadPCPalette(char * const file,
 	return file_length;
 }
 //////////////////////////////////////////////////////////////////
+
+
+void CreateTextureAnimation ( char *fileName, TextureType *dummy, int numFrames )
+{
+	int fileLength, counter, n;
+
+	unsigned char *p;
+
+	char line[255];
+	char tempName[255];
+
+	signed char type[20];
+
+	TEXTUREANIM *textureAnim = NULL;
+
+	textureAnim = MALLOC0 ( sizeof ( TEXTUREANIM ) );
+
+	if ( !textureAnim )
+	{
+		utilPrintf ( "Could Not Malloc Texture Anim.\n" );
+		return NULL;
+	}
+	// ENDIF
+
+	AddTextureAnim ( textureAnim );
+
+	textureAnim->numFrames = numFrames;
+	textureAnim->waitTime = 0;
+
+	textureAnim->animation = MALLOC0 ( sizeof(TextureAnimType) + (sizeof(TextureType *) * textureAnim->numFrames ) );
+
+	if ( !textureAnim->animation )
+	{
+		utilPrintf ( "Could Not Malloc Animation.\n" );
+		FREE ( textureAnim );
+		return NULL;
+	}
+	// ENDIF
+
+	textureAnim->animation->dest = dummy;
+
+	textureAnim->animation->anim = (TextureType **)((unsigned char *)textureAnim->animation + sizeof(TextureAnimType));
+
+	for ( counter = 0; counter < textureAnim->numFrames; counter++ )
+	{
+		utilPrintf("Counter : %d\n", counter );
+		sprintf( type, "%s0%d", fileName, counter );
+		textureAnim->animation->anim [ counter ] = textureFindCRCInAllBanks ( utilStr2CRC ( type ) );
+	}
+	// ENDIF
+
+	return textureAnim;
+}
+
+void UpdateTextureAnimations ( void )
+{
+	DR_MOVE *siMove;
+	RECT	moveRect;
+
+	TEXTUREANIM *cur,*next;
+
+	if ( textureAnimList.numEntries == 0 )
+		return;
+
+	for ( cur = textureAnimList.head.next; cur != &textureAnimList.head; cur = next )
+	{
+		next = cur->next;
+
+		if ( cur->waitTime == cur->numFrames-1 )
+		{
+			cur->waitTime = 0;
+		}
+		// ENDIF
+
+
+		utilPrintf("Wait Time : %d\n", cur->waitTime );
+
+		moveRect.x = VRAM_CALCVRAMX(cur->animation->anim[cur->waitTime]->handle);
+		moveRect.y = VRAM_CALCVRAMY(cur->animation->anim[cur->waitTime]->handle);
+		moveRect.w = (cur->animation->dest->w + 3) / 4;
+		moveRect.h = cur->animation->dest->h;
+
+		// check for 256 colour mode
+		if(cur->animation->dest->tpage & (1 << 7))
+			moveRect.w *= 2;
+
+		// copy bit of vram
+		BEGINPRIM(siMove, DR_MOVE);
+		SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(cur->animation->dest->handle),VRAM_CALCVRAMY(cur->animation->dest->handle));
+		ENDPRIM(siMove, 1023, DR_MOVE);
+
+		cur->waitTime++;
+	}
+	// ENDFOR
+
+}
+
+void InitTextureAnimLinkedList ( void )
+{
+	textureAnimList.numEntries = 0;
+	textureAnimList.head.next = textureAnimList.head.prev = &textureAnimList.head;
+}
+
+void AddTextureAnim ( TEXTUREANIM *textureAnim )
+{
+	if ( textureAnim->next == NULL )
+	{
+		textureAnimList.numEntries++;
+		textureAnim->prev								= &textureAnimList.head;
+		textureAnim->next								= textureAnimList.head.next;
+		textureAnimList.head.next->prev	= textureAnim;
+		textureAnimList.head.next				=	textureAnim;
+	}
+}
+
+void FreeTextureAnimList ( void )
+{
+	TEXTUREANIM *cur,*next;
+
+	if( !textureAnimList.numEntries )
+		return;
+
+	for ( cur = textureAnimList.head.next; cur != &textureAnimList.head; cur = next )
+	{
+		next = cur->next;
+		SubTextureAnim(cur);
+	}
+//	FREE(specFXList.head);
+}
+
+
+void SubTextureAnim ( TEXTUREANIM *textureAnim )
+{
+	if(textureAnim->next == NULL)
+		return;
+
+	textureAnim->prev->next = textureAnim->next;
+	textureAnim->next->prev = textureAnim->prev;
+	textureAnim->next = NULL;
+	textureAnimList.numEntries--;
+
+	FREE(textureAnim);
+}
+
+
+
+
