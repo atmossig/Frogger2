@@ -912,7 +912,7 @@ void RunGameLoop (void)
 
 		if (player[0].worldNum==9)
 		{
-			CreateOverlays();
+		//	CreateOverlays();
 			timeTextOver->draw = 0;
 			livesTextOver->draw = 0;
 			backPanel->draw = 0;

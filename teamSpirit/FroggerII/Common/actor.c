@@ -116,7 +116,7 @@ void DrawActorList()
 			if (cur->actor->objectController)
 					if (!(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU))
 					{
-						cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
+						//cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
 						if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
 						{
 							StartTimer(6,"GameLoop");
@@ -198,9 +198,6 @@ void FreeActorList()
 			{
 				// free any object sprites for this actor
 				FreeObjectSprites(cur->actor->objectController->object);
-
-				JallocFree((UBYTE**)&cur->actor->objectController->object);
-				JallocFree((UBYTE**)&cur->actor->objectController);
 			}
 
 			// free associated ACTOR type
