@@ -168,7 +168,11 @@ int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v
 			vOut->sy = cy1;
 			break;		
 	}
-			
+	if (vOut->sx > 6400000)
+		vOut->sx += 0;
+	if (vOut->sy > 4800000)
+		vOut->sy += 0;
+
 	vOut->tu = (v0->tu+((v1->tu-v0->tu)*vt));
     vOut->tv = (v0->tv+((v1->tv-v0->tv)*vt));
 	vOut->sz = (v0->sz+((v1->sz-v0->sz)*vt));
@@ -291,18 +295,24 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 {
 	if (skinned)
 	{
+		StartTimer(6,"Xform");
 		PCPrepareSkinnedObject(obj, masterMesh,  obj->objMatrix.matrix);
+		EndTimer(6);
 	}
 	else
 	{
 		if (obj->mesh)
 		{
 			xl = (((float)obj->xlu) / ((float)0xff)) * xl;
+			StartTimer(6,"Xform");
 			if (waterObject)
 				PCPrepareWaterObject(obj, obj->mesh,  obj->objMatrix.matrix);
 			else
 				PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
+			EndTimer(6);
+			StartTimer(12,"ActDraw");
 			PCRenderObject(obj);
+			EndTimer(12);
 		}
 	}
 
@@ -961,7 +971,9 @@ void DrawActor(ACTOR *actor)
 	if (objectC->vtxBuf)
 	{
 		DrawObject(objectC->object, objectC->object->drawList, TRUE, objectC->object->mesh);
+		StartTimer(12,"ActDraw");
 		PCRenderObject(objectC->object);
+		EndTimer(12,"ActDraw");
 	}
 	else
 		DrawObject(objectC->object, objectC->object->drawList, FALSE, objectC->object->mesh);
@@ -1228,7 +1240,7 @@ void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
 
 
 
-
+#define FOGVAL(x) ((unsigned long)(255*x) << 24)
 
 short facesON[3] = {0,1,2};
 
@@ -1289,8 +1301,8 @@ void PCRenderObject (OBJECT *obj)
 				vTemp->sx = tV0->v[X];
 				vTemp->sy = tV0->v[Y];
 				vTemp->sz = (tV[v0].v[Z]) * 0.0005F;///2000;
-				vTemp->specular = D3DRGBA(0,0,0,1.0-vTemp->sz);
-				vTemp->color = D3DRGBA(c1->v[0],c1->v[1],c1->v[2],xl);
+				vTemp->specular = FOGVAL(1.0-vTemp->sz);
+				vTemp->color = *((long *)(c1->v)); //,c1->v[1],c1->v[2],xl);
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F)+mV[v0];
@@ -1308,8 +1320,10 @@ void PCRenderObject (OBJECT *obj)
 				vTemp->sx = tV1->v[X];
 				vTemp->sy = tV1->v[Y];
 				vTemp->sz = (tV1->v[Z]) * 0.0005F;//2000;
-				vTemp->specular = D3DRGBA(0,0,0,1.0-vTemp->sz);
-				vTemp->color = D3DRGBA(c2->v[0],c2->v[1],c2->v[2],xl);
+				vTemp->specular = FOGVAL(1.0-vTemp->sz);
+				vTemp->color = *((long *)(c2->v)); //,c1->v[1],c1->v[2],xl);
+
+//				vTemp->color = D3DRGBA(c2->v[0],c2->v[1],c2->v[2],xl);
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F)+mV[v1];
@@ -1327,8 +1341,9 @@ void PCRenderObject (OBJECT *obj)
 				vTemp->sx = tV2->v[X];
 				vTemp->sy = tV2->v[Y];
 				vTemp->sz = (tV2->v[Z]) * 0.0005F;///2000;
-				vTemp->specular = D3DRGBA(0,0,0,1.0-vTemp->sz);
-				vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
+				vTemp->specular = FOGVAL(1.0-vTemp->sz);
+				vTemp->color = *((long *)(c3->v)); //,c1->v[1],c1->v[2],xl);
+//				vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F)+mV[v2];
@@ -1350,9 +1365,9 @@ void PCRenderObject (OBJECT *obj)
 
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					numFacesDrawn++;
-					
+				numFacesDrawn++;
 					DrawAHardwarePoly(v,3,facesON,3,tex->cFrame->hdl);
+					
 				}
 				else
 				{

@@ -47,7 +47,7 @@ long bby = 0;
 long babySaved = 0;
 
 short spawnCounter = 0;
-
+long displayingTile=0;
 
 void DoHiscores();
 
@@ -926,7 +926,13 @@ void RunGameLoop (void)
 	}
 	
 	if (tileNum)
-		sprintf(tileNum->text,"%d",currTileNum);
+	{
+		if (displayingTile)
+			sprintf(tileNum->text,"%d",currTileNum);
+		else
+			sprintf(tileNum->text,"",currTileNum);
+	}
+
 #endif
 
 

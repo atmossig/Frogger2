@@ -481,8 +481,8 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vt
 
 		if (runHardware)
 		{
-			Clip3DPolygon (&vT[0],tex);
-			Clip3DPolygon (&vT[1],tex);
+			//Clip3DPolygon (&vT[0],tex);
+			//Clip3DPolygon (&vT[1],tex);
 		}
 	}
 
@@ -821,8 +821,8 @@ void DrawFXRipples()
 			tEntry = ((TEXENTRY *)ripple->txtr);
 			if (tEntry)
 			{
-				Clip3DPolygon (&vT[0],tEntry->hdl);
-				Clip3DPolygon (&vT[1],tEntry->hdl);
+				//Clip3DPolygon (&vT[0],tEntry->hdl);
+				//Clip3DPolygon (&vT[1],tEntry->hdl);
 			}
 			//	DrawAHardwarePoly(vT,4,f,6,tEntry->hdl);
 		}

@@ -161,6 +161,9 @@ void UpdateScore(ACTOR2 *act,long scoreUpdate)
 	Returns			: void
 	Info			: 
 */
+char levelCompleteText[32];
+char gameOverText[32];
+
 void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
 	currFont = smallFont;
@@ -181,7 +184,7 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 
 	gameOver1 = CreateAndAddTextOverlay(60,239,"game over",NO,NO,255,255,255,255,smallFont,TEXTOVERLAY_WAVECHARS,6,0);
 	DisableTextOverlay(gameOver1);
-	gameOverScore = CreateAndAddTextOverlay(110,0,"************************",YES,NO,255,255,255,255,smallFont,0,0,0);
+	gameOverScore = CreateAndAddTextOverlay(110,0,gameOverText,YES,NO,255,255,255,255,smallFont,0,0,0);
 	DisableTextOverlay(gameOverScore);
 
 	babySavedText = CreateAndAddTextOverlay(0,110,"BABY SAVED",YES,NO,255,255,255,255,smallFont,TEXTOVERLAY_WAVECHARS,4,0);
@@ -192,7 +195,7 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	DisableTextOverlay(levelComplete1);
 	levelComplete2 = CreateAndAddTextOverlay(0,120,"Level complete !",YES,NO,255,255,255,0,smallFont,TEXTOVERLAY_WAVECHARS,6,0);
 	DisableTextOverlay(levelComplete2);
-	levelComplete3 = CreateAndAddTextOverlay(0,145,"********************",YES,NO,255,255,255,0,smallFont,0,6,0);
+	levelComplete3 = CreateAndAddTextOverlay(0,145,levelCompleteText,YES,NO,255,255,255,0,smallFont,0,6,0);
 	DisableTextOverlay(levelComplete3);
 	  
 //	keyCollected = CreateAndAddTextOverlay(0,100,"",YES,NO,255,255,255,255,smallFont,TEXTOVERLAY_LIFE,0,0);

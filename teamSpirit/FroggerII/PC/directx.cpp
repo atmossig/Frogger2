@@ -52,25 +52,56 @@ float fEnd = 0.6;
 extern long numPixelsDrawn; 
 
 
-#define TriangleArea(x1,y1,x2,y2,x3,y3) fabs((fabs(x3-x1)*fabs(y3-y2) - fabs(y3-y1)*fabs(x3-x2))*0.5)
-/*
+//#define TriangleArea(x1,y1,x2,y2,x3,y3) fabs((fabs(x3-x1)*fabs(y3-y2) - fabs(y3-y1)*fabs(x3-x2))*0.5)
+extern long numFacesDrawn; 
+
 float TriangleArea(float x1,float y1,float x2,float y2,float x3,float y3)
 {
 	float height;
-	float ang,lA,lB,lC;
-	VECTOR a,b,c;
-	a.v[X] = x1-x3;
-	a.v[Y] = y1-y3; 
-	b.v[X] = x2-x3;
-	b.v[Y] = y2-y3; 
-	c.v[X] = x1-x2;
-	c.v[Y] = y1-y2;
-	a.v[Z] = b.v[Z] = c.v[Z] = 0;
+	float ang;
+	float lA,lB,lC;
+	float lAs,lBs,lCs;
+	float lAsr,lBsr,lCsr;
+	float dp;
 
-	lA = fabs(Magnitude(&a));
-	lB = fabs(Magnitude(&b));
-	lC = fabs(Magnitude(&c));
+	VECTOR a,b,c;
+	a.v[X] = (int)(x1-x3);
+	a.v[Y] = (int)(y1-y3); 
+	b.v[X] = (int)(x2-x3);
+	b.v[Y] = (int)(y2-y3); 
+	c.v[X] = (int)(x1-x2);
+	c.v[Y] = (int)(y1-y2);
+	a.v[Z] = b.v[Z] = c.v[Z] = 0;
 	
+	if (numFacesDrawn==130)
+		numFacesDrawn=130;
+
+	if (fabs(a.v[X]+a.v[Y])<1)
+		return 0;
+	if (fabs(b.v[X]+b.v[Y])<1)
+		return 0;
+	if (fabs(c.v[X]+c.v[Y])<1)
+		return 0;
+
+	lAs = MagnitudeSquared(&a);
+	lBs = MagnitudeSquared(&b);
+	lCs = MagnitudeSquared(&c);
+
+	lAsr = sqrtf(lAs);
+	lBsr = sqrtf(lBs);
+	lCsr = sqrtf(lCs);
+
+	lA = fabs(lAsr);
+	lB = fabs(lBsr);
+	lC = fabs(lCsr);
+
+	if (lA<1)
+		return 0;
+	if (lB<1)
+		return 0;
+	if (lC<1)
+		return 0;
+
 	MakeUnit(&a);
 	MakeUnit(&b);
 	MakeUnit(&c);
@@ -78,35 +109,64 @@ float TriangleArea(float x1,float y1,float x2,float y2,float x3,float y3)
 	// A is longest side
 	if ((lA>=lB) && (lA>=lC))
 	{
-		ang = acos(DotProduct(&a,&c));
+		dp = DotProduct(&a,&c);
+		
+		if (dp>0.9999)
+			dp = 0.9999;
+		
+		if (dp<-0.9999)
+			dp = -0.9999;
+
+		ang = acos(dp);
+	
+		if (ang>PI_OVER_2)
+			ang=PI-ang;
+
 		height = (lC * sin(ang)) * (lA/2);
 	}
 
 	// B is longest side
 	if ((lB>=lA) && (lB>=lC))
 	{
-		ang = acos(DotProduct(&b,&c));
-		height = (lC * sin(ang)) * (lB/2);
+		dp = DotProduct(&b,&a);
+		
+		if (dp>0.9999)
+			dp = 0.9999;
+		
+		if (dp<-0.9999)
+			dp = -0.9999;
+
+		ang = acos(dp);
+
+		if (ang>PI_OVER_2)
+			ang=PI-ang;
+
+		height = (lA * sin(ang)) * (lB/2);
 
 	}
 	
 	// C is longest side
 	if ((lC>=lA) && (lC>=lB))
 	{
-		ang = acos(DotProduct(&c,&a));
+		dp = DotProduct(&c,&a);
+		
+		if (dp>0.9999)
+			dp = 0.9999;
+		
+		if (dp<-0.9999)
+			dp = -0.9999;
+
+		ang = acos(dp);
+
+		if (ang>PI_OVER_2)
+			ang=PI-ang;
+
 		height = (lA * sin(ang)) * (lC/2);
 	}
-
-	if (lA<0.00009)
-		return 0;
-	if (lB<0.00009)
-		return 0;
-	if (lC<0.00009)
-		return 0;
-
+	
 	return height;
 }
-*/
+
 HWND win;
 
 LPDIRECTDRAW			pDirectDraw;
@@ -1376,12 +1436,12 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
 	
-	if (drawTimers)
+	if (drawTimers>1)
 		for (i=0; i<fC; i+=3)
 		{
-			float t = TriangleArea( v[i+0].sx,v[i+0].sy,
-									v[i+1].sx,v[i+1].sy,
-									v[i+2].sx,v[i+2].sy);
+			float t = TriangleArea( v[fce[i+0]].sx,v[fce[i+0]].sy,
+									v[fce[i+1]].sx,v[fce[i+1]].sy,
+									v[fce[i+2]].sx,v[fce[i+2]].sy);
 			numPixelsDrawn += t;
 		}
 	
@@ -1394,8 +1454,7 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 		fC,
 			D3DDP_DONOTCLIP |
 			D3DDP_DONOTLIGHT |
-			D3DDP_DONOTUPDATEEXTENTS |
-			D3DDP_WAIT) !=D3D_OK)
+			D3DDP_DONOTUPDATEEXTENTS) !=D3D_OK)
 	{
 		dp("BUGGER !!!!! CAN'T DRAW POLY JOBBY\n");
 	}
@@ -1473,7 +1532,7 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 		D3DDP_DONOTCLIP 
 			| D3DDP_DONOTLIGHT 
 			| D3DDP_DONOTUPDATEEXTENTS 
-			| D3DDP_WAIT)!=D3D_OK)
+			/*| D3DDP_WAIT*/)!=D3D_OK)
 	{
 		dp("Could not print sprite\n");
 		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
@@ -1565,7 +1624,7 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 		D3DDP_DONOTCLIP 
 			| D3DDP_DONOTLIGHT 
 			| D3DDP_DONOTUPDATEEXTENTS 
-			| D3DDP_WAIT)!=D3D_OK)
+			/*| D3DDP_WAIT*/)!=D3D_OK)
 	{
 		dp("Could not print sprite\n");
 		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !

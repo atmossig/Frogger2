@@ -126,6 +126,9 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 	}
 
 	if (obj->mesh)
+	{
+		float r,g,b;
+			
 		for (x=0; x<obj->mesh->numFaces; x++)
 		{
 			TEXENTRY *me;
@@ -134,7 +137,18 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 			if (me)
 				if (me->type == TEXTURE_AI)
 					obj->flags |= OBJECT_FLAGS_XLU;
+
+			
 		}
+		
+		for (x=0; x<obj->mesh->numFaces*3; x++)
+		{
+			r = ((VECTOR *)obj->mesh->vertexNormals)[x].v[0];
+			g = ((VECTOR *)obj->mesh->vertexNormals)[x].v[1];
+			b = ((VECTOR *)obj->mesh->vertexNormals)[x].v[2];
+			((long *)(&((VECTOR *)obj->mesh->vertexNormals)[x].v[0]))[0] = D3DRGB(r,g,b);
+		}
+	}
 
 	if(obj->children)
 		RestoreObjectPointers(obj->children, memoryOffset);

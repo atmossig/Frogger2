@@ -82,7 +82,7 @@ void FreeGelfData(void *me)
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#define MAX_TIMERS 13
+#define MAX_TIMERS 20
 
 long tStart[MAX_TIMERS];
 long tTotal[MAX_TIMERS];

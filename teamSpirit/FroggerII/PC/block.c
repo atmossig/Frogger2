@@ -48,6 +48,8 @@ extern long numPixelsDrawn;
 extern long runHardware;
 long keyInput = 1;
 
+extern long displayingTile;
+
 long winMode = 1;
 long scaleMode = 0;
 
@@ -324,6 +326,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			if (KEYPRESS(DIK_F4))
 				camDist.v[2]-=2;
+
+			if (KEYPRESS(DIK_F8))
+				displayingTile=!displayingTile;
 
 			if (!keyDelay)
 			{
@@ -674,15 +679,17 @@ void DrawGraphics()
 	PrintTextOverlays();
 	
 	EndTimer(2);
+	
+	EndTimer(0);
 
 	StartTimer(11,"Editor");
 	if (editorOk)
 		DrawEditor();
-	EndTimer(11);
 
 
 	if( chatFlags && gameState.mode == GAME_MODE )
 		DrawChatBuffer( 100, 20, 540, 150 );
+	EndTimer(11);
 
 	
 	/* CAMERA SPACE STUFF */
@@ -703,8 +710,7 @@ void DrawGraphics()
 	currCamSource[screenNum] = oldCCSource;
 	currCamTarget[screenNum] = oldCCTarget;
 	/* END CAMERA SPACE STUFF */
-	EndTimer(0);
-
+	
 	EndTimer(5);
 
 	if (drawTimers)
