@@ -444,8 +444,8 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	i =	sfxPlaySample( sample->snd, vl,vr, pitch);
 	if(i<0)
 		utilPrintf("SOUND NOT WORKED (%i RETURNED)\n",i);
-	else
-		utilPrintf("SOUND PLAYED ON CHANNEL %i\n",i);		
+//	else
+//		utilPrintf("SOUND PLAYED ON CHANNEL %i\n",i);		
 	return i;
 }
 
