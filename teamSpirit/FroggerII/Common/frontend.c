@@ -337,11 +337,6 @@ void RunGameOver( )
 */
 void StartGameIntro()
 {
-	InitLevel(WORLDID_FRONTEND, LEVELID_FRONTEND1);
-	gameState.mode = FRONTEND_MODE;
-	gameState.multi = SINGLEPLAYER;
-}
-/*
 	int i, j;
 	GAMETILE *tile, *ptile = NULL;
 
@@ -395,25 +390,23 @@ void StartGameIntro()
 	player[0].jumpTime = 1;
 
 	// Create overlays
-
 	intro->text[0] = CreateAndAddTextOverlay(0, 120, "Atari presents", YES, 255, currFont, 0, 0);
 
 	intro->text[1] = CreateAndAddTextOverlay(0, 100, "An", YES, 255, currFont, 0, 0);
 	intro->text[2] = CreateAndAddTextOverlay(0, 120, "Interactive Studios", YES, 255, currFont, 0, 0);
 	intro->text[3] = CreateAndAddTextOverlay(0, 140, "Game", YES, 255, currFont, 0, 0);
-
-	for (i=1;i<=3;i++)
+	
+	for (i=0;i<=3;i++)
 		intro->text[i]->draw = 0;
 	
 	fog.r = fog.g = fog.b = 0;
 	fog.mode = FOG_OFF;
 
 	intro->timer = 0;
-	intro->stage = 1;
+	intro->stage = 0;
 
 	lastActFrameCount = 0;
 }
-*/
 
 
 /*	--------------------------------------------------------------------------------
@@ -432,8 +425,8 @@ void RunGameIntro( )
 	switch (intro->stage)
 	{
 	case 0:
-		intro->timer = actFrameCount;
-		intro->stage++;
+		intro->timer = actFrameCount - 200;
+		intro->stage = 2;
 		break;
 
 	case 1:
