@@ -757,10 +757,12 @@ long DrawLoop(void)
 
 	D3DSetupRenderstates(cullNoneRS);
 	DrawScreenTransition();
+//	D3DSetupRenderstates(cullCWRS);
 
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();
 
+	D3DSetupRenderstates(cullNoneRS);
 	PrintSpriteOverlays(1);	
 
 	if (editorOk)
