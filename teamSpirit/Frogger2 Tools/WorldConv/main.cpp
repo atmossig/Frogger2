@@ -578,26 +578,28 @@ void CalculateAdj(void)
 		CheckSquare (3,i,x1,y1,z1,x2,y2,z2);
 	}
 	
-	// Fill out the normals...
+	// Fill out the normals
+	// Average edges in x and y for north and east, south and west are simply the inverse
 	for (i=0; i<nSquare; i++)
 	{
 		vtx t[4];
 		
-		t[0].x = squareList[i].ed[1].x-squareList[i].ed[0].x;
-		t[0].y = squareList[i].ed[1].y-squareList[i].ed[0].y;
-		t[0].z = squareList[i].ed[1].z-squareList[i].ed[0].z;
+		t[0].x = (squareList[i].ed[1].x-squareList[i].ed[0].x) + (squareList[i].ed[2].x-squareList[i].ed[3].x);
+		t[0].y = (squareList[i].ed[1].y-squareList[i].ed[0].y) + (squareList[i].ed[2].y-squareList[i].ed[3].y);
+		t[0].z = (squareList[i].ed[1].z-squareList[i].ed[0].z) + (squareList[i].ed[2].z-squareList[i].ed[3].z);
 		
-		t[1].x = squareList[i].ed[2].x-squareList[i].ed[1].x;
-		t[1].y = squareList[i].ed[2].y-squareList[i].ed[1].y;
-		t[1].z = squareList[i].ed[2].z-squareList[i].ed[1].z;
+		t[1].x = (squareList[i].ed[2].x-squareList[i].ed[1].x) + (squareList[i].ed[3].x-squareList[i].ed[0].x);
+		t[1].y = (squareList[i].ed[2].y-squareList[i].ed[1].y) + (squareList[i].ed[3].y-squareList[i].ed[0].y);
+		t[1].z = (squareList[i].ed[2].z-squareList[i].ed[1].z) + (squareList[i].ed[3].z-squareList[i].ed[0].z);
 
-		t[2].x = squareList[i].ed[3].x-squareList[i].ed[2].x;
-		t[2].y = squareList[i].ed[3].y-squareList[i].ed[2].y;
-		t[2].z = squareList[i].ed[3].z-squareList[i].ed[2].z;
+		t[2].x = -t[0].x;
+		t[2].y = -t[0].y;
+		t[2].z = -t[0].z;
 
-		t[3].x = squareList[i].ed[0].x-squareList[i].ed[3].x;
-		t[3].y = squareList[i].ed[0].y-squareList[i].ed[3].y;
-		t[3].z = squareList[i].ed[0].z-squareList[i].ed[3].z;
+		t[3].x = -t[1].x;
+		t[3].y = -t[1].y;
+		t[3].z = -t[1].z;
+
 		Normalise (&t[0]);
 		Normalise (&t[1]);
 		Normalise (&t[2]);
@@ -861,18 +863,7 @@ void WriteTiles (FILE *fp)
 	{
 		if (squareList[i].parent[0]==0)
 		{
-			//fprintf (fp,"\nGAMETILE gT_%03i = \n",i);
 			fprintf (fp,"  {\t// %u\n", i);
-/*			fprintf (fp,"	{%s%03i,%s%03i,%s%03i,%s%03i},\n",
-				(squareList[i].adj[0]==-1)?"":"tiles+",
-				(squareList[i].adj[0]==-1)?0:squareList[i].adj[0],
-				(squareList[i].adj[1]==-1)?"":"tiles+",
-				(squareList[i].adj[1]==-1)?0:squareList[i].adj[1],
-				(squareList[i].adj[2]==-1)?"":"tiles+",
-				(squareList[i].adj[2]==-1)?0:squareList[i].adj[2],
-				(squareList[i].adj[3]==-1)?"":"tiles+",
-				(squareList[i].adj[3]==-1)?0:squareList[i].adj[3]);
-*/			
 
 			fprintf(fp, "	{ %s%d, %s%d, %s%d, %s%d },\n",
 				(squareList[i].adj[0]==-1)?"":"tiles+",
@@ -885,11 +876,11 @@ void WriteTiles (FILE *fp)
 				(squareList[i].adj[3]==-1)?0:squareList[i].adj[3]);
 
 			fprintf (fp,"	%s%3i,\n",(i==(nSquare-1))?"":"tiles+",(i==(nSquare-1))?0:i+1);
-//			fprintf (fp,"	tiles + %i,\n",(i==(nSquare-1))?0:i+1);
 			fprintf (fp,"	0,\n");
 			fprintf (fp,"	%lu,\n",squareList[i].status);
 			fprintf (fp,"	{%f,%f,%f},\n",squareList[i].p[0],squareList[i].p[2],squareList[i].p[1]);
 			fprintf (fp,"	{%f,%f,%f},\n",squareList[i].vn.x,squareList[i].vn.z,squareList[i].vn.y);
+			
 			fprintf (fp,"	{{%f,%f,%f},{%f,%f,%f},{%f,%f,%f},{%f,%f,%f}},\n",
 				squareList[i].n[1].x,
 				squareList[i].n[1].z,
@@ -913,40 +904,6 @@ void WriteTiles (FILE *fp)
 	}
 
 	fprintf(fp, "} // END OF ARRAY\n;");
-
-/*	for (i=0; i<nSquare; i++)
-	{
-		if (squareList[i].parent[0]!=0)
-		{
-			fprintf (fp,"\nchar pT_name_%03i[] = %s\n",i,squareList[i].parent);
-			fprintf (fp,"\nGAMETILE pT_%03i = \n",i);
-			fprintf (fp,"{\n",i);
-			fprintf (fp,"	{0,0,0,0},\n");
-			fprintf (fp,"	%s%03i,\n",(i==(nSquare-1))?"":"&pT_",(i==(nSquare-1))?0:i+1);
-			fprintf (fp,"	(unsigned long)&pT_name_%03i,\n",i);
-			fprintf (fp,"	{%f,%f,%f},\n",squareList[i].p[0],squareList[i].p[2],squareList[i].p[1]);
-			fprintf (fp,"	{%f,%f,%f},\n",squareList[i].vn.x,squareList[i].vn.z,squareList[i].vn.y);
-			fprintf (fp,"	{{%f,%f,%f},{%f,%f,%f},{%f,%f,%f},{%f,%f,%f}},\n",
-				squareList[i].n[3].x,
-				squareList[i].n[3].z,
-				squareList[i].n[3].y,
-				
-				squareList[i].n[2].x,
-				squareList[i].n[2].z,
-				squareList[i].n[2].y,
-				
-				squareList[i].n[1].x,
-				squareList[i].n[1].z,
-				squareList[i].n[1].y,
-				
-				squareList[i].n[0].x,
-				squareList[i].n[0].z,
-				squareList[i].n[0].y
-				);
-			
-			fprintf (fp,"};\n",i);
-		}
-	}*/
 }
 
 /* --------------------------------------------------------------------------------
