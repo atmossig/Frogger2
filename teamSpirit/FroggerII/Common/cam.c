@@ -699,6 +699,7 @@ void InitCamera(void)
 	SetVector(&currCamSource, &camSource);
 	SetVector(&currCamTarget, &camTarget);
 	SetVector(&currCamOffset, &camOffset);
+	SetVector(&camVect, &currTile[0]->normal);
 }
 
 

@@ -316,11 +316,10 @@ void FreeGaribLinkedList()
 		return;
 
 	dprintf"Freeing linked list : GARIB : (%d elements)\n",garibCollectableList.numEntries));
-	for(cur = garibCollectableList.head.next; cur != &garibCollectableList.head; cur = next)
-	{
-		next = cur->next;
 
-		SubGarib(cur);
+	while (garibCollectableList.numEntries)
+	{
+		SubGarib(garibCollectableList.head.next);
 	}
 }
 

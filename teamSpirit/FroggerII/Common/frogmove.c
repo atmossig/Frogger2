@@ -501,10 +501,12 @@ void UpdateFroggerPos(long pl)
 				SetVector( &pos, &upVec );
 				ScaleVector( &pos, 20 );
 				AddToVector( &pos, &babyList[baby].baby->actor->pos );
-				fx = CreateAndAddSpecialEffect(	FXTYPE_POLYRING, &pos, &upVec, 15, 1, 0.1, 1.2 );
-				fx->r = babyList[baby].fxColour[R];
-				fx->g = babyList[baby].fxColour[G];
-				fx->b = babyList[baby].fxColour[B];
+				if ((fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &pos, &upVec, 15, 1, 0.1, 1.2 )))
+				{				
+					fx->r = babyList[baby].fxColour[R];
+					fx->g = babyList[baby].fxColour[G];
+					fx->b = babyList[baby].fxColour[B];
+				}
 			}
 		}
 	}

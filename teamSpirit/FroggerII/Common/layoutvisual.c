@@ -785,11 +785,6 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 	for (i = 3; i>=0; i--)
 		controllerdata[i].button = controllerdata[i].lastbutton = 0;
-
-//TODO: put this somewhere better
-#ifdef PC_VERSION
-	lastActFrameCount = actFrameCount = (GetTickCount()*(60.0f/1000.0f));
-#endif
 }
 
 
