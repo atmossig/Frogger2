@@ -1,6 +1,8 @@
 #include "islutil.h"
 #include "temp_pc.h"
 
+#include <math.h>
+
 //returns fixed format
 unsigned long utilSqrt(unsigned long num)
 {

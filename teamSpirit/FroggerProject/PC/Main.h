@@ -5,6 +5,7 @@
 #include <windows.h>
 #include "fixed.h"
 #include "sonylibs.h"
+#include <malloc.h>
 
 #define COLLISION_BASE	"collision\\"
 #define SCENIC_BASE		"scenics\\"
@@ -21,7 +22,8 @@
 //#endif
 
 
-#define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
+//#define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
+#define MALLOC0(S)	calloc((S),1)
 
 
 
