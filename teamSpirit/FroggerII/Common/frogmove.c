@@ -964,7 +964,7 @@ void CheckForFroggerLanding(long pl)
 
 		CheckTileForCollectable(NULL,0);
 	}
-	else if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
+	else /*if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)*/
 	{
 		GAMETILE *tile;
 		int state;
@@ -1116,7 +1116,7 @@ void CheckForFroggerLanding(long pl)
 		// Next, check if frog has landed on a collectable
 		CheckTileForCollectable(tile, pl);
 	}
-	else
+	/*else
 	{
 		VECTOR pos;
 
@@ -1124,7 +1124,7 @@ void CheckForFroggerLanding(long pl)
 		AddToVector(&pos, &player[pl].jumpFwdVector);
 		AddToVector(&pos, &player[pl].jumpUpVector);
 		SetVector(&frog[pl]->actor->pos, &pos);
-	}
+	}*/
 }
 
 
