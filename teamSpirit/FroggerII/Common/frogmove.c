@@ -1183,13 +1183,26 @@ BOOL KillFrog(long pl)
 	{
 		numHealth_TOTAL++;
 		// lose a life
-		player[pl].lives--;
-		if(!player[pl].lives)
+/*		if( player[pl].worldNum == WORLDID_SUPERRETRO )
 		{
-			gameState.mode = GAMEOVER_MODE;
-			GTInit( &modeTimer, 10 );
-			return FALSE;
+			player[pl].numCredits--;
+			if(!player[pl].numCredits)
+			{
+				gameState.mode = GAMEOVER_MODE;
+				GTInit( &modeTimer, 10 );
+				return FALSE;
+			}
 		}
+		else
+		{
+*/			player[pl].lives--;
+			if(!player[pl].lives)
+			{
+				gameState.mode = GAMEOVER_MODE;
+				GTInit( &modeTimer, 10 );
+				return FALSE;
+			}
+//		}
 
 		player[pl].frogState &= ~FROGSTATUS_ISDEAD;
 
