@@ -462,15 +462,11 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID)
 	long objBankToUse;
 	long texBankToUse;
 
-	dprintf"Loading...\n"));
-
 	objBankToUse = worldVisualData[worldID].masterObjectBank;
 	texBankToUse = worldVisualData[worldID].masterTextureBank;
 
 	// load the relevant master object / texture banks
-	dprintf"Loading...\n"));
-	LoadTextureBank(SYSTEM_TEX_BANK);
-	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
+	dprintf"LoadVisualBanksForWorld(%d,%d)...\n",worldID,levelID));
 #ifdef N64_VERSION
 	LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
 #endif
@@ -556,12 +552,23 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	fadeDir		= FADE_IN;
 	doScreenFade = 63;
 
+	// load the system and in-game generic texture banks
+	LoadTextureBank(SYSTEM_TEX_BANK);
+	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
+
 	// load relevant collison, texture and object banks
 	LoadMapBank(worldVisualData[worldID].levelVisualData[levelID].collBank);
 	LoadVisualBanksForWorld(worldID,levelID);
 
+	// initialise the various lists
 	InitSpriteFrameLists();
 	InitSpecFXList();
+	InitEnemyLinkedList();
+	InitPlatformLinkedList();
+	InitGaribLinkedList();
+	InitSpriteOverlayLinkedList();
+	InitTextOverlayLinkedList();
+	InitTriggerList();
 
 	player[0].worldNum = worldID;
 	player[0].levelNum = levelID;
@@ -569,14 +576,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	pOIDistance = 50000.0;
 	pointOfInterest = NULL;
 
+	// create objects for the level
 	CreateLevelObjects(worldID,levelID);
-
-	InitEnemyLinkedList();
-	InitPlatformLinkedList();
-	InitGaribLinkedList();
-	InitSpriteOverlayLinkedList();
-	InitTextOverlayLinkedList();
-	InitTriggerList();
 
 	LoadLevelEntities(worldID,levelID);
 	LoadLevelScript(worldID,levelID);
@@ -585,11 +586,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	initialCamera = 1;
 	SetVector(&(currCamSource[i]),&outVec);
 	SetVector(&(currCamTarget[i]),&inVec);
-	//InitCameosForLevel ( worldID, levelID );
 		
 	CreateFrogger(1,1,1,1); // This also creates the babies
-
-	//InitEventsForLevel(worldID,levelID);
 
 	// prepare the text overlays for the current level
 	InitInGameTextOverlays(worldID,levelID);

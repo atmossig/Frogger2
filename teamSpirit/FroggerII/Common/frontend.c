@@ -62,6 +62,7 @@ void GameLoop(void)
 			frameCount++;
 			break;
 
+#ifdef N64_VERSION
 		case DEVELOPMENT_MODE:
 			if(frameCount == 15)
 				StartDrawing("gameloop");
@@ -69,6 +70,7 @@ void GameLoop(void)
 			RunDevelopmentMenu();
 			frameCount++;
 			break;
+#endif
 	}
 
 	i = NUM_FROGS;
