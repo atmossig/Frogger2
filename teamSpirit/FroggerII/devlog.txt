@@ -1102,6 +1102,26 @@ Mike Movel:
 Byron Blay:
 ------------------------------------------------
 
+	Seeya James, have a chilled holiday.
+	
+	Scaled the world by 10.
+	Seems to work.
+
+	Next:
+	Replace 'squared' stuff with non-squared stuff,
+	e.g calls to MagnitudeSquared()
+	become calls to Magnitude(), e.t.c.
+
+
 Chris Wilson:
 ------------------------------------------------
+
+
+
+
+
+
+
+
+
 
