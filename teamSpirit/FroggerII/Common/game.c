@@ -79,7 +79,6 @@ unsigned long levelPlayList[] =
 {
 	4,1,
 	0,0,
-	2,2,
 	5,2,
 	1000,1000
 };
