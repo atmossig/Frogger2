@@ -158,7 +158,12 @@ void LoadSfxSet( char *path )
 	unsigned long length, numFiles;
 	char *stak, *ptr;
 
-	stak = (char *)fileLoad( path, &length );
+	if( !(stak = (char *)fileLoad( path, &length )) )
+	{
+		utilPrintf( "Failed to load sample bank %s\n", path );
+		return;
+	}
+
 	numFiles = (int)stak[0];
 	ptr = &stak[4];
 
@@ -510,7 +515,12 @@ void InitVoices( char *path, int len )
 		strcat( path, frogPool[player[i].character].fileName );
 		strcat( path, ".wus" );
 
-		stak = (char *)fileLoad( path, &length );
+		if( !(stak = (char *)fileLoad( path, &length )) )
+		{
+			utilPrintf( "Failed to load voice bank for %s\n", frogPool[player[i].character].fileName );
+			continue;
+		}
+
 		numFiles = (int)stak[0];
 		ptr = &stak[4];
 

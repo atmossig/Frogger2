@@ -1429,8 +1429,8 @@ void CalcRaceCircuitCamera( FVECTOR *target )
 */
 void CalcRaceStraightCamera( FVECTOR *target )
 {
-	int i, bestLap=0, bestCheck=0, num, bestZ=999999999;
-	fixed dist, scale;
+	int i, bestLap=0, bestCheck=0, bestZ=999999999;
+	fixed scale, vx, vz;
 
 	target->vx = target->vz = 0;
 
@@ -1451,30 +1451,45 @@ void CalcRaceStraightCamera( FVECTOR *target )
 			playerFocus = i;
 		}
 
-	for( i=0,num=0; i<NUM_FROGS; i++ )
+	for( i=0; i<NUM_FROGS; i++ )
 	{
-		dist = DistanceBetweenPointsSS( &frog[playerFocus]->actor->position, &frog[i]->actor->position );
-		if( mpl[i].lap == bestLap && mpl[i].check == bestCheck && dist < 8192000 )
+		if( player[i].jumpTime > 0 )	// jumping; calculate linear position
 		{
-			num++;
-			if( player[i].jumpTime > 0 )	// jumping; calculate linear position
-			{
-				FVECTOR v;
-				SetVectorFF(&v, &player[i].jumpFwdVector);
-				ScaleVectorFF(&v, player[i].jumpTime);
+			FVECTOR v;
+			SetVectorFF(&v, &player[i].jumpFwdVector);
+			ScaleVectorFF(&v, player[i].jumpTime);
 
-				target->vx += (player[i].jumpOrigin.vx<<12) + v.vx;
-				target->vz += (player[i].jumpOrigin.vz<<12) + v.vz;
-			}										
-			else
+			vx = (player[i].jumpOrigin.vx<<12) + v.vx;
+			vz = (player[i].jumpOrigin.vz<<12) + v.vz;
+
+			target->vx += vx;
+			target->vz += vz;
+
+			// Double weight for lead player
+			if( i == playerFocus )
 			{
-				target->vx += frog[i]->actor->position.vx<<12;
-				target->vz += frog[i]->actor->position.vz<<12;
+				target->vx += vx;
+				target->vz += vz;
+			}
+		}										
+		else
+		{
+			vx = frog[i]->actor->position.vx<<12;
+			vz = frog[i]->actor->position.vz<<12;
+
+			target->vx += vx;
+			target->vz += vz;
+
+			// Double weight for lead player
+			if( i == playerFocus )
+			{
+				target->vx += vx;
+				target->vz += vz;
 			}
 		}
 	}
 
-	scale = 4096/(max(num,1));
+	scale = 4096/(NUM_FROGS+1);
 	target->vx = FMul( target->vx, scale );
 	target->vz = FMul( target->vz, scale );
 }
