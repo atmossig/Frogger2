@@ -1360,7 +1360,10 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	if(destTile[pl])
 	{
 		if(currPlatform[pl])
+		{
 			currPlatform[pl]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
+			currPlatform[pl]->carrying = NULL;
+		}
 
 		if(destPlatform[pl])
 		{
