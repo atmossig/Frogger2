@@ -142,7 +142,7 @@ _zbufferbss	group	obj(),bss
         section.16      _zbuffer.sdata,_zbuffer
         section.16      _zbuffer.sbss,_zbufferbss
         section.16      _zbuffer.bss,_zbufferbss
-	include "zbuffer.obj",_zbuffer
+		include "zbuffer.obj",_zbuffer
 
 ;--
 rdpbuf        group   obj()

@@ -25,14 +25,14 @@ extern float waterWaveHeightAmp[2];
 extern float waterWaveHeightFreq[2];
 extern float watRot[2];
 
-extern int waterMode;
-extern int waterX;
-extern int waterY;
-
 extern float dist[2];
 extern VECTOR tempVect;
 
 extern ACTOR2 *watActor;
+
+
+void RunWaterDemo();
+void UpdateWater(ACTOR *wAct);
 
 
 #endif

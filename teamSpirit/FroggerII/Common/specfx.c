@@ -1364,5 +1364,31 @@ void CreateBlastRing( )
 #else
 void CreateBlastRing( )
 {
+	float tesa, tesb, teca, tecb, pB, arcStep = PI2 / NUM_RINGSEGS;
+	unsigned long i, v;
+	Vtx *vRPtr;
+	
+	if(!ringVtx)
+		ringVtx = (Vtx *)JallocAlloc(sizeof(Vtx) * NUM_RINGSEGS * 4,NO,"Vtx");
+
+	for(i=0; i<NUM_RINGSEGS; i++)
+	{
+
+		pB = i * arcStep;
+		v = i * 4;
+
+		tesa = sinf(pB);
+		tesb = sinf(pB + arcStep);
+
+		teca = cosf(pB);
+		tecb = cosf(pB + arcStep);
+
+		vRPtr = ringVtx;
+
+		V(vRPtr++,tesa,0.5,teca,0,1024,1024,255,255,255,255);
+		V(vRPtr++,tesb,0.5,tecb,0,0,1024,255,255,255,255);
+		V(vRPtr++,tesb,-0.5,tecb,0,0,0,255,255,255,255);
+		V(vRPtr++,tesa,-0.5,teca,0,1024,0,255,255,255,255);
+	}
 }
 #endif

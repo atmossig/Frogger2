@@ -399,94 +399,6 @@ void UpdateContinuousSample(SFX *sfx)
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: AddAmbientSfx
-	Purpose 	: Put a new sourceless ambient effect into the list
-	Parameters 	: Sample index, volume, pan
-	Returns 	: 
-	Info 		: eg. AddAmbientSfx( FX_RAIN_HEAVY, 255, 0 )
-*/
-void AddAmbientSfx(int num, int vol, int pan)
-{
-	AMBIENT_SOUND *ptr = ambientSoundList.head.next;
-	AMBIENT_SOUND *ambientSound = (AMBIENT_SOUND *)JallocAlloc(sizeof(AMBIENT_SOUND),YES,"AmbSnd");
-	
-	ambientSound->prev = ptr;
-	ambientSound->next = ptr->next;
-	ptr->next->prev = ambientSound;
-	ptr->next = ambientSound;
-	ambientSoundList.numEntries++;
-
-
-	vol = (float)(vol)*1.8;
-	if(vol > 255)
-		vol = 255;
-
-	ambientSound->sfx.handle = MusStartEffect2(num, vol, pan, 0, -1);
-	numContinuousSamples++;
-	ambientSound->sfx.pos = &zero;
-	ambientSound->sfx.origVolume = vol;
-	ambientSound->sfx.actualVolume = vol;
-	ambientSound->sfx.sampleNum = num;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: AddAmbientSfxAtPoint
-	Purpose 	: As above, but has a definite source
-	Parameters 	: Index, volume, positon, pitch, repeat frequency, random offset frequency, repeat timeperiod,
-					platform to attach to(NOT IMPLEMENTED), tag???, radius of attenuation
-	Returns 	: 
-	Info 		:
-*/
-void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,short randFreq,short onTime,short platTag,short tag,float radius)
-{
-	AMBIENT_SOUND *ptr = ambientSoundList.head.next;
-	AMBIENT_SOUND *ambientSound = (AMBIENT_SOUND *)JallocAlloc(sizeof(AMBIENT_SOUND),YES,"AmbSnd");
-	
-	ambientSound->prev = ptr;
-	ambientSound->next = ptr->next;
-	ptr->next->prev = ambientSound;
-	ptr->next = ambientSound;
-	ambientSoundList.numEntries++;
-/*
-	if(platTag)
-	{
-		SetVector(&ambientSound->offsetPos,pos);
-		ambientSound->platform = TagToFirstPlatform(platTag);
-	}
-	else
-	{*/
-		SetVector(&ambientSound->pos,pos);
-		ambientSound->platform = NULL;
-	//}
-	ambientSound->sfx.volume = vol;
-	ambientSound->sfx.sampleNum = num;
-	ambientSound->sfx.pitch = pitch;
-//	if(onTime)
-	if((onTime) || ((freq == 0) && (randFreq == 0)))
-	{
-		PlayContinuousSample(&ambientSound->sfx,num,vol,&ambientSound->pos,pitch);
-		if((ambientSound->sfx.handle) && (ambientSound->sfx.sampleNum == FX_KLOSET_CALL))
-			MusHandleSetReverb(ambientSound->sfx.handle, 40);
-		ambientSound->counter = onTime;
-	}
-	else
-	{
-		ambientSound->counter = freq + Random(randFreq);
-		ambientSound->sfx.pos = &ambientSound->pos;
-	}
-
-	ambientSound->sfx.radius = radius;
-
-	ambientSound->origVol = vol;
-	ambientSound->freq = freq;
-	ambientSound->randFreq = randFreq;
-	ambientSound->onTime = onTime;
-	ambientSound->tag = tag;
-}
-
-
-/*	--------------------------------------------------------------------------------
 	Function 	: ClearAmbientSfx
 	Purpose 	: Stop all ambients
 	Parameters 	: 
@@ -545,102 +457,36 @@ void KillAmbientSfx()
 */
 void UpdateAmbientSounds()
 {
-	AMBIENT_SOUND *ambientSound,*ambientSound2;
-	float pitch;
+	AMBIENT_SOUND *amb,*amb2;
+	VECTOR *pos;
 
 	// Silence ambients if paused or level over?
 	if((gameState.mode == PAUSE_MODE) || levelIsOver )
-	{
-		for(ambientSound = ambientSoundList.head.next;ambientSound != &ambientSoundList.head;ambientSound = ambientSound->next)
-		{
-			if(ambientSound->sfx.handle)
-				MusHandleSetVolume(ambientSound->sfx.handle, (ambientSound->sfx.actualVolume*sfxVol)/32768);
-		}
 		return;
-	}
 
 	// Update each ambient in turn
-	for(ambientSound = ambientSoundList.head.next;ambientSound != &ambientSoundList.head;ambientSound = ambientSound2)
+	for( amb = ambientSoundList.head.next; amb != &ambientSoundList.head; amb = amb2 )
 	{
-		ambientSound2 = ambientSound->next;
+		amb2 = amb->next;
+
+		// Timeout, so play a new sound
+		if( actFrameCount < amb->counter )
+			continue;
+
+		// If it is attached to a platform, make ambient follow that platform
+		if( amb->follow )
+			SetVector( &amb->pos, &amb->follow->pos );
 
 		// If sound doesn't have a source
-		if(ambientSound->sfx.pos == &zero)
-		{
-			if(ambientSound->sfx.sampleNum == FX_EERIE_WIND)
-			{
-				// Oscillating tone for wind
-//				pitch = 128 + SineWave(50,frameCount,0)*30;
-				MusHandleSetFreqOffset(ambientSound->sfx.handle,(float)(pitch-128)/10.0);
-				MusHandleSetTempo(ambientSound->sfx.handle,pitch);
+		if( !MagnitudeSquared(&amb->pos) )
+			pos = NULL;
+		else
+			pos = &amb->pos;
 
-//				pitch = (SineWave(60,frameCount,0) + 1)/4 + 0.5;
-				pitch *= ambientSound->sfx.origVolume;
-				MusHandleSetVolume(ambientSound->sfx.handle,pitch);
-				ambientSound->sfx.actualVolume = pitch;
-			}
-			else if(ambientSound->sfx.handle)
-				MusHandleSetVolume(ambientSound->sfx.handle, (ambientSound->sfx.actualVolume*sfxVol)/32768);
-		}
-		else // If ambient is sourced
-		{
-			// If it is attached to a platform, make ambient follow that platform
-			if(ambientSound->platform)
-			{
-				RotateVectorByQuaternion(&ambientSound->pos,&ambientSound->offsetPos,&ambientSound->platform->pltActor->actor->qRot);
-				AddToVector(&ambientSound->pos,&ambientSound->platform->pltActor->actor->pos);
-			}
-			if(ambientSound->sfx.volume)
-				UpdateContinuousSample(&ambientSound->sfx);	
+		PlaySample( amb->num, &amb->pos, amb->radius, amb->volume, amb->pitch );
 
-			// If ambient is on a timed loop, play on timeout
-			if(ambientSound->onTime)
-			{
-				if(ambientSound->counter)
-					ambientSound->counter--;
-				if(ambientSound->counter == 0)
-				{
-					if(ambientSound->sfx.handle)
-					{	
-						if(ambientSound->sfx.sampleNum == FX_KLOSET_CALL)
-							ambientSound->sfx.volume -= 2;
-						else
-							ambientSound->sfx.volume -= 20;
-						if(ambientSound->sfx.volume <= 0)
-						{
-							StopContinuousSample(&ambientSound->sfx);
-							if((ambientSound->freq) || (ambientSound->randFreq))
-								ambientSound->counter = ambientSound->freq + Random(ambientSound->randFreq);
-							else
-							{
-								SubAmbientSound(ambientSound);
-								JallocFree((UBYTE **)&ambientSound);
-								continue;
-							}
-						}
-					}
-					else
-					{
-						PlayContinuousSample(&ambientSound->sfx,ambientSound->sfx.sampleNum,ambientSound->origVol,&ambientSound->pos,ambientSound->sfx.pitch);
-						ambientSound->counter = ambientSound->onTime;
-						if((ambientSound->sfx.handle) && (ambientSound->sfx.sampleNum == FX_KLOSET_CALL))
-							MusHandleSetReverb(ambientSound->sfx.handle, 40);
-					}
-				}
-			}
-			else if(ambientSound->freq) // Else if it plays after a randomly modified time
-			{
-				if(--ambientSound->counter == 0)
-				{
-					// If attenuated
-					if(ambientSound->sfx.radius)
-						PlaySampleRadius(ambientSound->sfx.sampleNum,&ambientSound->pos,ambientSound->sfx.volume,ambientSound->sfx.pitch,ambientSound->sfx.radius);
-					else
-						PlaySample(ambientSound->sfx.sampleNum,&ambientSound->pos,0,ambientSound->sfx.volume,ambientSound->sfx.pitch);
-					ambientSound->counter = ambientSound->freq + Random(ambientSound->randFreq);
-				}
-			}
-		}
+		// Freq and randFreq are cunningly pre-multiplied by 60
+		amb->counter = actFrameCount + amb->freq + ((amb->randFreq)?Random(amb->randFreq):0);
 	}
 }
 
@@ -821,160 +667,41 @@ int PlayActorBasedSample(short num,ACTOR *act,short tempVol,short pitch)
 */
 void PrepareSongForLevel(short worldID,short levelID)
 {
-	int theToon = -1;
+	int theToon = TEST1_TRACK;
 
-	if(worldID == WORLDID_GARDEN)
-	{
-		switch(levelID)
-		{
-			case LEVELID_GARDENLEV1:
-				theToon = TEST1_TRACK;
-				break;
-
-			case LEVELID_GARDENLEV2:
-				theToon = TEST2_TRACK;
-				break;
-
-			case LEVELID_GARDENLEV3:
-				theToon = TEST3_TRACK;
-				break;
-
-			default:
-				theToon = NOTRACK;
-				break;
-		}
-	}
-	else if(worldID == WORLDID_ANCIENT)
-	{
-		switch(levelID)
-		{
-			case LEVELID_ANCIENTLEV1:
-				theToon = TEST13_TRACK;
-				break;
-
-			case LEVELID_ANCIENTLEV2:
-				theToon = TEST14_TRACK;
-				break;
-
-			case LEVELID_ANCIENTLEV3:
-				theToon = TEST15_TRACK;
-				break;
-
-			default:
-				theToon = NOTRACK;
-				break;
-		}
-	}
-	else if(worldID == WORLDID_SPACE)
-	{
-		switch(levelID)
-		{
-			case LEVELID_SPACELEV1:
-				theToon = TEST16_TRACK;
-				break;
-
-			case LEVELID_SPACELEV2:
-				theToon = TEST17_TRACK;
-				break;
-
-			case LEVELID_SPACELEV3:
-				theToon = TEST18_TRACK;
-				break;
-
-			default:
-				theToon = NOTRACK;
-				break;
-		}
-	}
-	else if(worldID == WORLDID_CITY)
-	{
-		switch(levelID)
-		{
-			default:
-				theToon = NOTRACK;
-				break;
-		}
-	}
-	else if(worldID == WORLDID_SUBTERRANEAN)
-	{
-		switch(levelID)
-		{
-			default:
-				theToon = NOTRACK;
-				break;
-		}
-	}
-	else if(worldID == WORLDID_LABORATORY)
-	{
-		switch(levelID)
-		{
-			default:
-				theToon = NOTRACK;
-				break;
-		}
-	}
-	else if(worldID == WORLDID_TOYSHOP)
-	{
-		switch(levelID)
-		{
-			default:
-				theToon = NOTRACK;
-				break;
-		}
-	}
-	else if(worldID == WORLDID_HALLOWEEN)
-	{
-		switch(levelID)
-		{
-			default:
-				theToon = NOTRACK;
-				break;
-		}
-	}
-	else if(worldID == WORLDID_SUPERRETRO)
-	{
-		switch(levelID)
-		{
-			case LEVELID_SUPERRETROLEV1:
-				theToon = TEST12_TRACK;
-				break;
-
-			default:
-				theToon = NOTRACK;
-				break;
-		}
-	}
-	else if(worldID == WORLDID_FRONTEND)
-	{
-		switch(levelID)
-		{
-			case LEVELID_FRONTEND1:
-				theToon = TEST12_TRACK;
-				break;
-
-			case LEVELID_FRONTEND2:
-				theToon = TEST19_TRACK;
-				break;
-
-			case LEVELID_FRONTEND3:
-				theToon = TEST12_TRACK;
-				break;
-
-			case LEVELID_FRONTEND4:
-				theToon = TEST12_TRACK;
-				break;
-
-			case LEVELID_FRONTEND5:
-				theToon = TEST12_TRACK;
-				break;
-
-			default:
-				theToon = NOTRACK;
-				break;
-		}
-	}
-
+	// just play the first track for now !!!!
 	PrepareSong(theToon,0);
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function 	: AddAmbientSound
+	Purpose 	: Create an ambient sound
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+AMBIENT_SOUND *AddAmbientSound(int num, VECTOR *pos, long radius, int vol, short pitch, float freq, float randFreq, ACTOR *follow )
+{
+	AMBIENT_SOUND *ptr = &ambientSoundList.head;
+	AMBIENT_SOUND *ambientSound = (AMBIENT_SOUND *)JallocAlloc(sizeof(AMBIENT_SOUND),YES,"AmbSnd");
+	
+	if( pos ) SetVector( &ambientSound->pos, pos );
+	if( follow ) ambientSound->follow = follow;
+
+	ambientSound->volume = vol;
+	ambientSound->num = num;
+	ambientSound->pitch = pitch;
+	ambientSound->radius = radius;
+
+	ambientSound->freq = freq*60;
+	ambientSound->randFreq = randFreq*60;
+
+	ambientSound->prev = ptr;
+	ambientSound->next = ptr->next;
+	ptr->next->prev = ambientSound;
+	ptr->next = ambientSound;
+	ambientSoundList.numEntries++;
+
+	return ambientSound;
+}

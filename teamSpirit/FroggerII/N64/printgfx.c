@@ -450,9 +450,11 @@ void PrintSpriteOverlays()
 								  0,0,
 								  G_TX_NOLOD,G_TX_NOLOD);
 
-			gSPScisTextureRectangle(glistp++,cur->xPos << 2,cur->yPos << 2,
-								(cur->xPos + cur->width) << 2,
-								(cur->yPos + cur->height) << 2,
+			gSPScisTextureRectangle(glistp++,
+								(unsigned long)cur->xPos << 2,
+								(unsigned long)cur->yPos << 2,
+								(unsigned long)(cur->xPos + cur->width) << 2,
+								(unsigned long)(cur->yPos + cur->height) << 2,
 								G_TX_RENDERTILE,
 								0,0,
 								(short)tScaleX,

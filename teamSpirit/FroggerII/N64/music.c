@@ -65,9 +65,6 @@ void InitMusicDriver(void)
 
 	musicMemoryUsed = MusInitialize(&musicPlayer);
 
-
-
-
 	MusBankInitialize(audioCtrl.musicPtr, WBANK_START);
 //	MusBankInitialize(audioCtrl.sfxPtr, WBANK2_START);
 }

@@ -414,48 +414,54 @@ void RunSndView()
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
 
-		title = CreateAndAddTextOverlay(30,24,"sound player",NO,NO,255,255,255,255,smallFont,0,0,0);
-		titleShadow = CreateAndAddTextOverlay(32,26,"sound player",NO,NO,0,0,0,255,smallFont,0,0,0);
+		title = CreateAndAddTextOverlay(30,24,"sound player",NO,255,smallFont,0,0);
+		titleShadow = CreateAndAddTextOverlay(32,26,"sound player",NO,255,smallFont,0,0);
+		titleShadow->r = 0;	titleShadow->g = 0;	titleShadow->b = 0;
 
 		// bottom pane --------------------------------------------------------------------------
-		CreateAndAddTextOverlay(75,125,"select first or last item",NO,NO,255,255,255,255,oldeFont,0,0,0);
-		CreateAndAddTextOverlay(77,127,"select first or last item",NO,NO,0,0,0,255,oldeFont,0,0,0);
+		CreateAndAddTextOverlay(75,125,"select first or last item",NO,255,oldeFont,0,0);
+		title = CreateAndAddTextOverlay(77,127,"select first or last item",NO,255,oldeFont,0,0);
+		title->r = 0;	title->g = 0;	title->b = 0;
 
-		CreateAndAddTextOverlay(75,140,"play selected item",NO,NO,255,255,255,255,oldeFont,0,0,0);
-		CreateAndAddTextOverlay(77,142,"play selected item",NO,NO,0,0,0,255,oldeFont,0,0,0);
+		CreateAndAddTextOverlay(75,140,"play selected item",NO,255,oldeFont,0,0);
+		title = CreateAndAddTextOverlay(77,142,"play selected item",NO,255,oldeFont,0,0);
+		title->r = 0;	title->g = 0;	title->b = 0;
 
-		CreateAndAddTextOverlay(75,155,"stop playback",NO,NO,255,255,255,255,oldeFont,0,0,0);
-		CreateAndAddTextOverlay(77,157,"stop playback",NO,NO,0,0,0,255,oldeFont,0,0,0);
+		CreateAndAddTextOverlay(75,155,"stop playback",NO,255,oldeFont,0,0);
+		title = CreateAndAddTextOverlay(77,157,"stop playback",NO,255,oldeFont,0,0);
+		title->r = 0;	title->g = 0;	title->b = 0;
 		// bottom pane --------------------------------------------------------------------------
 
 		// middle pane --------------------------------------------------------------------------
-		titleSfx = CreateAndAddTextOverlay(40,55,"SNDFX NAMES",NO,NO,0,255,0,255,oldeFont,0,0,0);
-		sfxName = CreateAndAddTextOverlay(45,65,"",NO,NO,255,255,255,255,oldeFont,0,2,0);
+		titleSfx = CreateAndAddTextOverlay(40,55,"SNDFX NAMES",NO,255,oldeFont,0,0);
+		titleSfx->g = 255;
+		sfxName = CreateAndAddTextOverlay(45,65,"",NO,255,oldeFont,0,0);
 		sprintf(sfxNameTxt,"%s %d",sfxNames[sfxNum],sfxNum);
 		sfxName->text = sfxNameTxt;
 
-		titleMus = CreateAndAddTextOverlay(40,85,"MUSIC TRACK",NO,NO,0,255,0,95,oldeFont,0,0,0);
-		musName = CreateAndAddTextOverlay(45,95,"",NO,NO,255,255,255,95,oldeFont,0,0,0);
+		titleMus = CreateAndAddTextOverlay(40,85,"MUSIC TRACK",NO,95,oldeFont,0,0);
+		titleMus->g = 255;
+		musName = CreateAndAddTextOverlay(45,95,"",NO,95,oldeFont,0,0);
 		sprintf(musNameTxt,"%s %d",gameSongs[musNum].tuneName,musNum);
 		musName->text = musNameTxt;
 		// middle pane --------------------------------------------------------------------------
 
 		// bottom pane --------------------------------------------------------------------------
-		CreateAndAddSpriteOverlay(30,120,"shldr_l.bmp",16,16,255,255,255,255,0);
-		CreateAndAddSpriteOverlay(47,120,"shldr_r.bmp",16,16,255,255,255,255,0);
+		CreateAndAddSpriteOverlay(30,120,"shldr_l.bmp",16,16,255,0);
+		CreateAndAddSpriteOverlay(47,120,"shldr_r.bmp",16,16,255,0);
 
-		CreateAndAddSpriteOverlay(34,135,"button_a.bmp",16,16,255,255,255,255,0);
-		CreateAndAddSpriteOverlay(34,150,"button_b.bmp",16,16,255,255,255,255,0);
+		CreateAndAddSpriteOverlay(34,135,"button_a.bmp",16,16,255,0);
+		CreateAndAddSpriteOverlay(34,150,"button_b.bmp",16,16,255,0);
 		// bottom pane --------------------------------------------------------------------------
 
-		curPane = CreateAndAddSpriteOverlay(43,63,"tippane.bmp",200,12,255,255,255,191,0);
+		curPane = CreateAndAddSpriteOverlay(43,63,"tippane.bmp",200,12,191,0);
 
 		// top pane
-		sprPane = CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,255,255,255,191,0);
+		sprPane = CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,191,0);
 		// middle pane
-		sprPane = CreateAndAddSpriteOverlay(25,46,"tippane.bmp",270,68,255,255,255,95,0);
+		sprPane = CreateAndAddSpriteOverlay(25,46,"tippane.bmp",270,68,95,0);
 		// bottom pane
-		sprPane = CreateAndAddSpriteOverlay(25,115,"tippane.bmp",270,105,255,255,255,191,0);
+		sprPane = CreateAndAddSpriteOverlay(25,115,"tippane.bmp",270,105,191,0);
 
 		sfxNum	= 0;
 		musNum	= 0;

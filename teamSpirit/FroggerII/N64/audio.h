@@ -48,15 +48,20 @@ typedef struct TAG_AMBIENT_SOUND
 {
 	struct TAG_AMBIENT_SOUND *next,*prev;
 	SFX			sfx;
-	VECTOR		offsetPos;
+
 	VECTOR		pos;
-	PLATFORM	*platform;
-	short		freq;
-	short		randFreq;
-	short		counter;
-	short		onTime;
-	short		origVol;
-	short		tag;
+	ACTOR		*follow;
+
+	int			num;
+
+	short		volume;
+	short		pitch;
+	long		radius;
+
+	long		freq;
+	long		randFreq;
+	long		counter;
+
 }AMBIENT_SOUND;
 
 
@@ -118,6 +123,7 @@ enum
 #define GEN_FROG_HURT	145
 #define GEN_FROG_DEATH	162
 #define GEN_FROG_TONGUE	219
+#define GEN_CLOCK_TOCK	1
 
 extern int musresult;
 
@@ -154,7 +160,7 @@ void InitAmbientSoundList();
 void FreeAmbientSoundList();
 
 int PlaySample(short num,VECTOR *pos,long radius,short volume,short pitch);
-AMBIENT_SOUND *AddAmbientSound(short num,VECTOR *pos,long radius,short volume,short pitch,float freq,float rFreq,ACTOR *follow);
+AMBIENT_SOUND *AddAmbientSound(int num,VECTOR *pos,long radius,int vol,short pitch,float freq,float randFreq,ACTOR *follow);
 void UpdateAmbientSounds();
 
 

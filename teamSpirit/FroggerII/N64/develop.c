@@ -40,15 +40,16 @@ void RunDevelopmentMenu()
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
-		dev = CreateAndAddTextOverlay(30,24,"DEVELOPMENT MENU",NO,NO,255,255,255,255,smallFont,0,0,0);
-		dev = CreateAndAddTextOverlay(32,26,"DEVELOPMENT MENU",NO,NO,0,0,0,255,smallFont,0,0,0);
+		dev = CreateAndAddTextOverlay(30,24,"DEVELOPMENT MENU",NO,255,smallFont,0,0);
+		dev = CreateAndAddTextOverlay(32,26,"DEVELOPMENT MENU",NO,255,smallFont,0,0);
+		dev->r = 0;	dev->g = 0;	dev->b = 0;
 
-		objView	= CreateAndAddTextOverlay(40,60,"object viewer",NO,NO,255,255,255,255,smallFont,0,0,0);
-		sndView	= CreateAndAddTextOverlay(40,80,"sound player",NO,NO,255,255,255,255,smallFont,0,0,0);
-		watView	= CreateAndAddTextOverlay(40,100,"water stuff",NO,NO,255,255,255,255,smallFont,0,0,0);
+		objView	= CreateAndAddTextOverlay(40,60,"object viewer",NO,255,smallFont,0,0);
+		sndView	= CreateAndAddTextOverlay(40,80,"sound player",NO,255,smallFont,0,0);
+		watView	= CreateAndAddTextOverlay(40,100,"water stuff",NO,255,smallFont,0,0);
 
 		// top pane
-		CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,255,255,255,191,0);
+		CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,191,0);
 
 		ResetParameters();
 	}
@@ -98,6 +99,8 @@ void RunDevelopmentMenu()
 					FreeMenuItems();
 					return;
 				case 2:  // water stuff
+					developmentMode = WATERVIEW_MODE;
+					FreeMenuItems();
 					return;
 			}
 		}

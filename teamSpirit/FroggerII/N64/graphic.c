@@ -166,7 +166,7 @@ void TIMER_PrintTimers()
 		while(i--)
 		{
 			if(!timerTxt[i])
-				timerTxt[i] = CreateAndAddTextOverlay(30,20 + (i * 20),timers[i].name,NO,NO,255,255,255,255,oldeFont,0,0,0);
+				timerTxt[i] = CreateAndAddTextOverlay(30,20 + (i * 20),timers[i].name,NO,255,oldeFont,0,0);
 		}
 	}
 

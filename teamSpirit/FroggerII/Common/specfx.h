@@ -129,6 +129,8 @@ extern SPECFXLIST specFXList;
 
 #ifdef PC_VERSION
 extern D3DTLVERTEX *ringVtx;
+#else
+extern Vtx *ringVtx;
 #endif
 
 extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime );

@@ -100,22 +100,23 @@ void SelectObjectBank()
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
-		misc = CreateAndAddTextOverlay(30,24,"OBJECT VIEWER",NO,NO,255,255,255,255,smallFont,0,0,0);
-		misc = CreateAndAddTextOverlay(32,26,"OBJECT VIEWER",NO,NO,0,0,0,255,smallFont,0,0,0);
+		misc = CreateAndAddTextOverlay(30,24,"OBJECT VIEWER",NO,255,smallFont,0,0);
+		misc = CreateAndAddTextOverlay(32,26,"OBJECT VIEWER",NO,255,smallFont,0,0);
+		misc->r = 255;	misc->g = 255;	misc->b = 255;
 
-		CreateAndAddTextOverlay(30,55,"up and down selects world",NO,NO,255,255,255,255,oldeFont,0,0,0);
-		CreateAndAddTextOverlay(30,65,"left and right selects level",NO,NO,255,255,255,255,oldeFont,0,0,0);
+		CreateAndAddTextOverlay(30,55,"up and down selects world",NO,255,oldeFont,0,0);
+		CreateAndAddTextOverlay(30,65,"left and right selects level",NO,255,oldeFont,0,0);
 
 		// top pane
-		CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,255,255,255,191,0);
+		CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,191,0);
 		
 		for(i=0; i<MAX_LEVELS; i++)
 		{
-			lev[i] = CreateAndAddTextOverlay(30 + (i * 24),130,"1",YES,NO,255,255,255,91,smallFont,0,0,0);
+			lev[i] = CreateAndAddTextOverlay(30 + (i * 24),130,"1",YES,91,smallFont,0,0);
 //			DisableTextOverlay(lev[i]);
 		}
 
-		tOverObjBank = CreateAndAddTextOverlay(70,100,"************************",YES,NO,255,255,255,255,smallFont,0,0,0);
+		tOverObjBank = CreateAndAddTextOverlay(70,100,"************************",YES,255,smallFont,0,0);
 
 		objectViewer.currWorldID = 0;
 		sprintf(tOverObjBank->text,"%s (%d/%d)",worldVisualData[objectViewer.currWorldID].description,objectViewer.currWorldID+1,MAX_WORLDS);
@@ -279,9 +280,9 @@ void ViewObjectBank()
 	}
 
 	if(!viewTxt)
-		viewTxt	= CreateAndAddTextOverlay(30,25,NULL,NO,NO,255,255,255,255,smallFont,0,0,0);
+		viewTxt	= CreateAndAddTextOverlay(30,25,NULL,NO,255,smallFont,0,0);
 	if(!msgTxt)
-		msgTxt	= CreateAndAddTextOverlay(30,205,NULL,NO,NO,255,255,255,255,smallFont,0,0,0);
+		msgTxt	= CreateAndAddTextOverlay(30,205,NULL,NO,255,smallFont,0,0);
 
 	sprintf(objName,"%s (%d/%d)",objectViewer.currObj->actor->objectController->object->name,objectViewer.currObjNum+1,objectViewer.numObjects);
 	viewTxt->text = objName;

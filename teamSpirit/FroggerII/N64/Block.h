@@ -14,6 +14,8 @@
 
 #include "define.h" 
 
+#define ULONG_MAX	4294967295
+
 #define MAX_LOOKATS	64
 #define MAX_HILITES 64
 

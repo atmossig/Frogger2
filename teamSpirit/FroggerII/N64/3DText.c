@@ -706,19 +706,18 @@ void Sub3DText( TEXT3D *t )
 	Returns			: 
 	Info			: 
 */
-void Free3DTextList( )
+void Free3DTextList()
 {
 	TEXT3D *t3d, *t;
 
-	for( t3d = text3DList.head.next; t3d != &text3DList.head; )
+	for( t3d = text3DList.head.next; t3d && t3d != &text3DList.head; t3d = t->next)
 	{
-		if( t3d != NULL )
-		{
-			Sub3DText( t3d );
+		t = t3d->next;
 
-			t = t3d->next;
-			JallocFree( (UBYTE **)&t3d );
-			t3d = t;
-		}
+		Sub3DText( t3d );
+
+		JallocFree( (UBYTE **)&t3d->string );
+		JallocFree( (UBYTE **)&t3d->vT );
+		JallocFree( (UBYTE **)&t3d );
 	}
 }

@@ -307,7 +307,7 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned)
 
 	if(drawList)
 	{
-		gSPDisplayList(glistp++, drawList);
+		gSPDisplayList(glistp++,drawList);
 	}
 	else if(obj->mesh->numFaces)
 	{
