@@ -40,6 +40,7 @@ typedef struct _SCENICOBJLIST
 
 extern SCENICOBJLIST scenicObjList;
 
+extern SVECTOR jiggledVerts[700];
 
 //void CreateAndAddScenicObject ( char *name, short posx, short posy, short posz, int newFlags );
 void CreateAndAddScenicObject(SCENIC *sc);

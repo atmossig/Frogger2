@@ -104,10 +104,10 @@ void LoadTextureBank ( int textureBank )
 			break;
 
 		case INGAMEGENERIC_TEX_BANK:
-				textureBanks [ numTextureBanks ] = textureLoadBank ( "TEXTURES\\NEW.SPT" );
+				//textureBanks [ numTextureBanks ] = textureLoadBank ( "TEXTURES\\NEW.SPT" );
 
-				textureDownloadBank ( textureBanks [ numTextureBanks ]   );
-				textureDestroyBank  ( textureBanks [ numTextureBanks++ ] );
+				//textureDownloadBank ( textureBanks [ numTextureBanks ]   );
+				//textureDestroyBank  ( textureBanks [ numTextureBanks++ ] );
 				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
 //				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
 			break;
@@ -162,7 +162,7 @@ void LoadTextureAnimBank ( int textureBank )
 {
 	TextureType *dummyTexture;
 	int fileLength, counter, counter1, numframes, waitTime;
-	long crc, dummyCrc;
+	long crc, destCrc, dummyCrc;
 	char fileName[256], dummyString [ 256 ];
 	char titFileName[256];
 	unsigned long *p, *textureAnims;
@@ -222,7 +222,6 @@ void LoadTextureAnimBank ( int textureBank )
 	p = textureAnims;
 	numAnimations = *p; p++;
 
-	froggerShowVRAM(1);
 
 	for ( counter = 0; counter < numAnimations; counter++ )
 	{
@@ -231,10 +230,13 @@ void LoadTextureAnimBank ( int textureBank )
 		numframes = *p;	p++;
 		crc = *p; p++;
 
+		destCrc = crc;
+
 		textureAnim = CreateTextureAnimation( crc, numframes );
 
 		sprintf ( dummyString, "DUMMY%d", numUsedDummys++ );
-		dummyTexture = textureFindCRCInAllBanks ( utilStr2CRC ( dummyString ) );
+		dummyCrc = utilStr2CRC ( dummyString );
+		dummyTexture = textureFindCRCInAllBanks ( dummyCrc );
 
 		if ( !dummyTexture )
 		{
@@ -259,49 +261,29 @@ void LoadTextureAnimBank ( int textureBank )
 			moveRect.w *= 2;
 
 		// copy bit of vram
-		BEGINPRIM ( siMove, DR_MOVE );
+/*		BEGINPRIM ( siMove, DR_MOVE );
 		SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(dummyTexture->handle),VRAM_CALCVRAMY(dummyTexture->handle));
 		ENDPRIM ( siMove, 1023, DR_MOVE );
+*/
+ 		DrawSync(0);
+		MoveImage ( &moveRect, VRAM_CALCVRAMX(dummyTexture->handle), VRAM_CALCVRAMY(dummyTexture->handle) );
+ 		DrawSync(0);
 
- 		//DrawSync(0);
-		//MoveImage ( &moveRect, VRAM_CALCVRAMX(dummyTexture->handle), VRAM_CALCVRAMY(dummyTexture->handle) );
- 		//DrawSync(0);
+		//froggerShowVRAM(1);
 
 		for ( counter1 = 0; counter1 < numframes; counter1++ )
 		{
 			crc = *p;
-			dummyCrc = crc;
 			p++;
 			waitTime = *p; p++;
 
-			AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
-
-			if ( textureAnim->animation->anim [ counter1 ]->imageCRC == textureAnim->animation->dest->imageCRC )
-			{
-				utilPrintf("Re-Pointing To Another Texture....\n");
-				textureAnim->animation->anim [ counter1 ]->x = dummyTexture->x;
-				textureAnim->animation->anim [ counter1 ]->y = dummyTexture->y;
-				textureAnim->animation->anim [ counter1 ]->w = dummyTexture->w;
-				textureAnim->animation->anim [ counter1 ]->h = dummyTexture->h;
-				textureAnim->animation->anim [ counter1 ]->tpage = dummyTexture->tpage;
-				textureAnim->animation->anim [ counter1 ]->clut = dummyTexture->clut;
-				textureAnim->animation->anim [ counter1 ]->u0 = dummyTexture->u0;
-				textureAnim->animation->anim [ counter1 ]->v0 = dummyTexture->v0;
-				textureAnim->animation->anim [ counter1 ]->u1 = dummyTexture->u1;
-				textureAnim->animation->anim [ counter1 ]->v1 = dummyTexture->v1;
-				textureAnim->animation->anim [ counter1 ]->u2 = dummyTexture->u2;
-				textureAnim->animation->anim [ counter1 ]->v2 = dummyTexture->v2;
-				textureAnim->animation->anim [ counter1 ]->u3 = dummyTexture->u3;
-				textureAnim->animation->anim [ counter1 ]->v3 = dummyTexture->v3;
-				textureAnim->animation->anim [ counter1 ]->handle = dummyTexture->handle;
-				textureAnim->animation->anim [ counter1 ]->imageCRC = dummyTexture->imageCRC;
-				textureAnim->animation->anim [ counter1 ]->refCount = dummyTexture->refCount;
-				textureAnim->animation->anim [ counter1 ]->flags = dummyTexture->flags;
-			}
-			// ENDIF
+			if ( crc == destCrc )
+				AddAnimFrame ( textureAnim, dummyCrc, waitTime, counter1 );
+			else
+				AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
 		}
 		// ENDFOR
-		froggerShowVRAM(1);
+		//froggerShowVRAM(1);
 	}
 	// ENDFOR
 	//froggerShowVRAM(1);
@@ -600,7 +582,7 @@ void UpdateTextureAnimations ( void )
 		// ENDIF
 
 
-		//utilPrintf("Wait Time : %d\n", cur->waitTime );
+//s		utilPrintf("Wait Time : %d\n", cur->waitTime );
 
 		moveRect.x = VRAM_CALCVRAMX(cur->animation->anim[cur->waitTime]->handle);
 		moveRect.y = VRAM_CALCVRAMY(cur->animation->anim[cur->waitTime]->handle);

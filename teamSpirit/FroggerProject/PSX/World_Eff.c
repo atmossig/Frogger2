@@ -45,6 +45,9 @@
 #define VRAM_CALCVRAMY(HND)	(((VRAM_GETPAGE(HND)/(VRAM_PAGECOLS))*256)+(VRAM_GETY(HND)*8))
 
 
+SVECTOR jiggledVerts[700];
+
+
 SCENICOBJLIST scenicObjList;
 
 extern int polyCount;
@@ -88,8 +91,6 @@ asm(\
 
 void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 {
-	static SVECTOR *jiggledVerts = NULL;
-
 	register u_long t1 asm("$16");
 	register u_long t2 asm("$20");
 
@@ -107,6 +108,8 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 	register long depth asm("$16");
 
 	unsigned long *ot = currentDisplayPage->ot+mesh->extra_depth;
+
+//	static SVECTOR *jiggledVerts = NULL;
 
 	int i;
 
@@ -137,8 +140,8 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 		max_depth = 1024 - mesh->extra_depth;
 
 
-	if ( !jiggledVerts )
-		jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
+//	if ( !jiggledVerts )
+//		jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
 
 	
 	if ( mesh->flags & JIGGLE )
@@ -814,8 +817,6 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 {
 	char u,v;
 
-	static SVECTOR *jiggledVerts = NULL;
-
 	register u_long t1 asm("$16");
 	register u_long t2 asm("$20");
 
@@ -834,6 +835,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	register long depth asm("$16");
 
 	unsigned long *ot = currentDisplayPage->ot+mesh->extra_depth;
+
+	//static SVECTOR *jiggledVerts = NULL;
 
 	int i;
 
@@ -863,8 +866,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 		max_depth = 1024 - mesh->extra_depth;
 
 
-	if ( !jiggledVerts )
-		jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
+//	if ( !jiggledVerts )
+	//	jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
 
 	
 	if ( mesh->flags & JIGGLE )

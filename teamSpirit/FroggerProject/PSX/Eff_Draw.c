@@ -961,7 +961,7 @@ void DrawFXLightning( SPECFX *fx )
 		memcpy( &vT[4], &vT[0], sizeof(SVECTOR) );
 
 		// Draw polys, if they're not clipped
-		if( vT[0].vz && vT[1].vz && vT[2].vz && vT[3].vz )
+		//if( vT[0].vz && vT[1].vz && vT[2].vz && vT[3].vz )
 		{
 /*			vT[0].specular = D3DRGB(0,0,0);
 			vT[0].tu = 1;
@@ -999,6 +999,13 @@ void DrawFXLightning( SPECFX *fx )
 //			ft4->r0 = p->r;
 //			ft4->g0 = p->g;
 //			ft4->b0 = p->b;
+
+/*			utilPrintf ( "ft4->z0 : %d\n", vT[0].vz  );
+			utilPrintf ( "ft4->z1 : %d\n", vT[1].vz  );
+			utilPrintf ( "ft4->z2 : %d\n", vT[2].vz  );
+			utilPrintf ( "ft4->z3 : %d\n", vT[3].vz  );*/
+
+
 			ft4->r0 = (p->r*p->a)>>8;
 			ft4->g0 = (p->g*p->a)>>8;
 			ft4->b0 = (p->b*p->a)>>8;
@@ -1012,12 +1019,12 @@ void DrawFXLightning( SPECFX *fx )
 			ft4->v3 = tEntry->v3;
 			ft4->tpage = tEntry->tpage;
 			ft4->clut  = tEntry->clut;
-	//		setSemiTrans(ft4, 1);
+			setSemiTrans(ft4, 1);
 			//ft4->code  |= 2;//semi-trans on
  			//ft4->tpage |= 32;//add
 	// 		ft4->tpage = si->tpage | 64;//sub
 	//		ENDPRIM(ft4, 1, POLY_FT4);
-			ENDPRIM(ft4, otz, POLY_FT4);
+			ENDPRIM(ft4, 1, POLY_FT4);
 		}
 
 		i++;
