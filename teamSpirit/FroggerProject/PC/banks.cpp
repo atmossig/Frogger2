@@ -8,8 +8,14 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#include "mdx.h"
+#include <windows.h>
 #include "banks.h"
+#include "mdx.h"
+#include "layout.h"
+#include "Main.h"
+#include <islutil.h>
+
+TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ];
 
 void LoadObjectBank(int objectBank)					
 {
@@ -211,10 +217,10 @@ void LoadTextureBank(int textureBank)
 
 void FreeTextureBank(TextureBankType *textureBank)		
 {
-	return;
+	utilPrintf("!!! FreeTextureBank() : TEXTURE BANKS ARE NOT FREED CORRECTLY !!!\n");
 }
 
 void FreeAllTextureBanks(void)							
 {
-	return;
+	utilPrintf("!!! FreeAllTextureBanks() : TEXTURE BANKS ARE NOT FREED CORRECTLY !!!\n");
 }

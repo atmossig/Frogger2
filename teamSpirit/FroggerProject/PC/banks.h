@@ -11,6 +11,8 @@
 #ifndef BANKS_H_INCLUDED
 #define BANKS_H_INCLUDED
 
+#include <isltex.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -24,6 +26,8 @@ void LoadTextureBank(int textureBank);
 void FreeTextureBank(TextureBankType *textureBank);
 void FreeAllTextureBanks(void);
 void LoadObjectBank(int objectBank);
+
+#define FreeWaterObjectList()
 
 #ifdef __cplusplus
 }

@@ -97,9 +97,6 @@ void PTTextureLoad( )
 	}
 
 	t = GetTexEntryFromCRC(UpdateCRC("00wate04.bmp"));
-	if (t)
-		testS = t->surf;
-
 }
 
 
