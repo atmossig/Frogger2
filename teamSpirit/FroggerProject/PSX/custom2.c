@@ -2,7 +2,7 @@
 #include "sonylibs.h"
 #include "shell.h"
 
-#include <islpsi.h>
+#include "islpsi.h"
 //y#include <islpsi.h>
 #include <psitypes.h>
 
@@ -104,11 +104,14 @@ void customDrawPrimitives2(int depth)
 				gte_stsxy3_ft3(si);
 			
 				//no lighting
-//				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
+				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
 
-				si->r0 = ( op->r0 << 7 ) >> 8;
-				si->g0 = ( op->g0 << 7 ) >> 8;
-				si->b0 = ( op->b0 << 7 ) >> 8;
+//  				si->r0 = ( op->r0 << 7 ) >> 8;
+//  				si->g0 = ( op->g0 << 7 ) >> 8;
+//  				si->b0 = ( op->b0 << 7 ) >> 8;
+//  				si->r0 = op->r0 >> 1;
+//  				si->g0 = op->g0 >> 1;
+//  				si->b0 = op->b0 >> 1;
 
 				setPolyFT3(si);
 				if ( globalClut )
@@ -148,10 +151,13 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->x3) = *(u_long *) (&tfv[op->v3]);
 
 				//no lighting
-//				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
-				si->r0 = ( op->r0 << 7 ) >> 8;
-				si->g0 = ( op->g0 << 7 ) >> 8;
-				si->b0 = ( op->b0 << 7 ) >> 8;
+				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
+//  				si->r0 = ( op->r0 << 7 ) >> 8;
+//  				si->g0 = ( op->g0 << 7 ) >> 8;
+//  				si->b0 = ( op->b0 << 7 ) >> 8;
+//  				si->r0 = op->r0 >> 1;
+//  				si->g0 = op->g0 >> 1;
+//  				si->b0 = op->b0 >> 1;
 
 				*(u_long *)  (&si->u2) = *(u_long *) (&op->tu2);
 				*(u_long *)  (&si->u3) = *(u_long *) (&op->tu3);
@@ -196,21 +202,33 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);
 
 				//no lighting
-//				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
-//				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
-//				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 
-				si->r0 = ( op->r0 << 7 ) >> 8;
-				si->g0 = ( op->g0 << 7 ) >> 8;
-				si->b0 = ( op->b0 << 7 ) >> 8;
+//  				si->r0 = ( op->r0 << 7 ) >> 8;
+//  				si->g0 = ( op->g0 << 7 ) >> 8;
+//  				si->b0 = ( op->b0 << 7 ) >> 8;
+//  
+//  				si->r1 = ( op->r1 << 7 ) >> 8;
+//  				si->g1 = ( op->g1 << 7 ) >> 8;
+//  				si->b1 = ( op->b1 << 7 ) >> 8;
+//  
+//  				si->r2 = ( op->r2 << 7 ) >> 8;
+//  				si->g2 = ( op->g2 << 7 ) >> 8;
+//  				si->b2 = ( op->b2 << 7 ) >> 8;
 
-				si->r1 = ( op->r1 << 7 ) >> 8;
-				si->g1 = ( op->g1 << 7 ) >> 8;
-				si->b1 = ( op->b1 << 7 ) >> 8;
-
-				si->r2 = ( op->r2 << 7 ) >> 8;
-				si->g2 = ( op->g2 << 7 ) >> 8;
-				si->b2 = ( op->b2 << 7 ) >> 8;
+//  				si->r0 = op->r0 >> 1;
+//  				si->g0 = op->g0 >> 1;
+//  				si->b0 = op->b0 >> 1;
+//  
+//  				si->r1 = op->r1 >> 1;
+//  				si->g1 = op->g1 >> 1;
+//  				si->b1 = op->b1 >> 1;
+//  
+//  				si->r2 = op->r2 >> 1;
+//  				si->g2 = op->g2 >> 1;
+//  				si->b2 = op->b2 >> 1;
 
 				setPolyGT3(si);
 				if ( globalClut )
@@ -257,26 +275,42 @@ void customDrawPrimitives2(int depth)
 		
 		
 				//no lighting
-	/*			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
 				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
-				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);*/
+				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-				si->r0 = ( op->r0 << 7 ) >> 8;
-				si->g0 = ( op->g0 << 7 ) >> 8;
-				si->b0 = ( op->b0 << 7 ) >> 8;
+//  				si->r0 = ( op->r0 << 7 ) >> 8;
+//  				si->g0 = ( op->g0 << 7 ) >> 8;
+//  				si->b0 = ( op->b0 << 7 ) >> 8;
+//  
+//  				si->r1 = ( op->r1 << 7 ) >> 8;
+//  				si->g1 = ( op->g1 << 7 ) >> 8;
+//  				si->b1 = ( op->b1 << 7 ) >> 8;
+//  
+//  				si->r2 = ( op->r2 << 7 ) >> 8;
+//  				si->g2 = ( op->g2 << 7 ) >> 8;
+//  				si->b2 = ( op->b2 << 7 ) >> 8;
+//  
+//  				si->r3 = ( op->r3 << 7 ) >> 8;
+//  				si->g3 = ( op->g3 << 7 ) >> 8;
+//  				si->b3 = ( op->b3 << 7 ) >> 8;
 
-				si->r1 = ( op->r1 << 7 ) >> 8;
-				si->g1 = ( op->g1 << 7 ) >> 8;
-				si->b1 = ( op->b1 << 7 ) >> 8;
-
-				si->r2 = ( op->r2 << 7 ) >> 8;
-				si->g2 = ( op->g2 << 7 ) >> 8;
-				si->b2 = ( op->b2 << 7 ) >> 8;
-
-				si->r3 = ( op->r3 << 7 ) >> 8;
-				si->g3 = ( op->g3 << 7 ) >> 8;
-				si->b3 = ( op->b3 << 7 ) >> 8;
+//  				si->r0 = op->r0 >> 1;
+//  				si->g0 = op->g0 >> 1;
+//  				si->b0 = op->b0 >> 1;
+//  
+//  				si->r1 = op->r1 >> 1;
+//  				si->g1 = op->g1 >> 1;
+//  				si->b1 = op->b1 >> 1;
+//  
+//  				si->r2 = op->r2 >> 1;
+//  				si->g2 = op->g2 >> 1;
+//  				si->b2 = op->b2 >> 1;
+//  
+//  				si->r3 = op->r3 >> 1;
+//  				si->g3 = op->g3 >> 1;
+//  				si->b3 = op->b3 >> 1;
 
 		
 				modctrl->polysdrawn++;
@@ -362,27 +396,45 @@ void customDrawPrimitives2(int depth)
 				gte_stsxy3_g4(si);
 
 
+//bbxx - NO NO NO (i think) - F4's have only 1 rgb
+//it's drawing all F4's as G4's.
 				//no lighting
-		/*		*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
 				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
-				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);*/
+				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-				si->r0 = ( op->r0 << 7 ) >> 8;
-				si->g0 = ( op->g0 << 7 ) >> 8;
-				si->b0 = ( op->b0 << 7 ) >> 8;
+//  				si->r0 = ( op->r0 << 7 ) >> 8;
+//  				si->g0 = ( op->g0 << 7 ) >> 8;
+//  				si->b0 = ( op->b0 << 7 ) >> 8;
+//  
+//  				si->r1 = ( op->r1 << 7 ) >> 8;
+//  				si->g1 = ( op->g1 << 7 ) >> 8;
+//  				si->b1 = ( op->b1 << 7 ) >> 8;
+//  
+//  				si->r2 = ( op->r2 << 7 ) >> 8;
+//  				si->g2 = ( op->g2 << 7 ) >> 8;
+//  				si->b2 = ( op->b2 << 7 ) >> 8;
+//  
+//  				si->r3 = ( op->r3 << 7 ) >> 8;
+//  				si->g3 = ( op->g3 << 7 ) >> 8;
+//  				si->b3 = ( op->b3 << 7 ) >> 8;
 
-				si->r1 = ( op->r1 << 7 ) >> 8;
-				si->g1 = ( op->g1 << 7 ) >> 8;
-				si->b1 = ( op->b1 << 7 ) >> 8;
-
-				si->r2 = ( op->r2 << 7 ) >> 8;
-				si->g2 = ( op->g2 << 7 ) >> 8;
-				si->b2 = ( op->b2 << 7 ) >> 8;
-
-				si->r3 = ( op->r3 << 7 ) >> 8;
-				si->g3 = ( op->g3 << 7 ) >> 8;
-				si->b3 = ( op->b3 << 7 ) >> 8;
+//  				si->r0 = op->r0 >> 1;
+//  				si->g0 = op->g0 >> 1;
+//  				si->b0 = op->b0 >> 1;
+//  
+//  				si->r1 = op->r1 >> 1;
+//  				si->g1 = op->g1 >> 1;
+//  				si->b1 = op->b1 >> 1;
+//  
+//  				si->r2 = op->r2 >> 1;
+//  				si->g2 = op->g2 >> 1;
+//  				si->b2 = op->b2 >> 1;
+//  
+//  				si->r3 = op->r3 >> 1;
+//  				si->g3 = op->g3 >> 1;
+//  				si->b3 = op->b3 >> 1;
 
 
 				setPolyG4(si);
@@ -411,12 +463,10 @@ void customDrawPrimitives2(int depth)
 				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
 
  
-				//*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
 
-				si->r0 = ( op->r0 << 7 ) >> 8;
-				si->g0 = ( op->g0 << 7 ) >> 8;
-				si->b0 = ( op->b0 << 7 ) >> 8;
-
+//				si->r0 = ( op->r0 << 7 ) >> 8;
+//				si->r0 = op->r0 >> 1;
  				gte_nclip_b();	// takes 8 cycles
 		
 
@@ -428,18 +478,24 @@ void customDrawPrimitives2(int depth)
 				gte_stsxy3_g3(si);
 
 
+//bbxx - NO NO NO (I think) - F3's only have 1 rgb
 				//no lighting
-				//*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
-				//*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 
 
-				si->r1 = ( op->r1 << 7 ) >> 8;
-				si->g1 = ( op->g1 << 7 ) >> 8;
-				si->b1 = ( op->b1 << 7 ) >> 8;
+//				si->r0 = ( op->r0 << 7 ) >> 8;
+// 				si->g0 = op->g0 >> 1;
+// 				si->b0 = op->b0 >> 1;
 
-				si->r2 = ( op->r2 << 7 ) >> 8;
-				si->g2 = ( op->g2 << 7 ) >> 8;
-				si->b2 = ( op->b2 << 7 ) >> 8;
+//  
+//  				si->r1 = op->r1 >> 1;
+//  				si->g1 = op->g1 >> 1;
+//  				si->b1 = op->b1 >> 1;
+//  
+//  				si->r2 = op->r2 >> 1;
+//  				si->g2 = op->g2 >> 1;
+//  				si->b2 = op->b2 >> 1;
 
 
 				modctrl->polysdrawn++;
@@ -1388,9 +1444,10 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 			
 				// JH : Temp Fix.................
 
-				si->r0 = ( op->r0 << 7 ) >> 8;
-				si->g0 = ( op->g0 << 7 ) >> 8;
-				si->b0 = ( op->b0 << 7 ) >> 8;
+				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);
+// 				si->r0 = ( op->r0 << 7 ) >> 8;
+// 				si->g0 = ( op->g0 << 7 ) >> 8;
+// 				si->b0 = ( op->b0 << 7 ) >> 8;
 
 
 				// SL: put in the additive poly...
@@ -1434,11 +1491,11 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				*(u_long *) (&si->x3) = *(u_long *) (&tfv[op->v3]);
 
 				// JH : Temp Fix
-				//				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
+				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
 
-				si->r0 = ( op->r0 * 128 ) >> 8;
-				si->g0 = ( op->g0 * 128 ) >> 8;
-				si->b0 = ( op->b0 * 128 ) >> 8;
+// 				si->r0 = ( op->r0 * 128 ) >> 8;
+// 				si->g0 = ( op->g0 * 128 ) >> 8;
+// 				si->b0 = ( op->b0 * 128 ) >> 8;
 
 				*(u_long *) (&si->u2) = *(u_long *) (&op->tu2);
 				*(u_long *) (&si->u3) = *(u_long *) (&op->tu3);
@@ -1484,21 +1541,21 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				// JH : Temp Fix.........
 
-//				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
-//				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
-//				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 
-				si->r0 = ( op->r0 * 128 ) >> 8;
-				si->g0 = ( op->g0 * 128 ) >> 8;
-				si->b0 = ( op->b0 * 128 ) >> 8;
-
-				si->r1 = ( op->r1 * 128 ) >> 8;
-				si->g1 = ( op->g1 * 128 ) >> 8;
-				si->b1 = ( op->b1 * 128 ) >> 8;
-
-				si->r2 = ( op->r2 * 128 ) >> 8;
-				si->g2 = ( op->g2 * 128 ) >> 8;
-				si->b2 = ( op->b2 * 128 ) >> 8;
+// 				si->r0 = ( op->r0 * 128 ) >> 8;
+// 				si->g0 = ( op->g0 * 128 ) >> 8;
+// 				si->b0 = ( op->b0 * 128 ) >> 8;
+// 
+// 				si->r1 = ( op->r1 * 128 ) >> 8;
+// 				si->g1 = ( op->g1 * 128 ) >> 8;
+// 				si->b1 = ( op->b1 * 128 ) >> 8;
+// 
+// 				si->r2 = ( op->r2 * 128 ) >> 8;
+// 				si->g2 = ( op->g2 * 128 ) >> 8;
+// 				si->b2 = ( op->b2 * 128 ) >> 8;
 
 				// SL: put in the additive poly...
 				setPolyGT3(si);
@@ -1545,26 +1602,26 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				*(u_long *)  (&si->x3) = *(u_long *) (&tfv[op->v3]);
 		
 				// JH Temp Fix.......................
-//				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
-//				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
-//				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
-//				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 		
-				si->r0 = ( op->r0 << 7 ) >> 8;
-				si->g0 = ( op->g0 << 7 ) >> 8;
-				si->b0 = ( op->b0 << 7 ) >> 8;
-
-				si->r1 = ( op->r1 << 7 ) >> 8;
-				si->g1 = ( op->g1 << 7 ) >> 8;
-				si->b1 = ( op->b1 << 7 ) >> 8;
-
-				si->r2 = ( op->r2 << 7 ) >> 8;
-				si->g2 = ( op->g2 << 7 ) >> 8;
-				si->b2 = ( op->b2 << 7 ) >> 8;
-
-				si->r3 = ( op->r3 << 7 ) >> 8;
-				si->g3 = ( op->g3 << 7 ) >> 8;
-				si->b3 = ( op->b3 << 7 ) >> 8;
+// 				si->r0 = ( op->r0 << 7 ) >> 8;
+// 				si->g0 = ( op->g0 << 7 ) >> 8;
+// 				si->b0 = ( op->b0 << 7 ) >> 8;
+// 
+// 				si->r1 = ( op->r1 << 7 ) >> 8;
+// 				si->g1 = ( op->g1 << 7 ) >> 8;
+// 				si->b1 = ( op->b1 << 7 ) >> 8;
+// 
+// 				si->r2 = ( op->r2 << 7 ) >> 8;
+// 				si->g2 = ( op->g2 << 7 ) >> 8;
+// 				si->b2 = ( op->b2 << 7 ) >> 8;
+// 
+// 				si->r3 = ( op->r3 << 7 ) >> 8;
+// 				si->g3 = ( op->g3 << 7 ) >> 8;
+// 				si->b3 = ( op->b3 << 7 ) >> 8;
 
 				// SL: put in the additive poly...
 				setPolyGT4(si);
@@ -1608,11 +1665,11 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 					height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
 
 					// JH : Temp Fix
-//					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
+					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
 
-					si->r0 = ( op->r0 << 7 ) >> 8;			// Texture coords / colors
-					si->g0 = ( op->g0 << 7 ) >> 8;			// Texture coords / colors
-					si->b0 = ( op->b0 << 7 ) >> 8;			// Texture coords / colors
+// 					si->r0 = ( op->r0 << 7 ) >> 8;			// Texture coords / colors
+// 					si->g0 = ( op->g0 << 7 ) >> 8;			// Texture coords / colors
+// 					si->b0 = ( op->b0 << 7 ) >> 8;			// Texture coords / colors
 
 					*(u_long *)&si->u0 = *(u_long *)&op->tu0;
 					*(u_long *)&si->u1 = *(u_long *)&op->tu1;
