@@ -190,6 +190,29 @@ void UpdateWaterN64(ACTOR2 *wAct)
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: SetWaterModifiersN64
+	Purpose			: sets specific water modifier values per world / level
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void SetWaterModifiersN64(short worldID,short levelID)
+{
+	// currently based on world - but can go to level based
+	switch(worldID)
+	{
+		case WORLDID_FRONTEND:
+			modc1 = 80;		modc2 = 100;	modc3 = 16;
+			break;
+
+		case WORLDID_SPACE:
+			modc1 = 140;	modc2 = 180;	modc3 = 8;
+			break;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: AddN64WaterObjectResource
 	Purpose			: adds N64 specific water related stuff
 	Parameters		: 
@@ -203,6 +226,9 @@ void AddN64WaterObjectResource(ACTOR *wAct)
 
 	if(wAct->objectController && (numN64WaterObjects < MAX_N64_WATEROBJECTS))
 	{
+		// set water modifiers for current world and level
+		SetWaterModifiersN64(player[0].worldNum,player[0].levelNum);
+
 		// copy texture co-ords to an array
 		in = wAct->objectController->vtx[wAct->objectController->vtxBuf];
 		i = wAct->objectController->numVtx;
