@@ -222,7 +222,7 @@ void RecordKeyInit(unsigned long worldNum, unsigned long levelNum)
 	if (rKeyOK)
 		return;
 
-	sprintf(rKeyFile,"%srecord-%lu-%lu.key",baseDirectory,worldNum,levelNum);
+	sprintf(rKeyFile,"%s\\demos\\record-%lu-%lu.key",baseDirectory,worldNum,levelNum);
 	fp = fopen(rKeyFile,"wb");
 	if (fp)
 	{
@@ -238,10 +238,6 @@ void RecordKeyInit(unsigned long worldNum, unsigned long levelNum)
 	Parameters	: 
 	Returns		: BOOL - TRUE on success, else FALSE
 	Info		: 
-*/
-unsigned long playKeyCount;
-unsigned long curPlayKey;
-unsigned long *playKeyList;
 void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
 {
 	FILE *fp;
@@ -280,6 +276,8 @@ void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
 	else
 		utilPrintf("Error loading keys (%s)\n", rKeyFile);
 }
+*/
+
 
 /*	--------------------------------------------------------------------------------
 	Function	: InitInputDevices
@@ -287,7 +285,6 @@ void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
 	Parameters	: 
 	Returns		: BOOL - TRUE on success, else FALSE
 	Info		: 
-*/
 
 void PlayKeyDone(void)
 {
@@ -297,6 +294,7 @@ void PlayKeyDone(void)
 	rPlayOK = 0;
 	rPlaying = 0;
 }
+*/
 
 /*	--------------------------------------------------------------------------------
 	Function	: InitInputDevices
@@ -633,16 +631,6 @@ void ProcessUserInput()
 		}
 	}
 
-	if (rPlayOK)
-	{
-		while ((curPlayKey < playKeyCount) && (playKeyList[curPlayKey*3]<actFrameCount))
-		{
-			//controllerdata[playKeyList[(curPlayKey*3)+2]].button = playKeyList[(curPlayKey*3)+1];
-			padData.digital[playKeyList[(curPlayKey*3)+2]] = playKeyList[(curPlayKey*3)+1];
-			curPlayKey++;
-		}
-	}
-	else
 	{
 		for (i = 0; i<4 * 14; i++)
 				if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
