@@ -52,6 +52,9 @@ See task lists
 Artist
 ------
 Framing scene					(2/3 : 1/3  facing frog dir)
+Gard1 shed poly flicker artist
+Artist checks everything
+Cam too high and vertical
 
 
 PC merge/update related
@@ -64,3 +67,29 @@ Orientation
 
 Unassigned tasks
 ----------------
+Water reflections on walls
+TIDY UP ! ! !
+
+
+
+-----------------------------------------------------
+Suggestions/other:
+-----------------------------------------------------
+
+- Thoughts on optimisation
+
+  - check loops are counting down
+
+  - no dynamic MALLOCs
+    - use static array with stack of free pointers
+	  - order by type for icache friendly processing
+
+  - Things that want putting into one big loop
+    - DistanceFromFrog
+	- function calls in enemy/platform processing loops
+	  turn into looping functions?
+	- 4k loops
+	- 
+
+- Coins behind G1 1st set of walls (instead of pot plants)
+- Check out other quat functions (psx\misc\quat.c)
