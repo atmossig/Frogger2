@@ -72,9 +72,9 @@
 psFont *font = 0;
 psFont *fontSmall = 0;
 psFont *fontWhite = 0;
-MDX_FONT *pcFont;
-MDX_FONT *pcFontSmall;
-MDX_FONT *pcFontWhite;
+MDX_FONT *pcFont = 0;
+MDX_FONT *pcFontSmall = 0;
+MDX_FONT *pcFontWhite = 0;
 long drawLandscape = 1;
 long drawGame = 1;
 long textEntry = 0;	
@@ -755,12 +755,12 @@ long DrawLoop(void)
 		BlankAllFrames();
 	}
 
+	D3DSetupRenderstates(cullNoneRS);
 	DrawScreenTransition();
 
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();
 
-	D3DSetupRenderstates(cullNoneRS);
 	PrintSpriteOverlays(1);	
 
 	if (editorOk)
@@ -1022,7 +1022,7 @@ long LoopFunc(void)
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
 	MDX_TEXENTRY *t;
-	char waterFile[MAX_PATH];
+	char path[MAX_PATH];
 	long xRes,yRes;
 	
 	SYSTEMTIME currTime;
@@ -1108,9 +1108,10 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// Clear the timers for the initial frame
 	ClearTimers();
 
-	pcFont = InitFont("FontA",baseDirectory);
-	pcFontSmall = InitFont("FontB",baseDirectory);
-	pcFontWhite = InitFont("FontC",baseDirectory);
+	sprintf(path, "%stextures\\font\\bigfont.bmp", baseDirectory);
+	pcFont = pcFontSmall = InitFont(path);
+	//pcFontSmall = InitFont("FontB",baseDirectory);
+	//pcFontWhite = InitFont("FontC",baseDirectory);
 	LoadTexBank("Phong",baseDirectory);
 
 	if (t = GetTexEntryFromCRC(UpdateCRC("phong.bmp")))
@@ -1125,8 +1126,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	
 	fxInitBlur();
 
-	sprintf(waterFile,"%stextures\\ProcData\\",baseDirectory);
-	InitWater(waterFile);
+	sprintf(path,"%stextures\\ProcData\\",baseDirectory);
+	InitWater(path);
 
 	/*SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS);
 	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);*/
@@ -1141,8 +1142,6 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	SPRITECLIPTOP = cly0;
 	SPRITECLIPRIGHT	= clx1;
 	SPRITECLIPBOTTOM = cly1;
-	
-	LoadGame();
 	
 	RunWindowsLoop(&LoopFunc);
 

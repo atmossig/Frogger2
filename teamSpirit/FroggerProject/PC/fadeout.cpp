@@ -43,6 +43,7 @@ int DrawScreenFade(void)
 
 	D3DSetupRenderstates(xluSubRS);
 	DrawFlatRect(r, RGBA_MAKE(col, col, col, 255));
+
 	D3DSetupRenderstates(xluSemiRS);
 
 	return (actFrameCount > (fadeoutStart+fadeoutLength));

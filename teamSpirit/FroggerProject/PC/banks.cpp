@@ -400,7 +400,7 @@ void LoadGame(void)
 	LoadSaveGameBlock(info, size);
 	FREE(info);
 
-	utilPrintf("Loaded game from %s", file);
+	utilPrintf("Loaded game from %s\n", file);
 }
 
 void SaveGame(void)
@@ -425,7 +425,7 @@ void SaveGame(void)
 
 	fclose(fp);	
 
-	utilPrintf("Saved game to %s", file);
+	utilPrintf("Saved game to %s\n", file);
 }
 
 /*	--------------------------------------------------------------------------------

@@ -17,25 +17,12 @@ extern "C"
 {
 #endif
 
-typedef struct TAG_FONT
-{
-	LPDIRECTDRAWSURFACE7 surf[2];
-	short *data[2];
-	long *softData[2];
-
-	D3DTLVERTEX *vPtrs[2];
-	long *widths[2];
-	long dim;
-
-} MDX_FONT;
+typedef struct _MDX_FONT MDX_FONT;
 
 void InitFontSystem(void);
-MDX_FONT *InitFont(char *bank,char *baseDir);
+MDX_FONT *InitFont(const char *filename);
 long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,float scale);
 long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX,long centredY);
-void UpdateFontHilite(void);
-extern float charHilite;
-#define HiliteUp(x) {charHilite = x;}
 
 long WrapStringToArray(const char* str, long maxWidth, char* buffer, long bufferSize, char** array, long arraySize, MDX_FONT *font);
 

@@ -1,383 +1,288 @@
 /*
 
-	This file is part of the M libraries,
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
 
-	File		: 
-	Programmer	: Matthew Cloy
-	Date		: 
+	File		: mdxFont.cpp
+	Programmer	: David Swift (reluctantly)
+	Date		: 18 May 00
 
 ----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
 #include <ddraw.h>
 #include <d3d.h>
-#include <math.h>
-#include "mgeReport.h"
-#include "mdxDDraw.h"
+#include <gelf.h>
+
+#include "mdxException.h"	// for memory allocation, OBVIOUSLY...
+#include "mgeReport.h"		// for 'reporting' stuff?
+
 #include "mdxD3D.h"
-#include "mdxInfo.h"
-#include "mdxTiming.h"
-#include "mdxCRC.h"
-#include "mdxTexture.h"
 #include "mdxMath.h"
-#include "mdxObject.h"
-#include "mdxActor.h"
-#include "mdxLandscape.h"
-#include "mdxRender.h"
-#include "mdxPoly.h"
-#include "mdxDText.h"
-#include "mdxProfile.h"
-#include "mdxWindows.h"
 #include "mdxFont.h"
-#include "commctrl.h"
-#include "gelf.h"
-#include "stdio.h"
-#include "mdxException.h"
+#include "mdxTexture.h"
+#include "mdxPoly.h"
 
-#define FONT_NUM32 (256/32)
-float tCoords32[FONT_NUM32][FONT_NUM32][2];
-char symbolChars[] = "!\"£$%^&*()-_+=[]{};'#:@~\\/,.<>?";
-
-float charHilite = 0;
-float hiliteSpeed = 0.015f;
-char toHilite,toHilite2,toHilite3;
-float hR = 0.5, hG = 1, hB = 0;
-float cR = 1, cG = 1, cB = 1;
-
-
-void UpdateFontHilite(void)
+struct MDX_FONTCHAR
 {
-	if (charHilite>1)
-	{
-		toHilite = 26+(char)((float)rand()/RAND_MAX)*26;
-		toHilite2 = 26+(char)((float)rand()/RAND_MAX)*26;
-		toHilite3 = 26+(char)((float)rand()/RAND_MAX)*26;
-		charHilite = 1;
-	}
-	else
-	{
-		charHilite -= hiliteSpeed*timeInfo.speed;			
+	LPDIRECTDRAWSURFACE7 surf;
+	float coords[4];
+	short width;
+};
 
-		if (charHilite<0)
-			charHilite = 0;
+typedef struct _MDX_FONT
+{
+	LPDIRECTDRAWSURFACE7 *surf;
+	long numSurfs;
 
-		cR = 1-(charHilite*hR);
-		cG = 1-(charHilite*hG);
-		cB = 1-(charHilite*hB);
+	short *data;
+	long *softData[2];
+
+	MDX_FONTCHAR characters[256];
+	
+	long height;
+
+} MDX_FONT;
+
+#define FONT_TEXTURE_SIZE	256
+#define FONT_TEMP_SURFACES	4
+
+const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-=+[]{}:;\"'|\\,<.>/?"
+	"\xe0\xe8\xec\xf2\xf9\xc0\xc8\xcc\xd2\xd9\xe1\xe9\xed\xf3\xfa\xfd\xc1\xc9\xcd\xd3\xda\xdd\xe2\xea\xee\xf4\xfb\xc2\xca\xce\xd4\xdb\xe3\xf1\xf5\xc3\xd1\xd5\xe4\xeb\xef\xf6\xfc\xff\xc4\xcb\xcf\xd6\xdc\xe5\xc5\xe6\xc6\xe7\xc7\xf0\xd0\xf8\xd8\xbf\xa1\xdf";
+
+//		DDrawCopyToSurface(tFont->surf[surf],(unsigned short *)tData,0,dim,dim,0);
+
+long CalcStringWidth(const char *string,MDX_FONT *font, float scale);
+long GetCharWidth(char c, MDX_FONT *font, float scale);
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitFont
+	Purpose			: initialises a font from a bitmap file
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+MDX_FONT *InitFont(const char *filename)
+{
+	short *tData, *scratch; short transparent;
+	int i, pptr = -1, bmpWidth, bmpHeight, charSize;
+	int currSurf = 0;
+	int txpos = 0;
+	POINT charUV = { 0, 0 };
+
+	LPDIRECTDRAWSURFACE7 surfaces[FONT_TEMP_SURFACES];
+
+	tData = (short *)gelfLoad_BMP((char*)filename,NULL,(void**)&pptr,&bmpWidth,&bmpHeight,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
+	
+	if (!tData)
+		return NULL;
+
+	transparent = tData[0];	// take transparent colour as the top-left pixel colour
+
+	MDX_FONT *font = (MDX_FONT*)AllocMem(sizeof(MDX_FONT));
+
+	charSize = bmpHeight;
+	//for (charSize=1;charSize<bmpHeight;charSize<<=1);	
+
+	font->height = charSize;
+
+	scratch = (short*)AllocMem(2*FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE);
+
+	//surfaces[0] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
+	surfaces[currSurf] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
+
+	for (i=0; i<strlen(alphabet) && (currSurf == 0); i++)
+	{
+		int yscan, found = 0;
+
+		// find first scan containing a coloured pixel
+		while (1) //(txpos<bmpWidth)
+		{
+			for (yscan=0;yscan<bmpHeight;yscan++)
+				if (tData[yscan*bmpWidth + txpos] != transparent) { found=1; break; }
+			
+			if (found)
+				break;
+			else
+				txpos++;
+		}
+
+		int left = txpos, width = 1;
+		txpos++;
+
+		// find first scan NOT containing a coloured pixel, incrementing width
+		while (1) //(txpos<bmpWidth)
+		{
+			found = 0;
+			for (yscan=0;yscan<bmpHeight;yscan++)
+				if (tData[yscan*bmpWidth + txpos] != transparent) { found=1; break; }
+			
+			if (!found) break;
+				
+			width++, txpos++;
+		}
+
+		if (charUV.x+width > FONT_TEXTURE_SIZE)
+		{
+			charUV.x = 0;
+			charUV.y += charSize;
+
+			if (charUV.y >= (FONT_TEXTURE_SIZE-charSize))
+			{
+				DDrawCopyToSurface(surfaces[currSurf], (unsigned short *)scratch,0,FONT_TEXTURE_SIZE,FONT_TEXTURE_SIZE,0);
+				memset(scratch, 0, 2*FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE);
+				charUV.y = 0;
+
+				currSurf++;
+				surfaces[currSurf] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
+			}
+		}
+
+		// copy stuff into texture scratch buffer
+
+		for (int y=0; y<bmpHeight; y++)
+			for (int x=0; x<width; x++)
+			{
+				short dt;
+				//unsigned long d,r,g,b;
+				dt = tData[(x+left)+(y*bmpWidth)];
+
+				if (dt==transparent) dt = (0x1f<<11)+(0x1f);
+			
+				scratch[(y+charUV.y)*FONT_TEXTURE_SIZE+(x+charUV.x)] = dt;
+			}
+
+		MDX_FONTCHAR *c = &font->characters[alphabet[i]];
+
+		c->surf = surfaces[currSurf];
+		c->coords[0] = charUV.x/(float)FONT_TEXTURE_SIZE;
+		c->coords[1] = charUV.y/(float)FONT_TEXTURE_SIZE;
+		c->coords[2] = (charUV.x + width)/(float)FONT_TEXTURE_SIZE;
+		c->coords[3] = (charUV.y + charSize)/(float)FONT_TEXTURE_SIZE;
+		c->width = width;
+
+		charUV.x += (width+1);
+
+		//dp("char '%c' @ %d,0, %d x %d\n", alphabet[i], left, width, bmpHeight);
 	}
+
+	DDrawCopyToSurface(surfaces[currSurf], (unsigned short *)scratch,0,FONT_TEXTURE_SIZE,FONT_TEXTURE_SIZE,0);
+
+	currSurf++;
+
+	// copy surfaces into the right place
+	font->surf = (LPDIRECTDRAWSURFACE7*)AllocMem(sizeof(LPDIRECTDRAWSURFACE7)*currSurf);
+	memcpy(font->surf, surfaces, sizeof(LPDIRECTDRAWSURFACE7)*currSurf);
+
+	font->numSurfs = currSurf;
+	font->characters[' '].width = font->characters['!'].width;
+
+	FreeMem(scratch);
+	//free(tData);
+
+	return font;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
 void InitFontSystem(void)
 {
-	for (int i=0; i<FONT_NUM32; i++)
-		for (int j=0; j<FONT_NUM32; j++)
-		{
-			tCoords32[i][j][0] = ((float)i)/FONT_NUM32;
-			tCoords32[i][j][1] = ((float)j)/FONT_NUM32;
-		}
-}
-
-bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int surf)
-{
-	int pptr = -1;
-	int dim,size;
-	long i,j;
-	short *tData;
-
-	tData = (short *)gelfLoad_BMP((char*)fPath,NULL,(void**)&pptr,&dim,NULL,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
 	
-	if (tData)
-	{
-		tFont->data[surf] = tData;
-
-
-		if ((tFont->surf[surf] = D3DCreateTexSurface(dim,dim, 0xf81f, 0, 1)) == NULL)
-			return false;
-
-		DDrawCopyToSurface(tFont->surf[surf],(unsigned short *)tData,0,dim,dim,0);
-
-		tFont->vPtrs[surf] = (D3DTLVERTEX *) AllocMem(sizeof(D3DTLVERTEX)*FONT_NUM32*FONT_NUM32);			
-		tFont->widths[surf] = (long *) AllocMem(sizeof(long)*FONT_NUM32*FONT_NUM32);
-		
-		size = dim/8;
-
-		for (i=0; i<FONT_NUM32; i++)
-			for (j=0; j<FONT_NUM32; j++)
-			{
-				long pixelWidth,k,l,wasColored;
-				// Set up basic Texture pointers!
-				tFont->vPtrs[surf][(i+j*FONT_NUM32)].tu = ((float)i)/FONT_NUM32;
-				tFont->vPtrs[surf][(i+j*FONT_NUM32)].tv = ((float)j)/FONT_NUM32;
-				pixelWidth = size;
-
-				for (k = i*size+(size-1); k>i*size; k--)
-				{
-					wasColored = 0;
-					for (l = 0; l<size; l++)
-						if (tData[k+((l+j*size)*dim)]!=tData[0])
-							wasColored = 1;
-					if (wasColored)
-						break;
-					pixelWidth--;
-				}
-				
-				pixelWidth*=(256.0/dim);
-				tFont->widths[surf][(i+j*FONT_NUM32)] = pixelWidth+1;
-			}
-		tFont->dim = dim;	
-
-		tFont->softData[surf] = (long *) AllocMem(sizeof(long)*dim*dim);
-
-		for (int i=0; i<dim; i++)
-			for (int j=0; j<dim; j++)
-			{
-				short dt;
-				unsigned long d,r,g,b;
-				dt = tFont->data[surf][i+j*dim];
-				r = (dt>>10) & 0x1f;
-				g = (dt>>5) & 0x1f;
-				b = (dt) & 0x1f;
-
-				if ((r==0x1f) && (b==0x1f) && (g==0))
-				{
-					tFont->softData[surf][i+j*dim] = 0x00ff00ff;
-				}
-				else
-				{
-					r<<=3;
-					g<<=3;
-					b<<=3;
-					//if (r565)
-					tFont->softData[surf][i+j*dim] = (r<<16 | g<<8 | b) & 0x00ffffff;
-				}
-
-			}
-
-		for (i=0; i<dim; i++)
-			for (j=0; j<dim; j++)
-			{
-				short dt;
-				unsigned long d,r,g,b;
-
-				dt = tFont->data[surf][i+j*dim];
-				r = (dt>>10) & 0x1f;
-				g = (dt>>5) & 0x1f;
-				b = (dt) & 0x1f;
-				g<<=1;
-				if (r565)
-					tFont->data[surf][i+j*dim] = (r<<11 | g<<5 | b);
-			}
-
-
-//		gelfDefaultFree(tData);
-	}
-
-	return true;
 }
 
-MDX_FONT *InitFont(char *bank,char *baseDir)
+
+long DrawFontCharAtLoc(long x,long y,char ch,unsigned long color, MDX_FONT *font,float scale)
 {
-	MDX_FONT *tFont = (MDX_FONT *) AllocMem(sizeof(MDX_FONT));
+	RECT r;
 
-	char fPath[MAX_PATH];
+	if (!font)
+		return 0;
 
-	sprintf(fPath ,"%s%s%s\\fontl.bmp",baseDir,TEXTURE_BASE,bank);
-	if (!AddCharsToFont(tFont, bank, fPath, 0))
-	{
-		dp("Couldnt create surface 0 for font %s",bank);
-		FreeMem (tFont);
-		return false;
-	}
+	MDX_FONTCHAR *c = &font->characters[ch];
 
-	sprintf(fPath ,"%s%s%s\\fonts.bmp",baseDir,TEXTURE_BASE,bank);
-	if (!AddCharsToFont(tFont, bank, fPath, 1))
-	{
-		dp("Couldnt create surface 1 for font %s",bank);
-		FreeMem (tFont);
-		return false;
-	}
-
-	return tFont;
-}
-
-long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font, float scale)
-{
-	RECT m;
-	long fNum;
-	char *s = symbolChars,oc;
-	fNum = 0;
-	MDX_TEXENTRY tTexEntry;
-
-	while (*s)
-	{
-		if (*s==c)
-		{
-			c = s-symbolChars;
-			fNum=1;
-		}
-		s++;
-	}
+	if (!c->surf) return c->width;
 	
-	if (!fNum)
-	{
-		oc = c;
-		if (c==' ')
-			return font->widths[fNum][0]*scale*(font->dim/256.0);
-		
-		// Convert c to a 0 indexed letter (if a letter)
-		if (c>='A' && c<='Z')
-			c -= 'A';
-		else
-		if (c>='a' && c<='z')
-			c -= 'a'-26;
-		else	
-		if (c>='1' && c<='9')
-			c -= '1'-26-26;
-		else
-		if (c=='0')
-			c = 26+26+9;
-			
-	}
-/*
-	if (charHilite)
-	{
-		if ((c==toHilite) || (c==toHilite2)|| (c==toHilite3))
-		{
-			float r = RGB_GETRED(color)		* (1.0f/255.0f);
-			float g = RGB_GETGREEN(color)	* (1.0f/255.0f);
-			float b = RGB_GETBLUE(color)	* (1.0f/255.0f);
-			color = D3DRGB(r*cR,g*cG,b*cB) | (color & 0xff000000);
-		}
-	}
-*/
-	m.left = x;
-	m.top = y;
-	m.bottom = y+(32*scale)*(font->dim/256.0);
-	m.right = x+(font->widths[fNum][c])*scale*(font->dim/256.0);
+	r.left = x;
+	r.right = x+c->width;
+	r.top = y;
+	r.bottom = y+font->height;
 
-	tTexEntry.data = font->data[fNum];
-	tTexEntry.surf = font->surf[fNum];
-	tTexEntry.softData = font->softData[fNum];
-	tTexEntry.xSize = font->dim;
-	tTexEntry.ySize = font->dim;
-	tTexEntry.xPos = tTexEntry.yPos = 0;
+	DrawTexturedRect(r, 0xFFFFFFFF, c->surf, c->coords[0], c->coords[1], c->coords[2], c->coords[3]);
 
-	SetTexture(&tTexEntry);
-	DrawTexturedRect2(m,color,font->vPtrs[fNum][c].tu,font->vPtrs[fNum][c].tv,font->vPtrs[fNum][c].tu+((font->widths[fNum][c])/256.0),font->vPtrs[fNum][c].tv+(32.0/256.0));
-	SetTexture(0);
-
-	return font->widths[fNum][c]*scale * (font->dim/256.0);
+	return c->width;
 }
 
-long CalcStringWidth(char *string,MDX_FONT *font, float scale)
+long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX,long centredY)
 {
-	char *s = symbolChars;
-	char *ch = string;
-	char c;
-	long fNum = 0;
-	long tWidth = 0;
+	if (!font)
+		return 0;
 
-	while (*ch)
-	{
-		c = *ch;
-		while (*s)
-		{
-		
-			if (*s==c)
-			{
-				c = s-symbolChars;
-				fNum=1;
-			}
-			s++;
-		}
-		
-		if (!fNum)
-		{
-			// Convert c to a 0 indexed letter (if a letter)
-			if (c>='A' && c<='Z')
-				c -= 'A';
-			else
-			if (c>='a' && c<='z')
-				c -= 'a'-26;
-			else	
-			if (c>='1' && c<='9')
-				c -= '1'-26-26;
-			else
-			if (c=='0')
-				c = 26+26+9;
-				
-		}
-		
-		if (c==' ')
-			tWidth += font->widths[fNum][0]*scale*(font->dim/256.0);
-		else
-			tWidth += font->widths[fNum][c]*scale*(font->dim/256.0);
-
-		ch++;
-	}
-	return tWidth;
-}
-
-long GetCharWidth(char c, MDX_FONT *font, float scale)
-{
-	long fNum = 0;
-
-	for (char *s = symbolChars; *s; s++)
-		if (*s==c)
-		{
-			c = s-symbolChars;
-			fNum=1;
-			break;
-		}
-	
-	if (!fNum)
-	{
-		if (c==' ')
-			return font->widths[fNum][0]*scale*(font->dim/256.0);
-		
-		// Convert c to a 0 indexed letter (if a letter)
-		if (c>='A' && c<='Z')
-			c -= 'A';
-		else
-		if (c>='a' && c<='z')
-			c -= 'a'-26;
-		else	
-		if (c>='1' && c<='9')
-			c -= '1'-26-26;
-		else
-		if (c=='0')
-			c = 26+26+9;
-
-	}
-
-	if (c==' ')
-		return font->widths[fNum][0]*scale*(font->dim/256.0);
-	else
-		return font->widths[fNum][c]*scale*(font->dim/256.0);
-}
-
-long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX, long centredY)
-{
-	unsigned long cx = x,ox;
-
-	if (centredY)
-		y -= (16*scale)*(font->dim/256.0);
+	long cx = x;
 
 	if (centredX)
 		cx = centredX-CalcStringWidth(c,font,scale)/2;
-	ox= cx;
+
 	while (*c)
 	{
-		cx+=DrawFontCharAtLoc(cx,y,*c,color,font,scale);
+		cx += DrawFontCharAtLoc(cx,y,*c,color,font,scale);
 		c++;
 	}
 
-	if (centredX)
-		cx -= ox;
 	return cx;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+long GetCharWidth(char c, MDX_FONT *font, float scale)
+{
+	if (!font)
+		return 0;
 
+	return font->characters[c].width;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
+{
+	if (!font)
+		return 0;
+
+	long width = 0;
+	char *c = (char*)string;
+	
+	while (*c)
+	{
+		width += font->characters[*c].width;
+		c++;
+	}
+
+	return width;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
 long WrapStringToArray(const char* str, long maxWidth, char* buffer, long bufferSize, char** array, long arraySize, MDX_FONT *font)
 {
 	char *wordStart, *lineStart, *p;
