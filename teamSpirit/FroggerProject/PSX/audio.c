@@ -46,7 +46,10 @@ int musicList[] = { 0,//
 					   4,//
 					   5,//
 					   6,//
-					   7};//
+					   7,
+	0,
+	1,
+};//
 
 /*
 char *musicNames[] = { "CD3.XA",//
@@ -763,60 +766,30 @@ void bb_InitXA(void)
 	Returns			: void
 	Info			: 
 */
-void PrepareSong(short worldID)
+void PrepareSong ( short worldID,  short loop )
 {
-/*
-//	char cdTrack[16];
-	int trackIndex;
-
-	trackIndex = worldID + GARDEN_CDAUDIO;
-
-//	xaFileData[trackIndex]=XAgetFileInfo(cdTrack);	// Not sure if you need to tell it its an xa file (looks like you do)
-	xaFileData[trackIndex]=XAgetFileInfo("CD2.XA");	// Not sure if you need to tell it its an xa file (looks like you do)
-
-	XAsetStatus(1);		// enable for playing
-	XAstart(1);			// set for double speed playback
-	XAplayChannelOffset( xaFileData[trackIndex],0,0,1,100); // file to play , offset from start , channel , loop , volume
-	// volume goes from 0 to 100
-*/
-
-
 #if GOLDCD==1
 
-//	XAstart(1);
-//	utilPrintf ( "World ID : %d \n", worldID );
-//	XAplayChannel(xaFileData[0], worldID, 1,100);
-//	MAIN_PrintXAData ( xaFileData [ 0 ] );
+	//default use first xa file
+	int chan;
+	int xaNum = 0;
 
+	switch ( worldID )
 	{
-		//default use first xa file
-		int xaNum = 0;
-		int chan = musicList  [ worldID ];
+		case AUDIOTRK_GAMEOVER:				worldID = 9; xaNum = 1; break;
+		case AUDIOTRK_LEVELCOMPLETE:	worldID = 10; xaNum = 1; break;
 
-		//do we need to use the second xa file?
-		/*if(chan > 8)
-		{
-				xaNum = 0;
-				chan = 7;
-		}*/
-
-		/*if ( chan == 5 )
-		{
-			xaNum = 0;
-			chan = 4;
-		}*/
-
-		/*if ( chan == 8 )
-		{
-			xaNum = 0;
-			chan = 1;
-		}*/
-
-		XAstart(1);
-		utilPrintf ( "World ID : %d \n", worldID );
-		XAplayChannel ( xaFileData[xaNum], chan, 1, 100 );
-		MAIN_PrintXAData ( xaFileData [ 0 ] );
+		default:
+			return;
 	}
+
+	chan = musicList  [ worldID ];
+
+
+	XAstart(1);
+	utilPrintf			( "World ID : %d \n", worldID );
+	XAplayChannel		( xaFileData[xaNum], chan, loop, 100 );
+	//MAIN_PrintXAData	( xaFileData [ 0 ] );
 
 #endif
 

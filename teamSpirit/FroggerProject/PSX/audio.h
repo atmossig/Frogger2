@@ -48,6 +48,9 @@ enum
 	MUSIC_NUM_TRACKS
 };
 
+#define AUDIOTRK_GAMEOVER		100
+#define AUDIOTRK_LEVELCOMPLETE	101
+
 extern char *musicNames[];
 extern XAFileType *xaFileData[MUSIC_NUM_TRACKS];
 
@@ -162,6 +165,8 @@ extern void UnPauseAudio( );
 SAMPLE *FindVoice( unsigned long uid, int pl );
 //#define FindVoice(uid, pl) FindSample(uid)
 #define PlayVoice(pl, sound) PlaySample(FindVoice(utilStr2CRC(sound),pl), NULL, 0, SAMPLE_VOLUME, -1)
+
+void PrepareSong ( short worldID,  short loop );
 
 //#define PlayVoice(pl, sound) PlaySample(FindSample(utilStr2CRC(sound)), &frog[0]->actor->position, 0, SAMPLE_VOLUME, -1)
 
