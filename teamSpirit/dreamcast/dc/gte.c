@@ -673,17 +673,25 @@ void gte_SetFarColor(u_char rfc, u_char gfc, u_char bfc)
 	farc.vz = bfc;
 }
 
-// Multiply two 3x3 matrices
+
+/* ---------------------------------------------------------
+   Function : gte_MulMatrix0
+   Purpose : PSX gte emulation mulitply two 3x3 matrices
+   Parameters : MATRIX pointers, m0 * m1 = m2
+   Returns : m2 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
 void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2) 
 {
+	register short	*mp0, *mp1, *mp2;
 	register MATRIX tempmat;
-	int	i,j,k;
+	int		 i,j,k;
 
 	tempmat.t[0] = m2->t[0];
 	tempmat.t[1] = m2->t[1];
 	tempmat.t[2] = m2->t[2];
 
-	// Reset matrix
 	for (i=0; i<3; i++)
 		for (j=0; j<3; j++)
 			tempmat.m[i][j] = 0;
@@ -696,6 +704,7 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 
 	*m2 = tempmat;
 }
+
 
 // Get Z average of three Z values
 void gte_avsz3(void)

@@ -671,6 +671,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	PSIMODEL 	*psiModel;
 	char		buffer[32];
 
+	// *ASL* 17/08/2000 - Make sure the game quitting level is zero
+	quittingLevel = 0;
+
 	// JH : Turn on, the loading screen.
 #ifdef PC_VERSION
 	pFrameModifier = 0;
