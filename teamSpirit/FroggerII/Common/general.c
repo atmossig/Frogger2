@@ -17,7 +17,7 @@ char statusMessage[255];
 
 unsigned long gstrlen (const char *a)
 {
-	char *b=a;
+	char *b = (char*)a;
 	unsigned long i;
 	for (i=0; b[0]==0; b++,i++);
 	return i;
@@ -139,7 +139,12 @@ int MemLoadEntities(const void* data, long size)
 	uchar *p = (uchar*)data;
 
 	// Version check - only load files with the current version
-	if (MEMGETBYTE(&p) != 1) return 0;
+	n = MEMGETBYTE(&p);
+	
+	if (n != 2) {
+		dprintf"ERROR: Attempting to load incorrect version (%03d) of level file (should be 002)\n", n));
+		return 0;
+	}
 
 	count = MEMGETINT(&p);
 	dprintf"MemLoadEntities: %d items\n", count));
@@ -189,6 +194,17 @@ int MemLoadEntities(const void* data, long size)
 			break;
 		}
 	 }
+
+	count = MEMGETINT(&p);
+
+	while (count--)
+	{
+		n = MEMGETBYTE(&p);
+		v.v[X] = MEMGETFLOAT(&p);
+		v.v[Y] = MEMGETFLOAT(&p);
+		v.v[Z] = MEMGETFLOAT(&p);
+		CreateNewGarib(v, n);
+	}
 
 	return 1;
 }
