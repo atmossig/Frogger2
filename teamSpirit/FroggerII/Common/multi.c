@@ -158,7 +158,7 @@ void PickupBabyFrogMulti( ENEMY *baby, int pl )
 
 		if( baby->flags & ENEMY_NEW_RANDOMMOVE )
 		{
-			CreateTeleportEffect( &baby->nmeActor->actor->pos, &baby->currNormal, babyList[i].fxColour[R], babyList[i].fxColour[G], babyList[i].fxColour[B] );
+			CreateTeleportEffect( &baby->nmeActor->actor->pos, &baby->inTile->normal, babyList[i].fxColour[R], babyList[i].fxColour[G], babyList[i].fxColour[B] );
 			// Baby teleports to froggers base
 			path->nodes[0].worldTile = path2->nodes[0].worldTile;
 			path->nodes[1].worldTile = path2->nodes[1].worldTile;
