@@ -727,12 +727,11 @@ void DrawFXRipples()
 	FX_RIPPLE *ripple,*ripple2;
 	TEXENTRY *tEntry;
 	long i;
-	float alpha;
 	D3DTLVERTEX vT[4];
-	VECTOR tempVect[4], m[4];
+	VECTOR tempVect[4], m[4], tmp;
 	static short f[6] = {0,1,2,0,2,3};
+	QUATERNION q, q2;
 
-	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
@@ -759,7 +758,24 @@ void DrawFXRipples()
 		tempVect[3].v[X] = ripple->origin.v[X] - ripple->radius;
 		tempVect[3].v[Y] = ripple->origin.v[Y];
 		tempVect[3].v[Z] = ripple->origin.v[Z] - ripple->radius;
+/*
+		if(	ripple->rippleType == RIPPLE_TYPE_PICKUP ||
+			ripple->rippleType == RIPPLE_TYPE_DUST)
+		{
+			q2.x = ripple->normal.v[X];
+			q2.y = ripple->normal.v[Y];
+			q2.z = ripple->normal.v[Z];
+			q2.w = ripple->yRot;
 
+			GetQuaternionFromRotation( &q, &q2 );
+
+			for( i=0; i<4; i++ )
+			{
+				SetVector( &tmp, &tempVect[i] );
+				RotateVectorByQuaternion( &tempVect[i], &tmp, &q );
+			}
+		}
+*/
 		for(i=0; i<4; i++)
 			XfmPoint (&m[i],&tempVect[i]);
 		
@@ -768,14 +784,12 @@ void DrawFXRipples()
 		if (m[2].v[Z])
 		if (m[3].v[Z])
 		{
-			alpha = (float)ripple->alpha/256.0;
-
 			vT[0].sx = m[0].v[X];
 			vT[0].sy = m[0].v[Y];
 			vT[0].sz = (m[0].v[Z]+DIST)/2000;
 			vT[0].tu = 1;
 			vT[0].tv = 0;
-			vT[0].color = D3DRGBA(ripple->r/256.0,ripple->g/256.0,ripple->b/256.0,alpha);
+			vT[0].color = D3DRGBA(ripple->r/256.0,ripple->g/256.0,ripple->b/256.0,ripple->alpha/256.0);
 			vT[0].specular = D3DRGB(0,0,0);
 
 			vT[1].sx = m[1].v[X];
@@ -807,7 +821,6 @@ void DrawFXRipples()
 		}
 	}
 
-	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
