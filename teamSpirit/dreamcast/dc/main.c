@@ -930,7 +930,7 @@ void main()
 }
 
 
-
+// *ASL* 10/08/2000
 /* ---------------------------------------------------------
    Function : gdFsErrorCallback
    Purpose : gsFs error function callback
@@ -949,6 +949,7 @@ static void gdFsErrorCallback(void *obj, Sint32 err)
 }
 
 
+// *ASL* 12/08/2000
 /* ---------------------------------------------------------
    Function : showLegalFMV
    Purpose : show all legal screens and FMV
