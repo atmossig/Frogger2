@@ -958,20 +958,21 @@ void PrepareSong(short world, short loop)
 	if (loop)
 		cdTrack = track;
 	else
-		cdTrack = 0;
+		cdTrack = -1;
 }
 
 
 void LoopSong()
 {
-	PrepareSong(cdTrack, 1);
+	if (cdTrack>0)
+		playCDTrack(mdxWinInfo.hWndMain, cdTrack);
 }
 
 
 void StopSong( )
 {
 	stopCDTrack( mdxWinInfo.hWndMain );
-	cdTrack = 0;
+	cdTrack = -1;
 }
 
 
