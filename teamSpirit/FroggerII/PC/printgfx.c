@@ -954,7 +954,7 @@ void DrawFXTrail( SPECFX *trail )
 	do
 	{
 		/*********-[ First 2 points ]-********/
-		if( i != trail->start )
+		if( i != trail->start && vTPrev[0].sz && vTPrev[1].sz )
 			memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );			// Previously transformed vertices
 		else
 			CalcTrailPoints( vT, trail, i );
@@ -1005,12 +1005,12 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i )
 	XfmPoint( &m, &pos );
 	vT[0].sx = m.v[X];
 	vT[0].sy = m.v[Y];
-	vT[0].sz = (m.v[Z]+DIST)*0.0005;
+	vT[0].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
 	guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &pos.v[X], &pos.v[Y], &pos.v[Z] );
 	XfmPoint( &m, &pos );
 	vT[1].sx = m.v[X];
 	vT[1].sy = m.v[Y];
-	vT[1].sz = (m.v[Z]+DIST)*0.0005;
+	vT[1].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
 
 	PopMatrix( ); // Rotation
 	PopMatrix( ); // Translation
