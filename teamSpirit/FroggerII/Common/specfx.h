@@ -110,8 +110,8 @@ typedef struct TAGSPECFX
 	TEXTURE *tex;
 	ACTOR *follow;								// Go where it goes
 
-	int (*Update) ();							// Just like C++
-	void (*Draw) ();							// Update and draw functions, specified for different types.
+	void (*Update) (struct TAGSPECFX*);			// Just like C++
+	void (*Draw) (struct TAGSPECFX*);			// Update and draw functions, specified for different types.
 
 } SPECFX;
 
