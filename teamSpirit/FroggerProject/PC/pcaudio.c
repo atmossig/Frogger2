@@ -782,7 +782,7 @@ void UnPauseAudio( )
 		a->lpdsBuffer = NULL;
 
 #ifdef PC_DEMO
-	PlaySample( FindSample(UpdateCRC("lp_music")), NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample( FindSample(UpdateCRC("lp_music")), NULL, 0, SAMPLE_VOLUME/2, -1 );
 #else
 	if( mciDevice )
 	{

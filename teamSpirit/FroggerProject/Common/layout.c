@@ -970,7 +970,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 #ifdef PC_VERSION
 	if(useAudio)
 #ifdef PC_DEMO
-		PlaySample( FindSample(UpdateCRC("lp_music")), NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample( FindSample(UpdateCRC("lp_music")), NULL, 0, SAMPLE_VOLUME/2, -1 );
 #else
 		PrepareSong((short)worldID, 1);		// loop track
 #endif
