@@ -84,21 +84,62 @@ PATHNODE debug_lawnRollNodes2[] =
 	78,0,0,5,0,		79,0,0,5,0,		80,0,0,5,0,		279,0,0,5,0,	282,0,0,5,0
 };
 
+//unsigned long lawnPath12[] = { 8,	403,414,425,438,449,460,473,484 };
+PATHNODE debug_lawnRollNodes3[] =
+{
+	403,0,0,5,0,	414,0,0,5,0,	425,0,0,5,0,	438,0,0,5,0,
+	449,0,0,5,0,	460,0,0,5,0,	473,0,0,5,0,	484,0,0,5,0
+};
 
-PATH debug_lawnRoll1 = { 17,0,0,0,debug_lawnRollNodes1 };
-PATH debug_lawnRoll2 = { 17,0,0,0,debug_lawnRollNodes2 };
+
+PATH debug_lawnRoll1a = { 17,0,0,5,debug_lawnRollNodes1 };
+PATH debug_lawnRoll1b = { 17,0,0,12,debug_lawnRollNodes1 };
+
+PATH debug_lawnRoll2a = { 17,0,0,5,debug_lawnRollNodes2 };
+PATH debug_lawnRoll2b = { 17,0,0,10,debug_lawnRollNodes2 };
+PATH debug_lawnRoll2c = { 17,0,0,15,debug_lawnRollNodes2 };
+
+PATH debug_lawnRoll3 = { 8,0,0,5,debug_lawnRollNodes3 };
+
 
 
 //unsigned long lawnPath3[] = { 17,	289,286,94,95,96,97,98,99,100,101,102,103,104,105,106,280,283 };
 PATHNODE debug_lawnMowNodes1[] =
 {
-	289,0,0,5,0,	286,0,0,5,0,	94,0,0,5,0,		95,0,0,5,0,		96,0,0,5,0,		97,0,0,5,0,
-	98,0,0,5,0,		99,0,0,5,0,		100,0,0,5,0,	101,0,0,5,0,	102,0,0,5,0,	103,0,0,5,0,
-	104,0,0,5,0,	105,0,0,5,0,	106,0,0,5,0,	280,0,0,5,0,	283,0,0,5,0
+	289,0,0,10,0,	286,0,0,10,0,	94,0,0,10,0,	95,0,0,10,0,	96,0,0,10,0,	97,0,0,10,0,
+	98,0,0,10,0,	99,0,0,10,0,	100,0,0,10,0,	101,0,0,10,0,	102,0,0,10,0,	103,0,0,10,0,
+	104,0,0,10,0,	105,0,0,10,0,	106,0,0,10,0,	280,0,0,10,0,	283,0,0,10,0
+};
+
+//unsigned long lawnPath4[] = { 55,	141,142,143,144,145,146,147,148,149,150,
+//									151,152,153,166,179,178,177,176,175,174,
+//									173,172,171,170,169,168,167,180,193,194,
+//									195,196,197,198,199,200,201,202,203,204,
+//									205,218,231,230,229,228,227,226,225,224,
+//									223,222,221,220,219 };
+PATHNODE debug_lawnMowNodes2[] =
+{
+	291,0,0,5,0,	290,0,0,5,0,	141,0,0,5,0,	142,0,0,5,0,	143,0,0,5,0,	144,0,0,5,0,
+	145,0,0,5,0,	146,0,0,5,0,	147,0,0,5,0,	148,0,0,5,0,	149,0,0,5,0,	150,0,0,5,0,
+	151,0,0,5,0,	152,0,0,5,0,	153,0,0,5,0,	166,0,0,8,0,	179,0,0,8,0,	178,0,0,8,0,
+	177,0,0,8,0,	176,0,0,8,0,	175,0,0,8,0,	174,0,0,8,0,	173,0,0,8,0,	172,0,0,8,0,
+	171,0,0,8,0,	170,0,0,8,0,	169,0,0,8,0,	168,0,0,8,0,	167,0,0,8,0,	180,0,0,10,0,
+	193,0,0,10,0,	194,0,0,10,0,	195,0,0,10,0,	196,0,0,10,0,	197,0,0,10,0,	198,0,0,10,0,
+	199,0,0,10,0,	200,0,0,10,0,	201,0,0,10,0,	202,0,0,10,0,	203,0,0,10,0,	204,0,0,10,0,
+	205,0,0,10,0,	218,0,0,10,0,	231,0,0,12,0,	230,0,0,12,0,	229,0,0,12,0,	228,0,0,12,0,
+	227,0,0,12,0,	226,0,0,12,0,	225,0,0,12,0,	224,0,0,12,0,	223,0,0,12,0,	222,0,0,12,0,
+	221,0,0,12,0,	220,0,0,12,0,	219,0,0,12,0,	390,0,0,12,0,	391,0,0,12,0
 };
 
 
-PATH debug_lawnMow1 = { 17,0,0,0,debug_lawnMowNodes1 };
+PATH debug_lawnMow1a = { 17,0,0,2,debug_lawnMowNodes1 };
+PATH debug_lawnMow1b = { 17,0,0,9,debug_lawnMowNodes1 };
+
+PATH debug_lawnMow2a = { 59,0,0,3,debug_lawnMowNodes2 };
+PATH debug_lawnMow2b = { 59,0,0,13,debug_lawnMowNodes2 };
+PATH debug_lawnMow2c = { 59,0,0,23,debug_lawnMowNodes2 };
+PATH debug_lawnMow2d = { 59,0,0,33,debug_lawnMowNodes2 };
+PATH debug_lawnMow2e = { 59,0,0,43,debug_lawnMowNodes2 };
 
 
 
@@ -115,7 +156,6 @@ unsigned long lawnPath5[] = { 8,	235,236,237,250,261,260,259,248 };
 unsigned long lawnPath6[] = { 8,	238,239,240,253,264,263,262,251 };
 
 
-unsigned long lawnPath12[] = { 8,	403,414,425,438,449,460,473,484 };
 
 unsigned long lawnPath13[] = { 8,	232,233,234,247,258,257,256,245 };
 unsigned long lawnPath14[] = { 8,	241,242,243,294,295,266,265,254 };
@@ -234,26 +274,38 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 
 			// rollers
 			devNME1 = CreateAndAddEnemy("roll.ndo");
-			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnRoll1,PATH_MAKENODETILEPTRS);
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnRoll1a,PATH_MAKENODETILEPTRS);
+			devNME1 = CreateAndAddEnemy("roll.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnRoll1b,0);
 
 			devNME1 = CreateAndAddEnemy("roll.ndo");
-			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnRoll2,PATH_MAKENODETILEPTRS);
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnRoll2a,PATH_MAKENODETILEPTRS);
+			devNME1 = CreateAndAddEnemy("roll.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnRoll2b,0);
+			devNME1 = CreateAndAddEnemy("roll.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnRoll2c,0);
+
+			devNME1 = CreateAndAddEnemy("roll.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_PINGPONG,&debug_lawnRoll3,PATH_MAKENODETILEPTRS);
 
 			// mowers
 			devNME1 = CreateAndAddEnemy("moa.ndo");
-			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow1,PATH_MAKENODETILEPTRS);
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow1a,PATH_MAKENODETILEPTRS);
+			devNME1 = CreateAndAddEnemy("moa.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow1b,0);
+
+			devNME1 = CreateAndAddEnemy("moa.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow2a,PATH_MAKENODETILEPTRS);
+			devNME1 = CreateAndAddEnemy("moa.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow2b,0);
+			devNME1 = CreateAndAddEnemy("moa.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow2c,0);
+			devNME1 = CreateAndAddEnemy("moa.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow2d,0);
+			devNME1 = CreateAndAddEnemy("moa.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow2e,0);
 
 /*
-			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath1,0,0,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath1,0,0,12,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
-
-			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath2,0,0,5,5.0F, ENEMY_HASPATH | ENEMY_PATHBACKWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath2,0,0,10,5.0F, ENEMY_HASPATH | ENEMY_PATHBACKWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath2,0,0,15,5.0F, ENEMY_HASPATH | ENEMY_PATHBACKWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
-
-			testEnemy = CreateAndAddEnemy("moa.ndo",lawnPath3,0,0,2,10.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("moa.ndo",lawnPath3,0,0,9,10.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
-
 			testEnemy = CreateAndAddEnemy("moa.ndo",lawnPath4,0,0,3,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL | ENEMY_ACCELERATECONST);
 			testEnemy = CreateAndAddEnemy("moa.ndo",lawnPath4,0,0,13,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL | ENEMY_ACCELERATECONST);
 			testEnemy = CreateAndAddEnemy("moa.ndo",lawnPath4,0,0,23,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL | ENEMY_ACCELERATECONST);
@@ -267,7 +319,6 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath9,35,35,3,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath10,35,35,4,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath11,35,35,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath12,0,0,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath13,35,35,1,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath14,35,35,6,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
 
@@ -1102,19 +1153,24 @@ void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned l
 		}
 	}
 
+	// set the start position for the enemy
+	nme->path->fromNode	= nme->path->startNode;
+
 	if(enemyFlags & ENEMY_NEW_FORWARDS)
 	{
 		// this enemy moves forward thru path nodes
 		nme->flags				|= ENEMY_NEW_FOLLOWPATH;
-		nme->path->fromNode		= 0;
-		nme->path->toNode		= 1;
+		nme->path->toNode = nme->path->fromNode + 1;
+		if(nme->path->toNode > GET_PATHLASTNODE(path))
+			nme->path->toNode = 0;
 	}
 	else if(enemyFlags & ENEMY_NEW_BACKWARDS)
 	{
 		// this enemy moves backward thru path nodes
 		nme->flags				|= ENEMY_NEW_FOLLOWPATH;
-		nme->path->fromNode		= GET_PATHLASTNODE(path);
-		nme->path->toNode		= GET_PATHLASTNODE(path) - 1;
+		nme->path->toNode = nme->path->fromNode - 1;
+		if(nme->path->toNode < 0)
+			nme->path->toNode = GET_PATHLASTNODE(path);
 	}
 	else if((enemyFlags & ENEMY_NEW_MOVEUP) ||
 			(enemyFlags & ENEMY_NEW_MOVEDOWN))
