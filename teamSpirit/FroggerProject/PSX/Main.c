@@ -39,7 +39,7 @@
 //#include "Block.h"
 #include "Actor2.h"
 
-#include "bbtimer.h"
+#include "timer.h"
 #include "Water.h"
 #include "BackDrop.h"
 #include "menus.h"
@@ -88,11 +88,12 @@ char textString[255] = "";
 //char UseZMode = 1;
 
 
-
+int vsyncCounter = 0;
 
 static void vsyncCallback()
 {
 	frame++;
+	vsyncCounter++;
 	SpuFlush(SPU_EVENT_ALL);
 #if GOLDCD==0
 	asm("break 1024");
@@ -258,9 +259,6 @@ void InitCam(void)
 }
 
 
-//bbtest
-//int bbTime1;
-BBTIMER tGameLoop, tDrawWorld, tPrintSprites, tDrawActorList, tDrawWaterList;
 
 unsigned long CRC;
 
@@ -332,7 +330,7 @@ int main ( )
 		StartSound();//mmsfx
 
 
-#define ENABLE_LANG_SEL 1
+#define ENABLE_LANG_SEL 0
 #if ENABLE_LANG_SEL==1
 		languageInitialise();
 		while(!DoneLangSel)
@@ -383,75 +381,77 @@ int main ( )
 //		InitWater();
 //		LoadSfx(WORLDID_GENERIC);//mmsfx
 
-
-
 		while ( !quitMainLoop )
 		{
-			ZeroTime();
-//			fontPrint(font, 20,20, "WELLO", 255,255,255);
+			//turn on/off timers + display
+			if(padData.debounce[0] & PAD_SELECT)
+				timerActive ^= 1;
+
+			TIMER_START(TIMER_TOTAL);
 
 
 			currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
 			ClearOTagR(currentDisplayPage->ot, 1024);
 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
-
 			polyCount = 0;
+
 
 			DrawBackDrop();
 
-// 			bbTime1 = GetRCnt(1);
-// 			ResetRCnt(1);
-
-			TimerStart(&tGameLoop);
+			TIMER_START(TIMER_GAMELOOP);
 			GameLoop();
-			TimerStop(&tGameLoop);
-
+			TIMER_STOP(TIMER_GAMELOOP);
 			
+			TIMER_START(TIMER_UPDATE_WATER);
 			UpdateWater();
+			TIMER_STOP(TIMER_UPDATE_WATER);
 
 	//		if(spriteList.numEntries)
 	//			AnimateSprites();
 			
 
-			TimerStart(&tDrawWorld);
-//			DrawWorld();
-// 			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
-// 				DrawWorld();
+			TIMER_START(TIMER_DRAW_WORLD);
 			if(drawLandscape)
 				DrawWorld();
-			TimerStop(&tDrawWorld);
+			TIMER_STOP(TIMER_DRAW_WORLD);
 
+			TIMER_START(TIMER_DRAW_SPECFX);
 			DrawSpecialFX();
+			TIMER_STOP(TIMER_DRAW_SPECFX);
 
-			TimerStart(&tPrintSprites);
+			TIMER_START(TIMER_PRINT_SPRITES);
 			PrintSprites();
-			TimerStop(&tPrintSprites);
+			TIMER_STOP(TIMER_PRINT_SPRITES);
 
-			TimerStart(&tDrawWaterList);
+			TIMER_START(TIMER_DRAW_SCENICS);
 			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawScenicObjList();
-			TimerStop(&tDrawWaterList);
+			TIMER_STOP(TIMER_DRAW_SCENICS);
 			
-			TimerStart(&tDrawWaterList);
+			TIMER_START(TIMER_DRAW_WATER);
 			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawWaterList();
-			TimerStop(&tDrawWaterList);
+			TIMER_STOP(TIMER_DRAW_WATER);
 
-			TimerStart(&tDrawActorList);
-//			utilPrintf("...............   %d\n", gameState.mode);
+			TIMER_START(TIMER_ACTOR_DRAW);
 			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawActorList();
-			TimerStop(&tDrawActorList);
+			TIMER_STOP(TIMER_ACTOR_DRAW);
 
 //			utilPrintf ( "Poly Count : %d\n", polyCount );
 
+			TIMER_START(TIMER_PRINT_OVERS);
 			PrintSpriteOverlays(1);
 			PrintTextOverlays();
 			PrintSpriteOverlays(0);
+			TIMER_STOP(TIMER_PRINT_OVERS);
 
-
+			TIMER_START(TIMER_PROCTEX);
 			ProcessProcTextures( );
+			TIMER_STOP(TIMER_PROCTEX);
+
+			timerDisplay();
 
 			gte_SetRotMatrix(&GsWSMATRIX);
 			gte_SetTransMatrix(&GsWSMATRIX);
@@ -473,29 +473,40 @@ int main ( )
 			if (padData.digital[4] == (PAD_SELECT|PAD_START|PAD_L1|PAD_R1|PAD_L2|PAD_R2))
 				quitMainLoop = 1;
 
+
+			TIMER_STOP(TIMER_TOTAL);
+
+			TIMER_ENDFRAME;
+			TIMER_ZERO;
+
+
+
 	//	DrawPoly();				Just testing....
 
+			TIMER_START(TIMER_DRAWSYNC);
 			DrawSync(0);
+			TIMER_STOP(TIMER_DRAWSYNC);
 
 			VSync(2);
 			PutDispEnv(&currentDisplayPage->dispenv);
 			PutDrawEnv(&currentDisplayPage->drawenv);
 			DrawOTag(currentDisplayPage->ot+(1024-1));
 
-//bb
-//			actFrameCount += 1;//(GetTickCount()/(1000/60));
-//			frameCount++;
-
-//			actFrameCount += 3;//(GetTickCount()/(1000/60));
-//			gameSpeed=3<<12;
 			if(gameState.mode!=PAUSE_MODE)
 			{
-				actFrameCount += 3;//(GetTickCount()/(1000/60));
-				gameSpeed=3<<12;
+// 				actFrameCount += 3;//(GetTickCount()/(1000/60));
+// 				gameSpeed=3<<12;
+
+ 				gameSpeed = vsyncCounter<<12;
+ 				actFrameCount += vsyncCounter;
+ 				vsyncCounter = 0;
+
+				utilPrintf("GameSpeed %d\n", gameSpeed>>12); 
+
 			}
 
-		}
-		// ENDWHILE
+		}//end main loop
+
 
 		StopSound();
 
