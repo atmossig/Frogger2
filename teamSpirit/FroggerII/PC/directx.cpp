@@ -1398,6 +1398,7 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 {
 	float x2 = x + xs, y2 = y + ys;
 
+	// Really crap clipping
 	if (x < 0)
 	{
 		u1 += (u2-u1) * (-x/xs);	// clip u
