@@ -22,6 +22,12 @@ extern int OnTimeout( TRIGGER *trigger );
 extern int OnTrigger( TRIGGER *trigger );
 extern int LogicalAND( TRIGGER *trigger );
 extern int LogicalOR( TRIGGER *trigger );
+extern int FrogOnFrog( TRIGGER *trigger );
+extern int EnemyAtFlag( TRIGGER *trigger );
+extern int PlatformAtFlag( TRIGGER *trigger );
+extern int ActorNearActor( TRIGGER *trigger );
+int PathAtFlag( TRIGGER *trigger );
+
 
 /*----- [ EVENT PROTOTYPES ] -------------------------------------------------------------------*/
 extern void ChangeActorScale( EVENT *event );
@@ -34,6 +40,6 @@ extern void PlaySFX( EVENT *event );
 extern void EvAnimateActor( EVENT *event );
 
 /*----- [ LEVEL SETUP PROTOTYPES ] -------------------------------------------------------------*/
-extern void InitEventsForLevel( unsigned long worldID, unsigned long levelID );
+//extern void InitEventsForLevel( unsigned long worldID, unsigned long levelID );
 
 #endif

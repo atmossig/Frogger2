@@ -190,6 +190,19 @@ int LogicalOR( TRIGGER *trigger )
 	return 0;
 }
 
+
+int PathAtFlag( TRIGGER *trigger )
+{
+	PATH *path;
+	int flag;
+
+	path = (PATH*)trigger->data[0];
+	flag = *(int*)trigger->data[1];
+
+	return (path->fromNode == flag);
+}
+
+
 /*----- [ EVENT FUNCTIONS ] --------------------------------------------------------------------*/
 
 /*	--------------------------------------------------------------------------------

@@ -3,33 +3,17 @@
 #include "incs.h"
 #include <stdio.h>
 #include "memload.h"
+#include "eventfuncs.h"
+#include "codes.h"
 
 /*	-------------------------------------------------------------------------------- */
 
-enum MEMLOAD_EVENTS
-{
-	EV_DEBUG = 0,
-	EV_CHANGEACTORSCALE,
-	EV_TOGGLEPLATFORMMOVE,
-	EV_TOGGLEENEMYMOVE,
-	EV_TOGGLETILELINK,
-	EV_ANIMATEACTOR = 7,
-	MEMLOAD_NUMEVENTS
-};
-
-enum MEMLOAD_TRIGGERS
-{
-	TR_ENEMYONTILE = 0,
-	TR_FROGONTILE,
-	TR_FROGONPLATFORM,
-	TR_WITHINRADIUS,
-	MEMLOAD_NUMTRIGGERS
-};
-
-#define MEMLOAD_ENTITY_VERSION 3
+#define MEMLOAD_ENTITY_VERSION 10
 #define MEMLOAD_EVENT_VERSION 1
 
 int MemLoadTrigger(UBYTE** p, long size);
+
+typedef enum { CREATE_ENEMY, CREATE_PLATFORM, CREATE_GARIB, CREATE_CAMERACASE } CREATETYPE;
 
 /*	-------------------------------------------------------------------------------- */
 
@@ -75,14 +59,16 @@ inline char *MemLoadString(UBYTE **p)
 int MemLoadEntities(const void* data, long size)
 {
 	int count, flags, numNodes, startNode, n, ID;
+	float scale, radius;
 	UBYTE thing;
 	char type[20];
 	PATH *path;
 	PATHNODE *node;
-	VECTOR v;
+	VECTOR v,w;
 	ENEMY *enemy;
 	PLATFORM *platform;
 	UBYTE *p = (UBYTE*)data;
+	ACTOR2 *act;
 
 	// Version check - only load files with the current version
 	n = MEMGETBYTE(&p);
@@ -97,63 +83,92 @@ int MemLoadEntities(const void* data, long size)
 
 	while (count--)
 	{
-		n = MEMGETBYTE(&p);
-		memcpy(type, p, n); type[n] = 0; p+= n;
-		flags = MEMGETINT(&p);
-		ID = MEMGETINT(&p);
 		thing = MEMGETBYTE(&p);
-		
-		numNodes = MEMGETINT(&p);
-		startNode = MEMGETINT(&p);
-
-		dprintf"'%s' %08x with %d path nodes\n", type, flags, numNodes));
-
-		path = (PATH *)JallocAlloc(sizeof(PATH), YES, "epath");
-		node = (PATHNODE *)JallocAlloc(sizeof(PATHNODE) * numNodes,YES,"enode");
-		path->nodes = node;
-		path->startNode = startNode;
-		path->numNodes = numNodes;
-
-		while (numNodes--)
-		{
-			v.v[X] = MEMGETFLOAT(&p);
-			v.v[Y] = MEMGETFLOAT(&p);
-			v.v[Z] = MEMGETFLOAT(&p);
-			node->worldTile = FindNearestTile(v);
-			node->offset = MEMGETFLOAT(&p);
-			node->offset2 = MEMGETFLOAT(&p);
-			node->speed = MEMGETFLOAT(&p);
-			node->waitTime = MEMGETINT(&p);
-			
-			node++;
-		}
 
 		switch (thing)
 		{
-		case 0:
-			enemy = CreateAndAddEnemy(type);
-			enemy->uid = ID;
-			AssignPathToEnemy(enemy, flags, path, 0);
+		case CREATE_ENEMY:
+		case CREATE_PLATFORM:
+			n = MEMGETBYTE(&p);
+			memcpy(type, p, n); type[n] = 0; p+= n;
+			flags	= MEMGETINT(&p);
+			ID		= MEMGETINT(&p);
+			scale	= MEMGETFLOAT(&p);
+			radius	= MEMGETFLOAT(&p);
+			startNode = MEMGETINT(&p);
+		
+			numNodes = MEMGETINT(&p);
+
+			dprintf"'%s' %08x with %d path nodes\n", type, flags, numNodes));
+
+			path = (PATH *)JallocAlloc(sizeof(PATH), YES, "epath");
+			node = (PATHNODE *)JallocAlloc(sizeof(PATHNODE) * numNodes,YES,"enode");
+			path->nodes = node;
+			path->startNode = startNode;
+			path->numNodes = numNodes;
+
+			while (numNodes--)
+			{
+				v.v[X] = MEMGETFLOAT(&p);
+				v.v[Y] = MEMGETFLOAT(&p);
+				v.v[Z] = MEMGETFLOAT(&p);
+				node->worldTile = FindNearestTile(v);
+				node->offset = MEMGETFLOAT(&p);
+				node->offset2 = MEMGETFLOAT(&p);
+				node->speed = MEMGETFLOAT(&p);
+				node->waitTime = MEMGETINT(&p);
+				
+				node++;
+			}
+
+			switch (thing)
+			{
+			case CREATE_ENEMY:
+				enemy = CreateAndAddEnemy(type);
+				enemy->uid = ID;
+				AssignPathToEnemy(enemy, flags, path, 0);
+				act = enemy->nmeActor;
+				ScaleVector(&act->actor->scale, scale);
+				act->radius = radius;
+				break;
+
+			case CREATE_PLATFORM:
+				platform = CreateAndAddPlatform(type);
+				platform->uid = ID;
+				AssignPathToPlatform(platform, flags, path, 0);
+				act = platform->pltActor;
+				ScaleVector(&act->actor->scale, scale);
+				act->radius = radius;
+				break;
+			}
 			break;
 
-		case 1:
-			platform = CreateAndAddPlatform(type);
-			platform->uid = ID;
-			AssignPathToPlatform(platform, flags, path, 0);
+		case CREATE_GARIB:
+			n = MEMGETBYTE(&p);
+			v.v[X] = MEMGETFLOAT(&p);
+			v.v[Y] = MEMGETFLOAT(&p);
+			v.v[Z] = MEMGETFLOAT(&p);
+			CreateNewGarib(v, n);
+			break;
+
+		case CREATE_CAMERACASE:
+			flags = MEMGETINT(&p);
+			v.v[X] = MEMGETFLOAT(&p);
+			v.v[Y] = MEMGETFLOAT(&p);
+			v.v[Z] = MEMGETFLOAT(&p);
+			
+			numNodes = MEMGETINT(&p);
+			while (numNodes--)
+			{
+				w.v[X] = MEMGETFLOAT(&p);
+				w.v[Y] = MEMGETFLOAT(&p);
+				w.v[Z] = MEMGETFLOAT(&p);
+				CreateAndAddTransCamera(FindNearestTile(w), 0,
+					w.v[X], w.v[Y], w.v[Z], flags);
+			}
 			break;
 		}
 	 }
-
-	count = MEMGETINT(&p);
-
-	while (count--)
-	{
-		n = MEMGETBYTE(&p);
-		v.v[X] = MEMGETFLOAT(&p);
-		v.v[Y] = MEMGETFLOAT(&p);
-		v.v[Z] = MEMGETFLOAT(&p);
-		CreateNewGarib(v, n);
-	}
 
 	return 1;
 }
@@ -184,14 +199,14 @@ int MemLoadEvents(const void* data, long size)
 
 	while (size)
 	{
+		s = MEMGETINT(&p);
 		pp = p;
-		s = MEMGETINT(&pp);
-		dprintf"Adding trigger, %d bytes\n", s));
+		dprintf"Adding trigger, %d bytes (%08x)\n", s, pp));
 		if (!MemLoadTrigger(&pp, s))
 		{
 			dprintf"Failed to create trigger\n"));
 		} // return 0;
-		pp += s; size -= (s + 4);
+		p += s; size -= (s + 4);
 	}
 
 	return 1;
@@ -310,7 +325,7 @@ int MemLoadTrigger(UBYTE** p, long size)
 
 	void **params;
 
-	type = MEMGETBYTE(p); dprintf"Type: %d\n", type));
+	type = MEMGETBYTE(p);
 	psize = MEMGETINT(p);
 
 	switch (type)
@@ -339,10 +354,10 @@ int MemLoadTrigger(UBYTE** p, long size)
 		trigger = MakeTrigger(FrogOnPlatform, 2, params);
 		break;
 
-	case TR_WITHINRADIUS:
+	case TR_PLATNEARPOINT:
 		params = AllocArgs(3);
-		if (!(actor = GetUniqueActor2(MEMGETINT(p)))) return 0;
-		params[0] = actor->actor;
+		if (!(platform = GetPlatformFromUID(MEMGETINT(p)))) return 0;
+		params[0] = platform->pltActor->actor;
 		v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
 		v->v[X] = MEMGETFLOAT(p);
 		v->v[Y] = MEMGETFLOAT(p);
@@ -352,6 +367,35 @@ int MemLoadTrigger(UBYTE** p, long size)
 		trigger = MakeTrigger(ActorWithinRadius, 3, params);
 		break;
 
+	case TR_ENEMYNEARPOINT:
+		params = AllocArgs(3);
+		if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
+		params[0] = enemy->nmeActor->actor;
+		v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
+		v->v[X] = MEMGETFLOAT(p);
+		v->v[Y] = MEMGETFLOAT(p);
+		v->v[Z] = MEMGETFLOAT(p);
+		params[1] = (void*)v;
+		params[2] = JallocAlloc(sizeof(float), NO, "float"); *(float*)params[1] = MEMGETFLOAT(p);
+		trigger = MakeTrigger(ActorWithinRadius, 3, params);
+		break;
+
+	case TR_ENEMYATFLAG:
+		params = AllocArgs(2);
+		if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
+		params[0] = enemy->path;
+		params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETINT(p);
+		trigger = MakeTrigger(PathAtFlag, 2, params);
+		break;
+
+	case TR_PLATATFLAG:
+		params = AllocArgs(2);
+		if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
+		params[0] = enemy->path;
+		params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETINT(p);
+		trigger = MakeTrigger(PathAtFlag, 2, params);
+		break;
+
 	default:
 		dprintf"Unrecognised trigger type %02x, skipping\n", type));
 		return 0;
@@ -359,11 +403,17 @@ int MemLoadTrigger(UBYTE** p, long size)
 
 	if (!trigger) return 0;
 
-	for (events = MEMGETBYTE(p); events; events--)
+	events = MEMGETBYTE(p);
+	dprintf"Loading %d events\n", events));
+
+	while (events--)
 	{
 		type = MEMGETBYTE(p);
 		psize = MEMGETINT(p);
 		buf = *p;
+
+		dprintf"Adding event, %d bytes, type %d (%08x)\n", psize, type, buf));
+
 		event = MemLoadEvent(&buf, type);
 
 		if (!event)
