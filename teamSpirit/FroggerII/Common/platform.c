@@ -536,6 +536,8 @@ void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 
 	if (!(pform->flags & PLATFORM_NEW_FACEFORWARDS))
 		Orientate(&pform->pltActor->actor->qRot, &fwd, &pform->path->nodes[pform->path->fromNode].worldTile->normal);
+	else
+		Orientate( &pform->pltActor->actor->qRot, &pform->path->nodes->worldTile->dirVector[pform->facing], &pform->path->nodes->worldTile->normal );
 
 	// set platform current 'in' tile and speeds and pause times
 	pform->inTile[0]	= path->nodes[pform->path->fromNode].worldTile;
@@ -952,7 +954,7 @@ void UpdateUpDownPlatform(PLATFORM *plat)
 */
 void UpdateNonMovingPlatform(PLATFORM *plat)
 {
-	Orientate( &plat->pltActor->actor->qRot, &plat->path->nodes->worldTile->dirVector[plat->facing], &plat->path->nodes->worldTile->normal );
+//	Orientate( &plat->pltActor->actor->qRot, &plat->path->nodes->worldTile->dirVector[plat->facing], &plat->path->nodes->worldTile->normal );
 }
 
 
@@ -1103,7 +1105,8 @@ int MovePlatformToNode(PLATFORM *plt, int flag)
 		plt->path->endFrame = actFrameCount;
 		plt->Update(plt);
 
-		plt->pltActor->actor->qRot = plt->srcOrientation = plt->destOrientation;
+		if( !(plt->flags & PLATFORM_NEW_FACEFORWARDS) )
+			plt->pltActor->actor->qRot = plt->srcOrientation = plt->destOrientation;
 	}
 	else
 		dprintf"MoveEnemyToNode(): Flag (%d) out of range\n", flag));
