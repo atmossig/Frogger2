@@ -64,7 +64,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	ACTOR2 *me;
 
 	me = frog[p] = CreateAndAddActor(name,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
-	
+/*	
 	hat[p] = CreateAndAddActor("hat-top.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
 	
 	if (hat[p])
@@ -72,7 +72,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 		actList = actList->next;
 		actList->prev = 0;
 	}
-
+*/
 	me->actor->shadow->radius = 30;
 	me->actor->shadow->alpha = 191;
 //	me->flags	|= ACTOR_DRAW_ALWAYS;
