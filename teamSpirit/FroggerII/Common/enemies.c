@@ -665,7 +665,7 @@ void UpdateTileSnapper( ENEMY *cur )
 		cur->isSnapping = 0;
 
 		// If the frog is on our current target tile
-		if( (path->nodes[path->fromNode].worldTile == currTile[0]) && (!player[0].dead.time) && (!player[0].safe.time) )
+		if( (path->nodes[path->fromNode].worldTile == currTile[0]) && (!player[0].dead.time) && (!player[0].safe.time) && !player[0].isSuperHopping )
 			NMEDamageFrog(0,cur);
 		break;
 
@@ -1007,7 +1007,9 @@ void UpdateTileHomingNME( ENEMY *cur )
 		}
 		else if( actFrameCount > path->startFrame+(0.5*(path->endFrame-path->startFrame)) )
 		{
+			cur->inTile->state = TILESTATE_NORMAL;
 			cur->inTile = path->nodes[2].worldTile;
+			cur->inTile->state = TILESTATE_OCCUPIED;
 		}
 	}
 
@@ -1017,6 +1019,9 @@ void UpdateTileHomingNME( ENEMY *cur )
 		VECTOR frogVec;
 		SubVector( &frogVec, &currTile[0]->centre, &act->actor->pos ); 
 		path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &frogVec );
+		if( path->nodes[2].worldTile )
+			if( path->nodes[2].worldTile->state == TILESTATE_OCCUPIED )
+				path->nodes[2].worldTile = NULL;
 
 		path->startFrame = actFrameCount;
 		path->endFrame = path->startFrame + (60*path->nodes[0].speed);
@@ -1092,7 +1097,9 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	{
 		if( actFrameCount > path->endFrame )
 		{
+			cur->inTile->state = TILESTATE_NORMAL;
 			cur->inTile = path->nodes[2].worldTile;
+
 			path->nodes[1].worldTile = path->nodes[2].worldTile;
 			path->nodes[2].worldTile = NULL;
 		}
@@ -1104,7 +1111,13 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 		VECTOR frogVec;
 		SubVector( &frogVec, &currTile[0]->centre, &act->actor->pos ); 
 		path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &frogVec );
-
+		if( path->nodes[2].worldTile )
+		{
+			if( path->nodes[2].worldTile->state == TILESTATE_OCCUPIED )
+				path->nodes[2].worldTile = NULL;
+			else
+				path->nodes[2].worldTile->state = TILESTATE_OCCUPIED;
+		}
 		path->startFrame = actFrameCount;
 		path->endFrame = path->startFrame + (60*path->nodes[0].speed);
 		cur->isIdle--;

@@ -496,31 +496,20 @@ typedef struct
 typedef struct TAGACTOR
 {
 	struct TAGACTOR				*next,*prev;
-//	struct TAGACTOR				*collNext,*collPrev;
-//	struct TAGACTOR				*distNext,*distPrev;
 	float						distanceFromCamera;
 
 	Mtx							*matrix;
-//	SHORT						type;
-//	SHORT						objectType;
 	BYTE						status;
-//	UBYTE						sparkly;
-//	float						lifetime;
 	short						xluOverride;
 	int							flags;
-//	struct TAGACTOR				*owner;
 
 	float						maxRadius;
 
 	VECTOR						pos;
 	VECTOR						oldpos;
 	VECTOR						vel;
-//	VECTOR						oldVel;
-//	float						velInertia;
-//	float						speed;
 	VECTOR						rot;
 	VECTOR						rotaim;
-//	VECTOR						rotvel;
 								
 	QUATERNION					qRot;
 												
@@ -529,15 +518,8 @@ typedef struct TAGACTOR
 	OBJECT_CONTROLLER			*objectController;
 	OBJECT_CONTROLLER			*LODObjectController;
 	ACTOR_SHADOW				*shadow;
-//	ACTOR_BEHAVIOUR				*behaviour;
-//	ACTOR_STATS					*stats;
-//	ACTOR_COLLISION				*collision;	
 	ACTOR_ANIMATION				*animation;
-//	PLANE  						*planes;
-//	struct TAG_THOUGHT_BUBBLE	*thoughtBubble;
-//	OBJECT_CONTROLLER			*shatterBit;
-//	CLUSTER						*cluster;
-	int							visible;
+	unsigned char				visible;
 
 } ACTOR;
 

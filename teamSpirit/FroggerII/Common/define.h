@@ -95,6 +95,8 @@ enum
 	TILESTATE_CONVEYOR1FAST,
 	TILESTATE_CONVEYOR2FAST,
 	TILESTATE_CONVEYOR3FAST,
+
+	TILESTATE_OCCUPIED,
 };
 
 #define TILESTATE_CONVEYOR		0x20
@@ -111,7 +113,7 @@ typedef struct _GAMETILE
 	struct _GAMETILE	*tilePtrs[4];		// north, south, east and west
 	struct _GAMETILE	*next;				// next tile in linked list
 	
-	GAMETILE_INFO		*gameInfo;			// tile to teleport to if this tile is a teleporter
+	GAMETILE_INFO		*gameInfo;
 
 	unsigned char		state;				// state of tile
 	
