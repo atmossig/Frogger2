@@ -72,7 +72,7 @@ void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal )
 	while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
 		ddShowError(res);
 
-	i=928;
+	i=1024;
 
 	while( i-- ) ((unsigned short *)ddsd.lpSurface)[i] = (unsigned short)pal[(unsigned char)buf[i]];
 
