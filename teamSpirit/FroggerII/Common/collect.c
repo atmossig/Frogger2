@@ -55,6 +55,8 @@ SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES] =
 */
 void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID)
 {
+	VECTOR v = { firstTile[1].centre.v[X], 1000, firstTile[1].centre.v[Z] };
+	CreateNewGarib ( v, 0, &firstTile[1] );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -653,7 +655,7 @@ void InitGaribSprite(GARIB *garib)
 	Returns			: GARIB *
 	Info			: 
 */
-GARIB *CreateNewGarib(VECTOR pos,int type)
+GARIB *CreateNewGarib(VECTOR pos,int type, GAMETILE* gameTile )
 {
 	static indexPos = 0;
 
@@ -685,6 +687,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 
 	SetVector(&garib->sprite.pos,&pos);
 
+	garib->gameTile = gameTile;
 	garib->type = type;
 	garib->active = 1;
 	garib->scale = 0;
@@ -749,6 +752,8 @@ void UpdateGaribs()
 	GARIB *garib = NULL;
 	float radius;
 	float scale;
+	VECTOR fwd;
+	VECTOR actualPos;
 
 	// update garib scales and calculate distance from Frog
 	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
@@ -766,6 +771,22 @@ void UpdateGaribs()
 
 		garib->sprite.scaleX = (64 + SineWave(2,frameCount + garib->type * 2,0) * 10) * scale;
 		garib->sprite.scaleY = (64 + SineWave(2,frameCount + garib->type * 2,0) * 10) * scale;
+
+		// Drop Garibs.............
+
+		if ( garib->gameTile != NULL )
+		{			
+			SetVector ( &actualPos, &garib->gameTile->centre );
+			actualPos.v[Y] += 20;
+			SubVector ( &fwd, &actualPos, &garib->sprite.pos );
+			MakeUnit  ( &fwd );
+			garib->sprite.pos.v[X] += ( fwd.v[X] * 5 );
+			garib->sprite.pos.v[Y] += ( fwd.v[Y] * 5 );
+			garib->sprite.pos.v[Z] += ( fwd.v[Z] * 5 );
+
+		}
+		// ENDIF
+
 	}
 }
 
