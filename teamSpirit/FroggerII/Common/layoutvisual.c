@@ -691,6 +691,7 @@ void FreeAllLists()
 #ifndef PC_VERSION
 	FreeLevelEntitys();
 	FreeN64WaterResources();
+	FreeN64ModgyTexResources();
 #endif
 	FreeLevelScript();
 	FreeMapBank();

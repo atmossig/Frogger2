@@ -12,11 +12,11 @@
 #define FRONTEND_H_INCLUDED
 
 
-typedef struct TAG_LOGO
+typedef struct
 {
 	char *texname;
-	unsigned short width, height;
-	unsigned short tiles[];
+	unsigned short width,height;
+	unsigned short tiles[16];
 } LOGO;
 
 

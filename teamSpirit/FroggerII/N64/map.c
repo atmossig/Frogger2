@@ -971,7 +971,7 @@ void LoadLevelEntities(short worldID,short levelID)
 	{
 		switch(levelID)
 		{
-			case SPACELEV1_ENT:
+/*			case SPACELEV1_ENT:
 					bankRomStart	= (u32)&_levData_3_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_levData_3_1_SegmentRomEnd;
 					sprintf(message, "SPC_ENT1");				
@@ -989,12 +989,12 @@ void LoadLevelEntities(short worldID,short levelID)
 					sprintf(message, "SPC_ENT3");				
 				break;
 
-//			case SPACEBOSSA_ENT:
-//					bankRomStart	= (u32)&_levData_3_4_SegmentRomStart;
-//					bankRomEnd		= (u32)&_levData_3_4_SegmentRomEnd;
-//					sprintf(message, "SPC_BOSS");				
-//				break;
-
+			case SPACEBOSSA_ENT:
+					bankRomStart	= (u32)&_levData_3_4_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_3_4_SegmentRomEnd;
+					sprintf(message, "SPC_BOSS");				
+				break;
+*/
 			default:
 				return;
 		}
@@ -1226,48 +1226,13 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
+/*
 			case GARDENLEV1_ENT:
 					bankRomStart	= (u32)&_scrData_1_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_1_1_SegmentRomEnd;
 					sprintf(message, "GAR_SCR1");				
 				break;
-
-			case GARDENLEV2_ENT:
-					bankRomStart	= (u32)&_scrData_1_2_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_1_2_SegmentRomEnd;
-					sprintf(message, "GAR_SCR2");				
-				break;
-
-			case GARDENLEV3_ENT:
-					bankRomStart	= (u32)&_scrData_1_3_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_1_3_SegmentRomEnd;
-					sprintf(message, "GAR_SCR3");				
-				break;
-
-			case GARDENBOSSA_ENT:
-					bankRomStart	= (u32)&_scrData_1_4_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_1_4_SegmentRomEnd;
-					sprintf(message, "GAR_BOSA");
-				break;
-
-			case GARDENBOSSB_ENT:
-					bankRomStart	= (u32)&_scrData_1_5_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_1_5_SegmentRomEnd;
-					sprintf(message, "GAR_BOSB");
-				break;
-
-			case GARDENBONUS_ENT:
-					bankRomStart	= (u32)&_scrData_1_6_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_1_6_SegmentRomEnd;
-					sprintf(message, "GAR_BONS");
-				break;
-
-			case GARDENMULTI_ENT:
-					bankRomStart	= (u32)&_scrData_1_7_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_1_7_SegmentRomEnd;
-					sprintf(message, "GAR_MULT");
-				break;
-
+*/
 			default:
 				return;
 		}
@@ -1276,60 +1241,13 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
+/*
 			case ANCIENTLEV1_ENT:
 					bankRomStart	= (u32)&_scrData_2_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_2_1_SegmentRomEnd;
 					sprintf(message, "ANC_SCR1");				
 				break;
-
-			case ANCIENTLEV2_ENT:
-					bankRomStart	= (u32)&_scrData_2_2_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_2_2_SegmentRomEnd;
-					sprintf(message, "ANC_SCR2");				
-				break;
-
-			case ANCIENTLEV3_ENT:
-					bankRomStart	= (u32)&_scrData_2_3_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_2_3_SegmentRomEnd;
-					sprintf(message, "ANC_SCR3");				
-				break;
-
-			case ANCIENTBOSSA_ENT:
-					bankRomStart	= (u32)&_scrData_2_4_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_2_4_SegmentRomEnd;
-					sprintf(message, "ANC_BOSA");
-				break;
-
-			case ANCIENTBOSSB_ENT:
-					bankRomStart	= (u32)&_scrData_2_5_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_2_5_SegmentRomEnd;
-					sprintf(message, "ANC_BOSB");
-				break;
-
-			case ANCIENTBOSSC_ENT:
-					bankRomStart	= (u32)&_scrData_2_6_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_2_6_SegmentRomEnd;
-					sprintf(message, "ANC_BOSC");
-				break;
-
-			case ANCIENTBOSSD_ENT:
-					bankRomStart	= (u32)&_scrData_2_7_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_2_7_SegmentRomEnd;
-					sprintf(message, "ANC_BOSD");
-				break;
-
-			case ANCIENTBONUS_ENT:
-					bankRomStart	= (u32)&_scrData_2_8_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_2_8_SegmentRomEnd;
-					sprintf(message, "ANC_BONS");
-				break;
-
-			case ANCIENTMULTI_ENT:
-					bankRomStart	= (u32)&_scrData_2_9_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_2_9_SegmentRomEnd;
-					sprintf(message, "ANC_MULT");
-				break;
-
+*/
 			default:
 				return;
 		}
@@ -1338,6 +1256,7 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
+/*
 			case SPACELEV1_ENT:
 					bankRomStart	= (u32)&_scrData_3_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_3_1_SegmentRomEnd;
@@ -1350,12 +1269,18 @@ void LoadLevelScript(int worldID,int levelID)
 					sprintf(message, "SPC_SCR1");				
 				break;
 
+			case SPACELEV3_ENT:
+					bankRomStart	= (u32)&_scrData_3_2_SegmentRomStart;
+					bankRomEnd		= (u32)&_scrData_3_2_SegmentRomEnd;
+					sprintf(message, "SPC_SCR1");				
+				break;
+
 			case SPACEBOSSA_ENT:
 					bankRomStart	= (u32)&_scrData_3_4_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_3_4_SegmentRomEnd;
 					sprintf(message, "SPC_SCR3");				
 				break;
-
+*/
 			default:
 				return;
 		}
@@ -1364,24 +1289,13 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
+/*
 			case CITYLEV1_ENT:
 					bankRomStart	= (u32)&_scrData_4_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_4_1_SegmentRomEnd;
 					sprintf(message, "CTY_SCR1");				
 				break;
-
-			case CITYLEV2_ENT:
-					bankRomStart	= (u32)&_scrData_4_2_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_4_2_SegmentRomEnd;
-					sprintf(message, "CTY_SCR2");				
-				break;
-
-			case CITYLEV3_ENT:
-					bankRomStart	= (u32)&_scrData_4_3_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_4_3_SegmentRomEnd;
-					sprintf(message, "CTY_SCR3");				
-				break;
-
+*/
 			default:
 				return;
 		}
@@ -1390,30 +1304,21 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
+			default:
+				return;
 		}
 	}
 	else if(worldID == WORLDID_LABORATORY)
 	{
 		switch(levelID)
 		{
+/*
 			case LABORATORYLEV1_ENT:
 					bankRomStart	= (u32)&_scrData_6_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_6_1_SegmentRomEnd;
 					sprintf(message, "LAB_SCR1");				
 				break;
-
-			case LABORATORYLEV2_ENT:
-					bankRomStart	= (u32)&_scrData_6_2_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_6_2_SegmentRomEnd;
-					sprintf(message, "LAB_SCR2");				
-				break;
-
-			case LABORATORYLEV3_ENT:
-					bankRomStart	= (u32)&_scrData_6_3_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_6_3_SegmentRomEnd;
-					sprintf(message, "LAB_SCR3");				
-				break;
-
+*/
 			default:
 				return;
 		}
@@ -1438,37 +1343,13 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
+/*
 			case SRETROLEV1_ENT:
 					bankRomStart	= (u32)&_scrData_9_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_1_SegmentRomEnd;
 					sprintf(message, "SUP_SCR1");				
 				break;
-			case SRETROLEV2_ENT:
-					bankRomStart	= (u32)&_scrData_9_2_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_9_2_SegmentRomEnd;
-					sprintf(message, "SUP_SCR2");				
-				break;
-			case SRETROLEV3_ENT:
-					bankRomStart	= (u32)&_scrData_9_3_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_9_3_SegmentRomEnd;
-					sprintf(message, "SUP_SCR3");				
-				break;
-			case SRETROLEV4_ENT:
-					bankRomStart	= (u32)&_scrData_9_4_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_9_4_SegmentRomEnd;
-					sprintf(message, "SUP_SCR4");				
-				break;
-			case SRETROLEV5_ENT:
-					bankRomStart	= (u32)&_scrData_9_5_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_9_5_SegmentRomEnd;
-					sprintf(message, "SUP_SCR5");				
-				break;
-			case SRETROLEV6_ENT:
-					bankRomStart	= (u32)&_scrData_9_6_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_9_6_SegmentRomEnd;
-					sprintf(message, "SUP_SCR6");				
-				break;
-
+*/
 			default:
 				return;
 		}
@@ -1477,23 +1358,13 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
+/*
 			case FRONTEND1_ENT:
 				bankRomStart	= (u32)&_scrData_10_1_SegmentRomStart;
 				bankRomEnd		= (u32)&_scrData_10_1_SegmentRomEnd;
 				sprintf(message, "FRE_SCR1");
 				break;
-
-			case FRONTEND2_ENT:
-			case FRONTEND3_ENT:
-			case FRONTEND4_ENT:
-				return;
-
-			case FRONTEND5_ENT:
-				bankRomStart	= (u32)&_scrData_10_5_SegmentRomStart;
-				bankRomEnd		= (u32)&_scrData_10_5_SegmentRomEnd;
-				sprintf(message, "FRE_SCR5");
-				break;
-
+*/
 			default:
 				return;
 		}

@@ -19,11 +19,11 @@ ACTOR2 *watActor = NULL;
 
 short numN64WaterObjects = 0;
 short currN64WaterObject = 0;
-SHORT2DVECTOR *mTC[MAX_N64_WATEROBJECTS];
+SHORT2DVECTOR *wTC[MAX_N64_WATEROBJECTS];
 
-short numN64SlidyObjects = 0;
-short currN64SlidyObject = 0;
-SHORT2DVECTOR *slidyTC[MAX_N64_WATEROBJECTS];
+short numN64ModgyTexObjects = 0;
+short currN64ModgyTexObject = 0;
+SHORT2DVECTOR *mTC[MAX_N64_MODGYTEXOBJECTS];
 
 
 /*	--------------------------------------------------------------------------------
@@ -112,9 +112,10 @@ void RunWaterDemo()
 	lastbutton = button;
 }
 
+//***** FOR WATER OBJECTS ************************************************************************
 
 /*	--------------------------------------------------------------------------------
-	Function		: UpdateWater
+	Function		: UpdateWaterN64
 	Purpose			: updates the specified water actor / object - new method
 	Parameters		: ACTOR *
 	Returns			: void
@@ -125,13 +126,13 @@ float modi2 = 1.29;
 float modi3 = 2.5;
 float modi4 = 96.0;
 
-int modc1 = 128;
-int modc2 = 150;
-int modc3 = 8;
+int modc1 = 80;
+int modc2 = 100;
+int modc3 = 16;
 
 int slideSpeed = 0;
 
-void UpdateWater(ACTOR2 *wAct)
+void UpdateWaterN64(ACTOR2 *wAct)
 {
 	// update the water - assumes drawlisted and skinned object....
 	if(wAct)
@@ -164,7 +165,9 @@ void UpdateWater(ACTOR2 *wAct)
 
 				in->v.ob[Y] += t2 * modi3;
 
-				colMod = modc2 + (modc3 * (in->v.ob[Y] + 20));
+//				colMod = modc2 + (modc3 * (in->v.ob[Y] + 20));
+				colMod = modc2 + (t2 * modi3 * modc3);
+
 				if(colMod > 255)
 					colMod = 255;
 				else if(colMod < modc1)
@@ -176,8 +179,8 @@ void UpdateWater(ACTOR2 *wAct)
 				in->v.cn[3] = colMod;
 
 				// modge texture co-ordinates
-				in->v.tc[0] = mTC[currN64WaterObject][i].v[0] + mV;
-				in->v.tc[1] = mTC[currN64WaterObject][i].v[1] + mV;
+				in->v.tc[0] = wTC[currN64WaterObject][i].v[0] + mV;
+				in->v.tc[1] = wTC[currN64WaterObject][i].v[1] + mV;
 			}
 
 			in++;
@@ -198,19 +201,19 @@ void AddN64WaterObjectResource(ACTOR *wAct)
 	int i;
 	Vtx *in;
 
-	if(wAct && (numN64WaterObjects < MAX_N64_WATEROBJECTS))
+	if(wAct->objectController && (numN64WaterObjects < MAX_N64_WATEROBJECTS))
 	{
 		// copy texture co-ords to an array
 		in = wAct->objectController->vtx[wAct->objectController->vtxBuf];
 		i = wAct->objectController->numVtx;
 
 		dprintf"Allocating %d vertices for water object %d\n",i,numN64WaterObjects));
-		mTC[numN64WaterObjects] = (SHORT2DVECTOR *)JallocAlloc(sizeof(SHORT2DVECTOR) * i,YES,"s2dv");
+		wTC[numN64WaterObjects] = (SHORT2DVECTOR *)JallocAlloc(sizeof(SHORT2DVECTOR) * i,YES,"s2dv");
 
 		while(i--)
 		{
-			mTC[numN64WaterObjects][i].v[0] = in->v.tc[0];
-			mTC[numN64WaterObjects][i].v[1] = in->v.tc[1];
+			wTC[numN64WaterObjects][i].v[0] = in->v.tc[0];
+			wTC[numN64WaterObjects][i].v[1] = in->v.tc[1];
 			in++;
 		}
 
@@ -231,10 +234,107 @@ void FreeN64WaterResources()
 	int i;
 
 	for(i=0; i<numN64WaterObjects; i++)
-		JallocFree((UBYTE **)&mTC[i]);
+		JallocFree((UBYTE **)&wTC[i]);
 
 	numN64WaterObjects = 0;
+	currN64WaterObject = 0;
 }
+
+
+//***** FOR MODGY (NON-WATER) OBJECTS ************************************************************
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateModgyTexN64
+	Purpose			: updates the specified modgy actor / object - new method
+	Parameters		: ACTOR *
+	Returns			: void
+	Info			: 
+*/
+void UpdateModgyTexN64(ACTOR2 *mAct)
+{
+	// update the water - assumes drawlisted and skinned object....
+	if(mAct)
+	{
+		float t,t2,xval,zval,mV;
+		Vtx *in = NULL;
+		int i;
+
+		in = mAct->actor->objectController->vtx[mAct->actor->objectController->vtxBuf];
+		i = mAct->actor->objectController->numVtx;
+
+		t = actFrameCount * 0.02;
+		while(i--)
+		{
+			// modge vertices
+			xval = in->v.ob[X] * 0.05;
+			zval = in->v.ob[Z] * 0.05;
+
+			t2 = sinf(t + xval * zval * 0.25) - cosf(t + xval * 0.15 * zval);
+
+			mV = t2 * 96;
+
+			// modge texture co-ordinates
+			in->v.tc[0] = mTC[currN64ModgyTexObject][i].v[0] + mV;
+			in->v.tc[1] = mTC[currN64ModgyTexObject][i].v[1] + mV;
+
+			in++;
+		}
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddN64ModgyTexObjectResource
+	Purpose			: adds N64 specific modgy tex related stuff
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void AddN64ModgyTexObjectResource(ACTOR *mAct)
+{
+	int i;
+	Vtx *in;
+
+	if(mAct->objectController && (numN64ModgyTexObjects < MAX_N64_MODGYTEXOBJECTS))
+	{
+		// copy texture co-ords to an array
+		in = mAct->objectController->vtx[mAct->objectController->vtxBuf];
+		i = mAct->objectController->numVtx;
+
+		dprintf"Allocating %d vertices for modgy tex object %d\n",i,numN64ModgyTexObjects));
+		mTC[numN64ModgyTexObjects] = (SHORT2DVECTOR *)JallocAlloc(sizeof(SHORT2DVECTOR) * i,YES,"s2dv");
+
+		while(i--)
+		{
+			mTC[numN64ModgyTexObjects][i].v[0] = in->v.tc[0];
+			mTC[numN64ModgyTexObjects][i].v[1] = in->v.tc[1];
+			in++;
+		}
+
+		numN64ModgyTexObjects++;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeN64ModgyTexResources
+	Purpose			: frees N64 specific modgy tex related stuff
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeN64ModgyTexResources()
+{
+	int i;
+
+	for(i=0; i<numN64ModgyTexObjects; i++)
+		JallocFree((UBYTE **)&mTC[i]);
+
+	numN64ModgyTexObjects = 0;
+	currN64ModgyTexObject = 0;
+}
+
 
 
 #endif

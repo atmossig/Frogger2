@@ -1065,6 +1065,7 @@ void SendLastFrame()
 */
 void XformActorList();
 int myAA = 0;
+
 void DrawGraphics(void *arg)
 {
 	SPRITE *sprite = NULL;

@@ -354,6 +354,7 @@ void DrawActorList()
 	// draw non-xlu objects and calculate xlu values for actor fading
 	cur = actList;
 	waterObject = 0;
+	currN64ModgyTexObject = numN64ModgyTexObjects - 1;	// number of N64 modgy tex objects to draw
 	while(cur)
 	{
 		if((cur->flags & ACTOR_DRAW_NEVER) || (cur->flags & ACTOR_WATER))
@@ -363,8 +364,6 @@ void DrawActorList()
 			continue;
 		}
 
-		// slide texture coordinates here for water objects ??? AndyE
-	
 		if((!cur->actor->objectController) || (cur->flags & ACTOR_DRAW_LAST))
 		{
 			// don't draw object yet
@@ -375,7 +374,14 @@ void DrawActorList()
 		if(cur->flags & ACTOR_DRAW_ALWAYS)
 		{
 			// always draw this actor without "xlu-culling"
-			DrawActor(cur->actor);
+			if(cur->flags & ACTOR_MODGETEX)
+			{
+				UpdateModgyTexN64(cur);
+				DrawActor(cur->actor);
+				currN64ModgyTexObject--;
+			}
+			else
+				DrawActor(cur->actor);
 		}
 		else
 		{
@@ -393,11 +399,16 @@ void DrawActorList()
 	// go ahead and draw the xlu water objects
 	waterObject = 1;
 	cur = actList;
+	currN64WaterObject = numN64WaterObjects - 1;	// number of N64 water objects to draw
 	while(cur)
 	{
 		// only draw xlu water objects
 		if(cur->flags & ACTOR_WATER)
+		{
+			UpdateWaterN64(cur);
 			DrawActor(cur->actor);
+			currN64WaterObject--;					// decrement number of water objects to draw
+		}
 		
 		cur = cur->next;
 	}
@@ -426,20 +437,6 @@ void DrawActorList()
 		cur = cur->next;
 	}
 */
-	// now draw non-transformed actors
-	ClearViewing();
-
-	cur = actList;
-	while(cur)
-	{
-		if(cur->flags & ACTOR_DRAW_LAST)
-		{
-			DrawActor(cur->actor);
-		}
-
-		cur = cur->next;
-	}
-
 #endif
 }
 
@@ -565,13 +562,30 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	else
 	{
 		if (name[3]=='g')
+		{
 			newItem->flags = ACTOR_DRAW_ALWAYS | ACTOR_MODGETEX;
-		else
-			if (name[2]=='a')
-				newItem->flags = ACTOR_DRAW_ALWAYS | ACTOR_MODGETEX | ACTOR_SLIDYTEX;
-			else
-				newItem->flags = ACTOR_DRAW_ALWAYS;
 
+#ifdef N64_VERSION
+			// add support for modgy objects
+			AddN64ModgyTexObjectResource(newItem->actor);
+#endif
+		}
+		else
+		{
+			if (name[2]=='a')
+			{
+				newItem->flags = ACTOR_DRAW_ALWAYS | ACTOR_MODGETEX | ACTOR_SLIDYTEX;
+
+#ifdef N64_VERSION
+				// add support for modgy objects
+				AddN64ModgyTexObjectResource(newItem->actor);
+#endif
+			}
+			else
+			{
+				newItem->flags = ACTOR_DRAW_ALWAYS;
+			}
+		}
 	}
 
 	if (name[0] == 's')
@@ -641,6 +655,7 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 						obj->sprites[i].sx *= 2;
 						break;
 					case 32:
+						obj->sprites[i].sx *= 3;
 						break;
 				}
 				switch(sprite->texture->sy)
@@ -652,6 +667,7 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 						obj->sprites[i].sy *= 2;
 						break;
 					case 32:
+						obj->sprites[i].sy *= 3;
 						break;
 				}
 #endif

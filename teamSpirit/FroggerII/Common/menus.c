@@ -80,7 +80,8 @@ void RunTitleScreen()
 		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,192,0 );
 		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,192,0 );
 
-		CreateOverlaysFromLogo(&Frogger2Logo, 98, 20);
+		CreateOverlaysFromLogo(&Frogger2Logo,98,20);
+
 		ResetParameters();
 	}
 

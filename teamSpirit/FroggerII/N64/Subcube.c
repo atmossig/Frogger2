@@ -924,7 +924,6 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 		}
 	}
 
-
 	for(i = 0; i < obj->numVerts; i++)
 	{
 		//xform the vertex positions

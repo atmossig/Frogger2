@@ -15,20 +15,29 @@
 #ifdef N64_VERSION
 
 #define MAX_N64_WATEROBJECTS	4
+#define MAX_N64_MODGYTEXOBJECTS	4
 
 extern ACTOR2 *watActor;
 
 extern short numN64WaterObjects;
 extern short currN64WaterObject;
-extern SHORT2DVECTOR *mTC[MAX_N64_WATEROBJECTS];
+extern SHORT2DVECTOR *wTC[MAX_N64_WATEROBJECTS];
+
+extern short numN64ModgyTexObjects;
+extern short currN64ModgyTexObject;
+extern SHORT2DVECTOR *mTC[MAX_N64_MODGYTEXOBJECTS];
+
 
 
 void RunWaterDemo();
-void UpdateWater(ACTOR2 *wAct);
 
+void UpdateWaterN64(ACTOR2 *wAct);
 void AddN64WaterObjectResource(ACTOR *wAct);
 void FreeN64WaterResources();
 
+void UpdateModgyTexN64(ACTOR2 *mAct);
+void AddN64ModgyTexObjectResource(ACTOR *mAct);
+void FreeN64ModgyTexResources();
 
 #endif
 
