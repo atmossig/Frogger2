@@ -427,7 +427,7 @@ void AddScenicObj ( SCENICOBJ *scenicObj )
 	}
 }
 
-void FreeScenicObjectList ( SCENICOBJ *scenicObj )
+void FreeScenicObjectList ( void )
 {
 	SCENICOBJ *cur,*next;
 
@@ -621,10 +621,10 @@ void CreateProceduralTexture ( char *name )
 	unsigned long i;
 	unsigned long rVand,gVand,bVand,rVshr,gVshr,bVshr;
 	unsigned short newCol,nR,nG,nB,nA;
+	unsigned short *tempPalette;
 
 	unsigned char *tempBuf;
 
-	unsigned short *tempPalette;
 	int counter;
 
 	RECT texRect;
@@ -708,6 +708,8 @@ void CreateProceduralTexture ( char *name )
 	}
 	else if( name[4]=='c' && name[5]=='n' && name[6]=='d' && name[7]=='l' )
 		pt->Update = ProcessPTCandle;
+
+	FREE ( tempPalette );
 }
 
 void PTSurfaceBlit( TextureType *tex, unsigned long *buf, unsigned short *pal )

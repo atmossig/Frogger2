@@ -49,7 +49,7 @@ void InitScenicObjLinkedList ( void );
 
 void AddScenicObj ( SCENICOBJ *scenicObj );
 
-void FreeScenicObjectList ( SCENICOBJ *scenicObj );
+void FreeScenicObjectList ( void );
 
 void SubScenicObject ( SCENICOBJ *scenicObj );
 

@@ -80,7 +80,7 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj 
 				path.obj platform.obj psiactor.obj script.obj sndview.obj specfx.obj sprite.obj textover.obj \
 				tongue.obj types.obj newpsx.obj map.obj objects.obj textures.obj main.obj world.obj water.obj \
 				bbtimer.obj backdrop.obj eff_draw.obj temp_psx.obj world_eff.obj acostab.obj particle.obj \
-				psxsprite.obj ptexture.obj
+				psxsprite.obj ptexture.obj charsel.obj
 			
 #                slink /psx /c /strip /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
 #                slink /l $(LIBISL) /psx /c /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
