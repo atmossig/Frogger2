@@ -49,7 +49,7 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 			babies[i]->actor->shadow->alpha		= 191;
 
 			InitActorAnim(babies[i]->actor);
-			AnimateActor(babies[i]->actor,0,YES,NO,0.5F,0,0);
+			AnimateActor(babies[i]->actor, BABY_ANIM_HOP, YES, NO, 0.5F, NO, NO);
 			babyList[i].isSaved = 0;
 
 			SetVector( &babies[i]->actor->pos, &bTStart[i]->centre );

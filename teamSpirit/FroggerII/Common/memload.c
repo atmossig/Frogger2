@@ -188,7 +188,6 @@ int MemLoadEntities(const void* data, long size)
 			v.v[Y] = MEMGETFLOAT(&p);
 			v.v[Z] = MEMGETFLOAT(&p);
 			
-			// A vector that isn't used yet
 			scale = MEMGETFLOAT(&p);
 			animSpeed = MEMGETFLOAT(&p);
 			MEMGETFLOAT(&p);

@@ -17,6 +17,15 @@
 
 extern GAMETILE **bTStart;
 
+enum
+{
+	BABY_ANIM_HOP,
+	BABY_ANIM_CARTWHEEL,
+	BABY_ANIM_FLIP,
+	BABY_ANIM_WAGGLE,
+	BABY_ANIM_WAVE
+};
+
 // baby stuff
 typedef struct TAGBABY
 {

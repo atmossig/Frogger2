@@ -143,6 +143,31 @@ int GetRegistryInformation(void)
 	return 1;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: SaveRegistryInformation(void)
+	Parameters		: 
+	Returns			: int
+	Info			: Puts some stuff in the registry
+*/
+
+int SaveRegistryInformation(void)
+{
+	HKEY hkey;
+	DWORD len = MAX_PATH;
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_WRITE, &hkey) != ERROR_SUCCESS)
+	{
+		dprintf"Couldn't open registry key\n")); return 0;
+	}
+	else
+	{
+		//RegSetValueEx(hkey, "DeviceGUID", 0, REG_SZ, guidStr, len);
+		
+		RegCloseKey(hkey);
+	}
+
+	return 1;
+}
 
 void GetArgs(char *arglist)
 {
@@ -425,6 +450,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 		}
 	}
+
+	// Save stuff in the registry
+	SaveRegistryInformation();
 
 	// clean up
 	DeInitPCSpecifics();

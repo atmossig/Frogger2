@@ -636,6 +636,22 @@ BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
     }
 
 
+void DisplayReadme(HWND hwnd)
+{
+	HRESULT res;
+	
+	res = (HRESULT)ShellExecute(hwnd, "open", "Readme.html", NULL, baseDirectory, 0);
+
+	if (!res)
+	{
+		MessageBox(hwnd, "Couldn't open README.html", "Frogger", MB_OK | MB_ICONEXCLAMATION);
+	}
+	else
+	{
+		ShowWindow(winInfo.hWndMain, SW_MINIMIZE);
+	}
+}
+
 BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	long i;
@@ -808,103 +824,107 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
 			{
-				case IDCANCEL:
+			case IDC_README:
+				DisplayReadme(hwndDlg);
+				break;
+
+			case IDCANCEL:
+				PostQuitMessage(0);
+				runQuit = 1;
+				break;
+			case IDC_MPLAYER:
+				InitMPDirectPlay(winInfo.hInstance); // Pop up multiplayer select dialogue box
+				break;
+
+			case IDC_CONTROLS:
+				SetupControllers(hwndDlg);
+				break;
+/*
+			case IDC_KEYMAP:
+				DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYMAPBOX),winInfo.hWndMain,(DLGPROC)DLGKeyMapDialogue, (LPARAM)&DPInfo );
+				break;
+*/
+			case IDOK:
+			{
+				if (!winMode)
+					ShowCursor(0);
+				
+				for (i=0; i<SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMCOUNT,0,0); i++)
+					if (SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMSTATE,i,LVIS_SELECTED))
+						selIdx = i;
+				
+				SendMessage (GetDlgItem(hwndDlg,IDC_EDIT),WM_GETTEXT,MAX_PATH,(long)baseDirectory);
+
+				if (selIdx == LB_ERR)
+				{
 					PostQuitMessage(0);
 					runQuit = 1;
-					break;
-				case IDC_MPLAYER:
-					InitMPDirectPlay(winInfo.hInstance); // Pop up multiplayer select dialogue box
-					break;
+					return TRUE;
+				}
 
-				case IDC_CONTROLS:
-					SetupControllers(hwndDlg);
-					break;
-/*
-				case IDC_KEYMAP:
-					DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYMAPBOX),winInfo.hWndMain,(DLGPROC)DLGKeyMapDialogue, (LPARAM)&DPInfo );
-					break;
-*/
-				case IDOK:
+				// Get selected sound driver........
+
+
+				for ( i = 0; i < ComboBox_GetCount ( hCombo ); i++ )
 				{
-					if (!winMode)
-						ShowCursor(0);
-					
-					for (i=0; i<SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMCOUNT,0,0); i++)
-						if (SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMSTATE,i,LVIS_SELECTED))
-							selIdx = i;
-					
-					SendMessage (GetDlgItem(hwndDlg,IDC_EDIT),WM_GETTEXT,MAX_PATH,(long)baseDirectory);
-
-					if (selIdx == LB_ERR)
+					(GUID*) lpTemp = ( LPGUID ) ComboBox_GetItemData ( hCombo, i );
+					if ( i == ComboBox_GetCurSel ( hCombo ) )
 					{
-						PostQuitMessage(0);
-						runQuit = 1;
-						return TRUE;
+						if ( lpTemp != NULL )
+							memcpy ( lpGUID, lpTemp, sizeof ( GUID ) );
+						else
+							lpGUID = NULL;
 					}
+					if ( lpTemp )
+						LocalFree ( lpTemp );
+				}
+				// ENDFOR
 
-					// Get selected sound driver........
+				// If we got the NULL GUID, then we want to open the default
+				// sound driver, so return with an error and the init code
+				// will know not to pass in the guID and will send NULL
+				// instead.
+				if ( lpGUID == NULL )
+					EndDialog ( hwndDlg, TRUE );
+				else
+					EndDialog( hwndDlg, FALSE );
 
-
-					for ( i = 0; i < ComboBox_GetCount ( hCombo ); i++ )
-					{
-						(GUID*) lpTemp = ( LPGUID ) ComboBox_GetItemData ( hCombo, i );
-						if ( i == ComboBox_GetCurSel ( hCombo ) )
-						{
-							if ( lpTemp != NULL )
-								memcpy ( lpGUID, lpTemp, sizeof ( GUID ) );
-							else
-								lpGUID = NULL;
-						}
-						if ( lpTemp )
-							LocalFree ( lpTemp );
-					}
-					// ENDFOR
-
-					// If we got the NULL GUID, then we want to open the default
-					// sound driver, so return with an error and the init code
-					// will know not to pass in the guID and will send NULL
-					// instead.
-					if ( lpGUID == NULL )
-						EndDialog ( hwndDlg, TRUE );
-					else
-						EndDialog( hwndDlg, FALSE );
-
-					switch(ComboBox_GetCurSel(GetDlgItem( hwndDlg, IDC_COMBO1)))
-					{
-						case 0:
-							SCREEN_WIDTH = 320;
-							SCREEN_HEIGHT = 240;
-							break;
-						case 1:
-							SCREEN_WIDTH = 640;
-							SCREEN_HEIGHT = 480;
-							break;
-						case 2:
-							SCREEN_WIDTH = 800;
-							SCREEN_HEIGHT = 600;
-							break;
-						case 3:
-							SCREEN_WIDTH = 1024;
-							SCREEN_HEIGHT = 768;
-							break;
-						case 4:
-							SCREEN_WIDTH = 1280;
-							SCREEN_HEIGHT = 1024;
-							break;
-					}
-					HALF_WIDTH = SCREEN_WIDTH/2;
-					HALF_HEIGHT = SCREEN_HEIGHT/2;
-					clx1 = SCREEN_WIDTH-1;
-					cly1 = SCREEN_HEIGHT-1;
+				switch(ComboBox_GetCurSel(GetDlgItem( hwndDlg, IDC_COMBO1)))
+				{
+					case 0:
+						SCREEN_WIDTH = 320;
+						SCREEN_HEIGHT = 240;
+						break;
+					case 1:
+						SCREEN_WIDTH = 640;
+						SCREEN_HEIGHT = 480;
+						break;
+					case 2:
+						SCREEN_WIDTH = 800;
+						SCREEN_HEIGHT = 600;
+						break;
+					case 3:
+						SCREEN_WIDTH = 1024;
+						SCREEN_HEIGHT = 768;
+						break;
+					case 4:
+						SCREEN_WIDTH = 1280;
+						SCREEN_HEIGHT = 1024;
+						break;
+				}
+				HALF_WIDTH = SCREEN_WIDTH/2;
+				HALF_HEIGHT = SCREEN_HEIGHT/2;
+				clx1 = SCREEN_WIDTH-1;
+				cly1 = SCREEN_HEIGHT-1;
 
 
 //					EndDialog(hwndDlg,0);
-					runQuit = 0;
-					break;
-				}
-	
+				runQuit = 0;
+				break;
 			}
-			break;
+
+		}
+		break;
 	}
 	return FALSE;
 }

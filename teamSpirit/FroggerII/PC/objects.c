@@ -243,6 +243,26 @@ BOOL LoadObjectBank(int num)
 			strcat (file,"spacemulti");
 			break;
 
+		case SUBTERRANEANMASTER_OBJ_BANK:
+			strcat (file,"submaster");
+			break;
+
+		case SUBTERRANEANBOSS_OBJ_BANK:
+			strcat (file, "subboss");
+			break;
+
+		case SUBTERRANEANLEV1_OBJ_BANK:
+			strcat (file, "sub1");
+			break;
+		
+		case SUBTERRANEANLEV2_OBJ_BANK:
+			strcat (file, "sub1");
+			break;
+		
+		case SUBTERRANEANLEV3_OBJ_BANK:
+			strcat (file, "sub1");
+			break;
+		
 		case CITYMASTER_OBJ_BANK:
 			strcat (file,"citymaster");
 			break;
