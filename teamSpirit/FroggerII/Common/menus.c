@@ -133,7 +133,7 @@ void RunTitleScreen()
 
 				case 1:
 					// level select menu
-					FreeAllLists();
+					FreeMenuItems();
 					gameState.menuMode = LEVELSELECT_MODE;
 					frameCount = 0;
 					lastbutton = 0;
@@ -141,7 +141,7 @@ void RunTitleScreen()
 			
 				case 2:
 					// select multi player game
-					FreeAllLists();
+					FreeMenuItems();
 					gameState.multi = MULTILOCAL;
 					gameState.menuMode = LEVELSELECT_MODE;
 					frameCount = 0;
@@ -151,7 +151,7 @@ void RunTitleScreen()
 			
 				case 3:
 					// develepoment mode
-					FreeAllLists();
+					FreeMenuItems();
 					gameState.menuMode = DEVELOPMENT_MODE;
 					frameCount = 0;
 					lastbutton = 0;
@@ -200,19 +200,7 @@ void RunLevelSelect()
 
 	if(frameCount == 1)
 	{
-/*
-		FreeAllLists();
-
-		LoadTextureBank(SYSTEM_TEX_BANK);
-#ifdef PC_VERSION
-		LoadTextureBank(TITLES_TEX_BANK);
-#else
-		LoadTextureBank(TITLESGENERIC_TEX_BANK);
-#endif
-*/
-		FreeTextOverlayLinkedList();
-		FreeSpriteOverlayLinkedList();
-		FreeSpriteLinkedList();
+		FreeMenuItems();
 
 		currFont = smallFont;
 
@@ -327,7 +315,7 @@ void RunLevelSelect()
 		// move back in menus
 		if((button & CONT_B) && !(lastbutton & CONT_B))
 		{
-			FreeAllLists();
+			FreeMenuItems();
 			gameState.menuMode = TITLE_MODE;
 			frameCount = 0;
 			lastbutton = 0;
@@ -488,3 +476,24 @@ void CreateOverlays()
 	sprOver = CreateAndAddSpriteOverlay(162,84,"flogo09.bmp",32,32,255,255,255,255,0);
 	sprOver = CreateAndAddSpriteOverlay(194,84,"flogo10.bmp",32,32,255,255,255,255,0);
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeMenuItems
+	Purpose			: free text / sprite overlays
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeMenuItems()
+{
+	StopDrawing("FreeMenuItems");
+
+	// free text and sprite overlays
+	FreeTextOverlayLinkedList();
+	FreeSpriteOverlayLinkedList();
+	FreeSpriteLinkedList();
+
+	StartDrawing("FreeMenuItems");
+}
+

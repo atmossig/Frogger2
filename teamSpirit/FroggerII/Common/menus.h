@@ -27,6 +27,7 @@ void RunTitleScreen();
 void RunLevelSelect();
 void RunPauseMenu();
 void CreateOverlays();
+void FreeMenuItems();
 
 #endif
 
