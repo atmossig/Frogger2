@@ -6,6 +6,9 @@
 int multiplayerMode;
 long started = 0;
 
+int UpdateCTF( );
+int UpdateRace( );
+int UpdateDM( );
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateCTF
@@ -169,6 +172,95 @@ int UpdateRace( )
 	}
 
 	return TRUE;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateRace
+	Purpose			: Do game mechanics for mulitplayer race mode
+	Parameters		: 
+	Returns			: 
+	Info			:
+*/
+int UpdateDM( )
+{
+	static TIMER endTimer;
+	int i, j;
+
+	multiplayerMode = MULTIMODE_DM;
+
+	if( !started )
+	{
+		timeTextOver->text[0] = '\0';
+		GTInit( &endTimer, 0 );
+		started = 1;
+	}
+
+	if( endTimer.time )
+	{
+		GTUpdate( &endTimer, -1 );
+
+		if( !endTimer.time )
+		{
+			StopDrawing("game over");
+			FreeAllLists();
+
+			InitLevel(player[0].worldNum,player[0].levelNum);
+			gameState.mode = INGAME_MODE;
+
+			started = frameCount = 0;
+			fixedPos = fixedDir = 0;
+			StartDrawing("game over");
+
+			return FALSE;
+		}
+		return TRUE;
+	}
+	else // Is anyone still alive?
+	{
+		char dead[4] = {1,1,1,1};
+
+		for( i=0,j=0; i<NUM_FROGS; i++ )
+			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) ) 
+			{
+				dead[i] = 0;
+				j++;
+			}
+
+		if( !j )
+		{
+			GTInit( &endTimer, 10 );
+			fixedPos = fixedDir = 1;
+		}
+		else if( j==1 )
+		{
+			for( i=0,j=0; i<4; i++ )
+				if( !dead[i] ) j = i;
+
+			sprintf( timeTextOver->text, "P%i won", j+1 );
+
+			GTInit( &endTimer, 10 );
+		}
+	}
+
+	return TRUE;
+}
+
+
+void RunMultiplayer( )
+{
+	switch( player[0].worldNum )
+	{
+	case WORLDID_GARDEN:
+		UpdateRace( );
+		break;
+	case WORLDID_SUBTERRANEAN:
+		UpdateCTF( );
+		break;
+	case WORLDID_HALLOWEEN:
+		UpdateDM( );
+		break;
+	}
 }
 
 
