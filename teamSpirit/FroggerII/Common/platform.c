@@ -853,9 +853,8 @@ void UpdateSlerpPathPlatform( PLATFORM *cur )
 void UpdatePathPlatform(PLATFORM *plat)
 {
 	VECTOR fromPosition,toPosition,fwd,moveVec,norm;
-	float length;
-
-	float n;
+	float length, n;
+	long progress;
 
 	// check if this platform has arrived at a path node
 	if(actFrameCount >= plat->path->endFrame)
@@ -880,7 +879,10 @@ void UpdatePathPlatform(PLATFORM *plat)
 	
 	SubVector(&fwd,&toPosition,&fromPosition);
 	
-	length = (float)(actFrameCount - plat->path->startFrame)/(float)(plat->path->endFrame - plat->path->startFrame);
+	progress = actFrameCount - plat->path->startFrame;
+	if( !progress ) progress = 1;
+
+	length = (float)progress/(float)(plat->path->endFrame - plat->path->startFrame);
 	
 	ScaleVector(&fwd,length);
 	AddVector(&plat->pltActor->actor->pos,&fwd,&fromPosition);

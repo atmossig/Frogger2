@@ -388,6 +388,7 @@ void UpdatePathNME( ENEMY *cur )
 	VECTOR fromPosition,toPosition, fwd, dir, cross;
 	QUATERNION q;
 	float length, dp;
+	long progress;
 	
 	// first, update the enemy position
 	GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
@@ -395,7 +396,10 @@ void UpdatePathNME( ENEMY *cur )
 	
 	SubVector(&fwd,&toPosition,&fromPosition);
 	
-	length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
+	progress = actFrameCount - cur->path->startFrame;
+	if( !progress ) progress = 1;
+
+	length = (float)progress/(float)(cur->path->endFrame - cur->path->startFrame);
 	
 	ScaleVector(&fwd,length);
 
