@@ -1301,7 +1301,7 @@ static void VRAMviewTextures(int *currTex)
 
 void textureShowVRAM(unsigned char palMode)
 {
-	/*DISPENV		dispenv;
+	DISPENV		dispenv;
 	int			xOffs,yOffs, viewMode, currTex;
 
 	currTex = 0;
@@ -1323,7 +1323,7 @@ void textureShowVRAM(unsigned char palMode)
 		}
 		if (padData.debounce[4] & PAD_SELECT)
 			viewMode = (viewMode+1) % 2;
-	}*/
+	}
 }
 
 
