@@ -952,7 +952,7 @@ MDX_OBJECT *FindObj(MDX_OBJECT *me, char *name)
 {
 	MDX_OBJECT *t = NULL;
 	
-	if (strcmp((const char *)me->name,name)==0)
+	if (stricmp((const char *)me->name,name)==0)
 		return me;
 
 	if( me->next && (t = FindObj(me->next,name)) )
