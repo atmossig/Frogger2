@@ -58,7 +58,6 @@ long totalFacesDrawn;
 extern long numFacesDrawn;
 extern long numPixelsDrawn;
 extern long runHardware;
-extern unsigned long USE_MENUS;
 extern unsigned long rKeying;
 extern unsigned long rPlaying;
 extern long synchedFrameCount;
@@ -70,7 +69,6 @@ void StopKeying(void);
 float vMatrix[4][4];
 long keyInput = 1;
 
-extern long displayingTile;
 extern long myLatency;
 
 long winMode = 1;
@@ -337,21 +335,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	for (i=0; i<numRequired; i++)
 		screenTexList[i] = NULL;
 
-	if (!USE_MENUS)
-	{
-		FreeAllLists();
-		StartGameIntro();
-
-/*		FreeAllLists();
-		InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
-*/	}
-	else
-	{
-		gameState.mode = MENU_MODE;
-		gameState.menuMode = TITLE_MODE;
-	}
-
-	//ShowDesignScreen("destest");
+	// Run-in to frontend load
+	FreeAllLists();
+	StartGameIntro();
 
     while(ok)
 	{

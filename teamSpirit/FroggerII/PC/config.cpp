@@ -18,7 +18,6 @@ extern "C" {
 #include "incs.h"
 #include "config.h"
 
-extern unsigned long USE_MENUS;
 extern long winMode;
 extern long scaleMode;
 extern unsigned long synchSpeed;
@@ -71,10 +70,6 @@ void GetArgs(char *arglist)
 
 					case 'C': case 'c':
 						swingCam = 0;
-						break;
-
-					case 'M': case 'm':
-						//USE_MENUS = 1;
 						break;
 
 					case 'R': case 'r':

@@ -16,21 +16,13 @@
 
 #include "incs.h"
 
-TEXTOVERLAY *worldNames	[ MAX_WORLDS ];
-TEXTOVERLAY *levelN		[ MAX_LEVELS ];
-TEXTOVERLAY *closed;
 TEXTOVERLAY *posText;
 TEXTOVERLAY *levelnameText;
 
 SPRITEOVERLAY *atari = NULL;
 SPRITEOVERLAY *konami = NULL;
-SPRITEOVERLAY *sprOver = NULL;
 SPRITEOVERLAY *islLogo[] = {NULL,NULL,NULL};
 SPRITEOVERLAY *flogo[10];
-
-#ifdef PC_VERSION
-unsigned long USE_MENUS = 0;
-#endif
 
 /* LOGO information for Frogger 2 logo */
 
@@ -43,492 +35,6 @@ LOGO Frogger2Logo =
 		0, 0, 9, 10
 	}
 };
-
-/*	--------------------------------------------------------------------------------
-	Function 	: RunTitleScreen
-	Purpose 	: The first menu
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-char mpText[] = "Multiplayer 1";
-
-void RunTitleScreen()
-{
-	static unsigned long currentSelection = 0;
-	static u16 button;
-	static u16 lastbutton;
-
-	static TEXTOVERLAY *startText;
-	static TEXTOVERLAY *selectText;
-	static TEXTOVERLAY *multiText;
-	static TEXTOVERLAY *devText;
-	static long numPlayers = 1;
-
-	int i = 0,xPos,j;
-
-	if(frameCount == 1)
-	{
-		FreeAllLists();
-
-		LoadTextureBank(SYSTEM_TEX_BANK);
-#ifdef PC_VERSION
-		LoadTextureBank(TITLES_TEX_BANK);
-		currFont = bigFont;
-#else
-		LoadTextureBank(TITLESGENERIC_TEX_BANK);
-		currFont = smallFont;
-#endif
-
-		startText = CreateAndAddTextOverlay(100,112,"start game",YES,255,currFont,TEXTOVERLAY_NORMAL,6);
-
-		selectText = CreateAndAddTextOverlay(100,132,"level select",YES,255,currFont,TEXTOVERLAY_NORMAL,6);
-		multiText = CreateAndAddTextOverlay(100,152,mpText,YES,255,currFont,TEXTOVERLAY_NORMAL,6);
-		devText = CreateAndAddTextOverlay(100,172,"develop",YES,255,currFont,TEXTOVERLAY_NORMAL,6);
-
-		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,192,0 );
-		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,192,0 );
-
-		islLogo[0] = CreateAndAddSpriteOverlay(220,195,"isl1.bmp",32,32,192,0 );
-		islLogo[1] = CreateAndAddSpriteOverlay(252,195,"isl2.bmp",32,32,192,0 );
-		islLogo[2] = CreateAndAddSpriteOverlay(284,195,"isl3.bmp",32,32,192,0 );
-
-		CreateOverlaysFromLogo(&Frogger2Logo,98,20);
-
-		ResetParameters();
-	}
-
-	startText->a = 100;
-	selectText->a = 100;
-	multiText->a = 100;
-	devText->a = 100;
-	sprintf(mpText,"Multiplayer %i",numPlayers);
-	button = controllerdata [ ActiveController ].button;
-
-	if((button & CONT_UP) && !(lastbutton & CONT_UP))
-    {
-		if( currentSelection > 0 )
-		{
-			switch (currentSelection--)
-			{
-				case 0: startText->draw = 1; break;
-				case 1: selectText->draw = 1; break;
-				case 2: multiText->draw = 1; break;
-				case 3: devText->draw = 1; break;
-			}
-		}
-	}
-	    
-	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
-    {
-		if( currentSelection < 3 )
-		{
-			switch (currentSelection++)
-			{
-				case 0: startText->draw = 1; break;
-				case 1: selectText->draw = 1; break;
-				case 2: multiText->draw = 1; break;
-				case 3: devText->draw = 1; break;
-			}
-		}
-	}
-	
-	if(frameCount > 15)
-	{
-		if(currentSelection == 2)
-		{
-			if((button & CONT_RIGHT) && !(lastbutton & CONT_RIGHT))
-				if(numPlayers<MAX_FROGS)
-					numPlayers++;
-
-			if((button & CONT_LEFT) && !(lastbutton & CONT_LEFT))
-				if(numPlayers>1)
-					numPlayers--;
-		}
-
-		if ((button & CONT_START) && !(lastbutton & CONT_START))
-		{
-			PostQuitMessage(0);
-			return;
-		}
-
-		if ((button & CONT_A) && !(lastbutton & CONT_A))
-		{
-			switch(currentSelection)
-			{
-				case 0:
-					player[0].worldNum = WORLDID_FRONTEND;
-					player[0].levelNum = LEVELID_FRONTEND1;
-
-					FreeAllLists();
-					InitLevel(player[0].worldNum,player[0].levelNum);
-
-					gameState.mode = INGAME_MODE;
-					gameState.multi = SINGLEPLAYER;
-
-					ACTOR_DRAWDISTANCEINNER = 300000;
-					ACTOR_DRAWDISTANCEOUTER = 350000;
-
-					NUM_FROGS = 1;
-					frameCount = 0;
-					lastbutton = 0;
-					break;
-
-				case 1:
-					// level select menu
-					FreeMenuItems();
-					gameState.menuMode = LEVELSELECT_MODE;
-
-					if(gameState.multi != MULTIREMOTE)
-					{
-						NUM_FROGS = 1;
-						gameState.multi = SINGLEPLAYER;
-					}
-
-					ACTOR_DRAWDISTANCEINNER = 300000;
-					ACTOR_DRAWDISTANCEOUTER = 350000;
-
-					frameCount = 0;
-					lastbutton = 0;
-					break;
-			
-				case 2:
-					// select multi player game
-					FreeMenuItems();
-					if(gameState.multi != MULTIREMOTE)
-						gameState.multi = MULTILOCAL;
-					gameState.menuMode = LEVELSELECT_MODE;
-					ACTOR_DRAWDISTANCEINNER = ULONG_MAX-1;
-					ACTOR_DRAWDISTANCEOUTER = ULONG_MAX;
-					frameCount = 0;
-					lastbutton = 0;
-					NUM_FROGS = numPlayers;
-					break;
-#ifdef N64_VERSION
-				case 3:
-					// develepoment mode
-					FreeMenuItems();
-					gameState.menuMode = DEVELOPMENT_MODE;
-					frameCount = 0;
-					lastbutton = 0;
-					break;
-#endif
-			}
-
-			return;		// DON'T try to do any menu stuff! Duh
-		}			
-
-		switch (currentSelection)
-		{
-			case 0: startText->a = 255; if( !(frameCount%32) ) startText->draw = !startText->draw; break;
-			case 1: selectText->a = 255; if( !(frameCount%32) ) selectText->draw = !selectText->draw; break;
-			case 2: multiText->a = 255; if( !(frameCount%32) ) multiText->draw = !multiText->draw; break;
-			case 3: devText->a = 255; if( !(frameCount%32) ) devText->draw = !devText->draw;break;
-		}
-	}
-
-	lastbutton = button;
-}
-
-#define NUM_CHARS 3
-char texNames[3][16] = {"frogger","lillie","toad"};
-char frogNames[3][16] = {"frogger.obe","femfrog.obe","toad.obe"};
-
-extern char frogModel[4][16];
-
-void RunCharSelect()
-{
-	static u16 button;
-	static u16 lastbutton;
-	static TEXTOVERLAY *charSelText[NUM_CHARS];
-	static TEXTOVERLAY *charSelTitle;
-	static int curSel = 0;
-	unsigned long i;
-
-	if (frameCount == 1)
-	{
-		FreeMenuItems();
-
-		for( i=0; i < NUM_CHARS; i++ )
-			charSelText[i] = CreateAndAddTextOverlay( 150, (i*20)+90, texNames[i],	YES,100, currFont, TEXTOVERLAY_NORMAL,0 );		
-		charSelTitle = CreateAndAddTextOverlay( 150, 30, "Char Select",	YES,100, currFont, TEXTOVERLAY_NORMAL,0 );		
-	}
-
-	// Sod it, it's only a menu.
-	for( i=0; i < NUM_CHARS; i++ )
-		charSelText[i]->a = 100;
-	
-	charSelText[curSel]->a = 0xff;
-	if( !(frameCount%32) ) charSelText[curSel]->draw = !charSelText[curSel]->draw;
-
-	button = controllerdata [ ActiveController ].button;
-
-	// move between worlds or levels
-	if((button & CONT_UP) && !(lastbutton & CONT_UP))
-    {
-		if (curSel>0)
-			charSelText[curSel--]->draw = 1;
-	}
-	    
-	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
-    {
-		if (curSel<NUM_CHARS-1)
-			charSelText[curSel++]->draw = 1;
-	}
-
-	if (frameCount>15)
-	{
-		if ((button & CONT_A) && !(lastbutton & CONT_A))
-		{
-			strcpy(frogModel[0],frogNames[curSel]);
-
-			FreeAllLists();
-			InitLevel(player[0].worldNum,player[0].levelNum);
-
-			gameState.mode = INGAME_MODE;
-				
-			frameCount = 0;
-			lastbutton = 0;
-		}
-
-		if( (button & CONT_B) && !(lastbutton & CONT_B) )
-		{
-			FreeMenuItems();
-			gameState.menuMode = TITLE_MODE;
-			frameCount = 0;
-			lastbutton = 0;
-			return;
-		}
-	}
-
-	lastbutton = button;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: RunLevelSelect
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void RunLevelSelect()
-{
-	static u16 button;
-	static u16 lastbutton;
-
-	static TEXTOVERLAY *worldSelText[MAX_WORLDS];
-	static TEXTOVERLAY *levelSelText[MAX_LEVELS];
-
-	static unsigned long lrSelect = 0;				// Select worlds or levels
-	static unsigned long oldWorldSelect = 0;        // To check if selected world has changed
-	static unsigned long currentWorldSelect = 0;	// Which world
-	static unsigned long currentLevelSelect = 0;	// Which level
-
-	static LNAMESTRUCT lNames[MAX_LEVELS];
-
-	unsigned int i,j;
-
-	if(frameCount == 1)
-	{
-		FreeMenuItems();
-
-		//currFont = smallFont;
-
-		// draw list of worlds on left
-		for( i=0; i < MAX_WORLDS; i++ )
-			worldSelText[i] = CreateAndAddTextOverlay( 5, (i*20)+30, worldVisualData[i].description,
-														NO,100, currFont, TEXTOVERLAY_NORMAL,0 );
-
-		// draw list of levels in current selected world on right
-		for( i=0; i < MAX_LEVELS; i++ )
-		{
-			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
-			levelSelText[i] = CreateAndAddTextOverlay( 150, (i*20)+30, lNames[i].name,
-														NO,100,	currFont,TEXTOVERLAY_NORMAL,0);
-		}
-
-		ResetParameters();
-	}
-
-
-	// Reset alpha values
-	worldSelText[currentWorldSelect]->a = 100;
-	if(currentLevelSelect != 255)
-		levelSelText[currentLevelSelect]->a = 100;
-
-	button = controllerdata [ ActiveController ].button;
-
-	// move between worlds or levels
-	if((button & CONT_UP) && !(lastbutton & CONT_UP))
-    {
-		if( lrSelect == 0 && currentWorldSelect > 0 ) // World select
-		{
-			worldSelText[currentWorldSelect--]->draw = 1;
-			for( i=0; i < MAX_LEVELS; i++ )
-			{
-				if ((worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 ) &&	(worldVisualData[currentWorldSelect].levelVisualData[i].description[0] != ' '))
-				{
-					currentLevelSelect = i;
-					break;
-				}
-				else currentLevelSelect = 255;
-			}
-		}
-		else if( lrSelect == 1 && currentLevelSelect > 0 ) // Level select
-		{
-			levelSelText[currentLevelSelect]->draw = 1;
-			for( i=currentLevelSelect-1; i >= 0; i-- )
-			{
-				if ((worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 ) &&	(worldVisualData[currentWorldSelect].levelVisualData[i].description[0] != ' '))
-				{
-					currentLevelSelect = i;
-					break;
-				}
-			}
-		}
-	}
-	    
-	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
-    {
-		if( lrSelect == 0 && currentWorldSelect < MAX_WORLDS-1 ) // World select
-		{
-			
-			worldSelText[currentWorldSelect++]->draw = 1;
-			for( i=0; i < MAX_LEVELS; i++ )
-			{
-				if ((worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 ) &&	(worldVisualData[currentWorldSelect].levelVisualData[i].description[0] != ' '))
-				{
-					currentLevelSelect = i;
-					break;
-				}
-				else currentLevelSelect = 255;
-			}
-		}
-		else if( lrSelect == 1 && currentLevelSelect < MAX_LEVELS )
-		{
-			levelSelText[currentLevelSelect]->draw = 1;
-			for( i=currentLevelSelect+1; i < MAX_LEVELS; i++ )
-			{
-				if ((worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 ) &&	(worldVisualData[currentWorldSelect].levelVisualData[i].description[0] != ' '))
-				{
-					currentLevelSelect = i;
-					break;
-				}
-			}
-		}
-	}
-
-	// move between world and level select
-	if((button & CONT_LEFT) && !(lastbutton & CONT_LEFT))
-		if(lrSelect == 1)
-			lrSelect = 0;
-	    
-	if((button & CONT_RIGHT) && !(lastbutton & CONT_RIGHT))
-		if(lrSelect == 0 && currentLevelSelect != 255)
-			lrSelect = 1;
-
-	//	check if world selection has changed. If so, update level list.
-
-	if(currentWorldSelect != oldWorldSelect)
-	{
-		// change old level textovers
-		for(i=0; i < MAX_LEVELS; i++)
-		{
-			if (worldVisualData[currentWorldSelect].levelVisualData[i].description[0] == ' ')
-				break;
-			
-			sprintf(lNames[i].name,worldVisualData[currentWorldSelect].levelVisualData[i].description);
-		}
-	}
-
-
-	//	don't allow menu changing for the first fifteen frames
-
-	if(frameCount > 15)
-	{
-		// move back in menus
-		if((button & CONT_B) && !(lastbutton & CONT_B))
-		{
-			FreeMenuItems();
-			gameState.menuMode = TITLE_MODE;
-			frameCount = 0;
-			lastbutton = 0;
-			return;
-		}
-
-		if ((button & CONT_START) && !(lastbutton & CONT_START))
-		{
-			PostQuitMessage(0);
-			return;
-		}
-
-		// run selected world and level
-		if( (((button & CONT_A) && !(lastbutton & CONT_A)))
-			&& currentLevelSelect != 255)
-		{
-				FreeMenuItems();
-				
-				player[0].worldNum = currentWorldSelect;
-				player[0].levelNum = currentLevelSelect;
-
-				if( gameState.multi != SINGLEPLAYER )
-				{
-					switch( player[0].worldNum )
-					{
-					case WORLDID_ANCIENT:
-					case WORLDID_GARDEN:
-						multiplayerMode = MULTIMODE_RACE; 
-						break;
-					case WORLDID_LABORATORY: multiplayerMode = MULTIMODE_BATTLE; break;
-					}
-				}
-				
-				gameState.menuMode = CHARSELECT_MODE;
-
-				frameCount = 0;
-				lastbutton = 0;
-				return;
-		}
-
-
-
-		/*	player[0].worldNum = currentWorldSelect;
-			player[0].levelNum = currentLevelSelect;
-
-			FreeAllLists();
-			InitLevel(currentWorldSelect,currentLevelSelect);
-
-			gameState.mode = INGAME_MODE;
-				
-			frameCount = 0;
-			lastbutton = 0;*/
-
-		//	return;
-		//}			
-	}
-
-	// set selected text solid
-	if(lrSelect == 0)
-	{
-		worldSelText[currentWorldSelect]->a = 255;
-		if( currentLevelSelect != 255 ) 
-		{
-			levelSelText[currentLevelSelect]->a = 175;
-			levelSelText[currentLevelSelect]->draw = 1;
-		}
-		if( !(frameCount%32) ) worldSelText[currentWorldSelect]->draw = !worldSelText[currentWorldSelect]->draw;
-	}
-	else
-	{
-		worldSelText[currentWorldSelect]->a = 175;
-		worldSelText[currentWorldSelect]->draw = 1;
-		if( currentLevelSelect != 255 ) levelSelText[currentLevelSelect]->a = 255;
-		if( !(frameCount%32) ) levelSelText[currentLevelSelect]->draw = !levelSelText[currentLevelSelect]->draw;
-	}
-
-	lastbutton = button;
-	oldWorldSelect = currentWorldSelect;
-}
 
 
 /*	--------------------------------------------------------------------------------
@@ -568,64 +74,56 @@ void RunPauseMenu()
 
 		switch(currentSelection)
 		{
-			case 0:   // continue game
+		case 0:   // continue game
+		{
+			long i;
+			gameState.mode	= INGAME_MODE;
+
+			if( gameState.multi==SINGLEPLAYER )
 			{
-				long i;
-				gameState.mode	= INGAME_MODE;
+				livesTextOver->a = livesTextOver->oa;
+				scoreTextOver->a = scoreTextOver->oa;
 
-				if( gameState.multi==SINGLEPLAYER )
-				{
-					livesTextOver->a = livesTextOver->oa;
-					scoreTextOver->a = scoreTextOver->oa;
+				for ( i = 0; i < 3; i++ )
+					sprHeart[i]->draw = 1;
 
-					for ( i = 0; i < 3; i++ )
-						sprHeart[i]->draw = 1;
-
-					timeTextOver->a = timeTextOver->oa;
-				}
-
-				for(i=0; i<numBabies; i++)
-					babyIcons[i]->draw = 1;
-
-				actTickCountModifier = (GetTickCount()-actTickCount);
-				return;
+				timeTextOver->a = timeTextOver->oa;
 			}
-			
-			case 1:   // quit game
-				if( gameState.multi != SINGLEPLAYER )
-					ResetMultiplayer( );
 
-				FreeAllLists();
+			for(i=0; i<numBabies; i++)
+				babyIcons[i]->draw = 1;
 
-				if (!USE_MENUS)
-				{
-					if (player[0].worldNum == WORLDID_FRONTEND)
-					{
-						#ifdef PC_VERSION
-							if (player[0].levelNum == LEVELID_FRONTEND4)
-								PostQuitMessage(0);
-							else
-							{
-								gameState.mode = INGAME_MODE;
-								InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND4);						
-							}
-						#endif
-					}
+			actTickCountModifier = (GetTickCount()-actTickCount);
+			return;
+		}
+		
+		case 1:   // quit game
+			if( gameState.multi != SINGLEPLAYER )
+				ResetMultiplayer( );
+
+			FreeAllLists();
+
+			if (player[0].worldNum == WORLDID_FRONTEND)
+			{
+				#ifdef PC_VERSION
+					if (player[0].levelNum == LEVELID_FRONTEND4)
+						PostQuitMessage(0);
 					else
 					{
 						gameState.mode = INGAME_MODE;
-						InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND4);
+						InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND4);						
 					}
-				}
-				else
-				{
-					gameState.mode = MENU_MODE;
-					gameState.menuMode = TITLE_MODE;
-				}
+				#endif
+			}
+			else
+			{
+				gameState.mode = INGAME_MODE;
+				InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND4);
+			}
 
-				frameCount = 0;
-				lastbutton = 0;
-				return;
+			frameCount = 0;
+			lastbutton = 0;
+			return;
 		}
 
 	}
@@ -681,3 +179,1022 @@ void FreeMenuItems()
 	StartDrawing("FreeMenuItems");
 }
 
+
+
+
+
+
+
+
+
+
+
+void LevelSelProcessController(long pl);
+
+#define MAX_LEVELSTRING 10
+#define MAX_OPTIONS 5
+#define MAX_SPARKLES 15
+
+#define DEC_ALPHA(x) {if (x->a > gameSpeed * fadeSpeed)	{x->a -= gameSpeed * fadeSpeed;} else	{x->a = 0; x->draw = 0;}}
+#define INC_ALPHA(x,y) {if (x->a < y-gameSpeed * fadeSpeed)	{x->a += gameSpeed * fadeSpeed;} else	{x->a = y;}}
+
+TEXTOVERLAY *worldText, *arcadeText,*selectText,*statusText,*pcText,*bestText,*parText;
+TEXTOVERLAY *levelText[MAX_LEVELSTRING];
+SPRITEOVERLAY *worldBak,*titleBak,*statusBak, *infoBak, *levelPic;
+SPRITEOVERLAY *sparkles[MAX_SPARKLES];
+
+char arcadeStr[64];
+char *selectStr = "select level to play";
+char *statusStr = "Cursors select   Enter confirm   Esc cancel";
+
+char *timeStr = "2 51 Matthew";
+char *parStr =  "Par  Set By";
+
+char worldStr[64] = "WorldID";
+char pcStr[64] = "00 percent";
+char levelStr[MAX_LEVELSTRING][64] = {"","","","","","","","","",""};
+unsigned long cLevel,cWorld;
+float fadeSpeed = 5;
+unsigned long numPlayers = 2;
+
+char options[MAX_OPTIONS][64] = {"Music Volume","SFX Volume","Controller Config","Play Music Track 0","Play SFX 0"};
+
+void RunFrontendGameLoop (void)
+{
+	unsigned long i,j;
+	GAMETILE *cur;
+	
+	// setup for frogger point of interest
+	pOIDistance = 50000.0;
+	pointOfInterest = NULL;
+
+
+	if (frameCount == 1)
+	{
+		strcpy(arcadeStr,"No Mode");
+		for (i=0; i<MAX_SPARKLES; i++)
+		{
+			sparkles[i] = CreateAndAddSpriteOverlay(20,90,"flash.bmp",8,8,(rand()*0xff)/RAND_MAX,XLU_ADD);
+			sparkles[i]->num = 1;
+		}
+		
+		arcadeText = CreateAndAddTextOverlay(20,10,arcadeStr,YES,255,bigFont,0,0); 
+		selectText = CreateAndAddTextOverlay(20,28,selectStr,YES,255,smallFont,0,0); 
+		worldText = CreateAndAddTextOverlay(20,65,worldStr,NO,255,smallFont,0,0);
+		statusText = CreateAndAddTextOverlay(20,240-18,statusStr,YES,255,smallFont,0,0);
+		pcText = CreateAndAddTextOverlay(320,65+80,pcStr,NO,255,smallFont,0,0);
+		
+		parText = CreateAndAddTextOverlay(320,110+75,parStr,NO,255,smallFont,0,0);		
+		bestText = CreateAndAddTextOverlay(320,120+75,timeStr,NO,255,smallFont,TEXTOVERLAY_WAVECHARS,0);
+		bestText->waveAmplitude = 4;
+		
+		selectText->r = statusText->r = 0;
+		selectText->g = statusText->g = 0xff;
+		selectText->b = statusText->b = 10;
+		for (i=0; i<MAX_LEVELSTRING; i++)
+			levelText[i] = CreateAndAddTextOverlay(20,85+i*10,levelStr[i],NO,255,smallFont,TEXTOVERLAY_WAVECHARS,0);		
+			
+		
+		cLevel = 0;
+		cWorld = 0;
+		worldBak = CreateAndAddSpriteOverlay(10,55,"wback.bmp",130,80,190,0);
+		worldBak->r = 200;
+		worldBak->g = 100;
+		worldBak->b = 10;
+
+		levelPic = CreateAndAddSpriteOverlay(320-10-130+10,55+10+80,"garden1.bmp",34,30,230,0);
+		
+		infoBak = CreateAndAddSpriteOverlay(320-10-130,55+80,"wback.bmp",130,80,190,0);
+		infoBak->r = worldBak->r;
+		infoBak->g = worldBak->g;
+		infoBak->b = worldBak->b;
+		
+		
+		//titleBak = CreateAndAddSpriteOverlay(0,0,"00mwat09.bmp",32,32,190,XLU_ADD);
+		titleBak = CreateAndAddSpriteOverlay(20,5,"wback.bmp",320-40,16+8+10,190,0);
+		titleBak->r = worldBak->r;
+		titleBak->g = worldBak->g;
+		titleBak->b = worldBak->b;
+
+		statusBak = CreateAndAddSpriteOverlay(20,240-5-18,"wback.bmp",320-40,18,190,0);
+		statusBak->r = worldBak->r;
+		statusBak->g = worldBak->g;
+		statusBak->b = worldBak->b;
+
+		arcadeText->draw = 0;
+		selectText->draw = 0;
+		worldText->draw = 0;
+		statusText->draw = 0;
+		worldBak->draw = 0;
+		infoBak->draw = 0;
+		titleBak->draw = 0;
+		statusBak->draw = 0;
+		levelPic->draw = 0;
+		pcText->draw = 0;
+		bestText->draw = 0;
+		parText->draw = 0;
+		
+	}
+
+	
+	
+	for (i=0; i<MAX_LEVELSTRING; i++)
+		levelStr[i][0] = 0;
+
+	//flogo[0]->num = 0;
+		
+	if( fadingLogos )
+	{
+		if (atari->xPos < 500)
+		{
+			atari->xPos+=2*gameSpeed;
+			konami->xPos-=2*gameSpeed;
+			flogo[0]->yPos+=3*gameSpeed;
+
+			islLogo[0]->xPos+=2*gameSpeed;
+			islLogo[1]->xPos+=2*gameSpeed;
+			islLogo[2]->xPos+=2*gameSpeed;
+		}
+		else
+		{
+			atari->draw = 0;
+			konami->draw = 0;
+			flogo[0]->draw = 0;
+
+			islLogo[0]->draw = 0;
+			islLogo[1]->draw = 0;
+			islLogo[2]->draw = 0;
+		}
+	}
+	else
+	{
+		if (player[0].hasJumped == 1)
+		{
+
+			fadingLogos = 1;
+		}
+	}
+	
+	sprintf(pcStr,"%02i percent",worldVisualData[cWorld].levelVisualData[cLevel].percent);
+	
+	for (i=0; i<MAX_SPARKLES; i++)
+	{
+		unsigned long spkLev;
+
+		if (sparkles[i]->a > gameSpeed * 3)
+			sparkles[i]->a-= gameSpeed * 3;
+		else
+		{
+			if (currTileNum == 5 || currTileNum == 4)
+				spkLev = cLevel;
+			else
+				spkLev = cWorld;
+			
+			sparkles[i]->yPosTo = sparkles[i]->yPos = (rand()*8)/RAND_MAX + levelText[spkLev]->yPos-4;			
+			sparkles[i]->a = (rand()*160)/RAND_MAX;
+			sparkles[i]->xPos = levelText[spkLev]->xPos-4 + (rand() * (levelText[spkLev]->wtotal/2))/RAND_MAX;		
+		}
+			
+		sparkles[i]->speed = 0;
+		sparkles[i]->draw = levelText[cLevel]->draw;
+	}
+		
+	// Take this out for release
+	if( frameCount==1 )
+		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,255,bigFont,0,0);		
+
+	// displays the tile numbers
+	cur = &firstTile[0];
+	currTileNum = 0;
+	while(cur)
+	{
+		cur = cur->next;
+		if(cur == currTile[0])
+		{
+			currTileNum++;
+			break;
+		}
+		currTileNum++;
+	}
+	
+	if (tileNum)
+		if (tileNum->text)
+		{
+			if (displayingTile)
+				sprintf(tileNum->text,"%d",currTileNum);
+			else
+				sprintf(tileNum->text,"",currTileNum);
+		}
+	if (currTileNum==164)
+	{
+		frogFacing[0] = 3;
+		Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );	
+	}
+
+	
+	if (currTileNum!=5 && currTileNum!=3 && currTileNum!=1 && currTileNum!=4)
+	{
+		if( frameCount > 15 )
+			GameProcessController(0);                                      
+		
+		DEC_ALPHA(arcadeText);
+		DEC_ALPHA(pcText);
+		DEC_ALPHA(bestText);
+		DEC_ALPHA(parText);
+		
+		DEC_ALPHA(selectText);
+		DEC_ALPHA(worldText);
+		DEC_ALPHA(statusText);
+		DEC_ALPHA(worldBak);
+		DEC_ALPHA(infoBak);
+		DEC_ALPHA(titleBak);
+		DEC_ALPHA(statusBak);
+		DEC_ALPHA(levelPic);
+
+		for (i=0; i<MAX_LEVELSTRING; i++)
+			DEC_ALPHA(levelText[i]);
+		
+		worldText->centred = 0;
+		if (arcadeText->draw == 0)
+		{
+			worldBak->xPos = -100;
+			infoBak->xPos = 350;
+			titleBak->yPos = -100;
+			statusBak->yPos = 300;
+			levelPic->xPos = 400;
+
+			worldBak->speed = 1;
+			infoBak->speed = 1;
+			titleBak->speed = 1;
+			statusBak->speed = 1;
+			levelPic->speed = 1;
+
+			for (i=0; i<MAX_LEVELSTRING; i++)
+			{
+				levelText[i]->draw = 0;
+				levelText[i]->centred = 0;
+			}
+		}
+
+		
+	}
+	if (currTileNum==1)
+	{
+		worldBak->xPosTo = 95;
+		worldBak->height = 80+20;
+		strcpy(arcadeStr,"Options");
+		sprintf(worldStr,"Some title text",numPlayers);
+		
+		frogFacing[0] = 3;
+		Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
+
+		for (i=0; i<6; i++)
+		{
+				strcpy (levelStr[i],options[i]);
+				levelText[i]->b = 0;
+				levelText[i]->g = 100;
+				levelText[i]->r = 200;
+				levelText[i]->waveAmplitude = 0;
+		}
+
+		levelText[cWorld]->waveAmplitude = 4;
+		
+		worldBak->xPos = worldBak->xPosTo;
+		
+				
+		bestText->r = levelText[cWorld]->r = 128+(sinf(1+actFrameCount*0.09)+1)*64;
+		bestText->g = levelText[cWorld]->g = 128+(sinf(2+actFrameCount*0.07)+1)*64;
+		bestText->b = levelText[cWorld]->b = 10;
+	
+		arcadeText->yPos = titleBak->yPos+5;
+		selectText->yPos = titleBak->yPos+23;
+		statusText->yPos = statusBak->yPos+5;
+		
+		worldBak->draw = 1;
+		titleBak->draw = 1;
+		statusBak->draw = 1;
+		statusText->draw = 1;
+		arcadeText->draw = 1;
+		selectText->draw = 1;
+		worldText->draw = 1;
+		
+		worldText->centred = 1;
+		
+		INC_ALPHA(titleBak,0xff);
+		INC_ALPHA(statusBak,0xff);
+		INC_ALPHA(selectText,0xff);
+		INC_ALPHA(arcadeText,0xff);
+		INC_ALPHA(statusText,0xff);
+		INC_ALPHA(worldBak,0xff);
+		INC_ALPHA(worldText,0xff);
+
+		DEC_ALPHA(pcText);
+		DEC_ALPHA(bestText);
+		DEC_ALPHA(parText);
+				
+		
+		DEC_ALPHA(infoBak);
+		DEC_ALPHA(levelPic);
+
+		for (i=0; i<MAX_LEVELSTRING; i++)
+			levelText[i]->xPos = worldText->xPos;
+		
+		for (i=0; i<MAX_LEVELSTRING; i++)
+		{
+			levelText[i]->draw = 1;
+			INC_ALPHA(levelText[i],0xff);
+			levelText[i]->centred = 1;
+		}
+		
+		if (arcadeText->draw == 0)
+		{
+			worldBak->xPos = -100;
+			infoBak->xPos = 350;
+			levelPic->xPos = 400;
+
+			worldBak->speed = 1;
+			infoBak->speed = 1;
+			levelPic->speed = 1;
+		}
+
+		LevelSelProcessController(0);
+	}
+	
+
+	if (currTileNum==3)
+	{
+		worldBak->xPosTo = 95;
+		worldBak->height = 80+20;
+		strcpy(arcadeStr,"Multiplayer Mode");
+		sprintf(worldStr,"%i player mode",numPlayers);
+		
+		frogFacing[0] = 3;
+		Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
+
+		for (i=0; i<6; i++)
+		{
+				strcpy (levelStr[i],worldVisualData[i].levelVisualData[3].description);
+				levelText[i]->b = 0;
+				levelText[i]->g = 100;
+				levelText[i]->r = 200;
+				levelText[i]->waveAmplitude = 0;
+		}
+		levelText[cWorld]->waveAmplitude = 4;
+		strcpy (levelStr[0],worldVisualData[0].levelVisualData[1].description);
+
+		worldBak->xPos = worldBak->xPosTo;
+		
+				
+		bestText->r = levelText[cWorld]->r = 128+(sinf(1+actFrameCount*0.09)+1)*64;
+		bestText->g = levelText[cWorld]->g = 128+(sinf(2+actFrameCount*0.07)+1)*64;
+		bestText->b = levelText[cWorld]->b = 10;
+	
+		arcadeText->yPos = titleBak->yPos+5;
+		selectText->yPos = titleBak->yPos+23;
+		statusText->yPos = statusBak->yPos+5;
+		
+		worldBak->draw = 1;
+		titleBak->draw = 1;
+		statusBak->draw = 1;
+		statusText->draw = 1;
+		arcadeText->draw = 1;
+		selectText->draw = 1;
+		worldText->draw = 1;
+		
+		worldText->centred = 1;
+		
+		INC_ALPHA(titleBak,0xff);
+		INC_ALPHA(statusBak,0xff);
+		INC_ALPHA(selectText,0xff);
+		INC_ALPHA(arcadeText,0xff);
+		INC_ALPHA(statusText,0xff);
+		INC_ALPHA(worldBak,0xff);
+		INC_ALPHA(worldText,0xff);
+
+		DEC_ALPHA(pcText);
+		DEC_ALPHA(bestText);
+		DEC_ALPHA(parText);
+				
+		
+		DEC_ALPHA(infoBak);
+		DEC_ALPHA(levelPic);
+
+		for (i=0; i<MAX_LEVELSTRING; i++)
+			levelText[i]->xPos = worldText->xPos;
+		
+		for (i=0; i<MAX_LEVELSTRING; i++)
+		{
+			levelText[i]->draw = 1;
+			INC_ALPHA(levelText[i],0xff);
+			levelText[i]->centred = 1;
+		}
+		
+		if (arcadeText->draw == 0)
+		{
+			worldBak->xPos = -100;
+			infoBak->xPos = 350;
+			levelPic->xPos = 400;
+
+			worldBak->speed = 1;
+			infoBak->speed = 1;
+			levelPic->speed = 1;
+		}
+
+		LevelSelProcessController(0);
+	}
+		
+	if (currTileNum==5)
+	{
+		strcpy (worldStr,worldVisualData[cWorld].description);
+		worldBak->height = worldVisualData[cWorld].numLevels*10 + 40;
+		worldBak->xPosTo = 10;
+
+		levelText[cLevel]->waveAmplitude = 4;
+		for (i=0; i<worldVisualData[cWorld].numLevels; i++)
+		{
+				strcpy (levelStr[i],worldVisualData[cWorld].levelVisualData[i].description);
+				levelText[i]->b = 0;
+				levelText[i]->g = 100;
+				levelText[i]->r = 200;
+				levelText[i]->waveAmplitude = 0;
+		}
+
+		bestText->r = levelText[cLevel]->r = 128+(sinf(1+actFrameCount*0.09)+1)*64;
+		bestText->g = levelText[cLevel]->g = 128+(sinf(2+actFrameCount*0.07)+1)*64;
+		bestText->b = levelText[cLevel]->b = 10;
+	
+		levelText[cLevel]->waveAmplitude = 4;
+
+		strcpy(arcadeStr,"Arcade Mode");
+
+		frogFacing[0] = 3;
+		Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
+	
+		LevelSelProcessController(0);
+		arcadeText->yPos = titleBak->yPos+5;
+		selectText->yPos = titleBak->yPos+23;
+		pcText->xPos = infoBak->xPos+52;
+		bestText->xPos = infoBak->xPos+10;
+		parText->xPos = infoBak->xPos+10;
+		
+		statusText->yPos = statusBak->yPos+5;
+		worldText->xPos = worldBak->xPos + 10;
+		for (i=0; i<MAX_LEVELSTRING; i++)
+			levelText[i]->xPos = worldText->xPos;
+
+		pcText->draw = 1;
+		bestText->draw = 1;
+		parText->draw = 1;
+		
+		arcadeText->draw = 1;
+		selectText->draw = 1;
+		worldText->draw = 1;
+		statusText->draw = 1;
+		worldBak->draw = 1;
+		infoBak->draw = 1;
+		titleBak->draw = 1;
+		statusBak->draw = 1;
+		levelPic->draw = 1;
+		
+		INC_ALPHA(arcadeText,0xff);
+		INC_ALPHA(pcText,0xff);
+		
+		INC_ALPHA(bestText,0xff);
+		INC_ALPHA(parText,0xff);
+		INC_ALPHA(selectText,0xff);
+		INC_ALPHA(worldText,0xff);
+		INC_ALPHA(statusText,0xff);
+		INC_ALPHA(worldBak,0xff);
+		INC_ALPHA(infoBak,0xff);
+		INC_ALPHA(titleBak,0xff);
+		INC_ALPHA(statusBak,0xff);
+		INC_ALPHA(levelPic,0xff);
+		
+		for (i=0; i<MAX_LEVELSTRING; i++)
+		{
+			levelText[i]->draw = 1;
+			INC_ALPHA(levelText[i],0xff);
+		}
+	}
+
+	if (currTileNum==4)
+	{
+		sprintf (worldStr,"Chapter %i",cWorld+1);
+		worldBak->height = worldVisualData[cWorld].numLevels*10 + 40;
+		worldBak->xPosTo = 95;
+
+		levelText[cLevel]->waveAmplitude = 4;
+		for (i=0; i<worldVisualData[cWorld].numLevels; i++)
+		{
+				strcpy (levelStr[i],worldVisualData[cWorld].levelVisualData[i].description);
+				levelText[i]->b = 0;
+				levelText[i]->g = 100;
+				levelText[i]->r = 200;
+				levelText[i]->waveAmplitude = 0;
+		}
+
+		bestText->r = levelText[cLevel]->r = 128+(sinf(1+actFrameCount*0.09)+1)*64;
+		bestText->g = levelText[cLevel]->g = 128+(sinf(2+actFrameCount*0.07)+1)*64;
+		bestText->b = levelText[cLevel]->b = 10;
+	
+		levelText[cLevel]->waveAmplitude = 4;
+
+		strcpy(arcadeStr,"Story Mode");
+
+		frogFacing[0] = 3;
+		Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
+		
+		worldBak->xPos = worldBak->xPosTo;
+		
+		LevelSelProcessController(0);
+		arcadeText->yPos = titleBak->yPos+5;
+		selectText->yPos = titleBak->yPos+23;
+		pcText->xPos = infoBak->xPos+52;
+		bestText->xPos = infoBak->xPos+10;
+		parText->xPos = infoBak->xPos+10;
+		
+		statusText->yPos = statusBak->yPos+5;
+		worldText->xPos = worldBak->xPos + 10;
+		for (i=0; i<MAX_LEVELSTRING; i++)
+			levelText[i]->xPos = worldText->xPos;
+
+		arcadeText->draw = 1;
+		selectText->draw = 1;
+		worldText->draw = 1;
+		statusText->draw = 1;
+		worldBak->draw = 1;
+		infoBak->draw = 1;
+		titleBak->draw = 1;
+		statusBak->draw = 1;
+		
+		INC_ALPHA(arcadeText,0xff);
+		INC_ALPHA(pcText,0xff);
+		
+		//INC_ALPHA(bestText,0xff);
+		//INC_ALPHA(parText,0xff);
+		INC_ALPHA(selectText,0xff);
+		INC_ALPHA(worldText,0xff);
+		INC_ALPHA(statusText,0xff);
+		INC_ALPHA(worldBak,0xff);
+		INC_ALPHA(titleBak,0xff);
+		INC_ALPHA(statusBak,0xff);
+		//INC_ALPHA(levelPic,0xff);
+		
+		for (i=0; i<MAX_LEVELSTRING; i++)
+		{
+			levelText[i]->draw = 1;
+			INC_ALPHA(levelText[i],0xff);
+			levelText[i]->centred = 1;
+		}
+	}
+
+	UpdateCameraPosition();
+	
+	for( i=0; i<NUM_FROGS; i++ )
+	{
+		if( frog[i] )
+		{
+			UpdateFroggerPos(i);
+
+			if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
+			{
+				frog[i]->draw = 1;
+				if (player[i].safe.time)
+				{
+					SPECFX *fx;
+					VECTOR pos;
+
+					GTUpdate( &player[i].safe, -1 );
+
+					SetVector( &pos, &currTile[i]->normal );
+					ScaleVector( &pos, 15 );
+					pos.v[X] += Random(2)?(Random(20)+5):(-Random(20)-5);
+					pos.v[Y] += Random(2)?(Random(20)+5):(-Random(20)-5);
+					pos.v[Z] += Random(2)?(Random(20)+5):(-Random(20)-5);
+					AddToVector( &pos, &frog[i]->actor->pos );
+
+					if( (fx = CreateAndAddSpecialEffect( FXTYPE_TWINKLE, &pos, &currTile[i]->normal, 20+Random(10), 0, 0, Random(3)+1 )) )
+					{
+						fx->tilt = 2;
+						SetFXColour( fx, 220, 220, 255 );
+					}
+				}
+
+				if( player[i].idleEnable )
+				{
+					player[i].idleTime-=gameSpeed;
+					if(player[i].idleTime<1)
+					{
+						FroggerIdleAnim(i);
+						player[i].idleTime = MAX_IDLE_TIME + Random(MAX_IDLE_TIME);
+					}
+				}
+			}
+		}
+	}  
+
+	UpdatePlatforms();
+	UpdateEnemies();
+	UpdateSpecialEffects();
+	UpdateEvents();
+	UpdateAmbientSounds();
+
+	ProcessCharacters( );
+	ProcessCollectables();
+
+	UpDateOnScreenInfo();
+
+	// Send network update packet
+}
+
+
+void LevelSelProcessController(long pl)
+{
+	unsigned long changedLevel = 0;
+	u16 button[4],lastbutton[4];
+
+	button[pl] = controllerdata[pl].button;
+	lastbutton[pl] = controllerdata[pl].lastbutton;
+	
+	
+	if((button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP) && player[pl].canJump)
+	{
+		if (currTileNum==5 || currTileNum==4)
+		{		
+			if (cLevel>0)
+				cLevel--;
+			changedLevel = 1;
+		}
+
+		if (currTileNum==3  || currTileNum==1)
+		{
+			if (cWorld>0)
+				cWorld--;
+			changedLevel = 1;		
+		}
+	}	    
+	else if((button[pl] & CONT_RIGHT) && !(lastbutton[pl] & CONT_RIGHT) && player[pl].canJump)
+	{
+		if (currTileNum==5 || currTileNum==4)
+		{				
+			if (cWorld<8)
+				cWorld++;
+			changedLevel = 1;
+		}
+
+		if (currTileNum==3)
+		{
+			if (numPlayers<4)
+				numPlayers++;
+		}
+	}
+    else if((button[pl] & CONT_DOWN) && !(lastbutton[pl] & CONT_DOWN) && player[pl].canJump)
+	{
+		if (currTileNum==5 || currTileNum==4)
+		{				
+			if (cLevel<worldVisualData[cWorld].numLevels-1)
+				cLevel++;
+			changedLevel = 1;
+		}
+
+		if (currTileNum==3 || currTileNum==1)
+		{		
+			if (cWorld<8)
+				cWorld++;
+			changedLevel = 1;
+		}
+	}
+    else if((button[pl] & CONT_LEFT) && !(lastbutton[pl] & CONT_LEFT) && (player[pl].canJump))
+	{
+		if (currTileNum==5 || currTileNum==4)
+		{		
+		
+			if (cWorld>0)
+				cWorld--;
+			changedLevel = 1;
+		}
+
+		if (currTileNum==3)
+		{
+			if (numPlayers>2)
+				numPlayers--;
+		}
+	}
+
+	if (changedLevel)
+		FindTexture(&levelPic->frames[0],UpdateCRC(worldVisualData[cWorld].levelVisualData[cLevel].texCRC),YES);
+
+	if((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A))
+    {
+		if (currTileNum==5)
+		{
+			if(gameState.multi != MULTIREMOTE)
+			{
+				NUM_FROGS = 1;
+				gameState.multi = SINGLEPLAYER;
+			}
+			player[0].worldNum = cWorld;
+			player[0].levelNum = cLevel;			
+		}
+					
+		if (currTileNum==3)
+		{
+			if(gameState.multi != MULTIREMOTE)
+				gameState.multi = MULTILOCAL;
+			NUM_FROGS = numPlayers;
+			player[0].worldNum = cWorld;
+
+			switch( player[0].worldNum )
+			{
+			case WORLDID_ANCIENT: 
+				player[0].levelNum = 3;
+				multiplayerMode = MULTIMODE_RACE; 
+				break;
+			case WORLDID_GARDEN:
+				player[0].levelNum = 1;
+				multiplayerMode = MULTIMODE_RACE; 
+				break;
+			case WORLDID_LABORATORY: 
+				player[0].levelNum = 3;
+				multiplayerMode = MULTIMODE_BATTLE; 
+				break;
+			}
+		}
+
+		lastActFrameCount = actFrameCount;
+		gameState.mode = LEVELCOMPLETE_MODE;
+		GTInit( &modeTimer, 1 );
+		showEndLevelScreen = 0;		
+	}
+	
+	if((button[pl] & CONT_B) && !(lastbutton[pl] & CONT_B) && (tongue[pl].flags & TONGUE_IDLE))
+    {
+	}
+
+	if((button[pl] & CONT_E) && !(lastbutton[pl] & CONT_E))
+    {
+	}
+
+	if((button[pl] & CONT_D) && !(lastbutton[pl] & CONT_D))
+    {
+	}
+
+	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
+	{
+		
+		player[pl].inputPause = INPUT_POLLPAUSE;
+	    
+		player[pl].canJump = 0;
+		player[pl].frogState |= FROGSTATUS_ISWANTINGD;
+
+		// update player idleTime
+		player[pl].idleTime = MAX_IDLE_TIME;
+		idleCamera = 0;
+
+		if ( recordKeying )
+			AddPlayingActionToList ( MOVEMENT_DOWN, frameCount );
+		player[pl].extendedHopDir = MOVE_DOWN;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* --------------------------------------------------------------------------------
+	Programmer	: Matthew Cloy
+	Function	: Credits on frontend
+
+	Purpose		:
+	Parameters	: (void)
+	Returns		: void 
+*/
+
+extern float camSideOfs;
+long playMode = NORMAL_PMODE;
+long clearTiles = 0;
+
+
+//////////////////////////////////////////
+
+TEXT3D *cText[4];
+TEXT3D *rText[4];
+
+unsigned char *credits[] = 
+{
+	"","Programming",	"Matthew Cloy",		"",
+	"","\x1",			"Andy Eder",		"",
+	"","\x1",			"James Hubbard",	"",
+	"","\x1",			"David Swift",		"",
+	"","\x1",			"James Healey",		"",
+
+
+	"","Art",			"Alex Rigby","",
+	"","\x1",			"Joff Scarcliffe","", 
+	"","\x1",			"Bruce Millar","",
+	"","\x1",			"Lauren Grindrod","",
+	"","\x1",			"Simon Little","",
+	"","\x1",			"Sandro Da Cruz","",
+	"","\x1",			"Richard Whale","",
+	"","\x1",			"Mark Turner","",
+	0,0,0,0,0,0,0,0
+};
+
+unsigned long cNumber = 0;
+unsigned long cFrame = 0;
+unsigned long creditsActive = 0;
+GAMETILE *credTile;
+
+#define CRED_SPEED		(60*3)
+#define CRED_BORDERIN	(60*0.8)
+#define CRED_BORDEROUT	(60*0.8)
+
+
+void RunCredits()
+{
+	unsigned long cn;
+
+	if (creditsActive==0)
+		return;
+
+	if (actFrameCount>cFrame)
+	{
+		if (creditsActive==2)
+		{
+			creditsActive=3;
+			return;
+		}
+
+		cFrame = actFrameCount + CRED_SPEED;
+		cNumber+= 4;
+
+		if (credits[cNumber] == 0)
+			cNumber = 0;
+	
+		Modify3DText(cText[0], credits[cNumber],220);
+		Modify3DText(cText[1], credits[cNumber+1],220);
+		Modify3DText(cText[2], credits[cNumber+2],220);
+		Modify3DText(cText[3], credits[cNumber+3],220);
+
+		Modify3DText(rText[1], credits[cNumber+1],220);
+		Modify3DText(rText[2], credits[cNumber+2],220);
+
+	}
+
+	for (cn=0; cn<4; cn++)
+		cText[cn]->angle = 90+360*2;
+
+	
+	if (actFrameCount<(cFrame-CRED_SPEED+CRED_BORDERIN))
+	{
+		unsigned long amt;
+		amt = 0xff - ((((cFrame-CRED_SPEED+CRED_BORDERIN)-actFrameCount) * 255) / CRED_BORDEROUT);
+		for (cn=0; cn<4; cn++)
+			if ((credits[cNumber+cn]) && (credits[cNumber+cn][0]!=1))
+			{
+				cText[cn]->vA = amt; 
+				//cText[cn]->angle = 90+ ((amt * 360 * 2) / 0xff);
+				cText[cn]->yScale = 3-(amt/128.0);
+				cText[cn]->sinA = 6-(amt/(256.0/6));
+			}
+		
+	}
+
+	if (actFrameCount>(cFrame-CRED_BORDEROUT))
+	{
+		unsigned long amt;
+		amt = 0xff - (((actFrameCount-(cFrame-CRED_BORDEROUT)) * 255) / CRED_BORDEROUT);
+		for (cn=0; cn<4; cn++)
+			if ((creditsActive == 2) || ((credits[cNumber+cn+4]) && (credits[cNumber+cn+4][0]!=1)))
+			{
+				cText[cn]->vA = amt; 
+				//cText[cn]->angle = 90+ ((amt * 360 * 2) / 0xff);
+				cText[cn]->yScale = 3-(amt/128.0);
+				cText[cn]->sinA = 6-(amt/(256.0/6));
+			}
+	}
+
+	for (cn=1; cn<3; cn++)
+	{
+		rText[cn]->angle = (360*8) - (cText[cn]->angle);
+		rText[cn]->vA = ((unsigned char) cText[cn]->vA) / (6-(cn*2));
+		rText[cn]->yScale = cText[cn]->yScale;
+	}
+}
+
+void DeactivateCredits(void)
+{
+	unsigned long cn;
+	if (creditsActive)
+	{
+		if (creditsActive == 1)
+		{
+			creditsActive = 2;
+			cFrame = actFrameCount + CRED_BORDEROUT;
+		}
+
+		if (creditsActive == 3)
+		{
+			for (cn=0; cn<4; cn++)
+				cText[cn]->motion &= ~T3D_CREATED;
+			for (cn=1; cn<3; cn++)
+				rText[cn]->motion &= ~T3D_CREATED;
+			creditsActive = 0;
+			
+		}
+	}
+}
+
+void ActivateCredits(void)
+{
+	unsigned long cn;
+
+	if (creditsActive == 0)
+	{
+		for (cn=0; cn<4; cn++)
+			cText[cn]->motion |= T3D_CREATED;
+		for (cn=1; cn<3; cn++)
+			rText[cn]->motion |= T3D_CREATED;
+		creditsActive = 1;
+
+		cFrame = actFrameCount + CRED_SPEED;
+		cNumber = 0;
+
+		Modify3DText(cText[0], credits[cNumber],220);
+		Modify3DText(cText[1], credits[cNumber+1],220);
+		Modify3DText(cText[2], credits[cNumber+2],220);
+		Modify3DText(cText[3], credits[cNumber+3],220);
+
+		Modify3DText(rText[1], credits[cNumber+1],220);
+		Modify3DText(rText[2], credits[cNumber+2],220);
+
+	}
+}
+
+void InitCredits(void)
+{
+	cText[0] = CreateAndAdd3DText( credits[cNumber], 180,
+		255,30,0,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,120,-440,
+		0, 0.2, 0.0 );
+	
+	
+	cText[1] = CreateAndAdd3DText( credits[cNumber+1], 180,
+		255,30,0,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,90,-440,
+		0, 0.3, 0.0 );
+
+	cText[2] = CreateAndAdd3DText(credits[cNumber+2], 250,
+		255,220,30,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,60,-440,
+		0, 0.25, 0.0 );
+
+	cText[3] = CreateAndAdd3DText( credits[cNumber+3], 250,
+		255,220,30,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,30,-440,
+		0, 0.28, 0.0 );
+			
+				
+	rText[1] = CreateAndAdd3DText( credits[cNumber+1], 180,
+		255,30,130,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,-90-30,-440,
+		3, 0.3, 0.0 );
+
+	rText[2] = CreateAndAdd3DText(credits[cNumber+2], 250,
+		255,220,130,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,-60-30,-440,
+		3, 0.25, 0.0 );
+}

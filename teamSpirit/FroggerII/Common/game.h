@@ -77,4 +77,9 @@ extern void RunFrontendGameLoop (void);
 extern unsigned char swingCam;
 extern char playDemos;
 
+extern unsigned long currTileNum;
+extern TEXTOVERLAY *tileNum;
+extern char tileString[];
+extern long displayingTile;
+
 #endif

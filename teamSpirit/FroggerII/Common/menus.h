@@ -13,19 +13,16 @@
 #define MENUS_H_INCLUDED
 
 
-typedef struct LEVELNAMESTRUCT
-{
-	char name[64];
-} LNAMESTRUCT;
-
-extern SPRITE *sp;
 extern SPRITEOVERLAY *atari,*konami,*flogo[10], *islLogo[3];
-extern SPRITEOVERLAY *sprOver;
 
-void RunTitleScreen();
-void RunLevelSelect();
-void RunCharSelect();
 void RunPauseMenu();
 void FreeMenuItems();
+
+void Modify3DText(TEXT3D *t3d, char *str,unsigned char alpha);
+void RunCredits();
+void DeactivateCredits();
+void ActivateCredits();
+void InitCredits();
+
 
 #endif

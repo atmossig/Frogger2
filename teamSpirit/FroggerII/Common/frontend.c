@@ -46,120 +46,58 @@ void GameLoop(void)
 
 	switch (gameState.mode)
 	{
-		case INGAME_MODE:
-		case FRONTEND_MODE:
-			if(frameCount == 15)
-				StartDrawing("gameloop");
+	case INGAME_MODE:
+	case FRONTEND_MODE:
+		if(frameCount == 15)
+			StartDrawing("gameloop");
 
-	#ifdef PC_VERSION
-			UseAAMode = 2;
-			UseZMode = 1;
-	#endif
-	
-			if (player[0].worldNum == WORLDID_FRONTEND)
-				RunFrontendGameLoop();
-			else
-				RunGameLoop();
-
-			frameCount++;
-			break;
-
-		case LEVELCOMPLETE_MODE:
-			RunLevelComplete( );
-			frameCount++;
-			break;
-
-		case WORLDCOMPLETE_MODE:
-			RunWorldComplete( );
-			frameCount++;
-			break;
-
-		case GAMECOMPLETE_MODE:
-			RunGameComplete( );
-			frameCount++;
-			break;
-
-		case GAMEOVER_MODE:
-			RunGameOver( );
-			frameCount++;
-			break;
-			
-		case INTRO_MODE:
-			RunGameIntro( );
-			//RunGameLoop();
-			frameCount++;
-			break;
-
-		case CAMEO_MODE:
-		case PAUSE_MODE:
-			if(frameCount == 15)
-				StartDrawing("gameloop");
-
-			RunPauseMenu();
-			frameCount++;
-			break;
-
-		// MENU MODE IS JUST INCLUDED FOR DEVELOPMENT PURPOSES - WILL BE REMOVED FOR RELEASE
-		case MENU_MODE:
-			if(frameCount == 15)
-				StartDrawing("gameloop");
-
-			switch(gameState.menuMode)
-			{
-				case TITLE_MODE:
-					RunTitleScreen();
-					break;
-
-				case LEVELSELECT_MODE:
-					RunLevelSelect();
-					break;
-
-				case CHARSELECT_MODE:
-					RunCharSelect();
-					break;
-
-#ifdef N64_VERSION
-				case DEVELOPMENT_MODE:
-					switch(developmentMode)
-					{
-						case OBJVIEW_MODE:
-							RunObjectViewer();
-							break;
-
-						case SNDVIEW_MODE:
-							RunSndView();
-							break;
-
-						case WATERVIEW_MODE:
-							RunWaterDemo();
-							break;
-
-						case PROCVIEW_MODE:
-							RunProcDemo();
-							break;
-
-						default:
-							RunDevelopmentMenu();
-					}
-					break;
+#ifdef PC_VERSION
+		UseAAMode = 2;
+		UseZMode = 1;
 #endif
 
-				default:
-					dprintf""));
-			}
-			frameCount++;
-			break;
+		if (player[0].worldNum == WORLDID_FRONTEND)
+			RunFrontendGameLoop();
+		else
+			RunGameLoop();
 
+		frameCount++;
+		break;
 
-#ifdef N64_VERSION
-		case DEVELOPMENT_MODE:
-			if(frameCount == 15)
-				StartDrawing("gameloop");
+	case LEVELCOMPLETE_MODE:
+		RunLevelComplete( );
+		frameCount++;
+		break;
 
-			RunDevelopmentMenu();
-			frameCount++;
-			break;
-#endif
+	case WORLDCOMPLETE_MODE:
+		RunWorldComplete( );
+		frameCount++;
+		break;
+
+	case GAMECOMPLETE_MODE:
+		RunGameComplete( );
+		frameCount++;
+		break;
+
+	case GAMEOVER_MODE:
+		RunGameOver( );
+		frameCount++;
+		break;
+		
+	case INTRO_MODE:
+		RunGameIntro( );
+		//RunGameLoop();
+		frameCount++;
+		break;
+
+	case CAMEO_MODE:
+	case PAUSE_MODE:
+		if(frameCount == 15)
+			StartDrawing("gameloop");
+
+		RunPauseMenu();
+		frameCount++;
+		break;
 	}
 
 	i = NUM_FROGS;
