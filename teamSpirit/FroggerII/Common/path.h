@@ -16,6 +16,15 @@
 #define NODE_RANGETHRESHOLD				10.0F
 
 
+#define GET_PATHLASTNODE(x)		(x->numNodes - 1)
+
+
+//----- [ PATH FLAGS ] -------------------------------------------------------------------------//
+
+#define PATH_MAKENODETILEPTRS			(1 << 0)
+
+
+
 //----- [ PATHNODE DATA STRUCTURE ] -----//
 
 typedef struct TAGPATHNODE
@@ -38,7 +47,6 @@ typedef struct TAGPATH
 	PATHNODE				*nodes;					// actual path nodes
 
 } PATH;
-
 
 
 //----- [ FUNCTION PROTOTYPES ] -----//

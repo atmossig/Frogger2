@@ -16,7 +16,6 @@
 #include "incs.h"
 
 
-
 /*	--------------------------------------------------------------------------------
 	Function		: GetPositionForPathNode
 	Purpose			: gets position for specified path node
