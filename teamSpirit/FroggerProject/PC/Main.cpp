@@ -285,6 +285,7 @@ long LoopFunc(void)
 {
 	ACTOR2 *c;
 
+	lastActFrameCount = actFrameCount;
 	actFrameCount = timeInfo.frameCount;
 	gameSpeed = 4096*timeInfo.speed;
 
