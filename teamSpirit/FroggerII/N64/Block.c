@@ -1582,10 +1582,13 @@ void ControllerProc(void *arg)
 */
 static void RunIntro()
 {
-	static ACTOR2 *fAct = NULL;
-	static TEXTOVERLAY *introTxt = NULL;
+	static ACTOR2 *fAct = NULL,*lilly = NULL;
+	static TEXTOVERLAY *introTxt1 = NULL,*introTxt2 = NULL;
+	static SPRITE *fireSprite = NULL;
 	static u16 button,lastbutton;
-	
+	static float lillyRot = 0.0F,introSeed = 0.0F,fVal;
+	float rotMtxY[4][4];
+		
 	if(frameCount == 1)
 	{
 		// load relevant texture and object banks
@@ -1595,7 +1598,7 @@ static void RunIntro()
 		LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
 
 		// add the deformable mesh actor
-		watActor = CreateAndAddActor("wavemesh.obe",-25,25,125,0,0,0);
+		watActor = CreateAndAddActor("wavemesh.obe",-15,25,150,0,0,0);
 		watActor->flags = ACTOR_WATER;
 		AddN64WaterObjectResource(watActor->actor);
 		watActor->actor->qRot.x = -0.5F;
@@ -1604,6 +1607,17 @@ static void RunIntro()
 		watActor->actor->qRot.w = 1.0F;
 		watActor->actor->objectController->object->flags = 11;
 
+		// add the lilly pad
+		lilly = CreateAndAddActor("pltlilly.obe",-40,-40,50,0,0,0);
+		lilly->actor->qRot.x = 0.0F;
+		lilly->actor->qRot.y = 0.0F;
+		lilly->actor->qRot.z = 0.0F;
+		lilly->actor->qRot.w = 1.0F;
+		lilly->actor->scale.v[X] = 0.75F;
+		lilly->actor->scale.v[Y] = 0.75F;
+		lilly->actor->scale.v[Z] = 0.75F;
+
+		// add the frog
 		fAct = CreateAndAddActor("frogger.obe",40,-50,50,INIT_ANIMATION,0,0);
 		AnimateActor(fAct->actor,29,YES,NO,0.3,0,0);
 		fAct->actor->qRot.x = 0.0F;
@@ -1611,14 +1625,28 @@ static void RunIntro()
 		fAct->actor->qRot.z = 0.0F;
 		fAct->actor->qRot.w = -0.25F;
 
-		introTxt = CreateAndAddTextOverlay(25,25,"welcome to frogger2",NO,255,smallFont,TEXTOVERLAY_WAVECHARS,8);
-		introTxt = CreateAndAddTextOverlay(27,27,"welcome to frogger2",NO,255,smallFont,TEXTOVERLAY_WAVECHARS,8);
-		introTxt->r = introTxt->g = introTxt->b = 0;
+		// prepare text overlays
+		introTxt1 = CreateAndAddTextOverlay(25,25,"welcome to frogger2",NO,255,smallFont,TEXTOVERLAY_WAVECHARS,6);
+		introTxt2 = CreateAndAddTextOverlay(25,25,"interactive studios",NO,255,smallFont,TEXTOVERLAY_WAVECHARS,6);
 
+		// prepare sprite overlays
+		konami = CreateAndAddSpriteOverlay(260,20,"konami.bmp",32,32,0,0);
+		atari = CreateAndAddSpriteOverlay(260,20,"atari.bmp",32,32,255,0);
+
+		// prepare sprites
+		fireSprite = AddNewSpriteToList(-40,-10,50,32,"prc_fire1.bmp",SPRITE_TRANSLUCENT);
+		fireSprite->scaleX = 64;
+		fireSprite->scaleY = 256;
+		fireSprite->a = 160;
+		CreateAndAddProceduralTexture(fireSprite->texture,"prc_fire1");
+		
+		// prepare music
 		PrepareSong(TRACK_LAB,0);
 		PlaySample(136,NULL,0,255,128);
 		
 		player[0].idleTime = MAX_IDLE_TIME;
+
+		myAA = 2;
 
 		StartDrawing("intro");
 	}
@@ -1679,6 +1707,8 @@ static void RunIntro()
 		gameState.mode		= MENU_MODE;
 		gameState.menuMode	= TITLE_MODE;
 
+		myAA = 0;
+
 		frameCount		= 1;
 		lastbutton		= 0;
 		runningIntro	= 0;
@@ -1686,6 +1716,21 @@ static void RunIntro()
 	}
 
 	lastbutton = button;
+
+	// animate lilly pad
+	lillyRot += 2;
+	guRotateF(rotMtxY,lillyRot,0,1,0);
+	MatrixToQuaternion((MATRIX *)rotMtxY,&lilly->actor->qRot);
+
+	// update sprite overlays
+	introSeed += 0.1F;
+	fVal = sinf(introSeed) * 127;
+	atari->a = 128 + fVal;
+	konami->a = 128 - fVal;
+
+	// update text overlays
+	introTxt1->a = 128 + fVal;
+	introTxt2->a = 128 - fVal;
 
 	frameCount++;
 }
