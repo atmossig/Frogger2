@@ -571,7 +571,7 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 	Returns		: void 
 */
 
-extern void LoadLevelEntities(int worldID, int levelID)
+void LoadLevelEntities(int worldID, int levelID)
 {
 	char file[MAX_PATH];
 	HANDLE h;
@@ -604,14 +604,14 @@ extern void LoadLevelEntities(int worldID, int levelID)
 	JallocFree((UBYTE**)&buffer);
 }
 
-extern void LoadLevelEvents(int worldID, int levelID)
+void LoadLevelEvents(int worldID, int levelID)
 {
 	char file[MAX_PATH];
 	HANDLE h;
 	long size, read;
 	void* buffer;
 
-	sprintf(file, "%s%sevent-%d-%d.dat", baseDirectory, ENTITY_BASE, worldID, levelID);
+	sprintf(file, "%s%sevent-%d-%d.fev", baseDirectory, ENTITY_BASE, worldID, levelID);
 
 	h = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL, NULL);
