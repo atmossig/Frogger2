@@ -105,6 +105,7 @@ unsigned long D3DInit(int xRes, int yRes)
 	HRESULT			res;
     D3DVIEWPORT7	vp = {0, 0, xRes, yRes, 0.0f, 1.0f};
 
+	// *ASL* 13/06/2000
 	if (!rHardware)
 	{
 		ssInit(r565?SSPIXELFORMAT_565:SSPIXELFORMAT_555);
@@ -166,8 +167,10 @@ void D3DClearView(void)
 		pDirect3DDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER , D3DRGB(fogR,fogG,fogB),1, 0L );
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR,D3DRGB(fogR,fogG,fogB));
 	}
+#ifndef MDXPOLY_USEMMXBUFFER
 	else
 		memset(softScreen,0,640*480*sizeof(long));
+#endif
 }
 
 /*	--------------------------------------------------------------------------------
@@ -203,6 +206,10 @@ unsigned long D3DShutdown(void)
 		if (pDirect3DDevice) pDirect3DDevice->Release();
 		if (pDirect3D) pDirect3D->Release();
 	}
+	// *ASL* 13/06/2000
+	else
+		ssShutdown();
+
 	return 1;
 }
 

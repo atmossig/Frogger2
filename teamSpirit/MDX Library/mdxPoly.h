@@ -7,6 +7,12 @@ extern "C"
 {
 #endif
 
+
+// *ASL* 13/06/2000
+// ** UnComment this to use the mmx buffer rather than the softScreen buffer
+#define MDXPOLY_USEMMXBUFFER
+
+
 #define MAVIS_DEBUG
 
 //-------------------------------------------------------------
