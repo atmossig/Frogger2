@@ -51,6 +51,7 @@
 #include "maths.h"
 
 #include <temp_pc.h>
+#include "mdx.h"
 
 psFont *font;
 
@@ -59,6 +60,49 @@ extern char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
+		// Init common controls
+	InitCommonControls();
+
+	// Init windows
+	if (!InitialiseWindows(hInstance,"Frogger2",1))
+		return 1;
+
+	// Init DDraw Object
+	if (!DDrawInitObject (NULL))
+		return 1;
+
+	// Setup our sufaces
+	if (!DDrawCreateSurfaces (winInfo.hWndMain, 640, 480, 16,TRUE, 16))
+		return 2;
+
+	// Setup D3D
+	if (!D3DInit())
+		return 3;
+	
+	// Initialise the matrix stack
+	InitMatrixStack();
+	
+	// Initialise Johns BMP loader
+	gelfInit();
+
+	// Init the CRC table
+	InitCRCTable();
+
+	// Init a table for 1/n (Optimisation)
+	InitOneOverTable();
+
+	// Init mavis frameset
+	InitFrames();
+	
+	// Init the font system
+	InitFontSystem();
+
+	// Clear the spare suface (Ready for lotsa nice fx)
+	DDrawClearSurface(SPARE_SRF, 0, DDBLT_COLORFILL);
+
+	// Clear the timers for the initial frame
+	ClearTimers();
+
 	CommonInit();
 
 	while (1)
