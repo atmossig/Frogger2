@@ -42,6 +42,8 @@ float frogGravity		= -4.0F;
 float gravityModifier	= 1.0F;
 
 
+void AnimateFrogHop( unsigned long direction, long pl );
+
 /*	--------------------------------------------------------------------------------
 	Function		: SetFroggerStartPos
 	Purpose			: sets initial position of Frogger on the world
@@ -555,8 +557,7 @@ void GetNextTile(unsigned long direction,long pl)
 		}
 
 		// play frog animation
-		AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);
-		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.5F,0,0);
+		AnimateFrogHop( direction, pl );
 
 		// set frog's jump velocity
 		frog[pl]->actor->vel.v[X] = (speedTest * moveVec.v[X]) + (t * currTile[pl]->normal.v[X]);
@@ -568,6 +569,45 @@ void GetNextTile(unsigned long direction,long pl)
 		currTile[pl] = destTile[pl];
 }
 
+void AnimateFrogHop( unsigned long direction, long pl )
+{
+	switch( direction )
+	{
+	case 0:
+		switch( frogFacing[pl] )
+		{
+		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
+		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		}
+		break;
+	case 1:
+		switch( frogFacing[pl] )
+		{
+		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
+		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		}
+		break;
+	case 2:
+		switch( frogFacing[pl] )
+		{
+		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
+		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		}
+		break;
+	case 3:
+		switch( frogFacing[pl] )
+		{
+		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
+		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		}
+		break;
+	}
+	AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.5F,0,0);
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: MoveToRequestedDestination
@@ -1357,8 +1397,7 @@ void GetNextTileLongHop(unsigned long direction,long pl)
 			player[pl].isSuperHopping = 1;
 
 			// play frog animation
-			AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);
-			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.5F,0,0);
+			AnimateFrogHop( direction, pl );
 
 			// set frog's jump velocity
 			frog[pl]->actor->vel.v[X] = (speedTest * moveVec.v[X]) + (t * currTile[pl]->normal.v[X]);
@@ -1448,8 +1487,7 @@ void GetNextTileLongHop(unsigned long direction,long pl)
 		frogAnimSpeed = 1.0F;
 
 		// play frog animation
-		AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);
-		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.5F,0,0);
+		AnimateFrogHop( direction, pl );
 
 		// set frog's jump velocity
 		frog[pl]->actor->vel.v[X] = (speedTest * moveVec.v[X]) + (t * currTile[pl]->normal.v[X]);
