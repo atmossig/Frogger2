@@ -45,6 +45,8 @@
 #define VRAM_CALCVRAMY(HND)	(((VRAM_GETPAGE(HND)/(VRAM_PAGECOLS))*256)+(VRAM_GETY(HND)*8))
 
 
+long slideSpeeds[] = {0, 1, 2, 4};
+
 SVECTOR jiggledVerts[250];
 
 
@@ -69,15 +71,15 @@ asm(\
 	*(unsigned long *)(p) = tempvar; \
 }
 
-#define WATERANIM_1A (u+((rcos(frame<<10)+4096)>>5))|((v+((rsin(frame<<10)+4096)>>5))<<4)
-#define WATERANIM_2B (u+((rsin(frame<<10)+4096)>>5))|((v+((rcos(frame<<10)+4096)>>5))<<8)
+//#define WATERANIM_1A (u+((rcos(frame<<10)+4096)>>5))|((v+((rsin(frame<<10)+4096)>>5))<<4)
+//#define WATERANIM_2B (u+((rsin(frame<<10)+4096)>>5))|((v+((rcos(frame<<10)+4096)>>5))<<8)
 
-#define WATERANIM_1  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
-#define WATERANIM_2  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
+//#define WATERANIM_1  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
+//#define WATERANIM_2  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
 
 
-#define WATER_TRANS_CODE (((ULONG)2)<<24)
-#define WATER_TRANS_CLUT (0x80000000)
+//#define WATER_TRANS_CODE (((ULONG)2)<<24)
+//#define WATER_TRANS_CLUT (0x80000000)
 
 #define MIN_MAP_DEPTH (10)
 	
@@ -109,12 +111,18 @@ void CreateAndAddScenicObject(SCENIC *sc)
 	newItem->fmaObj = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( sc->name ) );
 
 	if ( newItem->fmaObj )
-	{
 		SetUpWaterMesh ( newItem->fmaObj );
-	}
 	else
-	{
 		utilPrintf("Could Not Create Scenic Object.\n");
+
+	if( sc->name[0] == 'S' && sc->name[1] == 'P')
+	{
+		switch( sc->name[2] )
+		{
+			case 'L': newItem->flags |= SLIDESPEED; break;
+			case 'M': newItem->flags |= SLIDESPEED2; break;
+			case 'F': newItem->flags |= (SLIDESPEED | SLIDESPEED2); break;
+		}
 	}
 }
 
@@ -223,6 +231,21 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	int min_depth = MIN_MAP_DEPTH;// + mesh->extra_depth;
 	int max_depth = MAX_MAP_DEPTH;// + mesh->extra_depth;
 
+	// Is this an sp(m/f/l) type slidy thing? If so, what speed?
+	unsigned short pcStyleSlide = ((flags>>10)&3);
+	int sldSpd;
+
+	// Multiply speed if we have a multiple
+	if( pcStyleSlide )
+		sldSpd = ((frame>>1)*slideSpeeds[pcStyleSlide])%32;
+	else
+		sldSpd = (frame>>1)%32;
+
+	// Reverse if told to
+	if( mesh->flags & MINUSSLIDING )
+		sldSpd = -sldSpd;
+
+
 	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
 	{
 		tfv = (void *)0x1f800000;
@@ -288,34 +311,15 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
 			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
 
-			if ( mesh->flags & USLIDING )
+			if( mesh->flags & USLIDING )
 			{
-				if ( mesh->flags & PLUSSLIDING )
-				{
-					si->u0 += ( ( frame / 2 ) % 32 );
-					si->u1 += ( ( frame / 2 ) % 32 );
-				}
-
-				if ( mesh->flags & MINUSSLIDING )
-				{
-					si->u0 -= ( ( frame / 2 ) % 32 );
-					si->u1 -= ( ( frame / 2 ) % 32 );
-				}
+				si->u0 += sldSpd;
+				si->u1 += sldSpd;
 			}
-			else if ( mesh->flags & VSLIDING )
+			if( pcStyleSlide || (mesh->flags & VSLIDING) )
 			{
-				if ( mesh->flags & PLUSSLIDING )
-				{
-					si->v0 += ( ( frame / 2 ) % 32 );
-					si->v1 += ( ( frame / 2 ) % 32 );
-				}
-
-				if ( mesh->flags & MINUSSLIDING )
-				{
-					si->v0 -= ( ( frame / 2 ) % 32 );
-					si->v1 -= ( ( frame / 2 ) % 32 );
-				}
-
+				si->v0 += sldSpd;
+				si->v1 += sldSpd;
 			}
 
 			if ( mesh->flags & MODGY )
@@ -339,34 +343,16 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
 			*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
 
-				if ( mesh->flags & USLIDING )
-				{
-					if ( mesh->flags & PLUSSLIDING )
-					{
-						si->u2 += ( ( frame / 2 ) % 32 );
-						si->u3 += ( ( frame / 2 ) % 32 );
-					}
-
-					if ( mesh->flags & MINUSSLIDING )
-					{
-						si->u2 -= ( ( frame / 2 ) % 32 );
-						si->u3 -= ( ( frame / 2 ) % 32 );
-					}
-				}
-				else if ( mesh->flags & VSLIDING )
-				{
-					if ( mesh->flags & PLUSSLIDING )
-					{
-						si->v2 += ( ( frame / 2 ) % 32 );
-						si->v3 += ( ( frame / 2 ) % 32 );
-					}
-
-					if ( mesh->flags & MINUSSLIDING )
-					{
-						si->v2 -= ( ( frame / 2 ) % 32 );
-						si->v3 -= ( ( frame / 2 ) % 32 );
-					}
-				}
+			if ( mesh->flags & USLIDING )
+			{
+				si->u2 += sldSpd;
+				si->u3 += sldSpd;
+			}
+			if( pcStyleSlide || (mesh->flags & VSLIDING) )
+			{
+				si->v2 += sldSpd;
+				si->v3 += sldSpd;
+			}
 
 			if ( mesh->flags & MODGY )
 			{
@@ -433,40 +419,14 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			if ( mesh->flags & USLIDING )
 			{
-				if ( mesh->flags & PLUSSLIDING )
-					si->u0 += ( ( frame / 2 ) % 32 );
-
-				if ( mesh->flags & MINUSSLIDING )
-					si->u0 -= ( ( frame / 2 ) % 32 );
+				si->u0 += sldSpd;
+				si->u1 += sldSpd;
 			}
-			else if ( mesh->flags & VSLIDING )
+			if( pcStyleSlide || (mesh->flags & VSLIDING) )
 			{
-				if ( mesh->flags & PLUSSLIDING )
-					si->v0 += ( ( frame / 2 ) % 32 );
-
-				if ( mesh->flags & MINUSSLIDING )
-					si->v0 -= ( ( frame / 2 ) % 32 );
+				si->v0 += sldSpd;
+				si->v1 += sldSpd;
 			}
-
-			if ( mesh->flags & USLIDING )
-			{
-				if ( mesh->flags & PLUSSLIDING )
-					si->u1 += ( ( frame / 2 ) % 32 );
-
-				if ( mesh->flags & MINUSSLIDING )
-					si->u1 -= ( ( frame / 2 ) % 32 );
-			}
-			else if ( mesh->flags & VSLIDING )
-			{
-				if ( mesh->flags & PLUSSLIDING )
-					si->v1 += ( ( frame / 2 ) % 32 );
-
-				if ( mesh->flags & MINUSSLIDING )
-					si->v1 -= ( ( frame / 2 ) % 32 );
-			}
-
-//			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
-//			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
 
 			if ( mesh->flags & MODGY )
 			{
@@ -482,26 +442,12 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			}
 			
 			gte_stsxy3_gt3(si);
-								
-
 			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
 
 			if ( mesh->flags & USLIDING )
-			{
-				if ( mesh->flags & PLUSSLIDING )
-					si->u2 += ( ( frame / 2 ) % 32 );
-
-				if ( mesh->flags & MINUSSLIDING )
-					si->u2 -= ( ( frame / 2 ) % 32 );
-			}
-			else if ( mesh->flags & VSLIDING )
-			{
-				if ( mesh->flags & PLUSSLIDING )
-					si->v2 += ( ( frame / 2 ) % 32 );
-
-				if ( mesh->flags & MINUSSLIDING )
-					si->v2 -= ( ( frame / 2 ) % 32 );
-			}
+				si->u2 += sldSpd;
+			if( pcStyleSlide || (mesh->flags & VSLIDING) )
+				si->v2 += sldSpd;
 
 			if ( mesh->flags & MODGY )
 			{
