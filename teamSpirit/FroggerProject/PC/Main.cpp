@@ -822,6 +822,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// Init common controls
 	InitCommonControls();
 
+	InitInputDevices();
+
 	// Init windows
 	if (!WindowsInitialise(hInstance,"Frogger2",1))
 		return 1;
@@ -889,8 +891,6 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	// Clear the timers for the initial frame
 	ClearTimers();
-
-	InitInputDevices();
 
 	pcFont = InitFont("FontA",baseDirectory);
 	pcFontSmall = InitFont("FontB",baseDirectory);
