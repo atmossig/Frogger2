@@ -17,6 +17,7 @@ extern "C"
 #endif
 
 void fxInitBlur(void);
+void fxFreeBlur();
 void fxBlurSurface(LPDIRECTDRAWSURFACE7 screen);
 
 #ifdef __cplusplus
