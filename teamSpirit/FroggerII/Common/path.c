@@ -150,3 +150,17 @@ void AssignRandomWaitTimesToPathNodes(PATH *path,short minPause,float maxPause)
 		SetPathNodeWaitTime(&path->nodes[i],Random(maxPause) + minPause);
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: ScalePathSpeed
+	Purpose			: Scales the speed of each path node by a given amount
+	Parameters		: PATH *, float
+	Returns			: void
+*/
+
+void ScalePathSpeed(PATH *path, float scale)
+{
+	int i;
+	PATHNODE *n;
+	for (i = path->numNodes, n = path->nodes; i; i--, n++)
+		n->speed *= scale;
+}

@@ -71,4 +71,6 @@ void CalcDirectionVectorFromNodeToNode(VECTOR *result,PATHNODE *fromNode,PATHNOD
 void AssignRandomSpeedsToPathNodes(PATH *path,float minSpeed,float maxSpeed);
 void AssignRandomWaitTimesToPathNodes(PATH *path,short minPause,float maxPause);
 
+void ScalePathSpeed(PATH *path, float scale);
+
 #endif
