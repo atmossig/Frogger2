@@ -33,6 +33,7 @@ unsigned long actFrameCount,
 			actTickCount;
 unsigned long speedKill = 0;
 float gameSpeed = 1;
+char dprintbuf[255] = "---";
 
 WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
@@ -220,7 +221,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	
 	//InitSaveData();
 
-	PrepareSong ( 1 );
+	//PrepareSong ( 1 );
 /*	InitSaveData();
 	SaveGameData();*/
 	gameState.mode		= FRONTEND_MODE;
@@ -623,17 +624,19 @@ void DrawGraphics()
 				HDC hdc;
 				HRESULT res = IDirectDrawSurface4_GetDC(hiddenSrf, &hdc);
 				char speed[255];
-
+				
 				if (res == DD_OK)
 				{
 					if (drawTimers == 2)
 						sprintf(speed,"%4f %4f %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn);
 					else
 						sprintf(speed,"%4f %4f %lu %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn,numPixelsDrawn);
-
+					
 					SetBkMode(hdc, TRANSPARENT);
 					SetTextColor(hdc, RGB(255,0,0));
 					TextOut(hdc,160,48, speed, strlen(speed));
+					TextOut(hdc,160,98, dprintbuf, strlen(dprintbuf));
+
 					IDirectDrawSurface4_ReleaseDC(hiddenSrf, hdc);
 				}
 				break;
