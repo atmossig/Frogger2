@@ -1610,7 +1610,10 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	}
 
 	// If frog has moved
-	cur->isIdle += player[0].hasJumped;
+	if( player[0].frogState & FROGSTATUS_ISDEAD )
+		cur->isIdle = 0;
+	else
+		cur->isIdle += player[0].hasJumped;
 
 	// If enemy is on the next path node, set startnode worldtile and the next to zero
 	if( path->nodes[2].worldTile )
