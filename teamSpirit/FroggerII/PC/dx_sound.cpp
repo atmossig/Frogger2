@@ -266,7 +266,7 @@ void ShutDownDirectSound ( void )
 }
 
 
-DWORD LoadWavFile ( char *fileName,  SAMPLE *sample )
+int LoadWav ( char *fileName, SAMPLE *sample )
 {
 	HRESULT			dsrVal;
 	HMMIO 			hwav;    // handle to wave file
@@ -288,7 +288,7 @@ DWORD LoadWavFile ( char *fileName,  SAMPLE *sample )
 	// open the WAV file
 	if ( ( hwav = mmioOpen ( fileName, NULL, MMIO_READ | MMIO_ALLOCBUF ) ) == NULL )
 	{
-//		dprintf"RETURNING : LoadWavFile - Opening Wav File.\n"));
+		dp("RETURNING : LoadWavFile - Opening Wav File.\n");
 		return 0;
 	}
 	// ENDIF
@@ -398,6 +398,7 @@ DWORD LoadWavFile ( char *fileName,  SAMPLE *sample )
 	// create the sound buffer
 
 	dsrVal = lpDS->CreateSoundBuffer ( &dsbd, &sample->lpdsBuffer, NULL );
+	dp("Createing Sample Buffer = (&%x) FileName : %s", sample->lpdsBuffer, fileName);
 	if ( dsrVal != DS_OK )
 	{
 		dp("CreateSoundBuffer failed on file '%s' - '%s'\n", fileName, DSoundErrorToString(dsrVal));
@@ -433,35 +434,8 @@ DWORD LoadWavFile ( char *fileName,  SAMPLE *sample )
 
 
 
-	return 0;
+	return 1;
 
-} // LoadFile
-
-
-
-int LoadWav ( LPSTR lpFile, SAMPLE *sample )
-{
-	LPWAVEFORMATEX	oldWavFmt=sample->lpWavFmt;
-	BYTE			*oldData=sample->Data;
-	
-	sample->Len = LoadWavFile ( lpFile, sample );
-	
-	if(sample->Len) {
-		if (oldWavFmt) {
-			delete oldWavFmt;
-		}
-
-		if (oldData) {
-			delete oldData;
-		}
-
-		return true;
-	} else {
-		sample->Data = oldData;
-		sample->lpWavFmt = oldWavFmt;
-
-		return false;
-	}
 }
 
 

@@ -13,13 +13,41 @@
 
 
 //***********************************
+// Defines
+
+enum
+{
+	GEN_FROG_HOP,
+	GEN_SUPER_HOP,
+	GEN_BABY_FROG,
+
+	NUM_SAMPLES,
+};
+
+
+
+//***********************************
 // Type Defines
+
+typedef struct _SAMPLEMAP
+{
+	char			*sampleFileName;
+	char			numChannels;
+	int				sampleRate;
+	char			bitsPerSample;
+	unsigned char	sampleID;	
+} SAMPLEMAP;
 
 typedef struct _SAMPLE
 {
 	struct _SAMPLE		*next, *prev;
 	
 	char				idName[32];
+	char				numChannels;
+	int					sampleRate;
+	char				bitsPerSample;
+	unsigned char		sampleID;
+
 
 	LPWAVEFORMATEX		lpWavFmt;
 	BYTE				*Data;
@@ -38,6 +66,8 @@ typedef struct _SOUNDLIST
 extern SOUNDLIST soundList;
 
 
+extern SAMPLEMAP sampleMapping [ NUM_SAMPLES ];
+
 //***********************************
 // Function Prototypes
 
@@ -47,7 +77,7 @@ extern SOUNDLIST soundList;
 //extern int Makebuffer ( SAMPLE *sample );
 
 
-extern SAMPLE *CreateAndAddSample		( char *lpFile );
+extern SAMPLE *CreateAndAddSample		( SAMPLEMAP sampleMap );
 
 extern void InitSampleList				( void );
 extern void FreeSampleList				( void );
@@ -60,7 +90,7 @@ extern SAMPLE * GetEntryFromSampleList	( int num );
 
 extern int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch );
 
-extern void SetSampleFormat ( SAMPLE *sample, char numChannels, int newSampleRate, char bitsPerSample );
+extern void SetSampleFormat ( SAMPLE *sample );
 
 extern int PlaySampleRadius(short num, VECTOR *pos, short vol,short pitch,float radius);
 extern void PrepareSong(char num);

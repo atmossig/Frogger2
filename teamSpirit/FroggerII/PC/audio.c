@@ -3,7 +3,7 @@
 	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
 
 	File		: audio.c
-	Programmer	: Andy Eder
+	Programmer	: James Healey
 	Date		: 28/06/99 10:37:45
 
 ----------------------------------------------------------------------------------------------- */
@@ -12,6 +12,10 @@
 #include "..\resource.h"
 #include "incs.h"
 
+
+SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\froghop.wav",	2, 22050, 16, GEN_FROG_HOP,
+								"x:\\teamspirit\\pcversion\\superhop.wav",	2, 22050, 16, GEN_SUPER_HOP,
+								"x:\\teamspirit\\pcversion\\babyfrog.wav",	2, 11025, 16, GEN_BABY_FROG };
 
 //***********************************
 // Function Prototypes
@@ -26,33 +30,101 @@ int Makebuffer ( SAMPLE *sample );
 //***********************************
 // Function Prototypes
 
-SAMPLE *CreateAndAddSample ( char *lpFile )
+/*	--------------------------------------------------------------------------------
+	Function		: InitDirectSound
+	Purpose			: Set's up Direct Sound
+	Parameters		: void
+	Returns			: void
+	Info			: 
+*/
+void LoadDemoSamples ( void )
 {
-	SAMPLE *newItem = ( SAMPLE * ) JallocAlloc ( sizeof ( SAMPLE ), YES, "SAM" );
+	int i;
 
-	sprintf ( newItem->idName, "%s", lpFile );
+	dprintf"NUM_SAMPLE : %d\n", NUM_SAMPLES));
+	for ( i = NUM_SAMPLES - 1; i >= 0; i-- )
+	{
+		dprintf"NUM_SAMPLE : %d - i : %d \n", NUM_SAMPLES, i));
+		dprintf"sampleMapping[%d] - sampleFileName : %s\n", i, sampleMapping[i].sampleFileName));
+		CreateAndAddSample ( sampleMapping [ i ] );
+	}
+	// ENDFOR
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitDirectSound
+	Purpose			: Set's up Direct Sound
+	Parameters		: void
+	Returns			: void
+	Info			: 
+*/
+SAMPLE *CreateAndAddSample ( SAMPLEMAP sampleMap )
+{
+	SAMPLE *newItem;
+	
+	if ( !lpDS )
+	{
+		dprintf"Returned from Create Sample, because lpDS was NULL!!!!!!!!"));
+		return NULL;
+	}
+	// ENDIF
+	if ( ( newItem = ( SAMPLE * ) JallocAlloc ( sizeof ( SAMPLE ), YES, "SAM" ) ) == NULL )
+	{
+		dprintf"CreateAndAddSample : newItem : NULL value from JallocAlloc\n"));
+		return NULL;
+	}
+	// ENDIF
+
+	sprintf ( newItem->idName, "%s", sampleMap.sampleFileName );
 
 	newItem->lpDSound = lpDS;
 
-	if ( lpDS )
-		LoadWav		( lpFile, newItem );
+	if ( LoadWav		( newItem->idName, newItem ) == 0 )
+	{
+		dprintf"Returned from LoadWav\n"));
+		return NULL;
+	}
 	// ENDIF
+	
+	newItem->numChannels	= sampleMap.numChannels;
+	newItem->sampleRate		= sampleMap.sampleRate;
+	newItem->bitsPerSample	= sampleMap.bitsPerSample;
+	newItem->sampleID		= sampleMap.sampleID;
 
-	SetSampleFormat ( newItem, 2, 22050, 16 );
+	SetSampleFormat ( newItem );
 
+	dprintf"Calling : AddSampleToList\n"));
 	AddSampleToList ( newItem );
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: InitDirectSound
+	Purpose			: Set's up Direct Sound
+	Parameters		: void
+	Returns			: void
+	Info			: 
+*/
 void InitSampleList ( void )
 {
 	soundList.numEntries	= 0;
 	soundList.head.next		= soundList.head.prev = &soundList.head;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitDirectSound
+	Purpose			: Set's up Direct Sound
+	Parameters		: void
+	Returns			: void
+	Info			: 
+*/
 void AddSampleToList ( SAMPLE *sample )
 {
+	dprintf"Adding Sample To List - sample->next : (&%x)\n", sample->next));
 	if ( sample->next == NULL )
 	{
+		dprintf"Adding Sample To List\n"));
 		soundList.numEntries++;
 		sample->prev				= &soundList.head;
 		sample->next				= soundList.head.next;
@@ -62,6 +134,13 @@ void AddSampleToList ( SAMPLE *sample )
 	// ENDIF
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: InitDirectSound
+	Purpose			: Set's up Direct Sound
+	Parameters		: void
+	Returns			: void
+	Info			: 
+*/
 void RemoveSampleFromList ( SAMPLE *sample )
 {
 	if ( sample->next == NULL )
@@ -75,6 +154,14 @@ void RemoveSampleFromList ( SAMPLE *sample )
 	JallocFree ( ( UBYTE ** ) &sample );
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitDirectSound
+	Purpose			: Set's up Direct Sound
+	Parameters		: void
+	Returns			: void
+	Info			: 
+*/
 void FreeSampleList ( void )
 {
 	SAMPLE *cur,*next;
@@ -99,25 +186,30 @@ void FreeSampleList ( void )
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: InitDirectSound
+	Purpose			: Set's up Direct Sound
+	Parameters		: void
+	Returns			: void
+	Info			: 
+*/
 SAMPLE *GetEntryFromSampleList ( int num )
 {
-	int i;
 	SAMPLE *next, *cur;
 
-	i = 0;
 	for ( cur = soundList.head.next; cur != &soundList.head; cur = next )
 	{
 		next = cur->next;
 		
-		if ( i == num )
+		if ( cur->sampleID == num )
 		{
 			return cur;
 		}
 		// ENDIF
-		i++;
 	}
 	// ENDFOR
 
+	dprintf"sampleID : %d - numEntries : %d", cur->sampleID, soundList.numEntries));
 	return NULL;
 }
 
@@ -144,44 +236,52 @@ SAMPLE *GetEntryFromSampleList ( int num )
 */
 int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 {
-	
 	SAMPLE *sample;
-//	return 0;
 
+	if ( !lpDS )
+	{
+		dprintf"Returned From PlaySample Because lpDS is NULL!!!!!!!!!\n"));
+		return 0;
+	}
+	// ENDIF
+
+	dprintf"Getting Entry From Sample List - %d\n", num));
 	sample = GetEntryFromSampleList ( num );
 
-	if ( ( !sample ) || ( !lpDS ) )
+	if ( ( !sample ) )
 	{
 		if ( !sample )
 		{
 			dprintf"Could Not Find Sample : %d\n", num));	//  I will leave this, cos if you enter a
 															// sample number and it's not there then you will not get a sound.
 		}
-		if ( !lpDS )
-			dprintf"lpDS duh!!!!\n"));
+		// ENDIF
 		return 0;
 	}
 	// ENDIF
 
 
+	dprintf"About to Play Sample - %d\n", num));
 	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
-	dprintf"Played Sample Ok - %d", num));
+	dprintf"Played Sample Ok - %d\n", num));
 }
 
 
-void SetSampleFormat ( SAMPLE *sample, char numChannels, int newSampleRate, char bitsPerSample )
+void SetSampleFormat ( SAMPLE *sample )
 {
 	WAVEFORMATEX	wfx;
 
 	memset ( &wfx, 0, sizeof ( WAVEFORMATEX ) ); 
 	wfx.wFormatTag		= WAVE_FORMAT_PCM; 
-	wfx.nChannels		= numChannels; 
-	wfx.nSamplesPerSec	= newSampleRate; 
-	wfx.wBitsPerSample	= bitsPerSample; 
+	wfx.nChannels		= sample->numChannels; 
+	wfx.nSamplesPerSec	= sample->sampleRate; 
+	wfx.wBitsPerSample	= sample->bitsPerSample; 
 	wfx.nBlockAlign		= wfx.wBitsPerSample / 8 * wfx.nChannels;
 	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 
+	dprintf"Setting Sample Format : Buffer = (&%x) FileName : %s\n", sample->lpdsBuffer, sample->idName));
 	sample->lpdsBuffer->lpVtbl->SetFormat ( sample->lpdsBuffer, &wfx );
+	dprintf"Set Sample Format : Buffer = (&%x)", sample->lpdsBuffer));
 }
 
 
