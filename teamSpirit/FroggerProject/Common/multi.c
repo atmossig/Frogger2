@@ -110,6 +110,8 @@ MPINFO mpl[4];
 #define MAX_BATTLENODES 256
 BATTLENODELIST nodePool;
 
+fixed initialCamHeight = 0;
+
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateRace
 	Purpose			: Do game mechanics for mulitplayer race mode
@@ -124,6 +126,9 @@ void UpdateRace( )
 	// Wait for all players to be on the start/finish line
 	if( !started )
 	{
+		// Hack to make camera move up only
+		initialCamHeight = camSource.vy;
+
 		for( i=0,j=0; i<NUM_FROGS; i++ )
 			if( currTile[i]->state == TILESTATE_FROGGER1AREA )
 			{
@@ -1424,15 +1429,18 @@ void CalcRaceCircuitCamera( FVECTOR *target )
 void CalcRaceStraightCamera( FVECTOR *target )
 {
 	int i, bestLap=0, bestCheck=0, bestZ=999999999;
-	fixed scale, vx, vz;
+	fixed scale;//, vx, vz;
+	FVECTOR diff;
 
-	target->vx = target->vz = 0;
+	SetVectorFF( target, &zero );
+//	target->vx = target->vz = 0;
 
 	if( gameWinner != -1 && gameWinner != MULTI_ROUND_DRAW )
 	{
 		playerFocus = gameWinner;
-		target->vx = frog[gameWinner]->actor->position.vx<<12;
-		target->vz = frog[gameWinner]->actor->position.vz<<12;
+		SetVectorFS( target, &frog[gameWinner]->actor->position );
+//		target->vx = frog[gameWinner]->actor->position.vx<<12;
+//		target->vz = frog[gameWinner]->actor->position.vz<<12;
 		return;
 	}
 
@@ -1453,39 +1461,51 @@ void CalcRaceStraightCamera( FVECTOR *target )
 			SetVectorFF(&v, &player[i].jumpFwdVector);
 			ScaleVectorFF(&v, player[i].jumpTime);
 
-			vx = (player[i].jumpOrigin.vx<<12) + v.vx;
-			vz = (player[i].jumpOrigin.vz<<12) + v.vz;
+			SetVectorFS( &diff, &player[i].jumpOrigin );
+			AddToVectorFF( &diff, &v );
+//			diff.vx = (player[i].jumpOrigin.vx<<12) + v.vx;
+//			diff.vy = (player[i].jumpOrigin.vy<<12) + v.vy;
+//			diff.vz = (player[i].jumpOrigin.vz<<12) + v.vz;
 
-			target->vx += vx;
-			target->vz += vz;
+			AddToVectorFF( target, &diff );
+//			target->vx += vx;
+//			target->vz += vz;
 
 			// Double weight for lead player
 			if( i == playerFocus )
 			{
-				target->vx += vx;
-				target->vz += vz;
+				AddToVectorFF( target, &diff );
+//				target->vx += vx;
+//				target->vz += vz;
 			}
 		}										
 		else
 		{
-			vx = frog[i]->actor->position.vx<<12;
-			vz = frog[i]->actor->position.vz<<12;
+			SetVectorFS( &diff, &frog[i]->actor->position );
+//			vx = frog[i]->actor->position.vx<<12;
+//			vz = frog[i]->actor->position.vz<<12;
 
-			target->vx += vx;
-			target->vz += vz;
+			AddToVectorFF( target, &diff );
+//			target->vx += vx;
+//			target->vz += vz;
 
 			// Double weight for lead player
 			if( i == playerFocus )
 			{
-				target->vx += vx;
-				target->vz += vz;
+				AddToVectorFF( target, &diff );
+//				target->vx += vx;
+//				target->vz += vz;
 			}
 		}
 	}
 
 	scale = 4096/(NUM_FROGS+1);
-	target->vx = FMul( target->vx, scale );
-	target->vz = FMul( target->vz, scale );
+	ScaleVectorFF( target, scale );
+
+	if( target->vy < initialCamHeight )
+		target->vy = initialCamHeight;
+//	target->vx = FMul( target->vx, scale );
+//	target->vz = FMul( target->vz, scale );
 }
 
 
