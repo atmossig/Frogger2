@@ -1134,7 +1134,7 @@ void *ChangeModel( ACTOR *actor, char *model )
 	strcat( newName, ".psi" );
 
 //	oldModel = actor->psiData;
-	//newModel = psiCheck ( newName );
+	newModel = psiCheck ( newName );
 
 	utilPrintf("Trying To Find New Model %s : %s................\n", newModel);
 
