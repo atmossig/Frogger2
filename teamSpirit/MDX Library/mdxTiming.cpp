@@ -38,6 +38,7 @@ void InitTiming(float frameSpeed)
 	timeInfo.tickCount = 0;
 	timeInfo.frameCount = 0;
 	timeInfo.frameSpeed = frameSpeed;
+	timeInfo.tickModifier = 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -50,7 +51,7 @@ void InitTiming(float frameSpeed)
 
 void UpdateTiming(void)
 {
-	unsigned long currentTicks = GetTickCount() - timeInfo.firstTicks;
+	unsigned long currentTicks = (GetTickCount()+timeInfo.tickModifier) - timeInfo.firstTicks;
 	unsigned long intervalTicks = currentTicks - timeInfo.tickCount;
 	float divVal = (1000.0F/timeInfo.frameSpeed);
 	
