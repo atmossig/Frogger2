@@ -803,7 +803,8 @@ void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i )
 	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
 	PushMatrix( tMtrx );
 
-	SetVectorRF( &cam, &currCamSource );
+	SetVectorRS( &cam, &camDist );
+	ScaleVector( &cam, 0.1 );
 	SubVector( &normal, &cam, &pos );
 	Normalise( &normal );
 	CrossProduct( (MDX_VECTOR *)&cross, &normal, &upV );
