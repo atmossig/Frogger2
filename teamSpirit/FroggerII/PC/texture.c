@@ -144,11 +144,18 @@ void AnimateTexturePointers(void)
 	{
 		if (cEntry->nextFrame)
 		{
-			tE = cEntry->cFrame->nextFrame; 
-			if (tE)
-				cEntry->cFrame = tE;
+			if (cEntry->nextFrameAt<=0)
+			{
+				tE = cEntry->cFrame->nextFrame; 
+				if (tE)
+					cEntry->cFrame = tE;
+				else
+					cEntry->cFrame = cEntry;
+				cEntry->nextFrameAt = cEntry->cFrame->frameTime; 
+			}
 			else
-				cEntry->cFrame = cEntry;
+				cEntry->nextFrameAt-=gameSpeed;
+
 		}
 
 		cEntry = cEntry->next;
@@ -170,14 +177,8 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 	isAnim = (((shortn[0]>='0') && (shortn[0]<='9'))
 	 && ((shortn[1]>='0') && (shortn[1]<='9')));
+		
 	
-	if (isAnim)
-	{
-		newE->frameTime = (((shortn[6]-'0')+1) * ((shortn[6]-'0')+1));
-	}
-	
-	newE->nextFrameAt=0;
-
 	if (isAnim && (!((shortn[0]=='0') && (shortn[1]=='0'))))
 	{
 		TEXENTRY *cEntry = texList;
@@ -214,6 +215,12 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 		texList = newE;
 	}
+
+	if (isAnim)
+	{
+		newE->frameTime = (((shortn[6]-'0')+1) * ((shortn[6]-'0')+1));
+	}
+	newE->nextFrameAt=0;
 
 	strcpy (newE->name,mys);
 	newE->CRC  = UpdateCRC (mys);
