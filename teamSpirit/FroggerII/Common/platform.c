@@ -164,10 +164,8 @@ void UpdatePlatforms()
 			
 			ScaleVector(&fwd,length);
 			AddVector (&cur->pltActor->actor->pos,&fwd,&fromPosition);
+			MakeUnit( &fwd );
 
-		//cur->path->curDist += cur->currSpeed * speedScale;
-
-			
 //--------------------->
 
 			AddToVector(&cur->currNormal,&cur->deltaNormal);
