@@ -108,6 +108,8 @@ unsigned long levelNum;
 unsigned char darkenedLevel		= 0;
 short lightIntensity	= 255;
 
+int moolardCheat = 0;
+
 //void LSCAPE_DrawSortedPrimitives(int);
 //void customDrawPrimitives2(int, long*);
 
@@ -961,19 +963,25 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	if (gameState.mode == DEMO_MODE)
 		LoadDemoFile(worldID, levelID);
 
-// JH : #ifdefed because we need a cd for this to work, so uncomment when we have one.....................
 #ifdef PC_VERSION
+
+	if( fileLoad("mullard.txt", &temp) )
+		moolardCheat = 1;
+
 	if(useAudio)
 #ifdef PC_DEMO
 		PlaySample( FindSample(UpdateCRC("lp_music")), NULL, 0, SAMPLE_VOLUME/2, -1 );
 #else
 		PrepareSong((short)worldID, 1);		// loop track
 #endif
+
 #else
+
 	bb_InitXA();
 	if(useAudio && XAgetStatus())
 		PrepareSong((short)worldID,1);
 	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 1;
+
 #endif
 
 	//memoryShow();

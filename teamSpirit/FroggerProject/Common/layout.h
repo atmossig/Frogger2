@@ -650,6 +650,7 @@ extern "C" {
 
 // ***** ALL VERSIONS ****************************************************************************
 
+extern int moolardCheat;
 extern fixed gameSpeed;
 extern char quitMainLoop;
 extern unsigned long actFrameCount;

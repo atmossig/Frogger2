@@ -237,7 +237,10 @@ void UpdateFrogCroak( int pl )
 				fx->spin = 25;
 				SetFXColour( fx, 191, 255, 0 );
 			}
-			PlayVoice( pl, "frogcroak" );
+			if( moolardCheat )
+				PlaySample( FindSample(UpdateCRC("mullard")), NULL, 0, SAMPLE_VOLUME, -1 );
+			else
+				PlayVoice( pl, "frogcroak" );
 		}
 
 		GTUpdate( &player[pl].isCroaking, -1 );
