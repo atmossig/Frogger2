@@ -602,6 +602,7 @@ void InitSpriteFrameLists()
 */
 void FreeSpriteFrameLists()
 {
+/*
 	int j;
 
 	for(j=0; j<NUM_SPRITE_ANIMS; j++)
@@ -609,6 +610,7 @@ void FreeSpriteFrameLists()
 			JallocFree((UBYTE **)&spriteFrameList[j].texture);
 
 	dprintf"FREED SPRITE FRAME LISTS\n"));
+*/
 }
 
 /*	--------------------------------------------------------------------------------
