@@ -260,8 +260,6 @@ void languageInitialise()
 	for (loop = LANG_NUMLANGS; loop < LANG_NUMLANGS+BONUS_FLAGS; loop++)
 		languageData.flagTexture[loop] = &face;
 
-	textureDestroyBank(languageData.flagTextures);
-
 	setCamera(0,0,-12000, 0,0,0);
 
 	//Movement stuff
@@ -305,10 +303,9 @@ void languageFrame()
 {
 	long loop1,loop2,temp;
 		
-				if( (padData.debounce[0] & PAD_L1))
-				{
-					froggerShowVRAM(1);
-				}
+
+	if(languageData.frame < 20)
+		ScreenFade(0,255,30);
 
 //	utilPrintf("Frame\n");
 	wind[0] += utilRandomInt(800)-100+rsin(languageData.frame*200)/15;
@@ -369,11 +366,11 @@ void languageFrame()
 
 	if (gameTextLang < LANG_NUMLANGS)
 	{
-		fontPrint(font,-fontExtentW(font,langName[gameTextLang])/2,75,langName[gameTextLang],128,128,128);
+		fontPrint(font,-fontExtentW(font,langName[gameTextLang])/2,70,langName[gameTextLang],128,128,128);
 
-		fontDispSprite(FindTexture(buttonName[0]),-80, 80);
-		fontDispSprite(FindTexture(buttonName[1]), 80, 80);
-		fontDispSprite(FindTexture(buttonName[2]),  0,100);
+		fontDispSprite(FindTexture(buttonName[0]),-200, 75);
+		fontDispSprite(FindTexture(buttonName[1]), 180, 75);
+		fontDispSprite(FindTexture(buttonName[2]), -16, 95);
 
 //		mapScreenDispSquare(gameInfo.buttons[4],-80,80,128,128,128,0,0,4096,-1,0);
 //		mapScreenDispSquare(gameInfo.buttons[5],80,80,128,128,128,0,0,4096,-1,0);
@@ -400,6 +397,7 @@ void languageFrame()
 		gameTextLang = LANG_UK;
 		languageDestroy();
 		DoneLangSel=1;
+		textureDestroyBank(languageData.flagTextures);
 	}
 }
 
