@@ -57,7 +57,7 @@ char *musicNames[] = { "CD3.XA",//
 //This value means the pitch can go up to 100000Hz like the PC. This might be a 
 //problem for the PSX but I don't think it goes much above 20000Hz, which seems alright. May
 //cause problems in the future though, so check!!
-#define PITCH_STEP		390 //(DSBFREQUENCY_MAX/256)   //MM NEEDS CHANGING!!!!!
+#define PITCH_STEP		190 //(DSBFREQUENCY_MAX/256)   //MM NEEDS CHANGING!!!!!
 
  
 //#define VOLUME_MIN		-5000
@@ -268,6 +268,11 @@ int LoadSfx( unsigned long worldID )
 	path[len] = '\0';
 
 
+	if ( worldID == 0xffff )
+		return 0;
+	// ENDIF
+
+	utilPrintf ( "WorldID Is : %d\n", worldID );
 //load the non-looping level samples
 	switch( worldID )
 	{
@@ -293,7 +298,7 @@ int LoadSfx( unsigned long worldID )
 // JH: Quite Possibly fix it!!!!!!!!!!!!!!!!!!!!!!!!!!
 	path[len] = '\0';
 
-	switch( worldID )
+/*	switch( worldID )
 	{
 		case WORLDID_GARDEN: strcat( path, "GARDEN\\" ); break;
 		case WORLDID_ANCIENT: strcat( path, "ANCIENTS\\" ); break;
@@ -305,7 +310,7 @@ int LoadSfx( unsigned long worldID )
 		case WORLDID_SWAMPYWORLD: strcat( path, "SWAMPYWORLD\\" ); break;
 		case WORLDID_SUPERRETRO: strcat( path, "SUPERRETRO\\" ); break;
 		case WORLDID_FRONTEND: strcat( path, "FRONTEND\\" ); break;
-	}
+	}*/
 
 //load the looping level samples
 	//path[len] = '\0';
@@ -479,16 +484,25 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	//bbdebug crash bug
 //	return 0;
 	if(!sample)
+	{
+		utilPrintf("Sample Not Valid!!!!!!\n");
 		return 0;
+	}
+	// ENDIF
 
 
 //Stuff to ensure calls to PlaySample can be the same for PC and PSX
 	if (pitch ==-1)
+	{
 		pitch = 0;
+	}
 	else
+	{
 		pitch *= PITCH_STEP;
+	}
 //end of stuff
 
+	utilPrintf("Pitch : %d\n", pitch );
 
 	if( pos )
 	{
