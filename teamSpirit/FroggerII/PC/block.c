@@ -670,6 +670,7 @@ extern long numPixelsDrawn;
 char fR,fG,fB;
 long useBilerpN = 0;
 long useBilerpF = 0;
+extern D3DTEXTUREHANDLE lastH;
 
 void DrawGraphics() 
 {
@@ -733,6 +734,7 @@ void DrawGraphics()
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 	
 	PrintSpriteOverlays();	
+	lastH = -1;
 	PrintTextOverlays();
 	
 	if (editorOk)
