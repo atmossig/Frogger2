@@ -34,7 +34,7 @@ extern SCENIC *Sc_000;
 
 #include "levbanks\\levext.h"
 
-extern void LoadMapBank(int num);
+extern BOOL LoadMapBank(int num);
 extern void FreeMapBank(void);
 
 extern void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportType);

@@ -41,13 +41,12 @@ SCENIC *Sc_000;
 	Parameters	: (int num)
 	Returns		: void 
 */
-void LoadCollision (int num);
-void LoadScenics (int num);
+BOOL LoadCollision (int num);
+BOOL LoadScenics (int num);
 
-void LoadMapBank(int num)
+BOOL LoadMapBank(int num)
 {
-	LoadCollision (num);
-	LoadScenics (num);
+	return (LoadCollision(num) && LoadScenics(num));
 }
 
 void FreeMapBank(void)
@@ -69,7 +68,7 @@ void FreeMapBank(void)
 
 typedef long (FAR *MYFPROC)();
 
-void LoadCollision (int num)
+BOOL LoadCollision(int num)
 {
 	char message[256];
 	char    file[MAX_PATH]; 
@@ -244,9 +243,8 @@ void LoadCollision (int num)
 			break;
 
 		default:
-			dprintf"ERROR: no valid map bank specified....\n"));
-			for(;;);
-			break;
+			dprintf"ERROR: %d is not a valid map ID\n", num));
+			return FALSE;
 	}
 
 	dprintf"Loading map %s\n",file));
@@ -300,10 +298,10 @@ void LoadCollision (int num)
 	}
 	else
 	{
-		dprintf"Couldn't Load Library!!!\n"));
-		while(1);
+		dprintf"Couldn't Load Library: %s\n", file));
+		return FALSE;
 	}
-//firstTile = cgT;
+	return TRUE;
 }
 
 
@@ -316,7 +314,7 @@ void LoadCollision (int num)
 	Returns		: void 
 */
 
-void LoadScenics (int num)
+BOOL LoadScenics (int num)
 {
 	char message[256];
 	char    file[MAX_PATH]; 
@@ -491,9 +489,8 @@ void LoadScenics (int num)
 			break;
 
 		default:
-			dprintf"ERROR: no valid map bank specified....\n"));
-			for(;;);
-			break;
+			dprintf"ERROR: %d is not a valid map bank\n", num));
+			return FALSE;
 	}
 
 	dprintf"Loading map %s\n",file));
@@ -508,7 +505,11 @@ void LoadScenics (int num)
 		
 		if (GetSc000Address)
 			Sc_000 = GetSc000Address();
-	}			
+	}
+	else
+		return FALSE;
+
+	return TRUE;
 }
 
 /*	--------------------------------------------------------------------------------

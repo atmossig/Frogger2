@@ -145,7 +145,7 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 	Info 		:
 */
 
-void LoadObjectBank(int num)
+BOOL LoadObjectBank(int num)
 {
 	char				*objectBank = NULL;
 	u32					bankRomStart, bankRomEnd, bankSize;
@@ -347,9 +347,8 @@ void LoadObjectBank(int num)
 			break;
 
 		default:
-			dprintf"ERROR: no object bank specified....\n"));
-			return;
-			break;
+			dprintf"ERROR: %d is not a valid object bank\n", num));
+			return FALSE;
 	}
 
 	strcat (file,".dll");
@@ -369,14 +368,14 @@ void LoadObjectBank(int num)
 	else
 	{
 		dprintf"Unable to load object bank %s\n", message));
-		return;
+		return FALSE;
 	}
 
 	while(objectBanks[++x].freePtr != 0);
 	if(x >= MAX_OBJECT_BANKS)
 	{
 		dprintf"ERROR:too many object banks\n"));
-		return;
+		return FALSE;
 	}
 
 //PC-CHANGE
@@ -396,6 +395,7 @@ void LoadObjectBank(int num)
 	
 	objectBanks[x].numObjects = y;	
 
+	return TRUE;
 }
 
 void FreeObjectBank(long i)

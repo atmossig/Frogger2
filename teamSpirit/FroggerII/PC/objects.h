@@ -5,7 +5,7 @@
 
 
 float CalcRadius(MESH *mesh);
-void LoadObjectBank(int num);
+BOOL LoadObjectBank(int num);
 void InitObjectBanks();
 void FindObject(OBJECT_CONTROLLER **, int, char *,BOOL vital);
 void FindSubObject(OBJECT **obj, int objID);
