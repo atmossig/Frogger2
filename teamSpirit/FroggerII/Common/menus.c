@@ -470,6 +470,15 @@ void RunLevelSelect()
 				
 				player[0].worldNum = currentWorldSelect;
 				player[0].levelNum = currentLevelSelect;
+
+				if( gameState.multi != SINGLEPLAYER )
+				{
+					switch( player[0].worldNum )
+					{
+					case WORLDID_GARDEN: multiplayerMode = MULTIMODE_RACE; break;
+					case WORLDID_LABORATORY: multiplayerMode = MULTIMODE_BATTLE; break;
+					}
+				}
 				
 				gameState.menuMode = CHARSELECT_MODE;
 
@@ -565,11 +574,12 @@ void RunPauseMenu()
 				{
 					livesTextOver->a = livesTextOver->oa;
 					scoreTextOver->a = scoreTextOver->oa;
-				}
-				timeTextOver->a = timeTextOver->oa;
 
-				for ( i = 0; i < 3; i++ )
-					sprHeart[i]->draw = 1;
+					for ( i = 0; i < 3; i++ )
+						sprHeart[i]->draw = 1;
+
+					timeTextOver->a = timeTextOver->oa;
+				}
 
 				for(i=0; i<numBabies; i++)
 					babyIcons[i]->draw = 1;

@@ -2,41 +2,38 @@
 #define __MULTI_H
 
 
-#define MULTIMODE_RACE_NORMAL		1
-#define MULTIMODE_RACE_KNOCKOUT		2
-#define MULTIMODE_CTF				3
-#define MULTIMODE_BATTLE			4
+#define MULTIMODE_RACE				1
+#define MULTIMODE_BATTLE			2
 
 
 #define MULTI_BATTLE_MAXITEMS		15
 #define MULTI_BATTLE_TRAILLENGTH	8
 
-#define MULTI_RACE_NUMLAPS 3
+
+#define MULTI_RACE_TIMEPENALTY		180
 
 typedef struct
 {
-	union
-	{
-		char lap;
-		char wins;
-	};
+	short wins;				// Race and battle
+	short lap;
 
-	char babyCount;
+	unsigned long timer;	// Race
+	unsigned long penalty;	// Race
 
 	union
 	{
-		short check;
-		short score;
+		short check;		// Race
+		short score;		// Battle
 	};
 
-	short trail;
+	short trail;			// Battle
 
-	unsigned char r, g, b;
+	unsigned char r, g, b;	// Both
 
-	char ready;
-	short lasttile;
+	char ready;				// Both
+	short lasttile;			// Battle
 
-	AIPATHNODE *path;
+	AIPATHNODE *path;		// Battle
 
 } MPINFO;
 
