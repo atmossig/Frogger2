@@ -2936,8 +2936,6 @@ VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1)
 
 	return v1;
 }
-#endif
-
 
 
 VECTOR *ApplyRotMatrix(SVECTOR *v0, VECTOR *v1)
