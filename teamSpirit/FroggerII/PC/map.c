@@ -79,14 +79,162 @@ void LoadCollision (int num)
 
 	switch(num)
 	{
-		case DOCKSA_COLL_BANK:
-			sprintf(message, "DOCKSA");
-			strcat(file,"docksa");
+		case GARDENMASTER_COL:
+			strcat(file,"gardenmaster");
 			break;
-		case LAWN_COLL_BANK:
-			sprintf(message, "LAWN");
-			strcat(file,"lawn");
+		case GARDENLEV1_COL:
+			strcat(file,"garden1");
 			break;
+		case GARDENLEV2_COL:
+			strcat(file,"garden2");
+			break;
+		case GARDENLEV3_COL:
+			strcat(file,"garden3");
+			break;
+		case GARDENBONUS_COL:
+			strcat(file,"gardenbonus");
+			break;
+		case GARDENMULTI_COL:
+			strcat(file,"gardenmulti");
+			break;
+
+		case ANCIENTMASTER_COL:
+			strcat(file,"ancientsmaster");
+			break;
+		case ANCIENTLEV1_COL:
+			strcat(file,"ancients1");
+			break;
+		case ANCIENTLEV2_COL:
+			strcat(file,"ancients2");
+			break;
+		case ANCIENTLEV3_COL:
+			strcat(file,"ancients3");
+			break;
+		case ANCIENTBONUS_COL:
+			strcat(file,"ancientsbonus");
+			break;
+		case ANCIENTMULTI_COL:	
+			strcat(file,"ancientsmulti");
+			break;
+
+		case SPACEMASTER_COL:
+			strcat(file,"spacemaster");
+			break;
+		case SPACELEV1_COL:
+			strcat(file,"space1");
+			break;
+		case SPACELEV2_COL:
+			strcat(file,"space2");
+			break;
+		case SPACELEV3_COL:
+			strcat(file,"space3");
+			break;
+		case SPACEBONUS_COL:
+			strcat(file,"spacebonus");
+			break;
+		case SPACEMULTI_COL:
+			strcat(file,"spacemulti");
+			break;
+
+		case CITYMASTER_COL:
+			strcat(file,"citymaster");
+			break;
+		case CITYLEV1_COL:
+			strcat(file,"city1");
+			break;
+		case CITYLEV2_COL:
+			strcat(file,"city2");
+			break;
+		case CITYLEV3_COL:
+			strcat(file,"city3");
+			break;
+		case CITYBONUS_COL:
+			strcat(file,"citybonus");
+			break;
+		case CITYMULTI_COL:
+			strcat(file,"citymulti");
+			break;
+
+		case SUBTERRANEANMASTER_COL:
+			strcat(file,"submaster");
+			break;
+		case SUBTERRANEANLEV1_COL:
+			strcat(file,"sub1");
+			break;
+		case SUBTERRANEANLEV2_COL:
+			strcat(file,"sub2");
+			break;
+		case SUBTERRANEANLEV3_COL:
+			strcat(file,"sub3");
+			break;
+		case SUBTERRANEANBONUS_COL:
+			strcat(file,"subbonus");
+			break;
+		case SUBTERRANEANMULTI_COL:
+			strcat(file,"submulti");
+			break;
+
+		case LABORATORYMASTER_COL:
+			strcat(file,"labmaster");
+			break;
+		case LABORATORYLEV1_COL:
+			strcat(file,"lab1");
+			break;
+		case LABORATORYLEV2_COL:
+			strcat(file,"lab2");
+			break;
+		case LABORATORYLEV3_COL:
+			strcat(file,"lab3");
+			break;
+		case LABORATORYBONUS_COL:
+			strcat(file,"labbonus");
+			break;
+		case LABORATORYMULTI_COL:
+			strcat(file,"labmulti");
+			break;
+
+		case TOYSHOPMASTER_COL:
+			strcat(file,"toymaster");
+			break;
+		case TOYSHOPLEV1_COL:
+			strcat(file,"toy1");
+			break;
+		case TOYSHOPLEV2_COL:
+			strcat(file,"toy2");
+			break;
+		case TOYSHOPLEV3_COL:
+			strcat(file,"toy3");
+			break;
+		case TOYSHOPBONUS_COL:
+			strcat(file,"toybonus");
+			break;
+		case TOYSHOPMULTI_COL:
+			strcat(file,"toymulti");
+			break;
+
+		case HALLOWEENMASTER_COL:
+			strcat(file,"halloweenmaster");
+			break;
+		case HALLOWEENLEV1_COL:
+			strcat(file,"halloween1");
+			break;
+		case HALLOWEENLEV2_COL:
+			strcat(file,"halloween2");
+			break;
+		case HALLOWEENLEV3_COL:
+			strcat(file,"halloween3");
+			break;
+		case HALLOWEENBONUS_COL:
+			strcat(file,"halloweenbonus");
+			break;
+		case HALLOWEENMULTI_COL:
+			strcat(file,"halloweenmulti");
+			break;
+
+		case RETROMASTER_COL:
+			strcat(file,"retromaster");
+			break;
+
 		default:
 			dprintf"ERROR: no valid map bank specified....\n"));
 			for(;;);
@@ -171,13 +319,160 @@ void LoadScenics (int num)
 
 	switch(num)
 	{
-		case DOCKSA_COLL_BANK:
-			sprintf(message, "DOCKSA");
-			strcat(file,"docksa");
+case GARDENMASTER_COL:
+			strcat(file,"gardenmaster");
 			break;
-		case LAWN_COLL_BANK:
-			sprintf(message, "LAWN");
-			strcat(file,"lawn");
+		case GARDENLEV1_COL:
+			strcat(file,"garden1");
+			break;
+		case GARDENLEV2_COL:
+			strcat(file,"garden2");
+			break;
+		case GARDENLEV3_COL:
+			strcat(file,"garden3");
+			break;
+		case GARDENBONUS_COL:
+			strcat(file,"gardenbonus");
+			break;
+		case GARDENMULTI_COL:
+			strcat(file,"gardenmulti");
+			break;
+
+		case ANCIENTMASTER_COL:
+			strcat(file,"ancientsmaster");
+			break;
+		case ANCIENTLEV1_COL:
+			strcat(file,"ancients1");
+			break;
+		case ANCIENTLEV2_COL:
+			strcat(file,"ancients2");
+			break;
+		case ANCIENTLEV3_COL:
+			strcat(file,"ancients3");
+			break;
+		case ANCIENTBONUS_COL:
+			strcat(file,"ancientsbonus");
+			break;
+		case ANCIENTMULTI_COL:	
+			strcat(file,"ancientsmulti");
+			break;
+
+		case SPACEMASTER_COL:
+			strcat(file,"spacemas\ter");
+			break;
+		case SPACELEV1_COL:
+			strcat(file,"space1");
+			break;
+		case SPACELEV2_COL:
+			strcat(file,"space2");
+			break;
+		case SPACELEV3_COL:
+			strcat(file,"space3");
+			break;
+		case SPACEBONUS_COL:
+			strcat(file,"spacebonus");
+			break;
+		case SPACEMULTI_COL:
+			strcat(file,"spacemulti");
+			break;
+
+		case CITYMASTER_COL:
+			strcat(file,"citymaster");
+			break;
+		case CITYLEV1_COL:
+			strcat(file,"city1");
+			break;
+		case CITYLEV2_COL:
+			strcat(file,"city2");
+			break;
+		case CITYLEV3_COL:
+			strcat(file,"city3");
+			break;
+		case CITYBONUS_COL:
+			strcat(file,"citybonus");
+			break;
+		case CITYMULTI_COL:
+			strcat(file,"citymulti");
+			break;
+
+		case SUBTERRANEANMASTER_COL:
+			strcat(file,"submaster");
+			break;
+		case SUBTERRANEANLEV1_COL:
+			strcat(file,"sub1");
+			break;
+		case SUBTERRANEANLEV2_COL:
+			strcat(file,"sub2");
+			break;
+		case SUBTERRANEANLEV3_COL:
+			strcat(file,"sub3");
+			break;
+		case SUBTERRANEANBONUS_COL:
+			strcat(file,"subbonus");
+			break;
+		case SUBTERRANEANMULTI_COL:
+			strcat(file,"submulti");
+			break;
+
+		case LABORATORYMASTER_COL:
+			strcat(file,"labmaster");
+			break;
+		case LABORATORYLEV1_COL:
+			strcat(file,"lab1");
+			break;
+		case LABORATORYLEV2_COL:
+			strcat(file,"lab2");
+			break;
+		case LABORATORYLEV3_COL:
+			strcat(file,"lab3");
+			break;
+		case LABORATORYBONUS_COL:
+			strcat(file,"labbonus");
+			break;
+		case LABORATORYMULTI_COL:
+			strcat(file,"labmulti");
+			break;
+
+		case TOYSHOPMASTER_COL:
+			strcat(file,"toymaster");
+			break;
+		case TOYSHOPLEV1_COL:
+			strcat(file,"toy1");
+			break;
+		case TOYSHOPLEV2_COL:
+			strcat(file,"toy2");
+			break;
+		case TOYSHOPLEV3_COL:
+			strcat(file,"toy3");
+			break;
+		case TOYSHOPBONUS_COL:
+			strcat(file,"toybonus");
+			break;
+		case TOYSHOPMULTI_COL:
+			strcat(file,"toymulti");
+			break;
+
+		case HALLOWEENMASTER_COL:
+			strcat(file,"halloweenmaster");
+			break;
+		case HALLOWEENLEV1_COL:
+			strcat(file,"halloween1");
+			break;
+		case HALLOWEENLEV2_COL:
+			strcat(file,"halloween2");
+			break;
+		case HALLOWEENLEV3_COL:
+			strcat(file,"halloween3");
+			break;
+		case HALLOWEENBONUS_COL:
+			strcat(file,"halloweenbonus");
+			break;
+		case HALLOWEENMULTI_COL:
+			strcat(file,"halloweenmulti");
+			break;
+
+		case RETROMASTER_COL:
+			strcat(file,"retromaster");
 			break;
 		default:
 			dprintf"ERROR: no valid map bank specified....\n"));

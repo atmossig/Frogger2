@@ -277,8 +277,9 @@ void XfmPoint (VECTOR *vTemp2, VECTOR *in)
 			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
 			//stx,sty,stz,
 			//ctx,cty,ctz,
-			0,1,0);
-			//camVect.v[X],camVect.v[Y],camVect.v[Z]);
+			//0,1,0);
+			camVect.v[X],camVect.v[Y],camVect.v[Z]);
+
 	guMtxXFMF(c,in->v[X],in->v[Y],in->v[Z],
 		&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
 	
@@ -315,8 +316,8 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
 			//stx,sty,stz,
 			//ctx,cty,ctz,
-			0,1,0);
-			//camVect.v[X],camVect.v[Y],camVect.v[Z]);
+			//0,1,0);
+			camVect.v[X],camVect.v[Y],camVect.v[Z]);
 	
 	guMtxCatF(m,c,f);
 	

@@ -193,6 +193,21 @@ void LoadTextureBank(int num)
 			strcat (filename,"ancient\\");
 			break;
 
+		case SUBTERRANEAN_TEX_BANK:
+			sprintf(message,"ANCIENT_TB");
+			strcat (filename,"subter\\");
+			break;
+
+		case LABORATORY_TEX_BANK:
+			sprintf(message,"ANCIENT_TB");
+			strcat (filename,"lab\\");
+			break;
+
+		case TOYSHOP_TEX_BANK:
+			sprintf(message,"ANCIENT_TB");
+			strcat (filename,"toy\\");
+			break;
+
 		case TITLES_TEX_BANK:
 			sprintf(message,"TITLE_TB");
 			strcat (filename,"titles\\");

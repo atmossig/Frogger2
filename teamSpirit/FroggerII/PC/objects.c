@@ -164,175 +164,139 @@ void LoadObjectBank(int num)
 	{
 
 		case GARDENMASTER_OBJ_BANK:
-			sprintf(message, "GAR_MAS");
 			strcat (file,"gardenmaster");
 			break;
-
+		case GARDENBOSS_OBJ_BANK:
+			strcat (file,"gardenboss");
+			break;
 		case GARDENLEV1_OBJ_BANK:
-			sprintf(message, "GAR_LEV1");
-			strcat (file,"gardenlev1");
+			strcat (file,"garden1");
 			break;
-
 		case GARDENLEV2_OBJ_BANK:
-			sprintf(message, "GAR_LEV2");
+			strcat (file,"garden2");
 			break;
-
 		case GARDENLEV3_OBJ_BANK:
-			sprintf(message, "GAR_LEV3");
+			strcat (file,"garden3");
 			break;
-
-		case GARDENLEV4_OBJ_BANK:
-			sprintf(message, "GAR_LEV4");
-			break;
-
 		case GARDENBONUS_OBJ_BANK:
-			sprintf(message, "GAR_BON");
+			strcat (file,"gardenbonus");
 			break;
-
 		case GARDENMULTI_OBJ_BANK:
-			sprintf(message, "GAR_MUL");
+			strcat (file,"gardenmulti");
 			break;
 
 		case SPACEMASTER_OBJ_BANK:
-			sprintf(message, "SPA_MAS");
+			strcat (file,"spacemaster");
 			break;
-
+		case SPACEBOSS_OBJ_BANK:
+			strcat (file,"spaceboss");
+			break;
+		
 		case SPACELEV1_OBJ_BANK:
-			sprintf(message, "SPA_LEV1");
+			strcat (file,"space1");
 			break;
 
 		case SPACELEV2_OBJ_BANK:
-			sprintf(message, "SPA_LEV2");
+			strcat (file,"space2");
 			break;
 
 		case SPACELEV3_OBJ_BANK:
-			sprintf(message, "SPA_LEV3");
-			break;
-
-		case SPACELEV4_OBJ_BANK:
-			sprintf(message, "SPA_LEV4");
+			strcat (file,"space3");
 			break;
 
 		case SPACEBONUS_OBJ_BANK:
-			sprintf(message, "SPA_BON");
+			strcat (file,"spacebonus");
 			break;
 
 		case SPACEMULTI_OBJ_BANK:
-			sprintf(message, "SPA_MUL");
+			strcat (file,"spacemulti");
 			break;
 
 		case CITYMASTER_OBJ_BANK:
 			strcat (file,"citymaster");
-			sprintf(message, "CIT_MAS");
 			break;
 
+		case CITYBOSS_OBJ_BANK:
+			strcat (file,"cityboss");
+			break;
+		
 		case CITYLEV1_OBJ_BANK:
-			strcat (file,"citydocks");
-			sprintf(message, "CIT_LEV1");
+			strcat (file,"citylev1");
 			break;
 
 		case CITYLEV2_OBJ_BANK:
-			sprintf(message, "CIT_LEV2");
+			strcat (file,"citylev2");
 			break;
 
 		case CITYLEV3_OBJ_BANK:
-			sprintf(message, "CIT_LEV3");
-			break;
-
-		case CITYLEV4_OBJ_BANK:
-			sprintf(message, "CIT_LEV4");
+			strcat (file,"citylev3");
 			break;
 
 		case CITYBONUS_OBJ_BANK:
-			sprintf(message, "CIT_BON");
+			strcat (file,"citybonus");
 			break;
 
 		case CITYMULTI_OBJ_BANK:
-			sprintf(message, "CIT_MUL");
+			strcat (file,"citymulti");
 			break;
 
 		case HALLOWEENMASTER_OBJ_BANK:
-			sprintf(message, "HAL_MAS");
+			strcat (file,"haloweenmaster");
+			break;
+		case HALLOWEENBOSS_OBJ_BANK:
+			strcat (file,"haloweenboss");
 			break;
 
 		case HALLOWEENLEV1_OBJ_BANK:
-			sprintf(message, "HAL_LEV1");
+			strcat (file,"haloween1");
 			break;
 
 		case HALLOWEENLEV2_OBJ_BANK:
-			sprintf(message, "HAL_LEV2");
+			strcat (file,"haloween2");
 			break;
 
 		case HALLOWEENLEV3_OBJ_BANK:
-			sprintf(message, "HAL_LEV3");
-			break;
-
-		case HALLOWEENLEV4_OBJ_BANK:
-			sprintf(message, "HAL_LEV4");
+			strcat (file,"haloween3");
 			break;
 
 		case HALLOWEENBONUS_OBJ_BANK:
-			sprintf(message, "HAL_BON");
+			strcat (file,"haloweenbonus");
 			break;
 
 		case HALLOWEENMULTI_OBJ_BANK:
-			sprintf(message, "HAL_MUL");
+			strcat (file,"haloweenmulti");
 			break;
 
 		case ANCIENTMASTER_OBJ_BANK:
-			sprintf(message, "ANC_MAS");
+			strcat (file,"ancientsmaster");
+			break;
+		
+		case ANCIENTBOSS_OBJ_BANK:
+			strcat (file,"ancientsboss");
 			break;
 
 		case ANCIENTLEV1_OBJ_BANK:
-			sprintf(message, "ANC_LEV1");
+			strcat (file,"ancients1");
 			break;
 
 		case ANCIENTLEV2_OBJ_BANK:
-			sprintf(message, "ANC_LEV2");
+			strcat (file,"ancients2");
 			break;
 
 		case ANCIENTLEV3_OBJ_BANK:
-			sprintf(message, "ANC_LEV3");
-			break;
-
-		case ANCIENTLEV4_OBJ_BANK:
-			sprintf(message, "ANC_LEV4");
+			strcat (file,"ancients3");
 			break;
 
 		case ANCIENTBONUS_OBJ_BANK:
-			sprintf(message, "ANC_BON");
+			strcat (file,"ancientsbonus");
 			break;
 
 		case ANCIENTMULTI_OBJ_BANK:
-			sprintf(message, "ANC_MUL");
+			strcat (file,"ancientsmulti");
 			break;
 
 		case RETROMASTER_OBJ_BANK:
-			sprintf(message, "RET_MAS");
-			break;
-
-		case RETROLEV1_OBJ_BANK:
-			sprintf(message, "RET_LEV1");
-			break;
-
-		case RETROLEV2_OBJ_BANK:
-			sprintf(message, "RET_LEV2");
-			break;
-
-		case RETROLEV3_OBJ_BANK:
-			sprintf(message, "RET_LEV3");
-			break;
-
-		case RETROLEV4_OBJ_BANK:
-			sprintf(message, "RET_LEV4");
-			break;
-
-		case RETROBONUS_OBJ_BANK:
-			sprintf(message, "RET_BON");
-			break;
-
-		case RETROMULTI_OBJ_BANK:
-			sprintf(message, "RET_MUL");
+			strcat (file,"haloween");
 			break;
 
 		default:
@@ -354,7 +318,7 @@ void LoadObjectBank(int num)
 	}
 	
 	if(objectBank)
-		dprintf"Loaded object bank %s (size %d)\n", message, (int)bankSize));
+		dprintf"Loaded object bank %s (size %d)\n", file, (int)bankSize));
 	else
 	{
 		dprintf"Unable to load object bank %s\n", message));

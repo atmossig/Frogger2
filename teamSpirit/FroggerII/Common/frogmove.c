@@ -1540,7 +1540,9 @@ void SlurpFroggerPosition(int whereTo,long pl)
 			frog[pl]->actor->pos.v[Y] = destPlatform[pl]->pltActor->actor->pos.v[Y] + jumpAmt[pl];
 		else
 		{
-			frog[pl]->actor->pos.v[Y] = destTile[pl]->centre.v[Y] + jumpAmt[pl];
+			frog[pl]->actor->pos.v[Y] += jumpSpeed[pl];//destTile[pl]->centre.v[Y] + jumpAmt[pl];
+			dprintf"%f\n",frog[pl]->actor->pos.v[Y]));
+
 //			dprintf"\n\n%f - %f - %f\n\n", frog->actor->pos.v[Y], destTile->centre.v[Y], jumpAmt));
 		}
 
@@ -1790,9 +1792,16 @@ void CheckForFroggerLanding2(int whereTo)
 BOOL GameTileTooHigh(GAMETILE *tile,long pl)
 {
 	VECTOR vec;
-	float height;
+	float height,h;
+	VECTOR diff;
+		
+	SubVector(&diff,&tile->centre,&frog[pl]->actor->pos);
+	h = Magnitude(&diff);
+	MakeUnit (&diff);
+	
+	height = h * DotProduct(&diff,&tile->normal);
 
-	height = (tile->centre.v[Y] - frog[pl]->actor->pos.v[Y]);
+	//height = (tile->centre.v[Y] - frog[pl]->actor->pos.v[Y]);
 
 //	dprintf"%.f, %.f %.f", tile->centre.v[Y], frog->actor->pos.v[Y], height));
 	if(height > 51.0F)
@@ -1820,9 +1829,14 @@ BOOL GameTileTooHigh(GAMETILE *tile,long pl)
 BOOL GameTileTooLow(GAMETILE *tile,long pl)
 {
 	VECTOR vec;
-	float height;
-
-	height = (frog[pl]->actor->pos.v[Y] - tile->centre.v[Y]);
+	float height,h;
+	VECTOR diff;
+		
+	SubVector(&diff,&tile->centre,&frog[pl]->actor->pos);
+	h = Magnitude(&diff);
+	MakeUnit (&diff);
+	
+	height = h * DotProduct(&diff,&tile->normal);
 
 	if(height > 125.0F)
 	{

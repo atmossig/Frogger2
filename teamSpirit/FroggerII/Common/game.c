@@ -588,12 +588,12 @@ void SlurpCamPosition(long cam)
 
 	if ( gameState.mode != CAMEO_MODE )
 	{
-//		camVect.v[0] -= (camVect.v[0] - currTile->normal.v[0])/camSpeed2;
-//		camVect.v[1] -= (camVect.v[1] - currTile->normal.v[1])/camSpeed2;
-//		camVect.v[2] -= (camVect.v[2] - currTile->normal.v[2])/camSpeed2;
-		camVect.v[0] = 0;
-		camVect.v[1] = 1;
-		camVect.v[2] = 0;
+		camVect.v[0] -= (camVect.v[0] - currTile[0]->normal.v[0])/camSpeed2;
+		camVect.v[1] -= (camVect.v[1] - currTile[0]->normal.v[1])/camSpeed2;
+		camVect.v[2] -= (camVect.v[2] - currTile[0]->normal.v[2])/camSpeed2;
+//		camVect.v[0] = 0;
+//		camVect.v[1] = 1;
+//		camVect.v[2] = 0;
 	}
 	// ENDIF
 
