@@ -889,7 +889,7 @@ void RunFrontendGameLoop (void)
 			options.levelCoinText[i]->draw = 0;
 			options.levelCoinMedal[i] = CreateAndAddSpriteOverlay(3332,(short)(1477+i*170),"COINMEDAL",160,160,0,0);
 			options.levelCoinMedal[i]->draw = 0;
-			options.beatenIcon[i] = CreateAndAddSpriteOverlay(228,(short)(1477+i*170),"FLASH",160,160,0,0);
+			options.beatenIcon[i] = CreateAndAddSpriteOverlay(228,(short)(1477+i*170),"FLASH",160,160,0,SPRITE_ADDITIVE);
 			options.beatenIcon[i]->draw = 0;
 		}
 
