@@ -344,7 +344,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,
 	}
 
 	// add and initialise the actor
-	newItem->nmeActor	= CreateAndAddActor(eActorName,0,0,0,initFlags,/*enemyType,*/0,0);
+	newItem->nmeActor	= CreateAndAddActor(eActorName,0,0,0,initFlags,s0,0);
 	if(shadowRadius)
 		newItem->nmeActor->actor->shadow->radius = shadowRadius;
 
