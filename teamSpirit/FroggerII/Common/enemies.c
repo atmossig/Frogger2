@@ -333,29 +333,17 @@ void UpdatePathNME( ENEMY *cur )
 	}
 
 	/*	------------- Push blocks, lovely blocks that push --------------- */
-
 	if (cur->flags & ENEMY_NEW_PUSHESFROG)
 	{
-		//GAMETILE *tile = cur->path->nodes[cur->path->toNode].worldTile;
-
 		VECTOR v;
 		AddVector(&v, &cur->nmeActor->actor->pos, &fwd);
 		SubFromVector(&v, &frog[0]->actor->pos);
 
 		if (MagnitudeSquared(&v) < 1000 && player[0].canJump)
-		//if (tile == currTile[0])
 		{
 			PushFrog(&cur->nmeActor->actor->pos, &fwd, 0);
 			player[0].canJump = 0;
 			AnimateActor(frog[0]->actor, FROG_ANIM_FORWARDSOMERSAULT, NO, NO, 0.6f, 0, 0);
-
-/*
-			if (cur->path->toNode < (cur->path->numNodes - 1))
-				tile = cur->path->nodes[cur->path->toNode+1].worldTile;
-
-			currTile[0] = destTile[0] = tile;
-			SetVector( &frog[0]->actor->pos, &tile->centre);
-*/
 		}
 	}
 
@@ -363,17 +351,6 @@ void UpdatePathNME( ENEMY *cur )
 		cur->inTile = cur->path->nodes[cur->path->fromNode].worldTile;
 	else
 		cur->inTile = cur->path->nodes[cur->path->toNode].worldTile;
-/*
-	GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
-	GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
-
-	length = DistanceBetweenPoints(&fromPosition,&toPosition) / 2.0F;
-
-	if(DistanceBetweenPointsSquared(&fromPosition,&cur->nmeActor->actor->pos) < (length * length))
-		cur->inTile = cur->path->nodes[cur->path->fromNode].worldTile;
-	else
-		cur->inTile = cur->path->nodes[cur->path->toNode].worldTile;
-		*/
 }
 
 
@@ -1035,6 +1012,8 @@ void UpdateRandomMoveNME( ENEMY *cur )
 			else if(r==2) rVec.v[Z] = 1;
 			else rVec.v[Z] = -1;
 			path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &rVec );
+			if( !path->nodes[2].worldTile )
+				path->nodes[2].worldTile = path->nodes[1].worldTile;
 
 			if( !(Random((int)act->value1+1)) )
 				cur->isWaiting = Random((int)path->nodes[0].waitTime);
