@@ -711,7 +711,8 @@ Vis:
 			int baby = MEMGETBYTE(p);
 			PLATFORM *plat = GetPlatformFromUID( pid );
 
-			babyFollow[baby] = plat->pltActor->actor;
+			if( plat && baby < numBabies )
+				babyFollow[baby] = plat->pltActor->actor;
 			break;
 		}
 
