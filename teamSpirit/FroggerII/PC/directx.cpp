@@ -1184,7 +1184,7 @@ void BeginDrawHardware (void)
 
 void EndDrawHardware (void)
 {
-	pDirect3DDevice->EndScene();
+	while (pDirect3DDevice->EndScene()!=D3D_OK);
 }
 
 extern long drawTimers;

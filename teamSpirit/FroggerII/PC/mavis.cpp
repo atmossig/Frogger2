@@ -123,7 +123,10 @@ void StoreHaloPoints(void)
 	VECTOR v,t;
 
 	DDINIT(ddsd);
-	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK,0)!=DD_OK);
+	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_DONOTWAIT,0)!=DD_OK);
+	surface[ZBUFFER_SRF]->Unlock(ddsd.lpSurface);
+
+	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_DONOTWAIT,0)!=DD_OK);
 	
 	ddsd.lPitch /= sizeof(short);
 
@@ -140,7 +143,8 @@ void StoreHaloPoints(void)
 				haloPoints[i].v[1] = (unsigned long)v.v[1];
 				haloPoints[i].v[2] = v.v[2];
 			}
-					
+
+		
 		if (haloPoints[i].v[2]>10)
 			haloZVals[i] = ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].v[0]+(haloPoints[i].v[1]*ddsd.lPitch))];
 	}
@@ -163,16 +167,22 @@ void CheckHaloPoints(void)
 	unsigned long i;
 
 	DDINIT(ddsd);
-	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK,0)!=DD_OK);
 	
-	ddsd.lPitch /= sizeof(short);
+	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_DONOTWAIT,0)!=DD_OK);
 
+	ddsd.lPitch /= sizeof(short);
 	for (i=0; i<numHaloPoints; i++)
 		if (haloPoints[i].v[2]>10)
-			if (haloZVals[i] == ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].v[0]+(haloPoints[i].v[1]*ddsd.lPitch))])
+		{
+			volatile short val1,val2;
+			val1 = haloZVals[i];
+			val2 = ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].v[0]+(haloPoints[i].v[1]*ddsd.lPitch))];
+			
+			if (val1 == val2)
 				haloPoints[i].v[Z] = 0;
-	
+		}
 	surface[ZBUFFER_SRF]->Unlock(ddsd.lpSurface);
+	
 }
 
 

@@ -218,13 +218,16 @@ void PrintSpriteOverlays(long num)
 			// Go to destination, if specified
 			float spd = cur->speed * gameSpeed;
 			
-			if (spd)
+			if (fabs(spd)>0)
 			{
 				if (Fabs(cur->xPosTo-cur->xPos) > 0)
 				{
+					cur->speed += gameSpeed*0.2;
+					cur->xPos += (cur->xPosTo > cur->xPos)?spd:-spd;
+					
 					if( Fabs(cur->xPosTo-cur->xPos) < Fabs(spd) )
 					{
-						if (cur->speed>0.01)
+						if (fabs(cur->speed)>2)
 							cur->speed = -cur->speed * 0.3;
 						else
 						{
@@ -235,20 +238,30 @@ void PrintSpriteOverlays(long num)
 						spd = cur->speed * gameSpeed;
 					}
 			
-					cur->xPos += (cur->xPosTo > cur->xPos)?spd:-spd;
-					cur->speed += gameSpeed*0.2;
+					
 				}
 				else
 					if (Fabs(cur->yPosTo-cur->yPos) > 0)
 					{
+						cur->yPos += (cur->yPosTo > cur->yPos)?spd:-spd;
+						cur->speed += gameSpeed*0.2;					
+
 						if( Fabs(cur->yPosTo-cur->yPos) < Fabs(spd) )
 						{
-							cur->speed = -cur->speed * 0.3;
+							if (fabs(cur->speed)>2)
+							{
+								cur->speed = -cur->speed * 0.3;
+							}
+							else
+							{
+								cur->speed = 0;
+								cur->yPos = cur->yPosTo;
+							}
+
 							spd = cur->speed * gameSpeed;
 						}
 				
-						cur->yPos += (cur->yPosTo > cur->yPos)?spd:-spd;
-						cur->speed += gameSpeed*0.2;					
+						
 					}
 			}
 			
