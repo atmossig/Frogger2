@@ -1016,9 +1016,11 @@ void DrawFXLightning( SPECFX *fx )
 		vT[3].color = vT[0].color;
 
 		// Store first 2 vertices of the next segment
-		memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 );
-
+		memcpy( vTPrev, &vT[3], sizeof(D3DTLVERTEX) );
+		memcpy( &vTPrev[1], &vT[2], sizeof(D3DTLVERTEX) );
+		// And back to the first vertex for the second tri
 		memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
+
 		// Draw polys, if they're not clipped
 		tEntry = ((TEXENTRY *)fx->tex);
 		if( tEntry && vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
