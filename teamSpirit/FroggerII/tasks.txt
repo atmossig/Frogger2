@@ -51,7 +51,7 @@ PRIORITY------- Medium
 RESPONSIBILTY-- Jim
 NOTES---------- 
 
-TASK----------- Better effects, e.g. fire, smoke, glows, cosmic stuff
+TASK----------- Better effects, e.g. fire, smoke, glows, cosmic stuff, SPARKLIES
 PRIORITY------- Low
 RESPONSIBILTY-- Jim / Matt
 NOTES---------- 
