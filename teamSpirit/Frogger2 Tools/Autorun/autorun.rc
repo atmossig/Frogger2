@@ -105,6 +105,23 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_BLITZ               ICON    DISCARDABLE     "blitz.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_FROGGER2            "Frogger2 - Swampy's Revenge"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_INSTALLER_ERROR     "Couldn't run the installer! Try cleaning the Frogger2 CD and check that it is correctly inserted"
+    IDS_FROGGER2_ERROR      "Couldn't run Frogger2! Check that the program is properly installed and try again."
+END
+
 #endif    // English (U.K.) resources
 /////////////////////////////////////////////////////////////////////////////
 

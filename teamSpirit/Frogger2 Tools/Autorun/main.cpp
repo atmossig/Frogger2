@@ -25,21 +25,102 @@ RECT  buttons[3] = { {50,200,308,234}, {50,240,308,272}, {50,278,308,310} };
 
 char options[3][40] = { "Play", "Setup", "Close" };
 
-int selection = -1;
+char *languages[5] = { "English", "Français", "Deutsch", "Italiano", "Espanõl" };
+
+char baseDirectory[MAX_PATH] = "";
+
+int selection = -1, installed = 0;
+
+const char* REGISTRY_KEY	= "Software\\Atari\\Frogger2";
+const char* FROGGER2		= "Frogger2 - Swampy's Revenge";
 
 // -------------------------------------------------------------------
 
+void StripPath(char *str)
+{
+	char *c; int len;
 
-void RunInstaller(void)
+	for (c=str, len=0; *c; c++, len++);
+	
+	while (len)
+	{
+		if (*(--c) == '\\')
+		{
+			*c = 0;
+			break;
+		}
+		len--;
+	}
+}
+
+
+int ShowMessage(UINT str_id)
+{
+	char str[1024];
+
+	LoadString(hinstance, str_id, str, 1024);
+	
+	return MessageBox(hwndMain, str, FROGGER2, MB_ICONEXCLAMATION|MB_OK);
+}
+
+// -------------------------------------------------------------------
+
+int RunInstaller(void)
 {	
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
+	char path[MAX_PATH];
+
+	GetModuleFileName(NULL, path, MAX_PATH);
+	StripPath(path);
+	strcat(path, "\\setup.exe");
 
 	ZeroMemory(&si, sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
 
-	if (!CreateProcess("setup.exe", 0, NULL, NULL, 0, 0, 0, 0, &si, &pi))
-		MessageBox(hwndMain, "BROKEN", "Arse", MB_ICONEXCLAMATION|MB_OK);
+	if (CreateProcess(0, path, NULL, NULL, 0, 0, 0, 0, &si, &pi))
+	{
+		DestroyWindow(hwndMain);
+		return 0;
+	}
+	else
+	{
+		ShowMessage(IDS_INSTALLER_ERROR);
+		return 1;
+	}
+}
+
+
+int RunFrogger2(int config)
+{
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	char path[MAX_PATH];
+
+	strcpy(path, baseDirectory);
+	
+	if (path[strlen(path)-1] != '\\')
+		strcat(path, "\\");
+
+	strcat(path, "Frogger2.exe");
+	
+	if (config)
+		strcat(path, " -c");
+
+	ZeroMemory(&si, sizeof(STARTUPINFO));
+	si.cb = sizeof(STARTUPINFO);
+
+	if (CreateProcess(0, path, NULL, NULL, 0, 0, 0, 0, &si, &pi))
+	{
+		DestroyWindow(hwndMain);
+		return 0;
+	}
+	else
+	{
+		ShowMessage(IDS_FROGGER2_ERROR);
+		return 1;
+	}
 }
 
 
@@ -110,12 +191,79 @@ int PaintWindow(HWND hwnd)
 }
 
 
+int IsFrogger2Installed(void)
+{
+	HKEY hkey;
+	DWORD len;
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+	{	
+		len = MAX_PATH;
+
+		if (RegQueryValueEx(hkey, "InstallDir", NULL, NULL, (unsigned char*)baseDirectory, &len) == ERROR_SUCCESS)
+			installed = true;
+
+		RegCloseKey(hkey);
+	}
+
+	return installed;
+}
+
+
+int SetupLanguage()
+{
+	HRESULT res;
+	HKEY hkey;
+	int language = 0;
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+	{	
+		DWORD len = 14;
+		char lang[15];
+
+		if (RegQueryValueEx(hkey, "Language", NULL, NULL, (unsigned char*)lang, &len) == ERROR_SUCCESS)
+		{
+			for (int l=0; l<5; l++)
+				if (stricmp(lang, languages[l])==0)
+				{
+					language = l;
+					break;
+				}
+		}
+
+		RegCloseKey(hkey);
+	}
+	else
+	{
+		if ((language = SelectLanguage()) == -1)
+			return -1;
+
+		if ((res = RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, "",
+			REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, 0)) == ERROR_SUCCESS)
+		{
+			RegSetValueEx(hkey, "Language", 0, REG_SZ,
+				(unsigned char*)languages[language],
+				strlen(languages[language])+1);
+
+			RegCloseKey(hkey);
+		}
+	}
+
+	return 0;
+}
+
+
 int CreateMainWindow(HWND hwnd)
 {
-	HWND wnd; 
-
 	hbmp = (HBITMAP)LoadImage(hinstance, MAKEINTRESOURCE(IDB_FROGGER2), IMAGE_BITMAP, 0, 0, 0);
 	hmask = (HBITMAP)LoadImage(hinstance, MAKEINTRESOURCE(IDB_FROGGER2MASK), IMAGE_BITMAP, 0, 0, 0);
+
+	if (!IsFrogger2Installed())
+	{
+		strcpy(options[0], "Install");
+		strcpy(options[1], "");
+	}
+
 /*
 	wnd = CreateWindow("BUTTON", "Play",
 		BS_PUSHBUTTON|BS_TEXT|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_DISABLED,
@@ -141,18 +289,24 @@ long CALLBACK MainWindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
 	case WM_MOUSEMOVE:
 		{
-			int i; POINT p = { LOWORD(lparam), HIWORD(lparam) };
-			InvalidateRect(hwnd, &buttons[selection], 0);
+			int i, newsel;
+			POINT p = { LOWORD(lparam), HIWORD(lparam) };
 
-			selection = -1;
+			newsel = -1;
 			for (i=0; i<3; i++)
 				if (PtInRect(&buttons[i], p))
 				{
-					selection = i;
+					newsel = i;
 					break;
 				}
 				
-			InvalidateRect(hwnd, &buttons[i], 0);
+			if (newsel != selection)
+			{
+				InvalidateRect(hwnd, &buttons[selection], 0);
+				selection = newsel;
+				if (selection >= 0)
+					InvalidateRect(hwnd, &buttons[selection], 0);
+			}
 		}
 		break;
 
@@ -178,7 +332,24 @@ long CALLBACK MainWindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		}		break;
 
 	case WM_LBUTTONUP:
-		DestroyWindow(hwnd);
+		switch (selection)
+		{
+		case 0:
+			if (installed)
+				RunFrogger2(0);
+			else
+				RunInstaller();
+			break;
+
+		case 1:
+			if (installed)
+				RunFrogger2(1);
+			break;
+
+		case 2:
+			DestroyWindow(hwnd);
+			break;
+		}
 		break;
 
 	case WM_ACTIVATE:
@@ -220,9 +391,9 @@ int WINAPI WinMain(HINSTANCE hinst, HINSTANCE hprevinstance, LPSTR cmdline, int 
 		res = RegisterClass(&wc);
 	}
 
-	SelectLanguage();
+	if (SetupLanguage()) return -1;
 
-	hwndMain = CreateWindowEx(0,WINDOWCLASS, "Frogger2 - Swampy's Revenge",
+	hwndMain = CreateWindowEx(0,WINDOWCLASS, FROGGER2,
 		WS_POPUP|WS_CLIPCHILDREN,
 		(GetSystemMetrics(SM_CXSCREEN)-BMPWIDTH)/2,
 		(GetSystemMetrics(SM_CYSCREEN)-BMPHEIGHT)/2,

@@ -2,6 +2,9 @@
 // Microsoft Developer Studio generated include file.
 // Used by Autorun.rc
 //
+#define IDS_FROGGER2                    1
+#define IDS_INSTALLER_ERROR             20
+#define IDS_FROGGER2_ERROR              21
 #define IDB_ENGLISH                     101
 #define IDB_FRENCH                      102
 #define IDB_GERMAN                      103
