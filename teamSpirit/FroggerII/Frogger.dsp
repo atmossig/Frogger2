@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib /nologo /subsystem:windows /machine:I386
+# ADD LINK32 dsound.lib gelf.lib winmm.lib dxguid.lib ddraw.lib dinput.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib /nologo /subsystem:windows /machine:I386
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -69,7 +69,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G5 /w /W0 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "PC_VERSION" /D "DONTUSEJALLOC" /D "DEFINITELY_NOT_MBR_DEMO" /FAs /FR /YX /FD /c
+# ADD CPP /nologo /G5 /MTd /w /W0 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "PC_VERSION" /D "DONTUSEJALLOC" /D "DEFINITELY_NOT_MBR_DEMO" /FAs /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 dsound.lib gelf.lib winmm.lib dxguid.lib ddraw.lib dinput.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comctl32.lib always3d.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 dsound.lib gelf.debug.lib winmm.lib dxguid.lib ddraw.lib dinput.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comctl32.lib always3d.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 
 !ENDIF 
 
@@ -420,6 +420,8 @@ SOURCE=.\N64\Block.lnk
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -432,6 +434,8 @@ SOURCE=.\N64\Block.lnk
 SOURCE=.\N64\makefile
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -447,6 +451,8 @@ SOURCE=.\N64\3DText.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -459,6 +465,8 @@ SOURCE=.\N64\3DText.c
 SOURCE=.\N64\3DText.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -473,6 +481,8 @@ SOURCE=.\N64\audio.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -485,6 +495,8 @@ SOURCE=.\N64\audio.c
 SOURCE=.\N64\audio.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -499,6 +511,8 @@ SOURCE=.\N64\Block.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -511,6 +525,8 @@ SOURCE=.\N64\Block.c
 SOURCE=.\N64\Block.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -525,6 +541,8 @@ SOURCE=.\N64\Cfb.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -537,6 +555,8 @@ SOURCE=.\N64\Cfb.c
 SOURCE=.\N64\Controll.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -551,6 +571,8 @@ SOURCE=.\N64\Controll.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -563,6 +585,8 @@ SOURCE=.\N64\Controll.h
 SOURCE=.\N64\develop.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -577,6 +601,8 @@ SOURCE=.\N64\develop.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -589,6 +615,8 @@ SOURCE=.\N64\develop.h
 SOURCE=.\N64\font.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -603,6 +631,8 @@ SOURCE=.\N64\font.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -615,6 +645,8 @@ SOURCE=.\N64\font.h
 SOURCE=.\N64\graphic.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -629,6 +661,8 @@ SOURCE=.\N64\graphic.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -641,6 +675,8 @@ SOURCE=.\N64\graphic.h
 SOURCE=.\N64\libmus.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -655,6 +691,8 @@ SOURCE=.\N64\libmus_data.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -667,6 +705,8 @@ SOURCE=.\N64\libmus_data.h
 SOURCE=.\N64\map.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -681,6 +721,8 @@ SOURCE=.\N64\map.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -693,6 +735,8 @@ SOURCE=.\N64\map.h
 SOURCE=.\N64\mbuffer.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -707,6 +751,8 @@ SOURCE=.\N64\mbuffer.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -719,6 +765,8 @@ SOURCE=.\N64\mbuffer.h
 SOURCE=.\N64\music.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -733,6 +781,8 @@ SOURCE=.\N64\Nnsched.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -745,6 +795,8 @@ SOURCE=.\N64\Nnsched.c
 SOURCE=.\N64\Nnsched.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -759,6 +811,8 @@ SOURCE=.\N64\objects.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -771,6 +825,8 @@ SOURCE=.\N64\objects.c
 SOURCE=.\N64\objects.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -785,6 +841,8 @@ SOURCE=.\N64\objview.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -797,6 +855,8 @@ SOURCE=.\N64\objview.c
 SOURCE=.\N64\objview.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -811,6 +871,8 @@ SOURCE=.\N64\printgfx.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -823,6 +885,8 @@ SOURCE=.\N64\printgfx.c
 SOURCE=.\N64\printgfx.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -837,6 +901,8 @@ SOURCE=.\N64\Rdp_out0.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -849,6 +915,8 @@ SOURCE=.\N64\Rdp_out0.c
 SOURCE=.\N64\Rdp_outp.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -863,6 +931,8 @@ SOURCE=.\N64\savegame.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -875,6 +945,8 @@ SOURCE=.\N64\savegame.c
 SOURCE=.\N64\savegame.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -889,6 +961,8 @@ SOURCE=.\N64\Sfx.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -901,6 +975,8 @@ SOURCE=.\N64\Sfx.c
 SOURCE=.\N64\Sfx.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -915,6 +991,8 @@ SOURCE=.\N64\Static.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -927,6 +1005,8 @@ SOURCE=.\N64\Static.c
 SOURCE=.\N64\Static.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -941,6 +1021,8 @@ SOURCE=.\N64\Subcube.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -953,6 +1035,8 @@ SOURCE=.\N64\Subcube.c
 SOURCE=.\N64\Subcube.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -967,6 +1051,8 @@ SOURCE=.\N64\texture.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -980,6 +1066,8 @@ SOURCE=.\N64\texture.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -992,6 +1080,8 @@ SOURCE=.\N64\texture.h
 SOURCE=.\N64\Zbuffer.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 

@@ -47,7 +47,7 @@ void dp(char *format, ...)
 	vsprintf(debugprintfbuffer, format, argp);
 	va_end(argp);
 
-	_CrtDbgReport(_CRT_WARN, NULL, NULL, "A3Ddemo", debugprintfbuffer);
+//	_CrtDbgReport(_CRT_WARN, NULL, NULL, "A3Ddemo", debugprintfbuffer);
 
 	f = fopen(debugFile, "a+");
 	if (f)

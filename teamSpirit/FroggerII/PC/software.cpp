@@ -12,7 +12,6 @@
 #include "commctrl.h"
 #include "network.h"
 
-#include <fstream.h>
 #include <windowsx.h>
 #include <mmsystem.h>
 #include <memory.h>
@@ -25,7 +24,7 @@ extern "C"
 
 #include <ultra64.h>
 #include "incs.h"
-#include "always3d.h"
+//#include "always3d.h"
 
 
 short screen[640*480];
@@ -39,13 +38,13 @@ short screen[640*480];
 
 long SoftwareInit(long sX, long sY, long IS555)
 {
-	long pKey[4] = { 10098, 7752, 1098, 4344 };
+/*	long pKey[4] = { 10098, 7752, 1098, 4344 };
 
 	if (A3D_Init(pKey)==A3DERR_INVALIDKEY)
 		return 0;
 
 	A3D_SetParameters (sX,sY, 0,0,sX-1,sY-1, IS555?A3D_16bit555:A3D_16bit565);
-	
+	*/
 	return 1;
 }
 
@@ -59,9 +58,9 @@ long SoftwareInit(long sX, long sY, long IS555)
 
 void SoftwareSetup(void)
 {
-		A3D_SetRaster (A3D_TEXTURE);
+		/*A3D_SetRaster (A3D_TEXTURE);
 		A3D_SetCycle (A3D_1CYCLE);
-		A3D_SetFlags (A3D_32X32);
+		A3D_SetFlags (A3D_32X32);*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -73,11 +72,11 @@ void SoftwareSetup(void)
 */
 
 void SoftwareBeginFrame(void)
-{
+{/*
 	SoftwareSetup();
 	memset (screen,0,640*480*2);
 	A3D_BeginFrame (screen,SCREEN_WIDTH);
-	A3D_Sync();
+	A3D_Sync();*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -90,7 +89,7 @@ void SoftwareBeginFrame(void)
 
 void SoftwareEndFrame(void)
 {
-	A3D_EndFrame ();
+	//A3D_EndFrame ();
 }
 
 /*	--------------------------------------------------------------------------------
@@ -106,7 +105,7 @@ void DrawSoftwarePolygon(float x1, float y1, float u1, float v1,
 						 float x3, float y3, float u3, float v3,
 						 short *tex)
 {
-	A3D_Vertex v[3],*vT;
+/*	A3D_Vertex v[3],*vT;
 	short f[3] = {0,1,2};
 
 	vT = v;
@@ -129,7 +128,7 @@ void DrawSoftwarePolygon(float x1, float y1, float u1, float v1,
 	{
 		A3D_SetTexture(tex,NULL);
 		A3D_DrawPolygon(v,3,f,3);
-	}
+	}*/
 }
 
 }

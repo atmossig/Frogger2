@@ -30,7 +30,6 @@
 #include <mmsystem.h>
 #include <memory.h>
 #include <winbase.h>
-#include <fstream.h>
 
 extern "C"
 {

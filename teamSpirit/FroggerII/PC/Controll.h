@@ -47,7 +47,7 @@ typedef struct tagOSContPad
 	unsigned long button, lastbutton;
 	char stick_x;
 	char stick_y;
-	unsigned char errno;
+	unsigned char errornumber;
 } OSContPad;
 
 extern OSContPad controllerdata[4];
