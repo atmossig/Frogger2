@@ -17,7 +17,7 @@ typedef struct TAGPROCTEXTURE
 	struct TAGPROCTEXTURE *next;
 
 	unsigned long timer;
-	unsigned char *buf1, *buf2;
+	unsigned char *buf1, *buf2, *bump;
 	short *palette;
 
 	TEXTURE *tex;
@@ -40,6 +40,8 @@ extern void ProcessPTFire( PROCTEXTURE *pt );
 extern void ProcessPTForcefield( PROCTEXTURE *pt );
 extern void ProcessPTWaterRipples( PROCTEXTURE *pt );
 extern void ProcessPTWaterDrops( PROCTEXTURE *pt );
-
+extern void ProcessPTWaterBubbler( PROCTEXTURE *pt );
+extern void ProcessPTWaterTrail( PROCTEXTURE *pt );
+extern void ProcessPTWaterRipplesBM( PROCTEXTURE *pt );
 
 #endif

@@ -155,6 +155,121 @@ void ProcessPTWaterDrops( PROCTEXTURE *pt )
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: ProcessPTWater
+	Purpose			: Procedural water random rings effect
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void ProcessPTWaterBubbler( PROCTEXTURE *pt )
+{
+	unsigned long i,j;
+	unsigned char *tmp;
+	short p, res;
+	static unsigned long x=16, y=16;
+
+	// Copy resultant buffer into texture
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->buf1, pt->palette );
+#else
+	TEXTURE *tx = pt->tex;
+
+	// N64 surface blit
+#endif
+
+	x += Random(3)-1;
+	y += Random(3)-1;
+
+	if( x < 10 ) x = 10;
+	else if( x > 20 ) x = 20;
+	if( y < 10 ) y = 10;
+	else if( y > 20 ) y = 20;
+
+	pt->buf1[(y*32) + x] += 200;
+
+	for( i=30; i; i-- )
+		for( j=30; j; j-- )
+		{
+			p = (i<<5)+j;
+			res = (pt->buf1[p+32] + pt->buf1[p-32] + pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p+33] + pt->buf1[p+31] + pt->buf1[p-33] + pt->buf1[p-31] )>>2;
+			res -= pt->buf2[p] + (pt->buf2[p]>>2);
+			pt->buf2[p] = max(res,0);
+		}
+
+	// Swap buffers
+	tmp = pt->buf1;
+	pt->buf1 = pt->buf2;
+	pt->buf2 = tmp;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ProcessPTWater
+	Purpose			: Procedural water random rings effect
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void ProcessPTWaterTrail( PROCTEXTURE *pt )
+{
+	unsigned long i,j;
+	unsigned char *tmp;
+	short p, res;
+	static short x=16, y=16, xv=2, yv=2;
+
+	// Copy resultant buffer into texture
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->buf1, pt->palette );
+#else
+	TEXTURE *tx = pt->tex;
+
+	// N64 surface blit
+#endif
+
+	if( Random(10) > 8 )
+	{
+		xv += Random(3)-1;
+		yv += Random(3)-1;
+
+		if( xv > 2 ) xv = 2;
+		else if( xv < -2 ) xv = -2;
+		if( yv > 2 ) yv = 2;
+		else if( yv < -2 ) yv = -2;
+	}
+
+	x += xv;
+	y += yv;
+
+	if( x < 2 || x > 30 )
+	{
+		xv *= -1;
+		x += xv;
+	}
+	if( y < 2 || y > 30 )
+	{
+		yv *= -1;
+		y += yv;
+	}
+
+	pt->buf1[(y*32) + x] += 200;
+
+	for( i=30; i; i-- )
+		for( j=30; j; j-- )
+		{
+			p = (i<<5)+j;
+			res = (pt->buf1[p+32] + pt->buf1[p-32] + pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p+33] + pt->buf1[p+31] + pt->buf1[p-33] + pt->buf1[p-31] )>>2;
+			res -= pt->buf2[p] + (pt->buf2[p]>>2);
+			pt->buf2[p] = max(res,0);
+		}
+
+	// Swap buffers
+	tmp = pt->buf1;
+	pt->buf1 = pt->buf2;
+	pt->buf2 = tmp;
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: ProcessPTWaterRipples
 	Purpose			: Procedural water ripple effect
 	Parameters		: 
@@ -185,6 +300,59 @@ void ProcessPTWaterRipples( PROCTEXTURE *pt )
 			res = (pt->buf1[p+32] + pt->buf1[p-32] + pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p+33] + pt->buf1[p+31] + pt->buf1[p-33] + pt->buf1[p-31] )>>2;
 			res -= pt->buf2[p] + (pt->buf2[p]>>3);
 			pt->buf2[p] = max(res,0);
+		}
+
+	// Swap buffers
+	tmp = pt->buf1;
+	pt->buf1 = pt->buf2;
+	pt->buf2 = tmp;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ProcessPTWaterRipplesBM
+	Purpose			: Apply fake lighting to ripples and modify a base texture
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void ProcessPTWaterRipplesBM( PROCTEXTURE *pt )
+{
+	unsigned long i,j;
+	unsigned char *tmp;
+	unsigned short ox, oy, ix, iy;
+	short p, res;
+
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->bump, pt->palette );
+#else
+	TEXTURE *tx = pt->tex;
+
+	// N64 surface blit
+#endif
+
+	pt->buf1[(Random(30)+1)+960] = 255;
+
+	for( i=30; i; i-- )
+		for( j=30; j; j-- )
+		{
+			// Calculate ripples as usual
+			p = (i<<5)+j;
+			res = (pt->buf1[p+32] + pt->buf1[p-32] + pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p+33] + pt->buf1[p+31] + pt->buf1[p-33] + pt->buf1[p-31] )>>2;
+			res -= pt->buf2[p] + (pt->buf2[p]>>3);
+			pt->buf2[p] = max(res,0);
+
+			// Pseudo normal of pixel
+			ox = pt->buf2[p] - pt->buf2[p+32];
+			oy = pt->buf2[p] - pt->buf2[p+1];
+
+			// Calculate colour by indexing into base texture and modifying by bump amount
+			res = (128-ox)&0xff;
+			ox = ((ox<<3)+(ox<<1)+ox)>>5; // divide by three
+			oy >>= 3;
+			ix = ox+j;
+			iy = oy+i;
+			pt->bump[p] = ((pt->buf1[(iy<<5)+ix]<<8)+res)>>8;
 		}
 
 	// Swap buffers
@@ -328,10 +496,17 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 		pt->Update = ProcessPTForcefield;
 	else if( name[4]=='w' && name[5]=='a' && name[6]=='t' && name[7]=='r' )
 	{
+		// Allocate bump map buffer
+		pt->bump = (unsigned char *)JallocAlloc( 1024, YES, "ptdata" );  // sizeof(char)*32*32
+
 		if( name[8]=='1' )
-			pt->Update = ProcessPTWaterRipples;
+			pt->Update = ProcessPTWaterRipplesBM;
 		else if( name[8]=='2' )
 			pt->Update = ProcessPTWaterDrops;
+		else if( name[8]=='3' )
+			pt->Update = ProcessPTWaterBubbler;
+		else if( name[8]=='4' )
+			pt->Update = ProcessPTWaterTrail;
 	}
 }
 
