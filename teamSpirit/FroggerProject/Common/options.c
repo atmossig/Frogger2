@@ -1230,7 +1230,7 @@ void ExtraSelect(void)
 							grabToTexture = 1;
 						else
 						{
-							options.chapterPic[0]->tex = FindTexture(chapterPic[options.pageNum]);
+							options.chapterPic[0]->tex = options.chapterPic[1]->tex = FindTexture(chapterPic[options.pageNum]);
 							sprintf(chapterStr[0],GAMESTRING(STR_CHAPTER),options.pageNum + 1);
 							options.chapterNameText[0][0]->text = GAMESTRING(STR_CHAPTER_1a + options.pageNum*2);
 							options.chapterNameText[0][1]->text = GAMESTRING(STR_CHAPTER_1a + options.pageNum*2 + 1);
@@ -3111,7 +3111,7 @@ void RunArtViewer()
 {
 	char name[32];
 
-	if(padData.debounce[0] & PAD_START)
+	if(padData.debounce[0] & (PAD_START | PAD_TRIANGLE))
 		currentArt = MAX_ARTWORK;
 
 	GTUpdate(&artTimer,-1);
