@@ -745,17 +745,6 @@ BOOL ExecuteCommand(UBYTE **p)
 			break;
 		}
 
-	case EV_BABYONPLATFORM:
-		{
-			long pid = MEMGETWORD(p);
-			int baby = MEMGETBYTE(p);
-			PLATFORM *plat = GetPlatformFromUID( pid );
-
-			if( plat && baby < numBabies )
-				babyFollow[baby] = plat->pltActor->actor;
-			break;
-		}
-
 	case EV_CHANGELEVEL:
 		{
 			int world = MEMGETBYTE(p);
