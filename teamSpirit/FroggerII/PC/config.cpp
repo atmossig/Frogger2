@@ -43,6 +43,7 @@ extern unsigned long pingOffset;
 extern unsigned long synchRecovery;
 extern unsigned long rKeying;
 extern unsigned long rPlaying;
+extern int audioEnabled;
 
 CONFIG cfgOptList[] = 
 {
@@ -67,43 +68,50 @@ void GetArgs(char *arglist)
 {
 	char cmdMode;
 
-	while (*arglist)
+	do
 	{
-		switch(*arglist++)
+		if (*arglist=='+' || *arglist=='-' || *arglist=='/')
 		{
-			case '+': case '/':	case '-':
-				cmdMode = 1;
-				break;
+			cmdMode = 1;
+			while (cmdMode)
+				switch(*(++arglist))
+				{
+					case 'W': case 'w':
+						winMode = 1;
+						break;
 
-			case 'W': case 'w':
-				if (cmdMode) winMode = 1;
-				break;
+					case 'S': case 's':
+						scaleMode = 1;
+						break;
 
-			case 'S': case 's':
-				if (cmdMode) scaleMode = 1;
-				break;
+					case 'C': case 'c':
+						swingCam = 0;
+						break;
 
-			case 'C': case 'c':
-				if (cmdMode) swingCam = 0;
-				break;
+					case 'M': case 'm':
+						USE_MENUS = 1;
+						break;
 
-			case 'M': case 'm':
-				if (cmdMode) USE_MENUS = 1;
-				break;
+					case 'R': case 'r':
+						rKeying = 1;
+						break;
 
-			case 'R': case 'r':
-				if (cmdMode) rKeying = 1;
-				break;
+					case 'P': case 'p':
+						rPlaying = 1;
+						break;
 
-			case 'P': case 'p':
-				if (cmdMode) rPlaying = 1;
-				break;
+					case 'a': case 'A':
+						audioEnabled = !audioEnabled;
+						dprintf"Audio %s\n",audioEnabled?"enabled":"disabled"));
+						break;
 
-			default:
-				cmdMode = 0;
-				break;
-		}		
-	}
+					case ' ':
+					case 0:
+						cmdMode = 0;
+						break;
+				}
+		}
+	} while ((*arglist)++);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -120,17 +128,17 @@ void ProcessCfgLine(char *line)
 	CONFIG *cur;
 
 	// Skip leading spaces and comments
-	while ((line) && (*line!='*') && (*line!=';')) line++;
+	while ((*line) && (*line!='*') && (*line!=';')) line++;
 
 	// Nothing Line, or comment
-	if (!line) return;
+	if (!*line) return;
 	if (*line == ';') return;
 	
 	// Find length of command section
 	lenCmd=0;
 	while ((line[lenCmd]) && (line[lenCmd]!=' ') && (line[lenCmd]!='\t')) lenCmd++;
 
-	// No Seperator
+	// No Separator
 	if (!(line[lenCmd])) return;
 	
 	// Process command
@@ -139,9 +147,9 @@ void ProcessCfgLine(char *line)
 	{
 		if (strncmp(line,cur->name,lenCmd)==0)
 		{
-			line = &line[lenCmd];
+			line += lenCmd;
 			
-			while ((line) && ((*line==' ') || (*line=='\t'))) line++;
+			while ((*line) && ((*line==' ') || (*line=='\t'))) line++;
 			
 			sscanf(line,cur->type,cur->var);
 
