@@ -91,10 +91,10 @@ enum {OUTCODE_LEFT, OUTCODE_RIGHT, OUTCODE_TOP, OUTCODE_BOTTOM};
 						 (((x)<=(x0))<<OUTCODE_LEFT))
 
 // The 2D clip Volume.
-float clx0 = 10,//320-160,
-      cly0 = 10,//240-120,
-	  clx1 = 630,//320+160,
-	  cly1 = 470;//240+120;
+float clx0 = 0,//320-160,
+      cly0 = 0,//240-120,
+	  clx1 = 639,//320+160,
+	  cly1 = 479;//240+120;
 
 // Subtracted Square!
 //#define sbsqr(x,y) ((x-y)*(x-y))
@@ -591,7 +591,7 @@ void PCPrepareSkinnedObjectOutline(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4
 			((vTemp2->vy)<vertClip)))
 		{
 			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
-			vTemp2->vx = halfWidth + (vTemp2->vx * oozd)+1;
+			vTemp2->vx = halfWidth + (vTemp2->vx * oozd)+2;
 			vTemp2->vy = halfHeight+ (vTemp2->vy * oozd)-1;
 			vTemp2->vz+=5;
 		}
@@ -974,8 +974,8 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 	{
 		if (skinned<3)
 			PCPrepareSkinnedObject(obj, masterMesh,  obj->objMatrix.matrix);
-		else
-			PCPrepareSkinnedObjectOutline(obj, masterMesh,  obj->objMatrix.matrix);
+//	else
+//			PCPrepareSkinnedObjectOutline(obj, masterMesh,  obj->objMatrix.matrix);
 
 		if (skinned == 2)
 			PCPrepareSkinnedObjectNormals(obj, masterMesh, obj->objMatrix.matrix);

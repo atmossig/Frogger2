@@ -124,8 +124,8 @@ void DrawActor(MDX_ACTOR *actor)
 		{
 			DrawObject(objectC->object, TRUE, objectC->object->mesh);
 			PCRenderObject(objectC->object);
-			DrawObject(objectC->object, 3, objectC->object->mesh);
-			PCRenderObjectOutline(objectC->object);
+//			DrawObject(objectC->object, 3, objectC->object->mesh);
+//			PCRenderObjectOutline(objectC->object);
 		}
 	}
 	else
@@ -223,7 +223,7 @@ void UpdateAnims(MDX_ACTOR *actor)
 	if( ((actorAnim->animTime > anim->animEnd) || (actorAnim->animTime < anim->animStart)) && (!actorAnim->loopAnimation || actorAnim->numberQueued) )
 	{
 		actorAnim->animTime = Bound(actorAnim->animTime,anim->animStart,anim->animEnd);
-		actorAnim->reachedEndOfAnimation = actorAnim->currentAnimation+1;
+		actorAnim->reachedEndOfAnimation = 1;//actorAnim->currentAnimation+1;
 
 		if(actorAnim->numberQueued)
 		{

@@ -9,6 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+
 #include <windows.h>
 #include <ddraw.h>
 #include <d3d.h>
@@ -304,13 +305,18 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 						b = (dt) & 0x1f;
 
 						if ((r==0x1f) && (b==0x1f) && (g==0))
+						{
 							newE->keyed = 1;
-						
-						r<<=3;
-						g<<=3;
-						b<<=3;
-						//if (r565)
-						newE->softData[i+j*xDim] = (r<<24 | g<<16 | b);
+							newE->softData[i+j*xDim] = 0x00ff00ff;
+						}
+						else
+						{
+							r<<=3;
+							g<<=3;
+							b<<=3;
+							//if (r565)
+							newE->softData[i+j*xDim] = (r<<16 | g<<8 | b) & 0x00ffffff;
+						}
 		
 					}
 			}

@@ -244,9 +244,5 @@ SOURCE=.\resource.h
 
 SOURCE=.\SoftStation.h
 # End Source File
-# Begin Source File
-
-SOURCE=.\SoftStation.lib
-# End Source File
 # End Target
 # End Project

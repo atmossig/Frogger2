@@ -21,6 +21,7 @@ typedef struct TAG_FONT
 {
 	LPDIRECTDRAWSURFACE7 surf[2];
 	short *data[2];
+	long *softData[2];
 
 	D3DTLVERTEX *vPtrs[2];
 	long *widths[2];

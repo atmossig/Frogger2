@@ -86,8 +86,9 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 	int pptr = -1;
 	int dim,size;
 	long i,j;
+	short *tData;
 
-	short *tData = (short *)gelfLoad_BMP((char*)fPath,NULL,(void**)&pptr,&dim,NULL,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
+	tData = (short *)gelfLoad_BMP((char*)fPath,NULL,(void**)&pptr,&dim,NULL,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
 	
 	if (tData)
 	{
@@ -129,6 +130,33 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 			}
 		tFont->dim = dim;	
 
+		tFont->softData[surf] = new long[dim*dim];
+
+		for (int i=0; i<dim; i++)
+			for (int j=0; j<dim; j++)
+			{
+				short dt;
+				unsigned long d,r,g,b;
+				dt = tFont->data[surf][i+j*dim];
+				r = (dt>>10) & 0x1f;
+				g = (dt>>5) & 0x1f;
+				b = (dt) & 0x1f;
+
+				if ((r==0x1f) && (b==0x1f) && (g==0))
+				{
+					tFont->softData[surf][i+j*dim] = 0x00ff00ff;
+				}
+				else
+				{
+					r<<=3;
+					g<<=3;
+					b<<=3;
+					//if (r565)
+					tFont->softData[surf][i+j*dim] = (r<<16 | g<<8 | b) & 0x00ffffff;
+				}
+
+			}
+
 		for (i=0; i<dim; i++)
 			for (j=0; j<dim; j++)
 			{
@@ -143,6 +171,7 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 				if (r565)
 					tFont->data[surf][i+j*dim] = (r<<11 | g<<5 | b);
 			}
+
 
 //		gelfDefaultFree(tData);
 	}
@@ -232,6 +261,7 @@ long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,
 
 	tTexEntry.data = font->data[fNum];
 	tTexEntry.surf = font->surf[fNum];
+	tTexEntry.softData = font->softData[fNum];
 	tTexEntry.xSize = font->dim;
 	tTexEntry.ySize = font->dim;
 	tTexEntry.xPos = tTexEntry.yPos = 0;

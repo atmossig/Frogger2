@@ -329,21 +329,31 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 	for (i=0; i<fC; i+=3)
 	{
 		m = &softPolyBuffer[numSoftPolys++];
+		
+		m->flags = 0;
+
+		if (cFInfo == &frameInfo[MA_FRAME_ADDITIVE])
+			m->flags |= 1;
+	
 		m->f[0] = fce[i]+numSoftVertex;
 		m->f[1] = fce[i+1]+numSoftVertex;
 		m->f[2] = fce[i+2]+numSoftVertex;
 		m->t = tEntry->surf;
 		m->tEntry = tEntry;
-//		if (tEntry->type == TEXTURE_AI)
-//			m->flags = softFlags | POLY_ALPHA_SUB;
-//		else
-//			m->flags = softFlags;
 
 		zVal = v[fce[i]].sz * MA_SOFTWARE_DEPTH;		
 		zVal += v[fce[i+1]].sz * MA_SOFTWARE_DEPTH;		
 		zVal += v[fce[i+2]].sz * MA_SOFTWARE_DEPTH;		
 		zVal >>= 2;
 
+		if (tEntry->type == TEXTURE_AI)
+		{
+			if ((RGBA_GETRED(v[fce[i]].color) + RGBA_GETGREEN(v[fce[i]].color) + RGBA_GETBLUE(v[fce[i]].color))<0.1)
+				m->flags |= 2;
+			else
+				m->flags |= 1;//softFlags | POLY_ALPHA_SUB;
+		}
+		
 		if (softDepthBuffer[zVal])
 			m->next = softDepthBuffer[zVal];
 		else
@@ -452,7 +462,8 @@ ssEndScene();
 	SOFTPOLY *cur;
 	
 	ssBeginScene(softScreen, 1280);
-
+	ssSetRenderState(SSRENDERSTATE_SHADEMODE,SSSHADEMODE_GOURAUD);
+	ssSetRenderState(SSRENDERSTATE_SHADEMODE,SSSHADEMODE_GOURAUD);
 	for (int i=MA_SOFTWARE_DEPTH-1; i>0; i--)
 	{
 		cur = (SOFTPOLY *)softDepthBuffer[i];
@@ -467,21 +478,21 @@ ssEndScene();
 			v[0].x = (long)softV[f1].sx >> 1;
 			v[0].y = (long)softV[f1].sy >> 1;
 			
-			v[0].r = RGBA_GETRED(softV[f1].color);
-			v[0].g = RGBA_GETGREEN(softV[f1].color);
-			v[0].b = RGBA_GETBLUE(softV[f1].color);
+			v[0].r = RGBA_GETRED(softV[f1].color)>>1;
+			v[0].g = RGBA_GETGREEN(softV[f1].color)>>1;
+			v[0].b = RGBA_GETBLUE(softV[f1].color)>>1;
 			
 			v[1].x = (long)softV[f2].sx >> 1;
 			v[1].y = (long)softV[f2].sy >> 1;
-			v[1].r = RGBA_GETRED(softV[f2].color);
-			v[1].g = RGBA_GETGREEN(softV[f2].color);
-			v[1].b = RGBA_GETBLUE(softV[f2].color);
+			v[1].r = RGBA_GETRED(softV[f2].color)>>1;
+			v[1].g = RGBA_GETGREEN(softV[f2].color)>>1;
+			v[1].b = RGBA_GETBLUE(softV[f2].color)>>1;
 			
 			v[2].x = (long)softV[f3].sx >> 1;
 			v[2].y = (long)softV[f3].sy >> 1;
-			v[2].r = RGBA_GETRED(softV[f3].color);
-			v[2].g = RGBA_GETGREEN(softV[f3].color);
-			v[2].b = RGBA_GETBLUE(softV[f3].color);
+			v[2].r = RGBA_GETRED(softV[f3].color)>>1;
+			v[2].g = RGBA_GETGREEN(softV[f3].color)>>1;
+			v[2].b = RGBA_GETBLUE(softV[f3].color)>>1;
 						
 			if (cur->t)
 			{
@@ -550,7 +561,28 @@ ssEndScene();
 				v[1].v = SSMAKEUV(((long)v[1].v));
 				v[2].v = SSMAKEUV(((long)v[2].v));
 				
+				if (cur->flags & 1)
+					ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_ADD);
+				
+				if (cur->flags & 2)
+				{
+					ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_SUB);
+					v[0].r = 127;
+					v[0].g = 127;
+					v[0].b = 127;
+					v[1].r = 127;
+					v[1].g = 127;
+					v[1].b = 127;
+					v[2].r = 127;
+					v[2].g = 127;
+					v[2].b = 127;
+				}				
+
 				ssDrawPrimitive(v, 3);
+
+				if (cur->flags)
+					ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_NONE);
+
 //		if (cur->tEntry->keyed) 
 //			f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,cur->flags | POLY_MAGENTAMASK, &thisTex);
 //		else
@@ -827,7 +859,7 @@ void DrawBatchedKeyedPolys (void)
 
 void SetSoftwareState(unsigned long *me)
 {
-/*	while (*me!=D3DRENDERSTATE_FORCE_DWORD)
+	while (*me!=D3DRENDERSTATE_FORCE_DWORD)
 	{
 		switch(*me)
 		{
@@ -835,10 +867,10 @@ void SetSoftwareState(unsigned long *me)
 				switch (*(me+1))
 				{
 					case D3DBLEND_ONE:
-						softFlags |= POLY_ALPHA_ADD; 
+						ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_ADD);
 						break;
 					case D3DBLEND_INVSRCALPHA:
-						softFlags &= ~POLY_ALPHA_ADD;						
+						ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_NONE);
 						break;
 				}
 				break;
@@ -879,8 +911,114 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 	totalFacesDrawn+=dwIndexCount / 3;
 	if (rHardware)
 		res = pDirect3DDevice->DrawIndexedPrimitive(d3dptPrimitiveType,dwVertexTypeDesc,lpvVertices,dwVertexCount,lpwIndices,dwIndexCount,dwFlags);
-/*	else
+	else
 	{
+		ssBeginScene(softScreen, 1280);
+		ssSetRenderState(SSRENDERSTATE_SHADEMODE,SSSHADEMODE_GOURAUD);
+		verts = (D3DTLVERTEX *)lpvVertices;
+		for (int i=0; i<dwIndexCount; i+=3)
+		{
+			unsigned long f1,f2,f3;
+			TSSVertex	v[3];		
+		
+			f1 = lpwIndices[i+0];
+			f2 = lpwIndices[i+1];
+			f3 = lpwIndices[i+2];
+			
+			v[0].x = (long)verts[f1].sx >> 1;
+			v[0].y = (long)verts[f1].sy >> 1;
+			
+			v[1].x = (long)verts[f2].sx >> 1;
+			v[1].y = (long)verts[f2].sy >> 1;
+			
+			v[2].x = (long)verts[f3].sx >> 1;
+			v[2].y = (long)verts[f3].sy >> 1;
+			
+			v[0].r = RGBA_GETRED(verts[f1].color)>>1;
+			v[0].g = RGBA_GETGREEN(verts[f1].color)>>1;
+			v[0].b = RGBA_GETBLUE(verts[f1].color)>>1;
+			
+			v[1].r = RGBA_GETRED(verts[f2].color)>>1;
+			v[1].g = RGBA_GETGREEN(verts[f2].color)>>1;
+			v[1].b = RGBA_GETBLUE(verts[f2].color)>>1;
+			
+			v[2].r = RGBA_GETRED(verts[f3].color)>>1;
+			v[2].g = RGBA_GETGREEN(verts[f3].color)>>1;
+			v[2].b = RGBA_GETBLUE(verts[f3].color)>>1;
+						
+			if (cTexture)
+			{
+
+				if (cTexture->softData)
+				{
+					ssSetTexture(cTexture->softData,cTexture->xSize,cTexture->ySize);
+				}
+				else
+					ssSetTexture(NULL, 0,0);
+
+/*				thisTex.width = cTexture->xSize;
+				thisTex.height = cTexture->ySize;
+				thisTex.image = (unsigned short *)cTexture->data;
+		*/
+				v[0].u = verts[f1].tu * cTexture->xSize;
+				v[0].v = verts[f1].tv * cTexture->ySize;
+
+				v[1].u = verts[f2].tu * cTexture->xSize;
+				v[1].v = verts[f2].tv * cTexture->ySize;
+	
+				v[2].u = verts[f3].tu * cTexture->xSize;
+				v[2].v = verts[f3].tv * cTexture->ySize;
+
+				if (v[0].u>cTexture->xSize-1)
+					 v[0].u = cTexture->xSize-1;
+
+				if (v[0].v>cTexture->ySize-1)
+					 v[0].v = cTexture->ySize-1;
+
+				if (v[1].u>cTexture->xSize-1)
+					 v[1].u = cTexture->xSize-1;
+
+				if (v[1].v>cTexture->ySize-1)
+					 v[1].v = cTexture->ySize-1;
+
+				if (v[2].u>cTexture->xSize-1)
+					 v[2].u = cTexture->xSize-1;
+
+				if (v[2].v>cTexture->ySize-1)
+					 v[2].v = cTexture->ySize-1;
+
+				if (v[0].u<0)
+					 v[0].u = 0;
+
+				if (v[0].v<0)
+					 v[0].v = 0;
+
+				if (v[1].u<0)
+					 v[1].u = 0;
+
+				if (v[1].v<0)
+					 v[1].v = 0;
+
+				if (v[2].u<0)
+					 v[2].u = 0;
+
+				if (v[2].v<0)
+					 v[2].v = 0;
+
+				v[0].u = SSMAKEUV(((long)v[0].u));
+				v[1].u = SSMAKEUV(((long)v[1].u));
+				v[2].u = SSMAKEUV(((long)v[2].u));
+		
+				v[0].v = SSMAKEUV(((long)v[0].v));
+				v[1].v = SSMAKEUV(((long)v[1].v));
+				v[2].v = SSMAKEUV(((long)v[2].v));
+				
+				ssDrawPrimitive(v, 3);
+			}
+			ssEndScene();	
+		}
+	}
+		/*
 		verts = (D3DTLVERTEX *)lpvVertices;
 		for (int i=0; i<dwIndexCount; i+=3)
 		{
@@ -1138,9 +1276,11 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 	Info			: 
 */
 
+short Indices[6] = {0,1,2,0,2,3};
+	
 void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, float v1)
 {
-	short Indices[6] = {0,1,2,0,2,3};
+	
 	if ((r.left>clx1) || (r.top>cly1) || (r.right<clx0) || (r.bottom<cly0))
 		return;
 		
@@ -1170,7 +1310,7 @@ void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, fl
 		r.bottom = cly1;		
 	}
 
-	D3DLVERTEX v[4] = {
+	D3DTLVERTEX v[4] = {
 		{
 			r.left,r.top,0,0,
 			colour,D3DRGBA(0,0,0,0),
