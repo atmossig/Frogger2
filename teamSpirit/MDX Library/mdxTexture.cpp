@@ -141,13 +141,12 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 	if (newE->data)
 	{
+		LPDIRECTDRAWSURFACE7 temp;
+
 		switch (texType)
 		{
 			case TEXTURE_NORMAL:
 			{
-				LPDIRECTDRAWSURFACE7 temp;
-				//MDX_TEXPAGE *page = GetFreeTexturePage();
-
 				newE->surf = D3DCreateTexSurface(xDim,yDim, 0x7c1f, 0, 1);
 					
 				// Create a temporary surface to hold the texture.
@@ -169,8 +168,6 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 			case TEXTURE_AI:
 			{
-				LPDIRECTDRAWSURFACE7 temp;
-								
 				// Create a temporary surface to hold the texture.
 				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1)) == NULL)
 					return;
