@@ -67,21 +67,46 @@
 #define G_CC_DECALI_MODULATEA_PRIM    TEXEL0, 0, 1, SHADE, TEXEL0, 0, PRIMITIVE, 0
 
 
-#define CALC_VTX		(1<<0)
-#define DYNAMIC_VTX		(1<<1)
-#define MOTION_BLUR		(1<<2)
-#define VERTEX_WODGE	(1<<3)
+#define CALC_VTX			(1<<0)
+#define DYNAMIC_VTX			(1<<1)
+
+#define MOTION_BLUR			(1<<5)
+#define VERTEX_WODGE		(1<<6)
+#define TILE_SHRINK_HORZ	(1<<7)
+#define TILE_SHRINK_VERT	(1<<8)
+#define SHRINK_TO_POINT		(1<<9)
+#define MEZZOTINT			(1<<10)
+
+#define BLUR_HEAVY			(1<<20)
+#define BLUR_MEDIUM			(1<<21)
+#define BLUR_LIGHT			(1<<22)
+
+#define BLUR_CENTRE			(1<<23)
+#define BLUR_INWARD			(1<<24)
+#define BLUR_OUTWARD		(1<<25)
+
+#define TINT_RED			(1<<26)
+#define TINT_GREEN			(1<<27)
+#define TINT_BLUE			(1<<28)
+
+#define NEW_FLAGS			(1<<31)
 
 typedef struct TAGGRABSTRUCT
 {
-	long tSize, xOff, yOff, zOff;
-	char vR, vG, vB,
-		pR, pG, pB,
-		eR, eG, eB,
-		alpha;
-	long flags;
-	float sinAmt;
-	float sinSpeed;
+	long tSize, maxTSize,  // size and max size of texture tiles
+		xOff, yOff, zOff;  // Offset of mesh on screen
+	char vR, vG, vB,       // Vertex rgb
+		pR, pG, pB,        // Primitive rgb
+		eR, eG, eB,        // environment rgb
+		alpha;             // Translucency of mesh
+	unsigned long flags;
+	// For vertex wodging
+	float sinAmt;          // Amount to wodge
+	float sinSpeed;        // Speed of wodge
+	// For tile scaling operations
+	float maxScale;        // Max scale of tiles
+	float speedScale;      // Speed of scaling
+	float scale;           // Current scale
 
 } GRABSTRUCT;
 
@@ -121,6 +146,7 @@ extern void PrintSprite(SPRITE *sprite);
 
 extern void ScreenShot();
 extern void Screen2Texture();
-extern void DrawScreenGrab();
+extern void DrawScreenGrab( unsigned long flags );
+extern void SetGrabData( );
 
 #endif
