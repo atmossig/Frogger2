@@ -48,6 +48,7 @@
 
 #include "pcsprite.h"
 #include "pcgfx.h"
+#include "backdrop.h"
 #include "ptexture.h"
 #include "dx_sound.h"
 #include "banks.h"
