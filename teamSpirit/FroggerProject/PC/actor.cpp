@@ -1186,7 +1186,7 @@ void actorFree(ACTOR *actor)
 void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe)
 {
 	if (actor->actualActor)
-		Animate((MDX_ACTOR *)actor->actualActor,animNum,loop,0,speed/4096.0f);
+		Animate((MDX_ACTOR *)actor->actualActor,animNum,loop,queue,speed/256.0f);
 }
 
 
