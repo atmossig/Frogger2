@@ -669,14 +669,18 @@ void OldProcessJoypad()
 				for (int m=0; m < MAXBUTTONS; m++)
 					if (joy.rgbButtons[m]) b |= joymap[m];
 				
-				if (joy.lX < -DEAD_ZONE)		b |= PAD_LEFT;
-				else if (joy.lX > DEAD_ZONE)	b |= PAD_RIGHT;
+				if (joy.lX < -DEAD_ZONE)
+					b |= PAD_LEFT;
+				else if (joy.lX > DEAD_ZONE)
+					b |= PAD_RIGHT;
 
 				//if ((b & (CONT_LEFT|CONT_RIGHT)) && (b & (CONT_UP|CONT_DOWN)))
 				//	b &= ~(CONT_LEFT|CONT_RIGHT|CONT_DOWN|CONT_UP);	// diagonals do nothing
 
-				if (joy.lY < -DEAD_ZONE)		b |= PAD_UP;
-				else if (joy.lY > DEAD_ZONE)	b |= PAD_DOWN;
+				if (joy.lY < -DEAD_ZONE)
+					b |= PAD_UP;
+				else if (joy.lY > DEAD_ZONE)
+					b |= PAD_DOWN;
 
 				if (b)
 				{
