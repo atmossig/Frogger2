@@ -891,9 +891,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	{
 		if (MessageBox(NULL, GAMESTRING(STR_PCSETUP_INSERTCD), "Frogger2",
 			MB_ICONEXCLAMATION|MB_RETRYCANCEL) == IDCANCEL)
-			break;
-
-		//return -1;
+			return -1;
 	}
 #else
 	FindFrogger2CD();
