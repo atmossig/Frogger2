@@ -605,10 +605,7 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
     }
 	
 	// Begin playback from the given track and play until the beginning 
-    // of the next track. The window procedure function for the parent 
-    // window will be notified with an MM_MCINOTIFY message when 
-    // playback is complete. Unless the play command fails, the window 
-    // procedure closes the device.    mciPlayParms.dwFrom = 0L;
+    // of the next track. 
     mciPlayParms.dwTo		= 0L;
     mciPlayParms.dwFrom		= MCI_MAKE_TMSF ( bTrack, 0, 0, 0 );
     mciPlayParms.dwTo		= MCI_MAKE_TMSF ( bTrack + 1, 0, 0, 0 );
