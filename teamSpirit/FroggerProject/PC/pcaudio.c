@@ -104,7 +104,7 @@ void LoadSfxSet( char *path )
 void LoadSfx( unsigned long worldID )
 {
 	char path[128];
-	int len;
+	int len, load=1;
 	
 	len = strlen(baseDirectory) + strlen(SFX_BASE);
 
@@ -153,9 +153,11 @@ void LoadSfx( unsigned long worldID )
 	case WORLDID_SWAMPYWORLD: strcat( path, "swampyworld\\" ); break;
 	case WORLDID_SUPERRETRO: strcat( path, "superretro\\" ); break;
 	case WORLDID_FRONTEND: strcat( path, "frontend\\" ); break;
+	default: load = 0; break;
 	}
 
-	LoadSfxSet( path );
+	if( load )
+		LoadSfxSet( path );
 }
 
 
