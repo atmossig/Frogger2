@@ -161,11 +161,12 @@ void ProcessShadows()
 
 void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alpha, long tex )
 {
-	FVECTOR tempV[4];
+	FVECTOR tempV, up;
 	SVECTOR vT[4];
 	IQUATERNION cross, q;
 	long i, colour = 8421504;
 	fixed t;
+	MATRIX rMtrx;
 	static SPECFX fx;
 
 //PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
@@ -174,20 +175,24 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alp
 //	colour += 255>>1 <<16;//0<<16;
 
 	vT[0].vx = size;
-	vT[0].vy = offset;
+	vT[0].vy = 0;//offset;
 	vT[0].vz = size;
 	
 	vT[1].vx = size;
-	vT[1].vy = offset;
+	vT[1].vy = 0;//offset;
 	vT[1].vz = -size;
 
 	vT[2].vx = -size;
-	vT[2].vy = offset;
+	vT[2].vy = 0;//offset;
 	vT[2].vz = -size;
 	
 	vT[3].vx = -size;
-	vT[3].vy = offset;
+	vT[3].vy = 0;//offset;
 	vT[3].vz = size;
+
+	SetVectorFF( &up, normal );
+	ScaleVector( &up, offset );
+	AddToVectorSF( pos, &up );
 
 	// Rotate to be around normal
 	CrossProductFFF( (FVECTOR *)&cross, normal, &upVec );
@@ -195,12 +200,13 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alp
 	t = DotProductFF( normal, &upVec );
 	cross.w = -arccos(t);
 	fixedGetQuaternionFromRotation( &q, &cross );
+	QuatToPSXMatrix( &q, &rMtrx );
 
 	for( i=3; i>=0; i-- )
 	{
-		SetVectorFS(&tempV[i],&vT[i]);
-	   	RotateVectorByQuaternionFF(&tempV[i],&tempV[i],&q);
-	  	SetVectorSF(&vT[i],&tempV[i]);								
+		SetVectorFS(&tempV,&vT[i]);
+		ApplyMatrixLV( &rMtrx, &tempV, &tempV );
+		SetVectorSF(&vT[i],&tempV);
 
 		AddToVectorSS( &vT[i], pos );
 	}
@@ -211,6 +217,8 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alp
 	fx.zDepthOff = -18;	//bring the shadow closer to the camera
 	fx.r = fx.g = fx.b = 0xff;
 
+	gte_SetTransMatrix(&GsWSMATRIX);
+	gte_SetRotMatrix(&GsWSMATRIX);
 	Print3D3DSprite( &fx, vT );
 }
 
@@ -218,9 +226,10 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alp
 		   
 void DrawFXDecal( SPECFX *ripple )
 {
-	FVECTOR tempV[4];
+	FVECTOR tempV;
 	SVECTOR vT[4];
-	IQUATERNION q1, q2, q3;
+	IQUATERNION q1, q2;
+	MATRIX rMtrx;
 	fixed t;
 	unsigned long colour;
 	long i;
@@ -254,32 +263,19 @@ void DrawFXDecal( SPECFX *ripple )
 	t = DotProductFF( &ripple->normal, &upVec );			  	   
 	q1.w = -arccos(t);								   
 	fixedGetQuaternionFromRotation( &q2, &q1 );		   
-
-	if( ripple->type == FXTYPE_GARIBCOLLECT )		   
-	{												   
-		// Rotate around axis						   
-		SetVectorFF((FVECTOR *)&q1, &ripple->normal ); 
-		q1.w = ripple->angle;						   
-		fixedGetQuaternionFromRotation( &q3, &q1 );	   
-		fixedQuaternionMultiply( &q1, &q2, &q3 );	   
-	}												   
-	else SetQuaternion( &q1, &q2 );					   
-
+	QuatToPSXMatrix( &q2, &rMtrx );
 
 	for( i=3; i>=0; i-- )
 	{
+		SetVectorFS(&tempV,&vT[i]);
+		ApplyMatrixLV( &rMtrx, &tempV, &tempV );
+	  	SetVectorSF(&vT[i],&tempV);								
 
-		SetVectorFS(&tempV[i],&vT[i]);
-	   	RotateVectorByQuaternionFF(&tempV[i],&tempV[i],&q1);
-	  	SetVectorSF(&vT[i],&tempV[i]);								
-
-	//add world coords 
-		vT[i].vx += ripple->origin.vx;
-		vT[i].vy += ripple->origin.vy;
-		vT[i].vz += ripple->origin.vz;
-
+		AddToVectorSS( &vT[i], &ripple->origin );
 	}
 
+	gte_SetTransMatrix(&GsWSMATRIX);
+	gte_SetRotMatrix(&GsWSMATRIX);
 	Print3D3DSprite ( ripple, vT );
 }
 
