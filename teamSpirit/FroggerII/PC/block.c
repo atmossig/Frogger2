@@ -17,7 +17,7 @@
 
 #define DEBUG_FILE "C:\\frogger2.log"
 
-unsigned long actFrameCount;
+unsigned long actFrameCount, currentFrameTime;
 
 WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
@@ -236,6 +236,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			DirectXFlip();
 			EndTimer(3);
 			actFrameCount = (GetTickCount()/(1000/60));
+			
+			clock = timeGetTime();
 		}
 	}
 
@@ -408,6 +410,8 @@ VECTOR oldCCSource, oldCCTarget;
 
 void DrawGraphics() 
 {
+	currentFrameTime = timeGetTime();
+		
 	StartTimer(0,"DrawGfx");
 
 	XformActorList();

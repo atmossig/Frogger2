@@ -37,6 +37,7 @@ extern BYTE lButton, rButton;
 extern char baseDirectory[MAX_PATH];
 extern char outputMessageBuffer[256];
 extern unsigned long actFrameCount;
+extern unsigned long currentFrameTime;
 
 extern char	transparentSurf;
 extern char	xluSurf;
@@ -47,7 +48,6 @@ extern char	desiredFrameRate;
 extern char	newDesiredFrameRate;
 extern int runQuit;
 
-
 void debugPrintf(int num);
 void Crash(char *mess);
 
@@ -55,5 +55,7 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow);
 long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam);
 
 void DrawGraphics();
+
+
 
 #endif
