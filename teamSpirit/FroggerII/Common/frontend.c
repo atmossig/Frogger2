@@ -4,7 +4,7 @@
 
 
 	File		: frontend.c
-	Programmer	: James Healey
+	Programmer	: Jim & Dave
 	Date		: 30/03/99
 
 ----------------------------------------------------------------------------------------------- */
@@ -23,7 +23,15 @@ int dispFrameCount		= 0;
 
 char ActiveController	= 0;
 
+struct INTRO
+{
+	long timer;
+	int stage;
+	TEXTOVERLAY *text[4];
+	GAMETILE *tiles;
+};
 
+struct INTRO* intro = NULL;
 
 /*	--------------------------------------------------------------------------------
 	Function		: GameLoop
@@ -74,6 +82,7 @@ void GameLoop(void)
 			
 		case INTRO_MODE:
 			RunGameIntro( );
+			RunGameLoop();
 			break;
 
 		case CAMEO_MODE:
@@ -190,11 +199,10 @@ void RunLevelComplete( )
 {
 	if( showEndLevelScreen )
 	{
-		RunLevelCompleteSequence();
+		//RunLevelCompleteSequence();
 	}
 
 	GTUpdate( &modeTimer, -1 );
-
 	if(!modeTimer.time)
 	{
 		DoHiscores( );
@@ -205,7 +213,7 @@ void RunLevelComplete( )
 			player[0].worldNum = WORLDID_FRONTEND;
 			player[0].levelNum = LEVELID_FRONTEND2;
 
-#ifndef PC_VERSION
+ #ifndef PC_VERSION
 			StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
 			SaveGame(); // Write save games into eeprom
 #else
@@ -227,6 +235,13 @@ void RunLevelComplete( )
 	}
 }
 
+
+void StartLevelComplete()
+{
+	FreeAllGameLists();
+	CreateAndAddTextOverlay(0, 110, "Level complete screen", YES, 255, currFont, 0, 0);
+	CreateAndAddTextOverlay(0, 130, "goes here", YES, 255, currFont, 0, 0);
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: RunWorldComplete
@@ -255,11 +270,27 @@ void RunGameComplete( )
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: RunGameOver
-	Purpose			: The frog has lost all his lives :(
+	Function		: StartGameOver
+	Purpose			: Die, froggy! Wuaahahahahahahaha
 	Parameters		: 
 	Returns			: 
-	Info			: 
+*/
+void StartGameOver()
+{
+	gameState.mode = GAMEOVER_MODE;
+	GTInit( &modeTimer, 10 );
+
+	FreeAllGameLists();
+
+	CreateAndAddTextOverlay(0, 110, "Game over screen", YES, 255, currFont, 0, 0);
+	CreateAndAddTextOverlay(0, 130, "goes here", YES, 255, currFont, 0, 0);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: RunGameOver
+	Purpose			: Runs the game-over screen
+	Parameters		: 
+	Returns			: 
 */
 void RunGameOver( )
 {
@@ -289,26 +320,223 @@ void RunGameOver( )
 	}
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: StartGameIntro
+	Purpose			: Runs the intro sequence, ISL logos and so on
+	Parameters		: 
+	Returns			: 
 
-void StartGameOver()
+	NOTE! This is a very crude placeholder intro sequence. Replace it!
+*/
+void StartGameIntro()
 {
-	gameState.mode = GAMEOVER_MODE;
-	GTInit( &modeTimer, 10 );
+	int i, j;
+	GAMETILE *tile, *ptile = NULL;
 
-	FreeAllGameLists();
+	const static GAMETILE ex_tile = {
+		{ NULL, NULL, NULL, NULL }, NULL, { NULL },
+		TILESTATE_NORMAL,
+		{ 0, 0, 0 },
+		{ 0, 1, 0 },
+		{ { 1, 0, 0 }, { 0, 0, -1 }, { -1, 0, 0 }, { 0, 0, 1 } }
+	};		
 
-	CreateAndAddTextOverlay(0, 120, "Game over screen", YES, 255, currFont, 0, 0);
-	CreateAndAddTextOverlay(0, 140, "goes here", YES, 255, currFont, 0, 0);
+	gameState.mode = INTRO_MODE;
+
+	// load the generic banks
+	LoadTextureBank(SYSTEM_TEX_BANK);
+	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
+	LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
+
+	InitGameLists();
+	
+	// Create intro stuff
+	
+	intro = (struct INTRO*)JallocAlloc(sizeof(struct INTRO), YES, "intro");
+
+	// Generate a crap collision mesh
+
+	firstTile = intro->tiles = (GAMETILE*)JallocAlloc(sizeof(GAMETILE) * 11, YES, "introtiles");
+
+	for (i=0, tile = intro->tiles; i<=10; i++, tile++)
+	{
+		//memcpy(tile, &ex_tile, sizeof(GAMETILE));
+
+		*tile = ex_tile;
+
+		tile->centre.v[0] = ((i-5)*50.0f);
+		
+		if (ptile)
+		{
+			tile->tilePtrs[0] = ptile;
+			ptile->tilePtrs[2] = ptile->next = tile;
+		}
+
+		ptile = tile;
+	}
+
+	// load frogger (for no particular reason)
+
+	//CreateFrogActor(&tile, "frogger.obe", 0);
+	CameraLookAtFrog();
+	UpdateCameraPosition(0);
+
+	CreateVector(&currCamSource[0], 0, 0, 200);
+	SetVector(&camSource[0], &currCamSource[0]);
+
+	CreateVector(&currCamTarget[0], 0, 0, 0);
+	SetVector(&camTarget[0], &currCamTarget[0]);
+
+	SetVector(&camVect, &upVec);
+
+	controlCamera = 1;
+
+	for (j = 0; j < 3; j++)
+		for (i = 0; i < 5; i++)
+		{
+			ACTOR2 *a = CreateAndAddActor(Random(2)?"frogger.obe":"toad.obe", (i-2)*100, (j-2)*100, 0, INIT_ANIMATION);
+
+			AnimateActor(a->actor, FROG_ANIM_DANCE1 + ((i+j)%3), YES, NO, 0.3f, NO, NO);
+		}
+
+	// set up player
+
+	destTile[0] = currTile[0] = &intro->tiles[5];
+	player[0].jumpTime = 1;
+
+	// Create overlays
+
+	intro->text[0] = CreateAndAddTextOverlay(0, 120, "Atari presents", YES, 255, currFont, 0, 0);
+
+	intro->text[1] = CreateAndAddTextOverlay(0, 100, "An", YES, 255, currFont, 0, 0);
+	intro->text[2] = CreateAndAddTextOverlay(0, 120, "Interactive Studios", YES, 255, currFont, 0, 0);
+	intro->text[3] = CreateAndAddTextOverlay(0, 140, "Game", YES, 255, currFont, 0, 0);
+
+	for (i=1;i<=3;i++)
+		intro->text[i]->draw = 0;
+	
+	fog.r = fog.g = fog.b = 0;
+	fog.mode = FOG_OFF;
+
+	intro->timer = 0;
+	intro->stage = 0;
+
+	lastActFrameCount = 0;
 }
+
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: RunGameIntro
 	Purpose			: Title screens and what have you
 	Parameters		: 
 	Returns			: 
-	Info			: 
+
+	NOTE: This is a placeholder! DO NOT MODIFY THIS CODE! Delete it and start again.
 */
 void RunGameIntro( )
 {
+	long t = actFrameCount - intro->timer;
+	int alpha, i;
 
+	//CameraLookAtFrog();
+	//UpdateCameraPosition(0);
+
+/*	FroggerHop(0);	// just run the movement part of the frog jump code..
+
+	if (player[0].jumpTime >= 1.0f)
+	{
+		if (destTile[0])
+		{
+			currTile[0] = destTile[0];
+			destTile[0] = NULL;
+		}
+
+		SetVector(&frog[0]->actor->pos, &currTile[0]->centre);
+		player[0].jumpTime = -1;
+		AnimateActor(frog[0]->actor, FROG_ANIM_BREATHE, YES, YES, 1.0f, NO, NO);
+	}
+
+	if (player[0].jumpTime < 0 && Random(40) == 0)
+	{
+		if ((Random(2) == 1) && currTile[0]->tilePtrs[2])
+			HopFrogToTile(currTile[0]->tilePtrs[2], 0);
+		else if (currTile[0]->tilePtrs[0])
+			HopFrogToTile(currTile[0]->tilePtrs[0], 0);
+	}
+
+	//CheckForFroggerLanding(0);
+*/
+
+	switch (intro->stage)
+	{
+	case 0:
+		intro->timer = actFrameCount;
+		intro->stage++;
+		break;
+
+	case 1:
+		{
+			if (t < 120) break;
+			t -= 120;
+
+			alpha = 255 - (t * 255)/120;
+			
+			if (alpha > 0)
+				intro->text[0]->a = alpha;
+			else
+			{
+				intro->stage = 2;
+				intro->timer = actFrameCount;
+				
+				intro->text[0]->draw = 0;
+
+				for (i=1;i<=3;i++)
+				{
+					intro->text[i]->draw = 1;
+					intro->text[i]->a = 255;
+				}
+			}
+
+			break;
+		}
+
+	case 2:
+		{
+			t -= 120;
+			if (t < 0) break;
+
+			alpha = 255 - (t * 255)/120;
+
+			if (alpha > 0)
+			{
+				for (i=1;i<=3;i++)
+					intro->text[i]->a = alpha;
+			}
+			else
+			{
+				intro->stage = 1;
+				intro->timer = actFrameCount;
+				
+				intro->text[0]->draw = 1;
+				intro->text[0]->a = 255;
+
+				for (i=1;i<=3;i++)
+					intro->text[i]->draw = 0;
+
+				/*JallocFree((UBYTE**)&intro);
+
+				player[0].worldNum = WORLDID_FRONTEND;
+				player[0].levelNum = LEVELID_FRONTEND1;
+				
+				controlCamera = 0;
+
+				gameState.mode = LEVELCOMPLETE_MODE;
+				GTInit( &modeTimer, 1 );
+				showEndLevelScreen = 0;*/
+			}
+			break;
+		}
+	}
 }
+
