@@ -624,6 +624,7 @@ void FreeAllGameLists()
 	FreePlatformLinkedList();
 	FreePathList();
 	FreeLevelScript();
+	FreeCharacterList();
 
 	// Graphics-related
 

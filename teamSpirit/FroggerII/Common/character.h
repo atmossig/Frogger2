@@ -11,14 +11,13 @@
 #define __CHARACTER_H
 
 
-#define MAX_SEARCH_DEPTH 64
+#define MAX_SEARCH_DEPTH 24
 
 // Types of command that can be issued to characters
 enum
 {
 	AICOM_IDLE,
 	AICOM_GOTO_TILE,
-	AICOM_GOTO_FROG,
 	AICOM_POINT_DIR,
 	AICOM_STOP,
 };
@@ -28,8 +27,9 @@ enum
 #define AICOMFLAG_QUEUED		(1 << 1)		// Gets added to queue
 #define AICOMFLAG_INSTANT		(1 << 2)		// Gets done right away, but leaves queue intact
 #define AICOMFLAG_LOOP			(1 << 3)		// Repeat until bored
-#define AICOMFLAG_COMPLETE		(1 << 4)		// Task finished, time to delete this command
-#define AICOMFLAG_TIMEOUT		(1 << 5)		// This task will timeout rather than complete
+#define AICOMFLAG_TIMEOUT		(1 << 4)		// This task will timeout rather than complete
+#define AICOMFLAG_COMPLETE		(1 << 5)		// Task finished, time to delete this command
+#define AICOMFLAG_FAILED		(1 << 6)		// Couldn't get to destination, held in place etc.
 
 
 enum
@@ -47,7 +47,7 @@ typedef struct _AIPATHNODE
 	struct _AIPATHNODE *next, *prev;// Next and previous pathnode in path
 
 	GAMETILE *tile;					// Node is on this tile
-	unsigned long start, end;		// Timing stuff
+//	unsigned long start, end;		// Timing stuff
 	VECTOR to;						// Vector to next node
 
 } AIPATHNODE;
@@ -60,7 +60,8 @@ typedef struct _AICOMMAND
 	unsigned char type;				// Go to tile, point, etc.
 	unsigned long time;				// How long to do this for
 	unsigned short flags;			// Instant, queued, etc.
-	float offset;						// Prefered height above tile
+	float offset;					// Prefered height above tile
+	float speed;					// How fast to do this command
 
 	GAMETILE *target;				// Go to here
 	VECTOR dir;						// Point here
@@ -74,9 +75,10 @@ typedef struct _CHARACTER
 
 	ACTOR2 *act;						// The model
 	
-	unsigned char type;					// Hub character, swampy or something else.
+	VECTOR normal;						// Current up vector
 	GAMETILE *inTile;					// Tile the enemy is in
 
+	short type;							// Hub character, swampy or something else.
 	AICOMMAND *command;					// A queue of commands
 	AIPATHNODE *node, *path;			// Current node and the whole path
 
@@ -85,6 +87,7 @@ typedef struct _CHARACTER
 } CHARACTER;
 
 
+extern CHARACTER *hubChar;
 
 extern CHARACTER *characterList;
 
@@ -96,6 +99,6 @@ extern void SubCharacter( CHARACTER *ch );
 extern void ProcessCharacters( );
 extern void IssueAICommand( CHARACTER *ch, AICOMMAND *command );
 
-extern int FindRoute( AIPATHNODE *path, GAMETILE *start, GAMETILE *target, char fly );
+extern void TestPath( );
 
 #endif

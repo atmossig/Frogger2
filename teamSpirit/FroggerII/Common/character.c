@@ -19,33 +19,32 @@
 #include "incs.h"
 
 
-
+CHARACTER *hubChar = NULL;
 CHARACTER *characterList = NULL;
 
 
 void FreeAICommandList( AICOMMAND *cl );
 void FreeAIPathNodeList( AIPATHNODE *pl );
 void SubAIPathNode( AIPATHNODE *p );
-void NextAICommand( AICOMMAND *c );
+void NextAICommand( AICOMMAND **c );
 void StartAICommand( CHARACTER *ch );
 
-int BestFirst( AIPATHNODE *path, int depth, GAMETILE *previous, GAMETILE *tile, GAMETILE *goal );
+int BestFirst( AIPATHNODE *path, int depth, GAMETILE *previous, GAMETILE *tile, GAMETILE *goal, char fly );
 
 // Generic for all critters
 void CharFaceDir( CHARACTER *ch );		// Orientate to direction
 
 // Creature can walk, so can't cross join tiles and generally does the path following kind of motion
-void CharWalkToFrog( CHARACTER *ch );
 void CharWalkToTile( CHARACTER *ch );
-
 // Creature can fly, so skip join tiles and swoop round corners
-void CharFlyToFrog( CHARACTER *ch );
 void CharFlyToTile( CHARACTER *ch );
 
 // For hub character specifically.
 void CharHubPoint( CHARACTER *ch );		// Bounce in direction, like a jabbing kind of motion
 void CharHubIdle( CHARACTER *ch );		// Just flit about a bit
 
+// Path functions
+void LocateAIPathNode( VECTOR *pos, AIPATHNODE *node, float offset );
 
 
 /*	--------------------------------------------------------------------------------
@@ -70,6 +69,9 @@ CHARACTER *CreateAndAddCharacter( char *name, GAMETILE *start, float offset, uns
 
 	ch->type = type;
 	ch->inTile = start;
+
+	ch->next = characterList;
+	characterList = ch;
 
 	return ch;
 }
@@ -149,32 +151,29 @@ void StartAICommand( CHARACTER *ch )
 		break;
 
 	case AICOM_GOTO_TILE:
-		switch( ch->type )
 		{
-		case CHAR_HUB:
-			if( FindRoute( ch->path, ch->inTile, ch->command->target, YES ) )
-				ch->Update = CharFlyToTile;
-			break;
+			AIPATHNODE *path = (AIPATHNODE *)JallocAlloc(sizeof(AIPATHNODE),YES,"AIPath");
 
-		default:
-			if( FindRoute( ch->path, ch->inTile, ch->command->target, NO ) )
-				ch->Update = CharWalkToTile;
-			break;
-		}
-		break;
+			switch( ch->type )
+			{
+			case CHAR_HUB:
+				if( BestFirst( path, 0, NULL, ch->command->target, ch->inTile, YES ) )
+					ch->Update = CharFlyToTile;
+				break;
 
-	case AICOM_GOTO_FROG:
-		switch( ch->type )
-		{
-		case CHAR_HUB:
-			if( FindRoute( ch->path, ch->inTile, currTile[0], YES ) )
-				ch->Update = CharFlyToFrog;
-			break;
+			default:
+				if( BestFirst( path, 0, NULL, ch->command->target, ch->inTile, NO ) )
+					ch->Update = CharWalkToTile;
+				break;
+			}
 
-		default:
-			if( FindRoute( ch->path, ch->inTile, currTile[0], NO ) )
-				ch->Update = CharWalkToFrog;
-			break;
+			if( ch->Update )
+				ch->path = path;
+			else
+			{
+				JallocFree( (UBYTE **)path );
+				ch->command->flags |= AICOMFLAG_FAILED;
+			}
 		}
 		break;
 
@@ -191,6 +190,8 @@ void StartAICommand( CHARACTER *ch )
 		ch->Update = NULL;
 		break;
 	}
+
+	ch->node = ch->path;
 }
 
 
@@ -207,11 +208,15 @@ void ProcessCharacters( )
 
 	for( c = characterList; c; c = c->next )
 	{
-		if( c->command && (c->command->flags & AICOMFLAG_COMPLETE) )
+		if( c->command && ((c->command->flags & AICOMFLAG_COMPLETE) || (c->command->flags & AICOMFLAG_FAILED)) )
 		{
-			dprintf"Type %i: Command %i completed\n",c->type, c->command->type));
+			if( c->command->flags & AICOMFLAG_COMPLETE )
+				dprintf"Type %i: Command %i completed\n",c->type, c->command->type));
+			else if( c->command->flags & AICOMFLAG_FAILED )
+				dprintf"Type %i: Command %i failed\n",c->type, c->command->type));
 
-			NextAICommand( c->command );
+			FreeAIPathNodeList( c->path );
+			NextAICommand( &c->command );
 			StartAICommand( c );
 		}
 
@@ -242,22 +247,39 @@ void CharFaceDir( CHARACTER *ch )
 	Info			: 
 */
 // Creature can walk, so can't cross join tiles and generally does the path following kind of motion
-void CharWalkToFrog( CHARACTER *ch )
-{
-
-}
-
 void CharWalkToTile( CHARACTER *ch )
 {
+	VECTOR fwd, from, to;
 
+	LocateAIPathNode( &to, ch->node, ch->command->offset );
+
+	// Set target node
+	if( DistanceBetweenPointsSquared(&ch->act->actor->pos,&to) < 10 )
+		ch->node = ch->node->next;
+
+	// We have arrived - command is finished
+	if( !ch->node )
+	{
+		ch->command->flags |= AICOMFLAG_COMPLETE;
+		return;
+	}
+	else
+		ch->inTile = ch->node->tile;
+
+	LocateAIPathNode( &to, ch->node, ch->command->offset );
+
+	SubVector( &fwd, &to, &ch->act->actor->pos );
+	MakeUnit( &fwd );
+
+	// TODO: Normal interpolation
+
+	ActorLookAt( ch->act->actor, &to, LOOKAT_ANYWHERE );
+
+	ScaleVector( &fwd, ch->command->speed*gameSpeed );
+	AddToVector( &ch->act->actor->pos, &fwd );
 }
 
 // Creature can fly, so skip join tiles and swoop round corners
-void CharFlyToFrog( CHARACTER *ch )
-{
-
-}
-
 void CharFlyToTile( CHARACTER *ch )
 {
 
@@ -279,6 +301,21 @@ void CharHubPoint( CHARACTER *ch )		// Bounce in direction, like a jabbing kind 
 void CharHubIdle( CHARACTER *ch )		// Just flit about a bit
 {
 
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: LocateAIPathNode
+	Purpose			: Desired point, including offset
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void LocateAIPathNode( VECTOR *pos, AIPATHNODE *node, float offset )
+{
+	pos->v[X] = node->tile->centre.v[X] + (node->tile->normal.v[X] * offset);
+	pos->v[Y] = node->tile->centre.v[Y] + (node->tile->normal.v[Y] * offset);
+	pos->v[Z] = node->tile->centre.v[Z] + (node->tile->normal.v[Z] * offset);
 }
 
 
@@ -342,50 +379,44 @@ void SubAIPathNode( AIPATHNODE *p )
 	JallocFree( (UBYTE **)&p );
 }
 
-void NextAICommand( AICOMMAND *c )
+void NextAICommand( AICOMMAND **c )
 {
-	AICOMMAND *next = c->next;
+	AICOMMAND *fr, *next = (*c)->next;
 
-	JallocFree( (UBYTE **)&c );
-	c = next;
+	fr = *c;
+	JallocFree( (UBYTE **)&fr );
+	*c = next;
 }
 
 
-
-
-
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: FindRoute
-	Purpose			: Find a consecutive sequence of tiles from start to target.
-	Parameters		: Path to complete, start, end, fly flag
-	Returns			: Confirm
-	Info			: If fly is set then join tiles are ignored and the critter flies over them.
-*/
-int FindRoute( AIPATHNODE *path, GAMETILE *start, GAMETILE *target, char fly )
+void TestPath( )
 {
-	if( !start || !target ) return FALSE;
+	AIPATHNODE *node, *path = (AIPATHNODE *)JallocAlloc( sizeof(AIPATHNODE), YES, "AIPath" );
 
-	return( BestFirst(path, 0, NULL, start, target) );
+	if( BestFirst( path, 0, NULL, currTile[0], gTStart[0], YES ) )
+	{
+		SPECFX *fx;
+		for( node = path; node; node = node->next )
+			fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &node->tile->centre, &node->tile->normal, 64, 0, 0, 5 );
+	}
+
+	FreeAIPathNodeList( path );
 }
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: BestFirst
 	Purpose			: Do a recursive search of a path to the target, using a heuristic to choose the branching direction
 	Parameters		: Path to complete, depth counter, previous tile, current tile, goal tile
-	Returns			: Confirm
-	Info			: Needs a flag to not skip join tiles. I'll add it later, after this bugger's tested.
-
-	********** WARNING! THIS FUNCTION IS EVIL! ***********
-	** IT IS DOWN HERE TO AVOID SCARING SMALL CHILDREN! **
+	Returns			: Path success
+	Info			: 
 */
-int BestFirst( AIPATHNODE *path, int depth, GAMETILE *previous, GAMETILE *tile, GAMETILE *goal )
+int BestFirst( AIPATHNODE *path, int depth, GAMETILE *previous, GAMETILE *tile, GAMETILE *goal, char fly )
 {
-	// Terminating condition, success
+	// Terminating condition, success - start the path building
 	if( tile == goal )
 	{
-		path = (AIPATHNODE *)JallocAlloc( sizeof(AIPATHNODE), YES, "AIPath" );
+		path->tile = tile;
 		return TRUE;
 	}
 	else if( depth > MAX_SEARCH_DEPTH ) // Terminating condition, failure, depth exceeded
@@ -394,45 +425,28 @@ int BestFirst( AIPATHNODE *path, int depth, GAMETILE *previous, GAMETILE *tile, 
 	}
 	else
 	{
-		unsigned char closed[4] = {0,0,0,0};
-		int dir=-1, i;
-		float dist, best = 9999999;
+		int j;
+		short closed[4] = {0,0,0,0};
 
-		// Check tile pointers, and find best direction match to search first
-		for( i=0; i<4; i++ )
-			if( tile->tilePtrs[i] == previous || !tile->tilePtrs[i] )
-				closed[i] = 1;
-			else
-			{
-				dist = DistanceBetweenPointsSquared( &goal->centre, &tile->tilePtrs[i]->centre );
-				if( dist < best )
-				{
-					dir = i;
-					best = dist;
-				}
-			}
-
-		if( dir != -1 )
+		for( j=0; j<4; j++ )
 		{
-			AIPATHNODE *node;
-			// If the best choice branch got there, add this tile to the head of the path and return.
-			if( BestFirst(path, depth+1, tile, tile->tilePtrs[dir], goal) )
-			{
-				node = (AIPATHNODE *)JallocAlloc( sizeof(AIPATHNODE), YES, "AIPath" );
-				node->next = path;
-				path->prev = node;
-				path = node;
-				return TRUE;
-			}
-			else closed[dir] = 1;	// Mark failed branch as closed
+			float dist, best = 9999999;
+			int dir=-1, i, nc=0;
 
-			best = 9999999;
-			dir = -1;
-			// Find the next best match
+			// All closed
+			if( nc > 3 ) break;
+
+			// Check tile pointers, and find best direction match to search first
 			for( i=0; i<4; i++ )
-				if( !closed[i] ) // Only check needed since the first pass checked for backtracking and bad tile pointers
+				if( tile->tilePtrs[i] == previous || !tile->tilePtrs[i] ||
+					(!fly && (tile->tilePtrs[i]->state == TILESTATE_JOIN || tile->tilePtrs[i]->state == TILESTATE_DEADLY || tile->tilePtrs[i]->state == TILESTATE_BARRED)) )
 				{
-					dist = DistanceBetweenPointsSquared( &goal->centre, &path->tile->tilePtrs[i]->centre );
+					closed[i] = 1;
+					nc++;
+				}
+				else if( !closed[i] )
+				{
+					dist = DistanceBetweenPointsSquared( &goal->centre, &tile->tilePtrs[i]->centre );
 					if( dist < best )
 					{
 						dir = i;
@@ -440,50 +454,31 @@ int BestFirst( AIPATHNODE *path, int depth, GAMETILE *previous, GAMETILE *tile, 
 					}
 				}
 
-			// Here we go again... check second branch for solution
-			if( dir != -1 )
+			// May as well stop now if no directions
+			if( dir == -1 ) break;
+
+			// Search down this branch
+			if( BestFirst(path, depth+1, tile, tile->tilePtrs[dir], goal, fly) )
 			{
-				// If the second best choice branch got there, add this tile to the head of the path and return.
-				if( BestFirst(path, depth+1, tile, tile->tilePtrs[dir], goal) )
-				{
-					node = (AIPATHNODE *)JallocAlloc( sizeof(AIPATHNODE), YES, "AIPath" );
-					node->next = path;
-					path->prev = node;
-					path = node;
-					return TRUE;
-				}
-				else closed[dir] = 1;	// Mark failed branch as closed
+				AIPATHNODE *tail, *node = (AIPATHNODE *)JallocAlloc( sizeof(AIPATHNODE), YES, "AIPath" );
 
-				best = 9999999;
-				dir = -1;
-				// Find the next best match
-				for( i=0; i<4; i++ )
-					if( !closed[i] ) // Only check needed since the first pass checked for backtracking and bad tile pointers
-					{
-						dist = DistanceBetweenPointsSquared( &goal->centre, &path->tile->tilePtrs[i]->centre );
-						if( dist < best )
-						{
-							dir = i;
-							best = dist;
-						}
-					}
+				// Find last entry in path
+				for( tail = path; tail->next; tail = tail->next );
 
-				// Check last remaining branch for solution
-				if( dir != -1 )
-				{
-					// If the third best choice branch got there, add this tile to the head of the path and return.
-					if( BestFirst(path, depth+1, tile, tile->tilePtrs[dir], goal) )
-					{
-						node = (AIPATHNODE *)JallocAlloc( sizeof(AIPATHNODE), YES, "AIPath" );
-						node->next = path;
-						path->prev = node;
-						path = node;
-						return TRUE;
-					}
-				}
+				node->tile = tile;
+				SubVector( &node->to, &tail->tile->centre, &node->tile->centre );
+				tail->next = node;
+				node->prev = tail;
+
+				return TRUE;
+			}
+			else
+			{
+				closed[dir] = 1;	// Mark failed branch as closed
+				nc++;
 			}
 		}
-		
+
 		return FALSE;	// Dead end, return failure
 	}
 }
