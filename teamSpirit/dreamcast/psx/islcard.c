@@ -388,7 +388,7 @@ int cardBeep( Uint32 time, int good )
 		data[0] = 0x00;
 		data[1] = 0x00;
 	}
-	else if( !good )  // Make a "bad" noise
+	else if( good == NO )  // Make a "bad" noise
 	{
 		data[0] = 0x08;
 		data[1] = 0x80;
