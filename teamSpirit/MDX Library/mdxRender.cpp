@@ -748,11 +748,12 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 	MDX_VECTOR *in;
 	D3DTLVERTEX *vTemp2;
 	short *tFace;
-	long i,x,j;
+	long i,x,j,nFOV;
 	float oozd;
 	float a0,b0,c0,d0;
 	float a1,b1,c1,d1;
 	float a2,b2,c2,d2,tFog;
+	float nDIST,nNear,nFar;
 
 	a0 = vMatrix.matrix[0][0];
 	a1 = vMatrix.matrix[0][1];
@@ -769,7 +770,9 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 	d0 = vMatrix.matrix[3][0];
 	d1 = vMatrix.matrix[3][1];
 	d2 = vMatrix.matrix[3][2];
-
+	
+	nFOV = -FOV;
+	
 	if (changedView)
 	{
 		in = me->vertices;
@@ -785,17 +788,10 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 			vTemp2->sz = (a2*in->vx)+(b2*in->vy)+(c2*in->vz)+d2;
 
 			if (((vTemp2->sz+DIST)>nearClip) &&
-			(((vTemp2->sz+DIST)<farClip) &&
-			((vTemp2->sx)>-horizClip) &&
-			((vTemp2->sx)<horizClip) &&
-			((vTemp2->sy)>-vertClip) &&
-			((vTemp2->sy)<vertClip)))
-				{
-				oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
+			(((vTemp2->sz+DIST)<farClip)))
+			{
+				oozd = nFOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
 
-	//			x = (long)vTemp2->sz + DIST;
-	//			oozd = -FOV * *(oneOver+x);
-				
 				vTemp2->sx = halfWidth+(vTemp2->sx * oozd);
 				vTemp2->sy = halfHeight+(vTemp2->sy * oozd);
 				
@@ -805,10 +801,9 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 				if (tFog<0) tFog = 0;
 	
 				vTemp2->specular = FOGVAL(tFog);
-	
+				
 				vTemp2->sz *= 0.00025F;
-				vTemp2->rhw = 1;
-			
+//				vTemp2->rhw = 1;			
 			}
 			else
 				vTemp2->sz = 0;
@@ -946,6 +941,9 @@ void __fastcall PCPrepareLandscape3 (MDX_LANDSCAPE *me)
 		in++;
 	}
 }
+
+#define FBETWEEN(ptr,idx,clip2) (!(((*(((long *)ptr)))) & 0x8000000) && (*(((float *)ptr))<clip2))
+
 void PCRenderLandscape(MDX_LANDSCAPE *me)
 {
 	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
@@ -958,19 +956,18 @@ void PCRenderLandscape(MDX_LANDSCAPE *me)
 	{
 		if (v->sz && (v+1)->sz && (v+2)->sz)
 		{
-			y1on = BETWEEN(v[0].sy,cly0,cly1);
-			y2on = BETWEEN(v[1].sy,cly0,cly1);
-			y3on = BETWEEN(v[2].sy,cly0,cly1);
-
-			if ((y1on || y2on || y3on))
+			y1on =	BETWEEN(v[0].sy,cly0,cly1) +
+					BETWEEN(v[1].sy,cly0,cly1) +
+					BETWEEN(v[2].sy,cly0,cly1);
+		   	if (y1on)
 			{
-				x1on = BETWEEN(v[0].sx,clx0,clx1);
-				x2on = BETWEEN(v[1].sx,clx0,clx1);
-				x3on = BETWEEN(v[2].sx,clx0,clx1);
+				x1on = BETWEEN(v[0].sx,clx0,clx1) +
+					   BETWEEN(v[1].sx,clx0,clx1) +
+					   BETWEEN(v[2].sx,clx0,clx1);
 				
-				if (x1on || x2on || x3on)
+				if (x1on)
 				{
-					if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+					if ((x1on+y1on==6))
 					{
 						PushPolys(v,3,facesON,3,(*tEnt));
 					}

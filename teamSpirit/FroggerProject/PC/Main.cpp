@@ -64,6 +64,7 @@
 #include "..\network.h"
 #include "..\netchat.h"
 #include "..\netgame.h"
+#include "fxBlur.h"
 
 psFont *font = 0;
 psFont *fontSmall = 0;
@@ -746,7 +747,8 @@ long DrawLoop(void)
 			ScreenShot();
 
 	//GrabSurfaceToTexture(100, 50, GetTexEntryFromCRC(UpdateCRC("febwood.bmp")),surface[RENDER_SRF]);	
-	
+//	fxBlurSurface(surface[RENDER_SRF]);
+		
 	DDrawFlip();
 	EndTimer(17);
 	StartTimer(18,"Clear");
@@ -1065,6 +1067,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	font = (psFont *)pcFont;
 	fontSmall = (psFont *)pcFontSmall;
 	fontWhite = (psFont *)pcFontWhite;
+	
+	fxInitBlur();
 
 	sprintf(waterFile,"%stextures\\ProcData\\",baseDirectory);
 	InitWater(waterFile);

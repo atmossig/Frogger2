@@ -330,7 +330,7 @@ void DrawSpriteOverlay( float x, float y, float z, float xs, float ys, float u1,
 
 	DrawPoly( D3DPT_TRIANGLEFAN, D3DFVF_TLVERTEX,
 		v, 4, spriteIndices, 6,
-		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS );
+		D3DDP_WAIT);
 
 	SetTexture(NULL);
 }

@@ -8,10 +8,47 @@
 #define DEBUG_FILE "C:\\frogger2.log"
 
 //returns fixed format
+
+// ---------------------------------------------------------------------------------------------
+// Function: fast_sqrt
+// Purpose : Perform a fast square root of a number
+// Input   : Pointer to the source float
+// Output  : Square root of source float
+// ---------------------------------------------------------------------------------------------
+float fast_sqrt(float *src)
+{
+	float retval = 0.0f;
+
+	__asm {
+		mov		ebx, [src]
+		mov		eax, [ebx]
+		sub		eax, 0x3F800000
+		sar		eax, 1
+		add		eax, 0x3F800000
+		mov		[retval], eax
+	}
+
+	return(retval);
+}
+
+float n;
+float *n2 = &n;
+float retval = 0.0f;
+	
 unsigned long utilSqrt(unsigned long num)
 {
+	n = num;
+	__asm {
+		mov		ebx, [n2]
+		mov		eax, [ebx]
+		sub		eax, 0x3F800000
+		sar		eax, 1
+		add		eax, 0x3F800000
+		mov		[retval], eax
+	}
+	return (unsigned long)(retval*65536);
 //	return (unsigned long)(sqrt(num)*4096);
-	return (unsigned long)(sqrt(num)*65536);
+//	return (unsigned long)(fast_sqrt(&n)*65536);
 }
 
 //return angle -2048 to +2048

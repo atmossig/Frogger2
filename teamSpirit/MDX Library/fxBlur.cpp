@@ -120,6 +120,11 @@ D3DTLVERTEX *InitScreenVertexList(void)
 		me[i+2].specular = D3DRGB(0,0,0);
 		me[i+3].specular = D3DRGB(0,0,0);
 		
+		me[i].rhw = 1;
+		me[i+1].rhw = 1;
+		me[i+2].rhw = 1;
+		me[i+3].rhw = 1;
+		
 	}
 
 	i = 0;

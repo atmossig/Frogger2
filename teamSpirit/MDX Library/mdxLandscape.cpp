@@ -105,7 +105,7 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 			me->xfmVert[i].tu = obj->mesh->faceTC[i].v[0] * 0.000975F;
 			me->xfmVert[i].tv = obj->mesh->faceTC[i].v[1] * 0.000975F;
 			
-			me->xfmVert[i].rhw = 0;
+			me->xfmVert[i].rhw = 1;
 			me->xfmVert[i].specular = D3DRGBA(0,0,0,0);
 			me->xfmVert[i].color = (*((long *)(&(obj->mesh->gouraudColors[i].x))));// &0x00ffffff) | D3DRGBA(0,0,0,0.5);
 

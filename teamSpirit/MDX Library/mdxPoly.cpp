@@ -689,7 +689,6 @@ void DrawSortedPolys (void)
 		
 				numSeperates++;
 				
-
 				while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,(unsigned short *)sortFaces,numSortFaces,D3DDP_WAIT)!=D3D_OK)
 				{					
 				}							
@@ -759,7 +758,7 @@ void DrawBatchedPolys (void)
 
 void DrawBatchedOpaquePolys (void)
 {
-	unsigned long i;
+	unsigned long i,oi;
 	unsigned long nFace,nFace2,done;
 	char key,*cK;
 
@@ -781,28 +780,33 @@ void DrawBatchedOpaquePolys (void)
 	while ((i<cFInfo->nF))
 	{				
 		lSurface = *cT;
-		nFace = 0;
+		
 		key = *cK;
-		while ((((*(cT)) == lSurface) || (limTex)) && (i<cFInfo->nF)) 
+		
+		oi = i;
+		
+		while ((((*(cT)) == lSurface)) && (i<cFInfo->nF)) 
 		{
 			cT+=3;
-			cK+=3;
-			nFace+=3;			
 			i+=3;
 		}
 
+		nFace=(i-oi);
+		cK+=nFace;
+		
 		pDirect3DDevice->SetTexture(0,lSurface);
 		
-		numSeperates++;
-				
 		if (!key)
+		{
+		
 			while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,0)!=D3D_OK)
 			{
 				StartTimer(4,"DIP");
 				Sleep(10);
 				EndTimer(4);
 			}
-
+		}
+		
 		pDirect3DDevice->SetTexture(0,0);
 		
 		cFInfo->cF+=nFace;
@@ -852,12 +856,14 @@ void DrawBatchedKeyedPolys (void)
 		numSeperates++;
 				
 		if (key)
+		{
 			while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,0)!=D3D_OK)
 			{
 				StartTimer(4,"DIP");
 				Sleep(10);
 				EndTimer(4);
 			}
+		}
 
 		pDirect3DDevice->SetTexture(0,0);
 		
@@ -886,7 +892,6 @@ void SetSoftwareState(unsigned long *me)
 		}
 		me+=2;
 	}
-//	D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE,	*/
 }
 
 void SetTexture(MDX_TEXENTRY *me)
@@ -898,15 +903,6 @@ void SetTexture(MDX_TEXENTRY *me)
 		else 
 			pDirect3DDevice->SetTexture(0,0);
 	}
-/*	else
-		if (me)
-		{
-			if (me->keyed) 
-				softFlags |= POLY_MAGENTAMASK; 
-			else 
-				softFlags &= ~POLY_MAGENTAMASK;
-		}
-*/	
 	cTexture = me;	
 }
 
@@ -919,7 +915,9 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 	unsigned long f1,f2,f3;
 	totalFacesDrawn+=dwIndexCount / 3;
 	if (rHardware)
+	{
 		res = pDirect3DDevice->DrawIndexedPrimitive(d3dptPrimitiveType,dwVertexTypeDesc,lpvVertices,dwVertexCount,lpwIndices,dwIndexCount,dwFlags);
+	}
 	else
 	{
 		ssBeginScene(softScreen, 1280);
@@ -1440,7 +1438,6 @@ void DrawTexturedRectRotated(float x, float y, float width, float height, D3DCOL
 	
 //	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
 //	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
-
 	while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
 			
 //	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
@@ -1592,7 +1589,6 @@ void WriteHaloPoints(void)
 				verts[2].sx = haloPoints[i].vx+5;
 				verts[2].sy = haloPoints[i].vy+5;
 				verts[2].sz = haloPoints[i].vz * 0.00025;
-					
 				while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,verts,3,(unsigned short *)faces,3,D3DDP_WAIT)!=D3D_OK);
 			}			
 		}
@@ -1783,19 +1779,19 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 	if (fogAmt>1)
 		fogAmt=1;
 */	
-	v[0].sx = x; v[0].sy = y; v[0].sz = z; v[0].rhw = 0;
+	v[0].sx = x; v[0].sy = y; v[0].sz = z; v[0].rhw = 1;
 	v[0].color = colour; v[0].specular = D3DRGBA(0,0,0,1);
 	v[0].tu = u1; v[0].tv = v1;
 
-	v[1].sx = x2; v[1].sy = y; v[1].sz = z; v[1].rhw = 0;
+	v[1].sx = x2; v[1].sy = y; v[1].sz = z; v[1].rhw = 1;
 	v[1].color = v[0].color; v[1].specular = v[0].specular;
 	v[1].tu = u2; v[1].tv = v1;
 	
-	v[2].sx = x2; v[2].sy = y2; v[2].sz = z; v[2].rhw = 0;
+	v[2].sx = x2; v[2].sy = y2; v[2].sz = z; v[2].rhw = 1;
 	v[2].color = v[0].color; v[2].specular = v[0].specular;
 	v[2].tu = u2; v[2].tv = v2;
 
-	v[3].sx = x; v[3].sy = y2; v[3].sz = z; v[3].rhw = 0;
+	v[3].sx = x; v[3].sy = y2; v[3].sz = z; v[3].rhw = 1;
 	v[3].color = v[0].color; v[3].specular = v[0].specular;
 	v[3].tu = u1; v[3].tv = v2;
 
@@ -1837,7 +1833,7 @@ void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float
 	while(i--)
 	{
 		v[i].sz			= z;
-		v[i].rhw		= 0;
+		v[i].rhw		= 1;
 		v[i].color		= colour;
 		v[i].specular	= D3DRGBA(0,0,0,1);
 
