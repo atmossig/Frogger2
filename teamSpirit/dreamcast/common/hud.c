@@ -323,6 +323,9 @@ void InitArcadeHUD(void)
 long xPos_multi[4] = {64, 4096-1088, 4096-1088, 64};
 long yPos_multi[4] = {80, 80, 3840-800, 3840-800};
 long spSpeeds[20] = {8,3,6,7,8,3,4,6,8,7,9,6,3,9,8,6,3,8,7,6};
+
+extern TEXTOVERLAY *menuText[2];
+
 void InitMultiHUD()
 {
 	int i,j;
@@ -351,6 +354,11 @@ void InitMultiHUD()
 		break;
 	}
 
+	menuText[0] = CreateAndAddTextOverlay(2048,2400,GAMESTRING(STR_RESTARTLEVEL),YES,0,font,TEXTOVERLAY_SHADOW);
+	menuText[1] = CreateAndAddTextOverlay(2048,2700,GAMESTRING(STR_QUIT),YES,0,font,TEXTOVERLAY_SHADOW);
+	menuText[0]->draw = 0;	
+	menuText[1]->draw = 0;
+
 	multiHud.centreText = CreateAndAddTextOverlay(2048,900,countdownString,YES,255,font,TEXTOVERLAY_SHADOW);
 
 	for(i = 0;i < NUM_FROGS;i++)
@@ -370,6 +378,8 @@ void InitMultiHUD()
 				multiHud.penalOver[i]->b = 60;
 			}
 		}
+		else
+			multiHud.penalOver[i] = NULL;
 		multiHud.backChars[i] = CreateAndAddSpriteOverlay(backCharsX[i],backCharsY[i],frogPool[player[i].character].icon,512,512,0xff,0);
 		for(j = 0;j < 3;j++)
 		{
@@ -397,7 +407,8 @@ void DisableMultiHUD( )
 	for (i = 0; i<NUM_FROGS; i++)
 	{
 		DisableSpriteOverlay( multiHud.backChars[i] );
-		DisableSpriteOverlay( multiHud.penalOver[i] );
+		if(multiHud.penalOver[i])
+			DisableSpriteOverlay( multiHud.penalOver[i] );
 		DisableTextOverlay( multiHud.penaliseText[i] );
 		for(j = 0;j < 3;j++)
 			DisableSpriteOverlay(multiHud.trophies[i][j]);
@@ -421,7 +432,8 @@ void EnableMultiHUD( )
 	for (i = 0; i<NUM_FROGS; i++)
 	{
 		EnableSpriteOverlay( multiHud.backChars[i] );
-		EnableSpriteOverlay( multiHud.penalOver[i] );
+		if(multiHud.penalOver[i])
+			EnableSpriteOverlay( multiHud.penalOver[i] );
 		EnableTextOverlay( multiHud.penaliseText[i] );
 		multiHud.penaliseText[i]->a = 255;
 		multiHud.penaliseText[i]->xPos = multiHud.penaliseText[i]->xPosTo = backTextX[i];

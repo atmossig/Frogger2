@@ -80,7 +80,7 @@ unsigned long currTileNum = 0;
 
 unsigned long INPUT_POLLPAUSE	= 10;
 
-struct gameStateStruct gameState;
+struct gameStateStruct gameState = {0,0,0,0,0,0,DIFFICULTY_NORMAL};
 
 //unsigned long fadingLogos = 0;
 //long idleCamera = 0;

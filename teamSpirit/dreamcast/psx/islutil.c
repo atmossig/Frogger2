@@ -218,6 +218,27 @@ int utilPrintf(char* fmt, ...)
 */
 }
 
+int utilPrintf2(char* fmt, ...)
+{
+	va_list	arglist;
+    long	r1, r2, r3, r4, r5, r6;
+    int		len;
+
+	va_start(arglist, fmt);
+    r1 = va_arg(arglist, long);
+    r2 = va_arg(arglist, long);
+    r3 = va_arg(arglist, long);
+    r4 = va_arg(arglist, long);
+    r5 = va_arg(arglist, long);
+    r6 = va_arg(arglist, long);
+	va_end(arglist);
+    len = sprintf(buffer, fmt, r1, r2, r3, r4, r5, r6);
+
+	debug_printf(buffer);
+
+    return len;    
+}
+
 /**************************************************************************
 	FUNCTION:	utilUpperStr()
 	PURPOSE:	Convert string to upper case

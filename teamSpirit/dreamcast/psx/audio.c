@@ -267,7 +267,7 @@ int	numSoundBanks = 0;
 
 CurrentData			current[24];
 
-int					sfxGlobalVolume,sfxOutputOn;
+int					sfxGlobalVolume=255,sfxOutputOn;
 int					oldSfxGlobalVolume;
 
 int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *count)
@@ -594,8 +594,6 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  
  	if( !sample )
  		return NULL;
-// 	if(ambientSoundList.numEntries != 0)
- //		return NULL;
  
  	ambientSound = (AMBIENT_SOUND *)MALLOC0(sizeof(AMBIENT_SOUND));
  	ptr = &ambientSoundList.head;
@@ -635,8 +633,6 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  	AMBIENT_SOUND *amb,*amb2;
  	SVECTOR *pos;
 
-//	return;
-	
  	// Update each ambient in turn
  	for( amb = ambientSoundList.head.next; amb != &ambientSoundList.head; amb = amb2 )
  	{
@@ -798,8 +794,8 @@ int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol)
 	att = (radius)?radius/*/SCALE*/:DEFAULT_SFX_DIST;
 	att = att<<12;
 
-//	SubVectorSSF(&diff, pos, &currCamSource);
-	SubVectorSSF(&diff, pos, &currCamTarget);
+	SubVectorSSF(&diff, pos, &currCamSource);
+//	SubVectorSSF(&diff, pos, &currCamTarget);
 //	SubVectorSSS( &diff, pos, &frog[0]->actor->position );
 	// Volume attenuation - check also for radius != 0 and use instead of default
 	dist = MagnitudeS(&diff);
@@ -862,19 +858,38 @@ void StopSample(SAMPLE *sample)
 		sample->handle = -1;
 	}
 }
+int	oldVolumes[24];
 
 void PauseAudio( )
 {
+	int	channel;
+
 	ADXT_Pause(curXA->adxt,1);
-	oldSfxGlobalVolume = sfxGlobalVolume;
-	sfxGlobalVolume = 0;
+
+	for(channel=0; channel<24; channel++)
+	{
+		if(current[channel].sound.isPlaying)
+			oldVolumes[channel] = current[channel].sound.volume;
+	}
+	sfxOff();
 }
 
 void UnPauseAudio( )
 {
-	ADXT_Pause(curXA->adxt,0);
-	sfxGlobalVolume = oldSfxGlobalVolume;
+	int	channel;
 
+	ADXT_Pause(curXA->adxt,0);
+
+	sfxOutputOn = 1;
+
+	for(channel=0; channel<24; channel++)
+	{
+		if(current[channel].sound.isPlaying)
+		{
+			current[channel].volume = oldVolumes[channel];
+			amSoundSetVolume(&current[channel].sound,oldVolumes[channel]);
+		}
+	}
 }
 
 void SpuSetCommonCDVolume(int volume, int volume2)
@@ -956,12 +971,15 @@ int sfxPlaySample(SfxSampleType *sample, int volL, int volR, int pitch)
 	}
 
 	current[channel].sample = sample;
-	current[channel].volume = (volAverage*sfxGlobalVolume)/512;
+//	current[channel].volume = (volAverage*sfxGlobalVolume)/512;
+	current[channel].volume = volAverage;
 
 //	volAverage = sfxOutputOn ? current[channel].volume : 0;
+//	volAverage = current[channel].volume;
 
 	sound = bpAmPlaySoundEffect(audio64Banks[sample->bankNumber],&current[channel].sound,sample->sampleNumber,volAverage,volPan);
-
+//	sound = bpAmPlaySoundEffect(audio64Banks[sample->bankNumber],&current[channel].sound,sample->sampleNumber,current[channel].volume,volPan);
+	
 	if((pitch>0) && sound) 
 		amSoundSetCurrentPlaybackRate(sound,pitch);
 
@@ -1130,14 +1148,22 @@ void sfxSetChannelPitch(int channel, int pitch)
 
 void sfxSetChannelVolume(int channel, int volL, int volR)
 {
-	int			volAverage,volPan;
+	int	volAverage,volPan;
 
 	if(!current[channel].sound.isPlaying) return;
 	
 	if(volL||volR)
 	{
-		volPan = (127 * volL)/(volL+volR);
-		volAverage = volL > volR ? volL : volR;
+		if(options.stereo)
+		{
+			volPan = (127 * volL)/(volL+volR);
+			volAverage = volL > volR ? volL : volR;
+		}
+		else
+		{
+			volPan = 64;
+			volAverage = volL > volR ? volL : volR;
+		}
 	}
 	else
 	{
@@ -1148,6 +1174,8 @@ void sfxSetChannelVolume(int channel, int volL, int volR)
 	current[channel].volume = (volAverage*sfxGlobalVolume)/512;
 
 	volAverage = sfxOutputOn ? current[channel].volume : 0;
+
+//	current[channel].volume = volAverage;
 
 	amSoundSetPan(&current[channel].sound,volPan);
 

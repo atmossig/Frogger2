@@ -39,6 +39,10 @@
 #include "training.h"
 #include "lang.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #ifdef PC_VERSION
 #include <pcaudio.h>
 #else
@@ -1087,6 +1091,7 @@ BOOL ExecuteCommand(UBYTE **p)
 	case EV_PLAYSOUND:
 		{
 			char name[32];
+			char buffer[256];
 			short length, i=0;
 			ENEMY *nme;
 			PLATFORM *plat;
@@ -1113,7 +1118,9 @@ BOOL ExecuteCommand(UBYTE **p)
 #endif
 			if( !(bbSamp = FindSample(utilStr2CRC(name))) )
 			{
-				PrintScriptDebugMessage("Couldn't find sample");
+				sprintf(buffer,"Couldn't find sample: '%s'",name);
+				utilPrintf2(buffer);
+//				PrintScriptDebugMessage(buffer);
 				break;
 			}
 

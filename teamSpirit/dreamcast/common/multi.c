@@ -905,6 +905,7 @@ void CollectRespawn( int pl )
 	destTile[pl] = gTStart[pl];
 
 	CreateRespawnEffect( gTStart[pl], pl );
+	CheckForFrogOn(pl,currTile[pl]);
 }
 
 

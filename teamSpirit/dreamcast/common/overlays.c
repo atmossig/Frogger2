@@ -85,7 +85,7 @@ SPRITEOVERLAY *CreateAndAddSpriteOverlay(short x,short y,char *txtrName,short wi
 
 void SubSpriteOverlay(SPRITEOVERLAY *spr)
 {
-	if(spr->used)
+	if((spr) && (spr->used))
 	{
 		spr->used = 0;
 		spr->draw = 0;
