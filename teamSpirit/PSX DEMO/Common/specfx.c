@@ -65,6 +65,7 @@ TextureType *txtrRipple		= NULL;
 TextureType *txtrStar		= NULL;
 TextureType *txtrSolidRing	= NULL;
 TextureType *txtrSmoke		= NULL;
+TextureType *txtrFire		= NULL;
 TextureType *txtrSmoke2		= NULL;
 TextureType *txtrRing		= NULL;
 TextureType *txtrBubble		= NULL;
@@ -589,8 +590,10 @@ SPECFX *CreateSpecialEffectDirect( short type, SVECTOR *origin, FVECTOR *normal,
 			effect->tex = txtrSolidRing;
 		else if( effect->type == FXTYPE_SPARKLYTRAIL )
 			effect->tex = txtrFlash;
-		else if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
+		else if(effect->type == FXTYPE_SMOKEBURST)
 			effect->tex = txtrSmoke;
+		else if(effect->type == FXTYPE_FIERYSMOKE)
+			effect->tex = txtrFire;
  
  		effect->fade = effect->a/max(life,1);
 		tmp = effect->speed / 30;
@@ -1548,6 +1551,7 @@ void InitSpecFXList( )
 	txtrStar = FindTexture("STAR_OUTLINE");
 	txtrSolidRing = FindTexture("AI_CIRCLE");
 	txtrSmoke =	FindTexture("00SMOK07");
+	txtrFire =	FindTexture("00FIRE07");
 	txtrSmoke2 = FindTexture("AI_SMOKE");
 	txtrRing = FindTexture("AI_RING");
 	txtrBubble = FindTexture("WATDROP");
