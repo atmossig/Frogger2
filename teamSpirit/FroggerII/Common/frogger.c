@@ -27,6 +27,7 @@ PLAYER player[MAX_FROGS];
 
 ACTOR2 *frog[MAX_FROGS]					= {0,0,0,0};
 SPRITEOVERLAY *sprHeart[3]		= { NULL,NULL,NULL};
+SPECFX *frogTrail[MAX_FROGS] = {NULL,NULL,NULL,NULL};
 
 long NUM_FROGS = 1;
 
@@ -67,7 +68,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	(*me)->actor->scale.v[2] = globalFrogScale;	//0.09;
 	
 	SetFroggerStartPos(where,p);
-	
+
 	(*me)->action.healthPoints	= 3;
 	(*me)->action.isOnFire		= 0;
 	(*me)->action.frogon		= -1;

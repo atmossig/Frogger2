@@ -12,6 +12,7 @@
 #ifndef FROGGER_H_INCLUDED
 #define FROGGER_H_INCLUDED
 
+#include "specfx.h"
 
 #define MAX_IDLE_TIME			300
 #define SPAWN_SCOREUPTIMER		15
@@ -113,6 +114,8 @@ extern float globalFrogScale;
 
 extern ACTOR2	*frog[];
 extern SPRITEOVERLAY *sprHeart[3];
+
+extern SPECFX *frogTrail[];
 
 extern float	croakRadius;
 extern float	croakVelocity;
