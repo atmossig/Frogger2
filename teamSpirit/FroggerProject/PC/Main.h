@@ -80,7 +80,7 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow);
 long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam);
 
 void DrawGraphics();
-
+void CalcViewMatrix(void);
 
 #ifdef __cplusplus
 }
