@@ -918,6 +918,7 @@ void DrawActor(ACTOR *actor)
 	staticObjectMtx = actor->matrix;
 
 	xluOverride = actor->xluOverride;
+	xl = (float)xluOverride/100.0F;
 
 	currentDrawActor = actor;
 	actorScale = &actor->scale;
