@@ -217,6 +217,9 @@ extern void InitVoices( char *path, int len );
 extern void PrepareSong( short num );
 extern void StopSong( );
 
+extern void PauseAudio( );
+extern void UnPauseAudio( );
+
 int InitCDaudio();
 int ShutdownCDaudio();
 int GetCDVolume();

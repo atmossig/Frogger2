@@ -156,6 +156,8 @@ void MAIN_PrintXAData ( const XAFileType * const XATrack );
 #define InitVoices(path, len) 0
 
 
+extern void PauseAudio( );
+extern void UnPauseAudio( );
 
 SAMPLE *FindVoice( unsigned long uid, int pl );
 //#define FindVoice(uid, pl) FindSample(uid)

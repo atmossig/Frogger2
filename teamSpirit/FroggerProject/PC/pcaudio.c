@@ -45,7 +45,7 @@ int SAMPLE_VOLUME = 255;
 SAMPLE voices[4];
 SAMPLE *genSfx[NUM_GENERIC_SFX];
 
-UINT mciDevice = 0;
+MCIDEVICEID mciDevice = 0;
 
 SOUNDLIST soundList;					// Actual Sound Samples List
 AMBIENT_SOUND_LIST	ambientSoundList;
@@ -710,6 +710,68 @@ void UpdateAmbientSounds()
 }
 
 
+/*	--------------------------------------------------------------------------------
+	FUNCTION:	PauseAudio
+	PURPOSE:	Stop all sounds when in pause mode
+	PARAMETERS:	
+	RETURNS:	
+	INFO:		
+*/
+void PauseAudio( )
+{
+	BUFSAMPLE *s;
+	AMBIENT_SOUND *a;
+	unsigned long stat;
+
+	for( s=bufferList.head.next; s!=&bufferList.head; s=s->next )
+	{
+		s->lpdsBuffer->lpVtbl->GetStatus( s->lpdsBuffer, &stat );
+
+		if( stat & DSBSTATUS_PLAYING )
+			s->lpdsBuffer->lpVtbl->Stop( s->lpdsBuffer );
+	}
+
+	for( a=ambientSoundList.head.next; a!=&ambientSoundList.head; a=a->next )
+		a->lpdsBuffer = NULL;
+
+	if( mciDevice )
+		mciSendCommand(mciDevice, MCI_STOP, 0, NULL);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	FUNCTION:	UnPauseAudio
+	PURPOSE:	Resume playing sounds
+	PARAMETERS:	
+	RETURNS:	
+	INFO:		
+*/
+void UnPauseAudio( )
+{
+	BUFSAMPLE *s;
+	AMBIENT_SOUND *a;
+	unsigned long stat;
+
+	for( s=bufferList.head.next; s!=&bufferList.head; s=s->next )
+	{
+		s->lpdsBuffer->lpVtbl->GetStatus( s->lpdsBuffer, &stat );
+
+		if( stat & DSBSTATUS_PLAYING )
+			s->lpdsBuffer->lpVtbl->Play( s->lpdsBuffer, 0, 0, 0 );
+	}
+
+	for( a=ambientSoundList.head.next; a!=&ambientSoundList.head; a=a->next )
+		a->lpdsBuffer = NULL;
+
+	if( mciDevice )
+	{
+		MCI_PLAY_PARMS mciPlayParms;
+
+		mciPlayParms.dwCallback = (DWORD)mdxWinInfo.hWndMain;
+		mciSendCommand(mciDevice, MCI_PLAY, MCI_NOTIFY, &mciPlayParms);
+	}
+}
+
 
 /*	--------------------------------------------------------------------------------
 	FUNCTION:	InitCDaudio
@@ -718,7 +780,6 @@ void UpdateAmbientSounds()
 	RETURNS:	0/1
 	INFO:		
 */
-
 int InitCDaudio()
 {
 	int					noofmixers, l;
@@ -903,9 +964,16 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
 
 		if ( dwReturn = mciSendCommand( 0, MCI_OPEN, MCI_OPEN_TYPE, ( DWORD ) ( LPVOID ) &mciOpenParms ) )
 		{
-			utilPrintf("Failed to open device %s\n",mciOpenParms.lpstrDeviceType);
-			// Failed to open device. Don't close it; just return error.
-			return dwReturn;
+			if( dwReturn == MCIERR_MUST_USE_SHAREABLE )
+			{
+				utilPrintf("Failed to open device %s, trying shareable...\n", mciOpenParms.lpstrDeviceType );
+				if ( dwReturn = mciSendCommand( 0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_SHAREABLE, ( DWORD ) ( LPVOID ) &mciOpenParms ) )
+				{
+					utilPrintf("Failed to open device %s\n",mciOpenParms.lpstrDeviceType);
+					// Failed to open device. Don't close it; just return error.
+					return dwReturn;
+				}
+			}
 		}
 
 		// The device opened successfully; get the device ID.

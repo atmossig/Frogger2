@@ -899,3 +899,13 @@ void StopSample(SAMPLE *sample)
 		sample->handle = -1;
 	}
 }
+
+void PauseAudio( )
+{
+
+}
+
+void UnPauseAudio( )
+{
+
+}
