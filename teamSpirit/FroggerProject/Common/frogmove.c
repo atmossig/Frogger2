@@ -524,7 +524,8 @@ void FroggerHop(int pl)
 		if( gameState.multi == SINGLEPLAYER )
 		{
 			// Stop looking at the frog if it's going to die from falling
-			if( player[pl].heightJumped < -DROP_KILL_HEIGHT && player[pl].jumpTime > 2048 )
+			if( (player[pl].heightJumped < -DROP_KILL_HEIGHT && player[pl].jumpTime > 2048) || 
+				((destTile[pl] && destTile[pl]->state == TILESTATE_DEADLY) && player[pl].jumpTime > 2600 && !destPlatform[pl]) )
 				controlCamera = 1;
 			else if( player[pl].deathBy != DEATHBY_WHACKING )//!(player[pl].frogState & FROGSTATUS_ISDEAD) )
 				controlCamera = 0;
