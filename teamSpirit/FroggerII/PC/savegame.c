@@ -146,6 +146,7 @@ void SaveGameData ( void )
 	Convert2CharTo3Char ( player[0].name, saveSlots [ player[0].saveSlot ].name );
 	saveSlots [ player[0].saveSlot ].score = player[0].score;
 
+
 	fwrite ( saveSlots, sizeof ( SAVE_SLOT ), MAX_SAVE_SLOTS, fp );
 
 	close ( fp );
@@ -185,7 +186,7 @@ void Convert3CharTo2Char ( char twoChar[2], char threeChar[3] )
 	c2 = (b << 6) | (c << 1);
 
 
-	/// 
+	///
 
 	// 000a aaaa
 	a1 = (c1 >> 3) + 'a';

@@ -24,58 +24,7 @@ unsigned long croakFloat		= 0;
 unsigned long babiesSaved		= 0;
 extern long carryOnBabies;
 
-unsigned long gardenLawnSpawn[] = { 149,	34,35,58,60,62,64,81,84,87,90,
-									93,121,122,123,124,125,126,127,154,155,
-									156,157,158,159,160,161,162,163,164,165,
-									181,182,183,184,185,186,187,188,189,190,
-									191,192,219,220,221,222,223,224,225,226,
-									227,228,229,230,231,256,257,258,259,
-									260,261,262,263,264,265,266,295,400,401,
-									402,413,424,435,436,437,448,459,471,472,
-									483,494,539,543,545,549,364,365,366,367,
-									368,369,370,371,372,373,374,375,376,377,
-									378,379,380,381,382,383,384,385,386,387,
-									415,416,417,428,441,440,439,426,421,422,
-									423,434,447,446,445,432,467,468,469,482,
-									493,492,491,480,461,462,463,476,487,486,
-									485,474,453,454,455,466,479,478,477,464,
-									
-									};
-
-unsigned long gardenLawnWholeKey[] = { 1, 532};
-
-unsigned long gardenMazeSpawn[] = { 117,	1,2,3,9,10,11,12,13,15,19,
-										20,22,23,24,25,26,27,28,29,30,
-										31,32,33,34,35,37,39,41,42,43,
-										44,51,52,53,54,55,56,57,63,64,
-										66,67,68,69,70,76,77,78,79,81,
-										86,88,89,90,91,92,98,103,104,105,
-										106,153,154,155,163,164,171,172,173,0,
-										165,156,146,130,278,279,280,281,282,283,
-										286,288,306,307,308,309,310,300,298,299,
-										305,304,303,302,301,287,170,162,151,143,
-										135,127,119,169,161,150,141,134,125,118,
-										168,159,149,140,133,124,117,
-										};
-									
-unsigned long gardenMazeWholeKey[] = { 1, 15};
-
-unsigned long gardenVegPatch[] = { 67,	3,8,12,16,18,20,25,28,31,32,
-										34,40,42,45,48,49,51,54,59,63,
-										66,67,69,74,76,82,83,84,86,88,
-										91,94,105,113,116,126,130,132,146,150,
-										160,164,168,186,188,190,192,193,194,195,
-										196,197,198,204,207,209,211,213,220,222,
-										229,231,234,235,236,237,238	};
-									
-									
-unsigned long gardenVegWholeKey[] = { 1, 15};
-									
-									
-									
-
-unsigned long cityDocks[] = { 1,	25 };
-
+unsigned char garibStoreList [ 256 ];
 
 //----- [ TEMPLATES FOR GARIB SPRITE ANIMATIONS ] -----//
 
@@ -324,11 +273,12 @@ void CheckTileForCollectable(GAMETILE *tile)
 	i = numBabies;
 	while(i--)
 	{
-		if(DistanceBetweenPointsSquared(&babies[i]->actor->pos,&frog[0]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
-		{
-			PickupBabyFrog(babies[i]);
-			return;
-		}
+		if ( babies[i] )
+			if(DistanceBetweenPointsSquared(&babies[i]->actor->pos,&frog[0]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
+			{
+				PickupBabyFrog(babies[i]);
+				return;
+			}
 	}
 }
 
@@ -583,6 +533,7 @@ void InitGaribLinkedList()
 {
 	garibCollectableList.numEntries = 0;
 	garibCollectableList.head.next = garibCollectableList.head.prev = &garibCollectableList.head;
+	memset ( garibStoreList, 0xff, 256 );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -691,7 +642,22 @@ void InitGaribSprite(GARIB *garib)
 */
 GARIB *CreateNewGarib(VECTOR pos,int type)
 {
+	static indexPos = 0;
+
+	char value;
+
 	GARIB *garib;
+
+/*	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == MULTI_PART )
+	{
+		value = garibStoreList[0] >> 1;
+
+//		if ( 
+//		{
+//		}
+		// ENDIF
+	}
+	// ENDIF*/
 
 	garib = (GARIB *)JallocAlloc(sizeof(GARIB),YES,"garib");
 	AddGarib(garib);
@@ -744,6 +710,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		garib->sprite.flags |= SPRITE_TRANSLUCENT;
 		garib->sprite.a = 200;
 	}
+
 
 	return garib;
 }
