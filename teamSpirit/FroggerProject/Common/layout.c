@@ -1320,7 +1320,7 @@ void CommonInit(void)
 	gameState.mode = STARTUP_MODE;
 	ScreenFade(0,255,30);
 	InitBackdrop("TITLES");
-	GTInit(&modeTimer,4);
+	GTInit(&modeTimer,3);
 #else
 	gameState.mode = FRONTEND_MODE;
 	InitLevel(player[0].worldNum,player[0].levelNum);
