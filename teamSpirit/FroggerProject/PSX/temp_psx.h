@@ -28,5 +28,6 @@ void PsxNameEntryFrame(void);
 void PsiActor2ClipCheck(ACTOR2* act);
 void FmaActor2ClipCheck(ACTOR2* act);
 void asciiStringToSJIS(unsigned char *string, unsigned char *dest);
+void StartVideoPlayback(int num);
 
 #endif

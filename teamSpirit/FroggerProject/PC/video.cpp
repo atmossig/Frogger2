@@ -19,6 +19,7 @@
 #include "controll.h"
 #include "pcaudio.h"
 #include "dx_sound.h"
+#include "story.h"
 
 #include "game.h"
 #include "layout.h"
@@ -149,11 +150,11 @@ long RunVideoPlayback()
 }
 
 
-long StartVideoPlayback(const char* name)
+long StartVideoPlayback(int num)
 {
 	BinkSoundUseDirectSound(lpDS);
 
-	bink = BinkOpen(name,0);
+	bink = BinkOpen(fmv[num].name,0);
 	if (!bink)
 	{
 		utilPrintf("StartVideoPlayback(): Bink failed opening '%s'\n", name);
@@ -191,9 +192,9 @@ long RunVideoPlayback()
 	return 1;
 }
 
-long StartVideoPlayback(const char* name)
+long StartVideoPlayback(int num)
 {
-	utilPrintf("StartVideoPlayback(): No video support compiled, skipping '%s'\n", name);
+	utilPrintf("StartVideoPlayback(): No video support compiled, skipping '%s'\n", fmv[num].name);
 	return 0;
 }
 

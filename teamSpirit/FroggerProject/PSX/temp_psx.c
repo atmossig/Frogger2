@@ -15,6 +15,8 @@
 #include "map_draw.h"
 #include "timer.h"
 #include "memcard.h"
+#include <islvideo.h>
+#include "story.h"
 
 FVECTOR fmaActorScale;
 
@@ -1175,5 +1177,37 @@ void myPadHandleInput()
 		padData.present[1] = padData.present[4];
 		padData.digital[1] = padData.digital[4];
 		padData.debounce[1] = padData.debounce[4];
+	}
+}
+
+static short videoKeyPress()
+{
+	return ((padData.digital[0] & (PAD_CROSS|PAD_START))>0);
+}
+
+void StartVideoPlayback(int num)
+{
+	RECT rect;
+	StrDataType str;
+
+	rect.x = rect.y = 0;
+	rect.w = 512;
+	rect.h = 512;
+
+	if (XAgetStatus())
+	{
+		ClearImage(&rect, 0,0,0);
+   		sprintf(str.strName,"\\%s.STR;1",fmv[num].name);
+   		str.mode = STR_MODE24;
+   		str.drawBorders = STR_BORDERS_ON;
+   		str.scrWidth = 320;
+   		str.x = 0;
+   		str.y = 24+PALMODE*8;
+   		str.width = 320;
+   		str.height = 192;
+   		str.endFrame = fmv[num].len;
+   		str.vlcBufSize = 50000;
+   		str.volume = 127;
+   		videoPlayStream(&str, PALMODE, videoKeyPress);
 	}
 }
