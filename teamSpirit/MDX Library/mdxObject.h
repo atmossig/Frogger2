@@ -207,6 +207,10 @@ typedef struct
 	short 		numberQueued;
 	MDX_ANIMATION	*anims;
 	float		animTime;	
+
+	char		loopFlags[5];		// NOTE: This assumes that frogger will never have looping sounds on animations
+	void		**sfxMapping;		// Cue these sound effects off the animations
+
 }MDX_ACTOR_ANIMATION;
 
 typedef struct
