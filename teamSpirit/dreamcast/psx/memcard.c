@@ -30,6 +30,8 @@
 #include <kamui2.h>
 #include <shinobi.h>
 
+#include "lcdicons.h"
+
 //#define MIN min
 //#define MAX max
 
@@ -485,7 +487,8 @@ static void saveMenuFull()
 		break;
 	case 2:
 		saveInfo.saveFrame = 0;
-		afterSaveFlag = 1;
+		if(gameState.mode == LEVELCOMPLETE_MODE)
+			afterSaveFlag = 1;
 		useMemCard = 0;
 		break;
 	}
@@ -518,7 +521,8 @@ static void saveMenuNoCard()
 		StartChooseOption();
 		break;
 	case 2:
-		afterSaveFlag = 1;
+		if(gameState.mode == LEVELCOMPLETE_MODE)
+			afterSaveFlag = 1;
 		saveInfo.saveFrame = 0;
 		useMemCard = 0;
 		break;
@@ -650,7 +654,8 @@ static void saveMenuComplete()
 {
 	if (/*((options.mode == -1) && (delayTimer++ > DELAY_TIME)) ||*/ (ChooseOption(GAMESTRING(STR_MCARD_COMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
 	{
-		afterSaveFlag = 1;
+		if(gameState.mode == LEVELCOMPLETE_MODE)
+			afterSaveFlag = 1;
 		saveInfo.saveFrame = 0;
 		cardChanged = NO;
 	}
@@ -773,7 +778,8 @@ static void saveMenuChanged()
 		StartChooseOption();
 		break;
 	case 2:
-		afterSaveFlag = 1;
+		if(gameState.mode == LEVELCOMPLETE_MODE)
+			afterSaveFlag = 1;
 		saveInfo.saveFrame = 0;
 		useMemCard = 0;
 		break;
@@ -790,7 +796,8 @@ static void saveMenuSaveYN()
 		StartChooseOption();
 		break;
 	case 2:
-		afterSaveFlag = 1;
+		if(gameState.mode == LEVELCOMPLETE_MODE)
+			afterSaveFlag = 1;
 		saveInfo.saveFrame = 0;
 		useMemCard = 0;
 		break;
@@ -820,7 +827,8 @@ static void saveMenuCorrupt()
 		StartChooseOption();
 		break;
 	case 2:
-		afterSaveFlag = 1;
+		if(gameState.mode == LEVELCOMPLETE_MODE)
+			afterSaveFlag = 1;
 		saveInfo.saveFrame = 0;
 		useMemCard = 0;
 		break;
@@ -880,7 +888,8 @@ void saveMenuNeedFormat()
 		StartChooseOption();
 		break;
 	case 2:
-		afterSaveFlag = 1;
+		if(gameState.mode == LEVELCOMPLETE_MODE)
+			afterSaveFlag = 1;
 		saveInfo.saveFrame = 0;
 		useMemCard = 0;
 		break;
@@ -1100,4 +1109,10 @@ int CheckVMUs( )
 	}
 
 	return fcStat;
+}
+
+
+void ShowLCDLogo( )
+{
+	cardDisplay(LCD_frogger);
 }

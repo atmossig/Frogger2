@@ -40,4 +40,6 @@ void LoadGame(void);
 
 int CheckVMUs( );
 
+void ShowLCDLogo( );
+
 #endif

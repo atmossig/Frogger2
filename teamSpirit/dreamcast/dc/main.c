@@ -691,6 +691,7 @@ void main()
 		}
 		afterSaveFlag = 0;
 		FreeTiledBackdrop();
+		ShowLCDLogo();
 	}
 
 #ifdef _DEBUG

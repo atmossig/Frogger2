@@ -1002,6 +1002,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	UpdatePlatforms();
 		
 	UpdateEvents();
+
+	ShowLCDLogo();
 }
 
 

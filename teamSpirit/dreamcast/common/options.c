@@ -1359,6 +1359,8 @@ void OptionBack(void)
 	}
 	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	titleHud[0]->a = titleHud[0]->draw = 0;
+
+	ShowLCDLogo();
 }
 
 //-----------------------------------------------------------------------------------------------------------
