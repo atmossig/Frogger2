@@ -98,7 +98,7 @@ void TrainingHint(const char* str)
 				{
 					if(train->bg->yPos >= 4096)
 					{
-						StringWrap(str, 4096-128, train->text, 1024, lines, MAX_LINES, fontSmall);	// eee
+						StringWrap( str, 4096-128, train->text, 1024, lines, MAX_LINES, fontSmall);	// eee
 
 						train->txtover[0]->text = lines[0];
 						train->txtover[1]->text = lines[1];

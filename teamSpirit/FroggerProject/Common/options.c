@@ -175,12 +175,14 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 
 	2,RED,		//level design and editing
+	0,RED,		//level design and editing
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 
 	2,RED,		//concept art and illustration
+	0,RED,		//concept art and illustration
 	0,GREEN,
 
 	2,RED,		//character building
@@ -273,19 +275,24 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 
 	2,RED,		//shadow ...
+	0,RED,		//shadow ...
 	0,GREEN,
 
 	2,RED,		//localisation
+	0,RED,		//localisation
 	0,GREEN,
 
 	2,RED,		//packaging
+	0,RED,		//packaging
 	0,GREEN,
 
 	2,RED,		//product manager US
+	0,RED,		//product manager US
 	0,GREEN,
 	0,GREEN,
 
 	2,RED,		//product manager ROW
+	0,RED,		//product manager ROW
 	0,GREEN,
 
 	2,RED,		//special thanks
@@ -300,6 +307,7 @@ CREDIT_DATA creditData[] =
 	1,WHITE,
 	0,WHITE,
 	1,WHITE,
+	0,WHITE,
 	0,WHITE,
 	0,WHITE,
 	1,WHITE,
@@ -1403,7 +1411,8 @@ char *warnPtr;
 
 char levNameColR[] = {255,255,0,  0,  0,  255,255,255};
 char levNameColG[] = {0,  0  ,255,255,255,255,255,255};
-
+char mpLevNameStr[128];
+char *mpLevNameArray[2];
 void RunOptionsMenu(void)
 {
 	int i;
@@ -1415,6 +1424,10 @@ void RunOptionsMenu(void)
 
 	int oldTime;
 
+	options.numPText->text = options.numPStr;
+	options.numPText2->text = options.numPStr2;
+
+	options.numPText->yPos = 2048;
 	options.numPText->font = font;
 	options.numPText2->font = font;
 
@@ -1422,6 +1435,7 @@ void RunOptionsMenu(void)
 	options.sfxText[1]->draw = 0;
 
 	options.numPText->r = options.numPText->g = options.numPText->b = 255;
+	options.numPText2->r = options.numPText2->g = options.numPText2->b = 255;
 #ifdef PSX_VERSION
 	if(saveInfo.saveFrame)
 	{
@@ -1718,11 +1732,26 @@ void RunOptionsMenu(void)
 			strcpy(options.titleStr,GAMESTRING(STR_MULTIPLAYER));
 			strcpy(options.mpStr,GAMESTRING(STR_SELECT_LEVEL));
 			strcpy(options.subTitleStr,GAMESTRING(STR_TRIANGLE_BACK));
-			strcpy(options.numPStr, GAMESTRING(worldVisualData[multiWorldNum[options.levelSelection]].levelVisualData[multiLevelNum[options.levelSelection]].description_str));
+
+
+
+			StringWrap(GAMESTRING(worldVisualData[multiWorldNum[options.levelSelection]].levelVisualData[multiLevelNum[options.levelSelection]].description_str), 2000, mpLevNameStr, 1024, mpLevNameArray, 2, font);
+			options.numPText->text = mpLevNameArray[0];
+			options.numPText2->text = mpLevNameArray[1];
+//			strcpy(options.numPStr, GAMESTRING(worldVisualData[multiWorldNum[options.levelSelection]].levelVisualData[multiLevelNum[options.levelSelection]].description_str));
 	
-			options.numPText->r = levNameColR[options.levelSelection];
-			options.numPText->g = levNameColG[options.levelSelection];
-			options.numPText->b = 0;
+			if(mpLevNameArray[1][0] == 0)
+			{
+				options.numPText->yPos = 2048;
+			}
+			else
+			{
+				options.numPText->yPos = 2048-120;
+				options.numPText2->yPos = 2048+120;
+			}
+			options.numPText->r = options.numPText2->r = levNameColR[options.levelSelection];
+			options.numPText->g = options.numPText2->g = levNameColG[options.levelSelection];
+			options.numPText->b = options.numPText2->b = 0;
 			
 			temp.vx = -9890938;
 			temp.vy = 8859623;  
@@ -1749,7 +1778,6 @@ void RunOptionsMenu(void)
 			INC_ALPHA(options.statusBak,128);
 			options.mpText->draw = 1;
 			options.numPText->draw = options.numPText2->draw = camStill;
-			options.numPText->yPos = 2048;
 	
 			break;
 
@@ -1800,6 +1828,7 @@ void RunOptionsMenu(void)
 			options.mpText->draw = 1;
 			options.numPText->draw = options.numPText2->draw = camStill;
 			options.numPText->yPos = 3300;
+			options.numPText2->draw = 0;
 
 			break;
 

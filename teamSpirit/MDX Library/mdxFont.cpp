@@ -347,7 +347,7 @@ void CopyCharSoftware(MDX_FONT *font, char c, int x, int y)
    Info : 
 */
 
-long DrawFontCharAtLoc(long x, long y, char ch, unsigned long colour, MDX_FONT *font, float scale)
+long DrawFontCharAtLoc(long x, long y, unsigned char ch, unsigned long colour, MDX_FONT *font, float scale)
 {
 	RECT			rc;
 	MDX_FONTCHAR	*mdxChar;
@@ -426,7 +426,7 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 				break;
 
 			default:
-				cx += DrawFontCharAtLoc(cx,y,*c,color,font,scale);
+				cx += DrawFontCharAtLoc(cx,y,(unsigned char)*c,color,font,scale);
 				c++;
 				break;
 		}
@@ -495,7 +495,7 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 				break;
 
 			default:
-				width += font->characters[*c].width*scale;
+				width += font->characters[(unsigned char)*c].width*scale;
 				c++;
 				break;
 		}

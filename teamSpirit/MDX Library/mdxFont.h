@@ -44,7 +44,7 @@ void ShutdownFont(MDX_FONT *mdxFont);
 
 void InitFontSystem(void);
 
-long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,float scale);
+long DrawFontCharAtLoc(long x,long y,unsigned char c,unsigned long color, MDX_FONT *font,float scale);
 long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX,long centredY);
 long CalcStringWidth(const char *string,MDX_FONT *font, float scale);
 

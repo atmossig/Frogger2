@@ -1143,7 +1143,7 @@ void StartLevelComplete()
 
 	moreCoins = 0;
 
-	arcadeHud.coinsOver->xPos = 3200 + 4096;
+	arcadeHud.coinsOver->xPos = 3400 + 4096;
 	coinText = NULL;
 	coinIcon = NULL;
 	extraText = NULL;
@@ -1189,8 +1189,8 @@ void StartLevelComplete()
 			extraText->xPosTo = 2048;
 			extraIcon = NULL;
 			arcadeHud.coinsOver->draw = 1;
-			arcadeHud.coinsOver->xPosTo = 3200;
-			arcadeHud.coinsOver->yPosTo = arcadeHud.coinsOver->yPos = 850+50;
+			arcadeHud.coinsOver->xPosTo = 3400;
+			arcadeHud.coinsOver->yPosTo = arcadeHud.coinsOver->yPos = 850;
 		}
 	}
 

@@ -39,7 +39,7 @@ static char			otherChars[16];
 static int			numOtherSprites;
 
 
-unsigned char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-=+[]{}:;\"'|\\,<.>/?"
+unsigned char *alphabet = "©°ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-=+[]{}:;\"'|\\,<.>/?"
 					"\xe0\xe8\xec\xf2\xf9\xc0\xc8\xcc\xd2\xd9\xe1\xe9\xed\xf3\xfa\xfd\xc1\xc9\xcd\xd3\xda\xdd\xe2\xea\xee\xf4\xfb\xc2\xca\xce\xd4\xdb\xe3\xf1\xf5\xc3\xd1\xd5\xe4\xeb\xef\xf6\xfc\xff\xc4\xcb\xcf\xd6\xdc\xe5\xc5\xe6\xc6\xe7\xc7\xf0\xd0\xf8\xd8\xbf\xa1\xdf";
 
 #define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
@@ -267,7 +267,7 @@ void fontPrintScaled(psFont *font, short x,short y, char *text, unsigned char r,
 				{
 					BEGINPRIM(ft4, POLY_FT4);
 					setPolyFT4(ft4);
-					setXYWH(ft4, x,y-((c>127)?(1):(0)), FMul(letter->w,scale),FMul(letter->h,scale)-1);
+					setXYWH(ft4, x,y/*-((c>127)?(1):(0))*/, FMul(letter->w,scale),FMul(letter->h,scale)-1);
 					setRGB0(ft4, r,g,b);
 					setUVWH(ft4, letter->x,letter->y, letter->w-1, letter->h-1);
 					ft4->tpage = letter->tpage;
@@ -492,7 +492,7 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 			{
 				letter = &font->txPtr[loop];
 				if ((x>-350)&&(x<320))
-					fontDispChar(letter, x,y-((c>127)?(1):(0)), r,g,b,font->alpha,scale);
+					fontDispChar(letter, x,y/*-((c>127)?(1):(0))*/, r,g,b,font->alpha,scale);
 				x += font->pixelwidth[loop]+2;
 			}
 		}
