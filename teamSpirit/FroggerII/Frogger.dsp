@@ -264,14 +264,6 @@ SOURCE=.\Common\jalloc.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Common\l13n.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\Common\l13n.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Common\language.c
 # End Source File
 # Begin Source File
