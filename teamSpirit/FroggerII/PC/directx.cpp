@@ -882,20 +882,22 @@ long DirectXInit(HWND window, long hardware )
 float bRed = 0, bGreen = 0, bBlue = 0;
 
 extern short *loadScr;
+short backScr[1280*1024];
+unsigned long sTime = (1000 * 5);
 void ShowLoadScreen(void)
 {
-	long i,j;
+	long i,j,sTicks,nTicks;
 	DDSURFACEDESC ddsd;
 
 	DDINIT(ddsd);
 	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
-
+		
 	for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
 		memcpy (&((short *)ddsd.lpSurface)[i],&loadScr[j],SCREEN_WIDTH*2);
-
+	
 	surface[RENDER_SRF]->Unlock(ddsd.lpSurface);
 	
-	DDrawFlip();
+	DDrawFlip();	
 }
 
 void PrintTextureInfo(void)

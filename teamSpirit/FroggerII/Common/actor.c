@@ -884,6 +884,7 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags)
 	Returns			: 
 	Info			: 
 */
+
 void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 {
 	SPRITE *sprite;
@@ -939,8 +940,8 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 
 			sprite->flags |= flags;
 
-			sprite->offsetX = -sprite->texture->sx / 2;
-			sprite->offsetY = -sprite->texture->sy / 2;
+			sprite->offsetX = -32 / 2;
+			sprite->offsetY = -32 / 2;
 
 			AddSprite(sprite,NULL);
 			obj->sprites[i].sprite = sprite;
@@ -990,6 +991,7 @@ void RemoveObjectSprites(OBJECT *obj,BOOL f)
 	Returns			: 
 	Info			: 
 */
+
 void FreeObjectSprites(OBJECT *obj)
 {
 	int i;
