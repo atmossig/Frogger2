@@ -53,7 +53,6 @@
 
 
 #include "Layout.h"
-#include "World.h"
 #include "Main.h"
 #include "Sprite.h"
 #include "frogger.h"
@@ -68,6 +67,7 @@
 #include "menus.h"
 #include "Eff_Draw.h"
 #include "World_Eff.h"
+#include "World.h"
 //#include "sfx.h"//mmsound
 #include "audio.h" //mmsfx
 #include "ptexture.h"
@@ -543,10 +543,11 @@ int main ( )
 
 
 
-			if ( padData.debounce[0] & PAD_TRIANGLE )
-			{
-				SnapShot("C:\\");
-			}
+//sbond - snapshot removed - triangle is now BACK on menus!!!!!!!!!!!!!!!!!!!
+//			if ( padData.debounce[0] & PAD_TRIANGLE )
+//			{
+//				SnapShot("C:\\");
+//			}
 
 #if GOLDCD==0
 			timerDisplay();
