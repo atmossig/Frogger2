@@ -29,6 +29,9 @@ typedef struct TAGPROCTEXTURE
 extern PROCTEXTURE *prcTexList;
 extern POLYGON *rpList;
 
+#ifdef N64_VERSION
+typedef TEXTURE TEXENTRY;
+#endif
 
 extern void CreateAndAddProceduralTexture( TEXENTRY *tex, char *name );
 extern POLYGON *CreateAndAddRandomPoly( TEXTURE *tex, VECTOR *pos, VECTOR *normal, float w, float h );
