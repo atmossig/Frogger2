@@ -237,17 +237,27 @@ int LoadSfx( unsigned long worldID )
 
 	genSfx[GEN_FROG_HOP] = FindSample(utilStr2CRC("hopongrass"));
 	genSfx[GEN_SUPER_HOP] = FindSample(utilStr2CRC("hop2"));
-	genSfx[GEN_DOUBLE_HOP] = FindSample(utilStr2CRC("froggerb"));
+	genSfx[GEN_DOUBLE_HOP] = FindSample(utilStr2CRC("doublehop"));
 	genSfx[GEN_COLLECT_BABY] = FindSample(utilStr2CRC("getbabyfrog"));
-	genSfx[GEN_FROG_TONGUE] = FindSample(utilStr2CRC("froggerf"));
+	genSfx[GEN_FROG_TONGUE] = FindSample(utilStr2CRC("tongue"));
 	genSfx[GEN_COLLECT_COIN] = FindSample(utilStr2CRC("pickupcoin"));
 	genSfx[GEN_CROAK] = FindSample(utilStr2CRC("frogcroak"));
-	genSfx[GEN_DROWN] = FindSample(utilStr2CRC("frogdrown"));
 	genSfx[GEN_BABYHAPPY] = FindSample(utilStr2CRC("babyhappy"));
 	genSfx[GEN_BABYSAD] = FindSample(utilStr2CRC("babysad"));
 	genSfx[GEN_BABYCRY] = FindSample(utilStr2CRC("babycry"));
 	genSfx[GEN_BABYREPLY] = FindSample(utilStr2CRC("babyreply"));
-	genSfx[GEN_DEATH] = FindSample(utilStr2CRC("frogdeath"));
+
+	genSfx[GEN_FROGBELCH1] = FindSample(utilStr2CRC("frogbelch2"));
+	genSfx[GEN_FROGBELCH2] = FindSample(utilStr2CRC("frogbelch2"));
+	genSfx[GEN_FROGANNOYED] = FindSample(utilStr2CRC("frogannoyed"));
+
+	genSfx[GEN_DEATHNORMAL] = FindSample(utilStr2CRC("frogdeath"));
+	genSfx[GEN_DEATHDROWN1] = FindSample(utilStr2CRC("frogdrown1"));
+	genSfx[GEN_DEATHDROWN2] = FindSample(utilStr2CRC("frogdrown2"));
+	genSfx[GEN_DEATHCRUSH] = FindSample(utilStr2CRC("frogcrush"));
+	genSfx[GEN_DEATHEXPLODE] = FindSample(utilStr2CRC("frogexplode"));
+	genSfx[GEN_DEATHFALL] = FindSample(utilStr2CRC("frogfall"));
+	genSfx[GEN_DEATHGIB] = FindSample(utilStr2CRC("frogmowed"));
 
 	path[len] = '\0';
 
