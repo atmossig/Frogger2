@@ -100,7 +100,7 @@ char winsString[4][8] = {"0","0","0","0"};
 
 char countdownString[64] = "00";
 
-TEXTOVERLAY   *polysText;
+//TEXTOVERLAY   *polysText;
 char polyString[256] = "";
 
 int timeBarWidth = 1600;
@@ -276,8 +276,8 @@ void InitArcadeHUD(void)
 //	arcadeHud.coinsText->g = 0;
 //	arcadeHud.coinsText->b = 255;
 
-	if (gameState.mode == INGAME_MODE)
-		polysText = CreateAndAddTextOverlay(200,600,polyString,NO,255,fontSmall,0);
+//	if (gameState.mode == INGAME_MODE)
+//		polysText = CreateAndAddTextOverlay(200,600,polyString,NO,255,fontSmall,0);
 
 	arcadeHud.timeOutText = CreateAndAddTextOverlay(2048,1900,GAMESTRING(STR_OUTOFTIME),YES,255,0,TEXTOVERLAY_SHADOW);
 	arcadeHud.timeOutText->r = 0xff;
@@ -741,34 +741,34 @@ void UpDateOnScreenInfo ( void )
 	//	arcadeHud.goText->g = Random(0xff);
 	//	arcadeHud.goText->b = Random(0xff);
 
-#ifndef FINAL_MASTER
-#ifdef PC_VERSION
-		if( screenshotEnable )
-			polysText->draw = 0;
-		else
-		{
-#ifndef E3_DEMO
-			sprintf(polyString,"%lu %lu %lu",totalFacesDrawn,numObjectsDrawn,numObjectsTransformed);//,numPixelsDrawn/1000,(numPixelsDrawn*100/307200));
-#else
-			sprintf(polyString,"",totalFacesDrawn);//,numPixelsDrawn/1000,(numPixelsDrawn*100/307200));
-#endif
+//#ifndef FINAL_MASTER
+//#ifdef PC_VERSION
+//		if( screenshotEnable )
+//			polysText->draw = 0;
+//		else
+//		{
+//#ifndef E3_DEMO
+//			sprintf(polyString,"%lu %lu %lu",totalFacesDrawn,numObjectsDrawn,numObjectsTransformed);//,numPixelsDrawn/1000,(numPixelsDrawn*100/307200));
+//#else
+//			sprintf(polyString,"",totalFacesDrawn);//,numPixelsDrawn/1000,(numPixelsDrawn*100/307200));
+//#endif
 
-		}
-		if (totalFacesDrawn>2000)
-			if (totalFacesDrawn>2500)
-				if (totalFacesDrawn>2800)
-					frameCheck = 3;
-				else
-					frameCheck = 2;
-			else
-				frameCheck = 1;
+//		}
+//		if (totalFacesDrawn>2000)
+//			if (totalFacesDrawn>2500)
+//				if (totalFacesDrawn>2800)
+//					frameCheck = 3;
+//				else
+//					frameCheck = 2;
+//			else
+//				frameCheck = 1;
 
-		totalFacesDrawn = 0;
-		numObjectsDrawn = 0;
-		numObjectsTransformed = 0;
+//		totalFacesDrawn = 0;
+//		numObjectsDrawn = 0;
+//		numObjectsTransformed = 0;
 
-#endif
-#endif		
+//#endif
+//#endif		
 		switch(frameCheck)
 		{
 			case 0:
@@ -795,10 +795,10 @@ void UpDateOnScreenInfo ( void )
 				break;
 		}
 
-		polysText->r = r;
-		polysText->g = g;
-		polysText->b = b;
-		polysText->a = a;
+//		polysText->r = r;
+//		polysText->g = g;
+//		polysText->b = b;
+//		polysText->a = a;
 		
 	}
 
