@@ -653,10 +653,5 @@ void LoadLevelScript(int worldID, int levelID)
 
 	dprintf"LoadLevelScript: Loaded %d of %d bytes\n", (int)read, (int)size));
 
-	if (!MemLoadEvents(buffer, size))
-	{
-		dprintf"MemLoadEvents failed\n"));
-	}
-
-	JallocFree((UBYTE**)&buffer);
+	InitLevelScript(buffer);
 }

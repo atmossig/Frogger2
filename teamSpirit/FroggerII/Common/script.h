@@ -4,4 +4,9 @@
 extern void LoadTestScript(const char* filename);
 extern int Interpret(const UBYTE *);
 
+extern int InitLevelScript(void *buffer);
+extern int FreeLevelScript(void);
+
+extern UBYTE* scriptBuffer;
+
 #endif

@@ -12,6 +12,8 @@
 TRIGGER *LoadTrigger(UBYTE **p);
 BOOL ExecuteCommand(UBYTE *buffer);
 
+UBYTE* scriptBuffer;
+
 /* --------------------------------------------------------------------------------- */
 
 #define MEMGETBYTE(p) (*((*p)++))
@@ -323,3 +325,25 @@ void LoadTestScript(const char* filename)
 	if (buffer[0] != 0x02) return;
 	Interpret(buffer + 1);
 }
+
+int InitLevelScript(void *buffer)
+{
+	FreeLevelScript();
+
+	scriptBuffer = buffer;
+	
+	if (!(*scriptBuffer == 0x02 && Interpret(scriptBuffer + 1)))
+	{
+		JallocFree(&scriptBuffer); scriptBuffer = NULL;
+		return 0;
+	}
+
+	return 1;
+}
+
+int FreeLevelScript(void)
+{
+	JallocFree(&scriptBuffer); scriptBuffer = NULL;
+}
+
+
