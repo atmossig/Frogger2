@@ -613,17 +613,14 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 	// create objects for the level
 	CreateLevelObjects(worldID,levelID);
-
+	CreateFrogger(1,1);
 	LoadLevelEntities(worldID,levelID);
-	LoadLevelScript(worldID,levelID);
 
 	i=0;
 	initialCamera = 1;
 	SetVector(&(currCamSource[i]),&outVec);
 	SetVector(&(currCamTarget[i]),&inVec);
 		
-	CreateFrogger(1,1);
-
 	// prepare the text overlays for the current level
 	InitInGameTextOverlays(worldID,levelID);
 
@@ -646,6 +643,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 #endif
 
 	frameCount = 0;
+
+	// script is loaded last when we know everything's set up
+	LoadLevelScript(worldID,levelID);	
 }
 
 
