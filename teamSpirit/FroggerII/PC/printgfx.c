@@ -27,10 +27,10 @@ float tMtrx[4][4], rMtrx[4][4], sMtrx[4][4], dMtrx[4][4];
 void Clip3DPolygon (D3DTLVERTEX in[3], long texture);
 
 void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i );
-void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i );
+//void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i );
 
 void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short alpha, long tex );
-void DrawTongue( TONGUE *t );
+//void DrawTongue( TONGUE *t );
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrops
@@ -1131,7 +1131,7 @@ void TransformAndDrawPolygon( POLYGON *p )
 	PopMatrix( ); // Translation
 }
 
-
+/*
 void DrawTongue( TONGUE *t )
 {
 	unsigned long i=0, index = (int)(t->progress*(MAX_TONGUENODES-1));
@@ -1157,17 +1157,17 @@ void DrawTongue( TONGUE *t )
 
 	while( i < index )
 	{
-		/*********-[ First 2 points ]-********/
+		//********-[ First 2 points ]-*******
 		if( i && vTPrev[0].sz && vTPrev[1].sz )
 			memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );			// Previously transformed vertices
 		else
 			CalcTongueNodes( vT, t, i );
 
-		/*********-[ Next 2 points ]-********/
+		//********-[ Next 2 points ]-********
 		CalcTongueNodes( &vT[2], t, i+1 );
 		memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 ); 			// Store first 2 vertices of the next segment
 
-		/*********-[ Draw the polys ]-********/
+		//********-[ Draw the polys ]-********
 		tEntry = ((TEXENTRY *)t->tex);
 		if( tEntry && vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
 		{
@@ -1229,3 +1229,4 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
 	PopMatrix( ); // Rotation
 	PopMatrix( ); // Translation
 }
+*/
