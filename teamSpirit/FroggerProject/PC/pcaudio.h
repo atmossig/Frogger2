@@ -158,6 +158,8 @@ typedef struct
 
 extern SAMPLE *genSfx[];
 
+extern SOUNDLIST soundList;					// Actual Sound Samples List
+
 //***********************************
 // Function Prototypes
 

@@ -16,10 +16,13 @@
 #include <ddraw.h>
 #include <d3d.h>
 #include <dsound.h>
+#include <dinput.h>
 
 #include <islutil.h>
+#include "frogger.h"
 #include "pcaudio.h"
 #include "dx_sound.h"
+#include "controll.h"
 
 //***********************************
 // User Includes
@@ -33,6 +36,11 @@
 LPDIRECTSOUND           lpDS			= NULL;
 LPDIRECTSOUNDBUFFER		lpdsbPrimary	= NULL;
 LPDIRECTSOUND3DLISTENER lpds3DListener	= NULL;
+
+
+int showSounds = 0;
+int siPlaySound = 0;
+SAMPLE *dispSample = NULL;
 
 //***********************************
 // Function Definitions
@@ -358,4 +366,87 @@ void Set3DPosition ( LPDIRECTSOUND3DBUFFER lpds3DBuffer, float xPos, float yPos,
 {
 	lpds3DBuffer->SetPosition ( 0.0f, 0.0f, 10.0f, DS3D_IMMEDIATE );
 	lpds3DBuffer->SetMinDistance ( 4.0, DS3D_IMMEDIATE );
+}
+
+void ShowSounds(void)
+{
+	RECT r;
+	SAMPLE *me;
+	HDC hdc;
+
+	r.left = 0;
+	r.top = 0;
+	r.right = 300;
+	r.bottom = rYRes - 1;
+	
+	DrawTexturedRect(r,D3DRGBA(0,0,0,0.8),NULL,0,0,1,1);
+	
+	HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
+	if ((res == DD_OK))
+	{
+		char tText[256];
+		long tPC = 0,cPC;
+		HFONT hfnt, hOldFont;      
+		hfnt = (HFONT)GetStockObject(ANSI_VAR_FONT); 
+		int count=0;
+
+		if (hOldFont = (HFONT)SelectObject(hdc, hfnt)) 
+		{
+			SetBkMode(hdc, TRANSPARENT);
+	
+			// Draw the info
+			r.left = 32;
+			r.top = 32;
+			r.right = r.left + 64;
+			r.bottom = r.top + 64;
+
+			if( !dispSample )
+				dispSample = soundList.head.next;
+
+			me = dispSample;
+
+			SetTextColor(hdc, RGB(255,255,255));
+			sprintf(tText,"Number of Sounds: %i",soundList.numEntries);
+			TextOut(hdc, r.left+70, r.top, tText, strlen(tText));
+			r.top += 50;
+						
+			while (me && (r.bottom < rYRes - 32))	
+			{
+				r.left = 32;
+				r.right = r.left + 64;
+				
+				// If we're displaying the selected sound, hilight.
+				if( !count )
+				{
+					SetTextColor(hdc, RGB(255,255,255));
+
+					if( siPlaySound )
+						PlaySample( me, &frog[0]->actor->position, 0, SAMPLE_VOLUME, -1 );
+					siPlaySound = 0;
+				}
+				else
+				{
+					SetTextColor(hdc, RGB(230,100,100));
+				}
+				
+				sprintf(tText,"%s",me->idName);
+				TextOut(hdc, r.left+70, r.top, tText, strlen(tText));
+				
+				sprintf(tText,"Length %i",me->len);
+				TextOut(hdc, r.left+70, r.top+15, tText, strlen(tText));
+				
+				me = me->next;
+				count++;
+
+				r.top += 25;
+				r.bottom += 25;
+			}
+					
+			SelectObject(hdc, hOldFont); 
+		}
+		
+		IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);	
+	}
+	
+	BeginDraw();
 }

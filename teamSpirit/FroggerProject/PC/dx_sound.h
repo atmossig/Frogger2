@@ -29,6 +29,12 @@ extern LPDIRECTSOUND			lpDS;
 extern LPDIRECTSOUNDBUFFER		lpdsbPrimary;
 extern LPDIRECTSOUND3DLISTENER	lpds3DListener;
 
+extern int showSounds;
+extern int siPlaySound;
+extern SAMPLE *dispSample;
+extern void ShowSounds(void);
+
+
 extern int LoadWav( SAMPLE *sample, char *name );
 
 extern int InitDirectSound( HINSTANCE hInst,  HWND hWndMain );

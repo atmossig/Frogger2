@@ -34,7 +34,7 @@
 #include "..\network.h"
 #include "..\netchat.h"
 #include "backdrop.h"
-
+#include "dx_sound.h"
 #include "hud.h"
 
 /*	------------------------------------------------------------------------
@@ -582,7 +582,7 @@ void ProcessUserInput()
 	
 	unsigned short oldDigital[8];
 
-	if (consoleDraw || textureDraw)
+	if (consoleDraw || textureDraw || showSounds)
 		return;
 
 	if (windowActive)
@@ -651,6 +651,9 @@ void ProcessUserInput()
 		if( KEYPRESS(DIK_F8) )
 			displayingTile = !displayingTile;
 	}
+
+	if( showSounds )
+		return;
 
 	{
 		for (i = 0; i<4 * 14; i++)

@@ -401,6 +401,31 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
+			if( wParam == VK_F11 )
+			{
+				showSounds = !showSounds;
+				return 0;
+			}
+
+			if( showSounds )
+			{
+				if( dispSample )
+				{
+					if( wParam == VK_UP )
+						dispSample = dispSample->prev;
+					else if( wParam == VK_DOWN )
+						dispSample = dispSample->next;
+				}
+
+				if( wParam == VK_RETURN )
+					siPlaySound = 1;
+
+				if( dispSample == &soundList.head )
+					dispSample = soundList.head.next;
+
+				return 0;
+			}
+
 			switch (wParam)
 			{
 			case VK_F10:
@@ -644,6 +669,9 @@ long DrawLoop(void)
 	
 	if (textureDraw)
 		ShowTextures();
+	if( showSounds )
+		ShowSounds( );
+
 	if (consoleDraw)
 		PrintConsole();
 	if (timerDraw)
