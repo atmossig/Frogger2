@@ -28,6 +28,7 @@
 #include "pcaudio.h"
 #include "pcmisc.h"
 
+#include "controll.h"
 
 #define MAX_AMBIENT_SFX		50
 #define DEFAULT_SFX_DIST	7000
@@ -544,6 +545,7 @@ AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample, SVECTOR *pos, long radius, short 
 */
 void UpdateAmbientSounds()
 {
+	static int vol = 20000;
 	AMBIENT_SOUND *amb,*amb2;
 	SVECTOR *pos;
 
@@ -576,6 +578,18 @@ void UpdateAmbientSounds()
 
 		// Freq and randFreq are cunningly pre-multiplied by 60
 		amb->counter = actFrameCount + amb->freq + ((amb->randFreq)?Random(amb->randFreq):0);
+	}
+
+
+	if (KEYPRESS(DIK_NUMPADPLUS))
+	{
+		vol += gameSpeed>>4;
+		SetCDVolume(vol);
+	}
+	else if (KEYPRESS(DIK_NUMPADMINUS))
+	{
+		vol -= gameSpeed>>4;
+		SetCDVolume(vol);
 	}
 }
 
@@ -896,6 +910,8 @@ void SetCDVolume(int vol)
 	else if ((vol != 0) && (oldVolume == 0))
 		PlayCDaudio(currTrack);
 */
+
+	if (vol<0) vol=0;
 	oldVolume = vol;
 
 	details[0] = vol;

@@ -166,6 +166,8 @@ extern SAMPLE *genSfx[];
 
 extern SOUNDLIST soundList;					// Actual Sound Samples List
 
+extern int oldVolume;	// previously set value for volume
+
 //***********************************
 // Function Prototypes
 
