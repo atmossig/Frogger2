@@ -1155,6 +1155,7 @@ PLATFORM *CheckDestForPlatform(GAMETILE *tile,long pl)
 
 		// check if platform too high, etc.
 		// check if platform is too high to reach
+
 		if(PlatformTooHigh(cur,pl))
 		{
 			// platform too high (smoked too many funny fags ?)
@@ -1180,12 +1181,14 @@ PLATFORM *CheckDestForPlatform(GAMETILE *tile,long pl)
 				return NULL;
 			}
 
-			cur = NULL;
 			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+			
+			return NULL;
 		}
 
 		player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
 		player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+		currPlatform[pl] = NULL;
 
 		return cur;
 	}

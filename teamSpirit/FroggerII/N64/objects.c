@@ -1236,7 +1236,7 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 		for(y = 0; y < 10; y++)
 		{
 			faceIndex = baseFaceIndex + face;
-//			tcp = mesh->faceTC + face;
+			tcp = mesh->faceTC + face;
 
 			vertex = baseVertices + faceIndex->v[X];
 			vNormalPtr = baseVNormalPtr + faceIndex->v[X];
@@ -1244,8 +1244,7 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				(int)vertex->v[0],
 				(int)vertex->v[1],
 				(int)vertex->v[2],0,
-//				tcp->v[0], (tcp++)->v[1],
-				0,0,
+				tcp->v[0], (tcp++)->v[1],
 				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 
 			vertex = baseVertices + faceIndex->v[Y];
@@ -1254,8 +1253,7 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				(int)vertex->v[0],
 				(int)vertex->v[1],
 				(int)vertex->v[2],0,
-//				tcp->v[0], (tcp++)->v[1],
-				0,1024,
+				tcp->v[0], (tcp++)->v[1],
 				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 
 			vertex = baseVertices + faceIndex->v[Z];
@@ -1264,8 +1262,7 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				(int)vertex->v[0],
 				(int)vertex->v[1],
 				(int)vertex->v[2],0,
-//				tcp->v[0], (tcp++)->v[1],
-				1024,1024,
+				tcp->v[0], (tcp++)->v[1],
 				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
   
 			face++;			
@@ -1279,17 +1276,16 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 
 		for(j = 0;j < 10;j++)
 		{
-/*			if(texture != obj->mesh->textureIDs[face-10+j]	)
+			if(texture != obj->mesh->textureIDs[face-10+j]	)
 			{
 				texture = obj->mesh->textureIDs[face-10+j];
 			    gDPPipeSync(glistp++);
 				LoadTexture(texture);
 			}
-*/
-//			FindTexture(&texture,UpdateCRC("water2.bmp"),YES);
-			FindTexture(&texture,UpdateCRC("fgeye.bmp"),YES);
-		    gDPPipeSync(glistp++);
-			LoadTexture(texture);
+
+//			FindTexture(&texture,UpdateCRC("fgeye.bmp"),YES);
+//		    gDPPipeSync(glistp++);
+//			LoadTexture(texture);
 
 			gSP1Triangle(glistp++, j*3, j*3+1, j*3+2, 2);
 		}
@@ -1308,8 +1304,7 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 			(int)vertex->v[0],
 			(int)vertex->v[1],
 			(int)vertex->v[2],0,
-//			tcp->v[0], (tcp++)->v[1],
-			0,0,
+			tcp->v[0], (tcp++)->v[1],
 			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 
 		vertex = baseVertices + faceIndex->v[1];
@@ -1318,8 +1313,7 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 			(int)vertex->v[0],
 			(int)vertex->v[1],
 			(int)vertex->v[2],0,
-//			tcp->v[0], (tcp++)->v[1],
-			0,1024,
+			tcp->v[0], (tcp++)->v[1],
 			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 
 		vertex = baseVertices + faceIndex->v[2];
@@ -1328,13 +1322,11 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 			(int)vertex->v[0],
 			(int)vertex->v[1],
 			(int)vertex->v[2],0,
-//			tcp->v[0], (tcp++)->v[1],
-			1024,1024,
+			tcp->v[0], (tcp++)->v[1],
 			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 
 		face++;			
 		vtxPtr+=3;
-
 	}
 
 	if(mod)
@@ -1344,17 +1336,16 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 		temp = 0;
 		for(x = 0; x < mod; x++)
 		{
-/*			if(texture != obj->mesh->textureIDs[face])
+			if(texture != obj->mesh->textureIDs[face])
 			{
 				texture = obj->mesh->textureIDs[face];
 			    gDPPipeSync(glistp++);
 				LoadTexture(texture);
 			}
-*/
-//			FindTexture(&texture,UpdateCRC("water2.bmp"),YES);
-			FindTexture(&texture,UpdateCRC("fgeye.bmp"),YES);
-		    gDPPipeSync(glistp++);
-			LoadTexture(texture);
+
+//			FindTexture(&texture,UpdateCRC("fgeye.bmp"),YES);
+//		    gDPPipeSync(glistp++);
+//			LoadTexture(texture);
 
 			gSP1Triangle(glistp++, temp++, temp++, temp++, 2);
 			face++;

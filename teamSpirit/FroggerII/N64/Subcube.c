@@ -777,59 +777,57 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 			}
 		}
 	}
-/*
-	if(gameState.mode == INGAME_MODE)
+
+	// check for frog head....
+	for(i=0; i<5; i++)
+		tmp[i] = obj->name[i];
+	tmp[5] = '\0';
+
+	// ...and move it if necessary
+	if(!gstrcmp(tmp,"fghed\0"))
 	{
-		for(i=0; i<5; i++)
-			tmp[i] = obj->name[i];
-		tmp[5] = '\0';
+		float rotmat2[4][4];
+		QUATERNION quat, rot = {0,1,0,0};
+		VECTOR actVec;
 
-		// If a water object, draw always
-		if(!gstrcmp(tmp,"fghed\0"))
+		if(player[0].canJump)
 		{
-			float rotmat2[4][4];
-			QUATERNION quat, rot = {0,1,0,0};
-			VECTOR actVec;
-
-			if(player[0].canJump)
+			if (pointOfInterest)
 			{
-				if (pointOfInterest)
-				{
-					SubVector (&actVec,pointOfInterest,&(frog[0]->actor->pos));
-				}
-				else
-				{
-					SetVector (&actVec,&(currTile[0]->dirVector[frogFacing[0]]));
-				}
-
-				MakeUnit (&actVec);
-
-				pointVec.v[X] += (actVec.v[X] - pointVec.v[X]) * hedSpeed;
-				pointVec.v[Y] += (actVec.v[Y] - pointVec.v[Y]) * hedSpeed;
-				pointVec.v[Z] += (actVec.v[Z] - pointVec.v[Z]) * hedSpeed;
-		
-				MakeUnit (&pointVec);
-
-				// Could cause problems if point pass through frog... Should never Happen.
-	
-				CrossProduct( (VECTOR *)&rot, &(currTile[0]->dirVector[frogFacing[0]]),&pointVec);
-				rot.w = DotProduct(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
-				if (rot.w>1)
-					rot.w = 0;
-				else
-					rot.w = acos(rot.w);
-
-				GetQuaternionFromRotation (&quat,&rot);
-				QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
-				guMtxCatF(rotmat,rotmat2,rotmat);
+				SubVector (&actVec,pointOfInterest,&(frog[0]->actor->pos));
 			}
 			else
 			{
-				SetVector(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
+				SetVector (&actVec,&(currTile[0]->dirVector[frogFacing[0]]));
 			}
+
+			MakeUnit (&actVec);
+
+			pointVec.v[X] += (actVec.v[X] - pointVec.v[X]) * hedSpeed;
+			pointVec.v[Y] += (actVec.v[Y] - pointVec.v[Y]) * hedSpeed;
+			pointVec.v[Z] += (actVec.v[Z] - pointVec.v[Z]) * hedSpeed;
+		
+			MakeUnit (&pointVec);
+
+			// could cause problems if point pass through frog... should never happen
+	
+			CrossProduct( (VECTOR *)&rot, &(currTile[0]->dirVector[frogFacing[0]]),&pointVec);
+			rot.w = DotProduct(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
+			if (rot.w>1)
+				rot.w = 0;
+			else
+				rot.w = acos(rot.w);
+
+			GetQuaternionFromRotation (&quat,&rot);
+			QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
+			guMtxCatF(rotmat,rotmat2,rotmat);
+		}
+		else
+		{
+			SetVector(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
 		}
 	}
-*/
+
 	rotmat[3][0] = translation.v[X] * parentScaleStack[parentScaleStackLevel].v[X];
 	rotmat[3][1] = translation.v[Y] * parentScaleStack[parentScaleStackLevel].v[Y];
 	rotmat[3][2] = translation.v[Z] * parentScaleStack[parentScaleStackLevel].v[Z];
