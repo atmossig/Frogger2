@@ -59,7 +59,10 @@ void NMEDamageFrog( int num, ENEMY *nme )
 	if( !nme || num < 0 || num > 2) 
 		return;
 
-	frog[num]->action.healthPoints--;
+	if( nme->flags & ENEMY_NEW_ONEHITKILL )
+		frog[num]->action.healthPoints = 0;
+	else
+		frog[num]->action.healthPoints--;
 	
 	if(frog[num]->action.healthPoints != 0)
 	{
@@ -1256,9 +1259,12 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 		}
 
 	}
-	else if((flags & ENEMY_NEW_PINGPONG) && flags & (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN))
+	else if( flags & (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN) )
 	{
-		nme->flags	^= (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN);
+		if( flags & ENEMY_NEW_PINGPONG )
+			nme->flags	^= (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN);
+		else if( flags & ENEMY_NEW_CYCLE )
+			SetVector( &nme->nmeActor->actor->pos, &path->nodes[path->fromNode].worldTile->centre );
 	}
 
 	nme->speed		= path->nodes[path->fromNode].speed;

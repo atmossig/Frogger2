@@ -40,6 +40,7 @@
 #define ENEMY_NEW_VENT					(1 << 22)	// Gush particles up from a tile.
 #define ENEMY_NEW_NODAMAGE				(1 << 23)	// Don't hurt the frog on collision
 #define ENEMY_NEW_FLAPPYTHING			(1 << 24)	// Environmental effect - sets NODAMAGE flag. Can be used with swarm
+#define ENEMY_NEW_ONEHITKILL			(1 << 25)	// Don't just damage the frog, kill it right off
 
 typedef struct TAGENEMY
 {
