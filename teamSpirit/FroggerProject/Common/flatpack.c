@@ -80,6 +80,7 @@ void LoadStakFile ( int stakBank )
 {
 	int fileLength;
 	char file[64];
+	int i;
 
 	strcpy ( file, "STAKFILES\\" );
 
@@ -293,12 +294,22 @@ void LoadStakFile ( int stakBank )
 		FREE ( stakFiles [ numStakFiles ].stakFile );
 
 	stakFiles [ numStakFiles++ ].stakFile = (char*)fileLoad ( file, &fileLength);
-#if GOLDCD==1
 #ifdef PSX_VERSION
+#if GOLDCD==1
 	if(stakBank == FRONTEND1_STAK)
 	{
-		Decrypt(stakFiles[numStakFiles - 1]);
+		Decrypt(stakFiles[numStakFiles - 1].stakFile);
 	}
+/*
+#else
+	if(stakBank == FRONTEND1_STAK)
+	{
+		for(i = 0;i < 2048;i++)
+		{
+			stakFiles[numStakFiles - 1].stakFile[i] = Random(256);
+		}
+	}
+*/
 #endif
 #endif
 }
