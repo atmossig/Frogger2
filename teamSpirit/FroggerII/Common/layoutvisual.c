@@ -693,6 +693,7 @@ void FreeAllLists()
 #endif
 	FreeLevelScript();
 	FreeMapBank();
+	FreeTongues();
 
 	FreeActorList();
 
