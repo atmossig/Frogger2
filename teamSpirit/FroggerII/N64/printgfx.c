@@ -489,14 +489,29 @@ void ProcessShadows()
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,
 						G_TX_CLAMP,G_TX_CLAMP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
+//------------------------------------------------------------------------------------------------
 	// process frogs and babies shadows
+/*
+	i = number of players (1-4)
+	while(i--)
+	{
+		if(frog[i]->actor->shadow)
+		{
+			vec.v[X] = frog[i]->actor->pos.v[X];
+			vec.v[Y] = currTile[i]->centre.v[Y] + 1;
+			vec.v[Z] = frog[i]->actor->pos.v[Z];
+			DrawShadow(&vec,NULL,frog[i]->actor->shadow->radius,0,frog[i]->actor->shadow->alpha,frog[i]->actor->shadow->vert,NULL);
+		}
+	}
+*/
 	if(frog[0]->actor->shadow)
 	{
 		vec.v[X] = frog[0]->actor->pos.v[X];
-		vec.v[Y] = currTile->centre.v[Y] + 1;
+		vec.v[Y] = currTile[0]->centre.v[Y] + 1;
 		vec.v[Z] = frog[0]->actor->pos.v[Z];
 		DrawShadow(&vec,NULL,frog[0]->actor->shadow->radius,0,frog[0]->actor->shadow->alpha,frog[0]->actor->shadow->vert,NULL);
 	}
+//------------------------------------------------------------------------------------------------
 
 	i = numBabies;
 	while(i--)
