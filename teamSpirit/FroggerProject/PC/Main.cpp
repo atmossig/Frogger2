@@ -862,8 +862,6 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	InitInputDevices();
 
-	CommonInit();
-
 	pcFont = InitFont("FontA",baseDirectory);
 	pcFontSmall = InitFont("FontB",baseDirectory);
 	LoadTexBank("Phong",baseDirectory);
@@ -877,7 +875,6 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	font = (psFont *)pcFont;
 	fontSmall = (psFont *)pcFontSmall;
 
-	
 	sprintf(waterFile,"%stextures\\ProcData\\",baseDirectory);
 	InitWater(waterFile);
 
@@ -885,6 +882,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	InitEditor();
 
+	CommonInit();
+	
 	mdxSetUserWndProc(MainWndProc);
 	SPRITECLIPLEFT = clx0;
 	SPRITECLIPTOP = cly0;
