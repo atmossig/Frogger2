@@ -1222,13 +1222,23 @@ void SetOrientation(const char* str)
 */
 void SetFlagSound(const char* str)
 {
-	unsigned long uid = UpdateCRC(str);
+	unsigned long uid;
 	EDITGROUPNODE *node; 
-	int count;
+	char name[16];
+	int count=0;
+
+	while( str[count] != '\0' && str[count] != '.' )
+	{
+		name[count] = str[count];
+		count++;
+	}
+	name[count] = '\0';
+
+	uid = UpdateCRC(name);
 
 	for (node = selectionList->nodes, count=0; node; node = node->link, count++)
 		((EDITPATHNODE*)node->thing)->sample = uid;
-	sprintf(statusMessage, "Set flag sample to %s for %d flags", str, count);
+	sprintf(statusMessage, "Set flag sample to %s for %d flags", name, count);
 }
 
 

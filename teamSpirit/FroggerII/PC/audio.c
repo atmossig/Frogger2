@@ -63,9 +63,8 @@ void LoadSfxSet( char *path )
 	WIN32_FIND_DATA fData;
 	int numSfx=0;
 	long ret;
-	char *filepath;
+	char filepath[128];
 
-	filepath = (char *)JallocAlloc( strlen(path)+8, YES, "path" );
 	strcpy( filepath, path );
 	strcat( filepath, "*.wav" );
 
@@ -83,17 +82,15 @@ void LoadSfxSet( char *path )
 	dprintf"Loaded %d Samples\n",numSfx ));
 
 	FindClose( h );
-
-	JallocFree( (UBYTE **)&filepath );
 }
+
 
 void LoadSfx( unsigned long worldID )
 {
-	char *path;
+	char path[128];
 	int len;
 	
 	len = strlen(baseDirectory) + strlen(SFX_BASE);
-	path = (char *)JallocAlloc( len+32, YES, "path" );
 
 	strcpy( path, baseDirectory );
 	strcat( path, SFX_BASE );
@@ -102,12 +99,12 @@ void LoadSfx( unsigned long worldID )
 	strcat( path, "generic\\" );
 	LoadSfxSet(path);
 
-	genSfx[GEN_FROG_HOP] = FindSample(UpdateCRC("hopongrass.wav"));
-	genSfx[GEN_SUPER_HOP] = FindSample(UpdateCRC("hop2.wav"));
-	genSfx[GEN_DOUBLE_HOP] = FindSample(UpdateCRC("FroggerB.wav"));
-	genSfx[GEN_COLLECT_BABY] = FindSample(UpdateCRC("getbabyfrog.wav"));
-	genSfx[GEN_FROG_TONGUE] = FindSample(UpdateCRC("FroggerF.wav"));
-	genSfx[GEN_COLLECT_COIN] = FindSample(UpdateCRC("pickupcoin.wav"));
+	genSfx[GEN_FROG_HOP] = FindSample(UpdateCRC("hopongrass"));
+	genSfx[GEN_SUPER_HOP] = FindSample(UpdateCRC("hop2"));
+	genSfx[GEN_DOUBLE_HOP] = FindSample(UpdateCRC("FroggerB"));
+	genSfx[GEN_COLLECT_BABY] = FindSample(UpdateCRC("getbabyfrog"));
+	genSfx[GEN_FROG_TONGUE] = FindSample(UpdateCRC("FroggerF"));
+	genSfx[GEN_COLLECT_COIN] = FindSample(UpdateCRC("pickupcoin"));
 
 	path[len] = '\0';
 
@@ -125,8 +122,6 @@ void LoadSfx( unsigned long worldID )
 	}
 
 	LoadSfxSet( path );
-
-	JallocFree( (UBYTE **)&path );
 }
 
 
@@ -140,6 +135,8 @@ void LoadSfx( unsigned long worldID )
 SAMPLE *CreateAndAddSample( char *path, char *file )
 {
 	SAMPLE *sfx;
+	int i=0;
+	char name[32];
 	
 	if( !lpDS )
 	{
@@ -149,7 +146,15 @@ SAMPLE *CreateAndAddSample( char *path, char *file )
 
 	sfx = (SAMPLE *)JallocAlloc(sizeof(SAMPLE),YES,"Sfx");
 
-	sfx->uid = UpdateCRC(file);
+	// Remove extension from filename for psx compatability
+	while( file[i] != '\0' && file[i] != '.' )
+	{
+		name[i] = file[i];
+		i++;
+	}
+	name[i] = '\0';
+
+	sfx->uid = UpdateCRC(name);
 
 	// Create full name
 	sfx->idName = (char *)JallocAlloc( (strlen(path) + strlen(file))+5, YES, "path" );
