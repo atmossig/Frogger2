@@ -25,7 +25,6 @@ extern TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ];
 extern char saveName[32];
 void LoadTextureBank(int textureBank);
 void FreeTextureBank(TextureBankType *textureBank);
-void FreeAllTextureBanks(void);
 void LoadObjectBank(int objectBank);
 void LoadGame(void);
 void SaveGame(void);

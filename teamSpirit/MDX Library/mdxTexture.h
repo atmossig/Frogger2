@@ -47,12 +47,14 @@ typedef struct TAG_MDX_TEXPAGE
 
 extern MDX_TEXENTRY *texList;
 
+extern float textureAdjustDivider;
+extern LPDIRECTDRAWSURFACE7 testS;
+
 MDX_TEXENTRY *GetTexEntryFromCRC (long CRC);
 unsigned long LoadTexBank(char *bank, char *baseDir);
-extern float textureAdjustDivider;
+void FreeAllTextureBanks( );
 void InitWater(char *file);
 void UpdateWater(void);
-extern LPDIRECTDRAWSURFACE7 testS;
 
 #ifdef __cplusplus
 }

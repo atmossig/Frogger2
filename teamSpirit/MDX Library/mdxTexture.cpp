@@ -205,8 +205,10 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 			newE->xSize = xDim;
 			newE->ySize = yDim;
 			newE->keyed = 0;
-			
-			if (!rHardware)
+
+			if( rHardware )
+				newE->softData = NULL;
+			else
 			{
 				newE->softData = new long[xDim*yDim];
 
@@ -284,6 +286,38 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 
 	return 1;
 }
+
+void FreeAllTextureBanks()
+{
+	MDX_TEXENTRY *cur, *next/*, *cur2*/;
+	int numTextures;
+
+	for( cur = texList, numTextures = 0; cur; cur = next, numTextures++ )
+	{
+		next = cur->next;
+		
+		if( cur->surf )	cur->surf->Release();
+
+/* Pending animated textures
+
+		cur2 = cur->nextFrame;
+		while (cur2)
+		{
+			cur2->surf->Release();
+			cur2 = cur2->nextFrame;
+		}
+*/
+		if( cur->data ) delete cur->data;
+		if( cur->softData ) delete cur->softData;
+
+		delete cur;
+	}
+
+	dp("Freed %d Textures\n",numTextures);
+
+	texList = NULL;
+}
+
 
 #ifdef __cplusplus
 }

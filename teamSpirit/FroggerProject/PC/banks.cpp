@@ -339,12 +339,6 @@ void LoadTextureBank(int textureBank)
 	return;
 }
 
-void FreeAllTextureBanks(void)							
-{
-	// Waiting for Matt to put it in MDX
-	utilPrintf("!!! FreeAllTextureBanks() : TEXTURE BANKS ARE NOT FREED CORRECTLY !!!\n");
-}
-
 /*
 void newobj(char* fn)
 {
