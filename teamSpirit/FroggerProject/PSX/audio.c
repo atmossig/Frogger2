@@ -26,6 +26,20 @@
 
 
 
+char *musicNames[] = { "CD2.XA",//
+					   "CD3.XA",
+					   "CD4.XA",
+					   "CD5.XA",//
+					   "CD6.XA",//
+					   "CD7.XA",//
+					   "CD8.XA",
+					   "CD9.XA",//
+					   "CD10.XA",//
+					   "CD11.XA"};//
+
+
+
+
 #define SFX_BASE		"SFX\\"
 
  
@@ -45,7 +59,8 @@
 SAMPLE *genSfx[NUM_GENERIC_SFX];
 // SAMPLE **sfx_anim_map = NULL;
 
-XAFileType	*xaFileData[NUM_CD_TRACKS];
+//bbXAFileType	*xaFileData[NUM_CD_TRACKS];
+XAFileType	*xaFileData[MUSIC_NUM_TRACKS];
  
 // UINT mciDevice = 0;
  
@@ -416,7 +431,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	int i;
 
 	//bbdebug crash bug
-	return 0;
+//	return 0;
 
 //Stuff to ensure calls to PlaySample can be the same for PC and PSX
 	if (pitch ==-1)
@@ -628,6 +643,18 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 
 
+
+void bb_InitXA(void)
+{
+	int i=0;
+	
+	XAsetStatus(CdInit());
+
+	for(i=0; i<MUSIC_NUM_TRACKS; i++)
+		xaFileData[i] = XAgetFileInfo(musicNames[i]);
+}
+
+
 /*	--------------------------------------------------------------------------------
 	Function		: PrepareSongForLevel
 	Purpose			: loads and starts playback of song for specified level
@@ -637,6 +664,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 */
 void PrepareSong(short worldID)
 {
+/*
 //	char cdTrack[16];
 	int trackIndex;
 
@@ -649,6 +677,10 @@ void PrepareSong(short worldID)
 	XAstart(1);			// set for double speed playback
 	XAplayChannelOffset( xaFileData[trackIndex],0,0,1,100); // file to play , offset from start , channel , loop , volume
 	// volume goes from 0 to 100
+*/
+
+	XAstart(1);
+	XAplayChannel(xaFileData[worldID], 0,0,100);
 }
 
 

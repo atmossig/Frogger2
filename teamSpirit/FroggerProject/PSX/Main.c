@@ -28,6 +28,10 @@
 #include "shell.h"
 #include "islpsi.h"
 
+//bb xa
+#include <libcd.h>
+#include <islxa.h>
+
 
 #include "Layout.h"
 #include "World.h"
@@ -280,6 +284,7 @@ extern int polyCount;
 
 int lastpolyCount=0;
 int lastactorCount=0;
+int maxInterpretTimer=0;
 
 int main ( )
 {
@@ -343,6 +348,27 @@ int main ( )
 		font = fontLoad("FONTL.FON");
 		fontSmall = fontLoad("FONTS.FON");
 
+
+/*		//bb xa test
+		{
+			XAFileType *xaInfo;
+
+			XAsetStatus(CdInit());
+			xaInfo = XAgetFileInfo("CD2.XA");
+//			XAstart(0);
+			XAstart(1);//'speed' flag
+			XAplayChannel(xaInfo, 0,0,100);
+		}
+
+		//don't do the rest of the game
+		while(1)
+		{
+		}
+*/
+
+		bb_InitXA();
+
+		
 		StartSound();//mmsfx
 
 
@@ -438,41 +464,16 @@ int main ( )
 // 				SVECTOR sv2 = {23456,23456,23456};
 // 				SVECTOR sv3 = {-10,-10,-10};
 // 				SVECTOR sv4 = {-12345,-12345,-12345};
-//  			VECTOR v1 = {10,10,10};
-//  			VECTOR v2 = {23456,23456,23456};
-//  			VECTOR v3 = {-10,-10,-10};
-//  			VECTOR v4 = {-12345,-12345,-12345};
-  				FVECTOR fv1 = {10<<12, 0, 23456<<12};
-  				FVECTOR fv2 = {23456<<12, 0, -12345<<12};
-  				FVECTOR fv3 = {-100<<12, 0, -12345<<12};
-  				FVECTOR fv4 = {23456<<12, 0, 23456<<12};
-//  				FVECTOR fv1 = {0, 0, 4096};
-//  				FVECTOR fv2 = {4096, 0, };
-//  				FVECTOR fv3 = {0, 0, -4096};
-//  				FVECTOR fv4 = {-4096, 0, 0};
- 				FVECTOR tempUp = {0,4096,0};
-				MakeUnit(&fv1);
-				MakeUnit(&fv2);
-				MakeUnit(&fv3);
-				MakeUnit(&fv4);
-//			TIMER_START(TIMER_GAMELOOP);
+TIMER_START(TIMER_GAMELOOP);
 				for(i=0; i<1000; i++)
 				{
 // 					res1 = Magnitude2DF(&v1);
 // 					res2 = Magnitude2DF(&v2);
 // 					res3 = Magnitude2DF(&v3);
 // 					res4 = Magnitude2DF(&v4);
-// 					MakeUnit(&fv1);
-// 					MakeUnit(&fv2);
-// 					MakeUnit(&fv3);
-// 					MakeUnit(&fv4);
-					Orientate(&frog[0]->actor->qRot, &fv1, &tempUp );
-					Orientate(&frog[0]->actor->qRot, &fv2, &tempUp );
-					Orientate(&frog[0]->actor->qRot, &fv3, &tempUp );
-					Orientate(&frog[0]->actor->qRot, &fv4, &tempUp );
 				}
 			}
-			TIMER_STOP(TIMER_GAMELOOP);
+TIMER_STOP(TIMER_GAMELOOP);
 */
 			TIMER_START0(TIMER_GAMELOOP);
 			GameLoop();
@@ -495,11 +496,13 @@ int main ( )
 
 
 			TIMER_STOP(TIMER_TOTAL);
-
 			TIMER_ENDFRAME;
 
-			TIMER_ZERO;
+			//store timer peaks here
+			if(globalTimer[TIMER_INTERPRET] > maxInterpretTimer)
+				maxInterpretTimer = globalTimer[TIMER_INTERPRET];
 
+			TIMER_ZERO;
 			VSync(2);
 
 //			TIMER_START(TIMER_TOTAL);
@@ -550,15 +553,19 @@ int main ( )
 #endif
 
 
-
+#if GOLDCD==0
 			if(gameState.mode!=PAUSE_MODE)
 			{
-				char tempText[64];
+				char tempText[128];
  				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
  						gameSpeed>>12, lastactorCount, lastpolyCount); 
  				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
-			}
 
+//				sprintf(tempText, "% 2d frames  % 2d actors  % 4d maxintrpt",
+// 						gameSpeed>>12, lastactorCount, maxInterpretTimer); 
+// 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
+			}
+#endif
 
 //			utilPrintf("countMakeUnit %d\n", countMakeUnit);
 //			utilPrintf("countQuatToPSXMatrix %d\n", countQuatToPSXMatrix);
@@ -585,9 +592,12 @@ int main ( )
 
 
 
-//			if(gameState.mode!=PAUSE_MODE)
+			if(gameState.mode!=PAUSE_MODE)
 			{
- 				gameSpeed = vsyncCounter<<12;
+				//bb
+				lastActFrameCount = actFrameCount;
+
+				gameSpeed = vsyncCounter<<12;
  				actFrameCount += vsyncCounter;
  				vsyncCounter = 0;
 			}

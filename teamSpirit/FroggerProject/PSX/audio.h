@@ -29,7 +29,7 @@
 // #define AMBIENT_VOLUME	255
 #define SAMPLE_VOLUME	255
  
- 
+/* 
 enum
 {
 	NOTRACK = 0,
@@ -46,6 +46,27 @@ enum
 
 	NUM_CD_TRACKS,
 };
+*/
+
+enum
+{
+	MUSIC_GARDEN,
+	MUSIC_ANCIENT,	
+	MUSIC_SPACE,	
+	MUSIC_CITY,	
+	MUSIC_SUBTERRANEAN,
+	MUSIC_LABORATORY,	
+	MUSIC_HALLOWEEN,	
+	MUSIC_SWAMPYWORLD,
+	MUSIC_SUPERRETRO,	
+	MUSIC_FRONTEND,	
+	
+	MUSIC_NUM_TRACKS
+};
+
+extern char *musicNames[];
+
+
  
 // All generic sfx
 enum
