@@ -716,19 +716,28 @@ long DrawLoop(void)
 
 	if (grabToTexture == 1)
 	{
-		DrawPageB();
+		DrawPageB(cWorld);
 		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256b.bmp")),surface[RENDER_SRF]);	
-		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
+//		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
 		grabToTexture = 0;
 	}
 
 	if (grabToTexture == 3)
 	{
-		DrawPageB();
+		DrawPageB(cWorld);
 		//GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256b.bmp")),surface[RENDER_SRF]);	
 		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
 		grabToTexture = 2;
 	}
+
+	if (grabToTexture == 4)
+	{
+		DrawPageB(max(0,cWorld - 1));
+		//GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256b.bmp")),surface[RENDER_SRF]);	
+		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
+		grabToTexture = 2;
+	}
+
 
 	GetCursorPos(&t);
 	camZ = t.x*8;
