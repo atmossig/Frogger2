@@ -90,6 +90,10 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 					if(theActor)
 					{
+						QuatToPSXMatrix ( &cur->rot, &theActor->actor->bffMatrix );
+
+						theActor->actor->qRot = cur->rot;
+
 						actorAnimate ( theActor->actor, 0, YES, NO, 150, NO );
 					}
 				}
