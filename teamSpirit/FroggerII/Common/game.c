@@ -420,6 +420,7 @@ void GameProcessController(long pl)
 #endif
 			if (gameState.multi==SINGLEPLAYER)
 			{
+				DisableHUD();
 //		livesTextOver->oa = livesTextOver->a;
 //				scoreTextOver->oa = scoreTextOver->a;
 

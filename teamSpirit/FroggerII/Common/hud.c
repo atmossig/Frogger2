@@ -48,6 +48,7 @@ TEXTOVERLAY *wholeKeyText = NULL;
 char levelString[] = "Levelname Goes in here";
 char posString[] = "-----------------------";
 
+extern unsigned long numGaribsTotal;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -77,8 +78,9 @@ typedef struct TAG_ARCADE_HUD
 } ARCADE_HUD;
 
 ARCADE_HUD arcadeHud;
-char timeStringMin[3]	= "00";
-char timeStringSec[3]	= "00";
+char timeStringMin[8]	= "00";
+char timeStringSec[8]	= "00";
+char coinsText[32] = "00 of 32";
 
 void InitHUD(void)
 {
@@ -96,17 +98,28 @@ void InitHUD(void)
 	arcadeHud.backCentre = CreateAndAddSpriteOverlay(65,240-3-15,"wback2.bmp",254-20-65,15,170,0);
 
 	arcadeHud.livesText = CreateAndAddTextOverlay(5+32,240-7-16,livesText,NO,255,currFont,0,0);
+	arcadeHud.coinsText = CreateAndAddTextOverlay(68+16,240-2-13,coinsText,NO,255,smallFont,0,0);
+	arcadeHud.coinsText->r = 100;
+	arcadeHud.coinsText->g = 200;
+	arcadeHud.coinsText->b = 230;
 
 	arcadeHud.timeTextMin = CreateAndAddTextOverlay(234+22,240-7-16,timeStringMin,NO,255,currFont,0,0);
 	arcadeHud.timeTextSec = CreateAndAddTextOverlay(234+22+32,240-7-16,timeStringSec,NO,255,currFont,0,0);
+	
 }
 
 void DisableHUD(void)
 {
+	arcadeHud.livesOver->draw = arcadeHud.timeOver->draw = arcadeHud.coinsOver->draw = arcadeHud.backLeftExtra->draw = 
+	arcadeHud.backLeft->draw = arcadeHud.backRightExtra->draw = arcadeHud.backRight->draw = arcadeHud.backCentre->draw = 
+	arcadeHud.livesText->draw = arcadeHud.coinsText->draw = arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = 0;
 }
 
 void EnableHUD(void)
 {
+	arcadeHud.livesOver->draw = arcadeHud.timeOver->draw = arcadeHud.coinsOver->draw = arcadeHud.backLeftExtra->draw = 
+	arcadeHud.backLeft->draw = arcadeHud.backRightExtra->draw = arcadeHud.backRight->draw = arcadeHud.backCentre->draw = 
+	arcadeHud.livesText->draw = arcadeHud.coinsText->draw = arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = 1;
 }
 
 void UpDateOnScreenInfo( void )
@@ -114,6 +127,7 @@ void UpDateOnScreenInfo( void )
 	sprintf(livesText,"%lu",player[0].lives);	
 	sprintf(timeStringSec,"%02i",((int)actFrameCount/60)%60);
 	sprintf(timeStringMin,"%2i",((int)actFrameCount/(60*60))%60);	
+	sprintf(coinsText,"%02i of %02i",numGaribsTotal-garibCollectableList.numEntries,numGaribsTotal);
 }
 
 

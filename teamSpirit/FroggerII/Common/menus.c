@@ -85,8 +85,8 @@ void RunPauseMenu()
 //				livesTextOver->a = livesTextOver->oa;
 //				scoreTextOver->a = scoreTextOver->oa;
 
-				for ( i = 0; i < 3; i++ )
-					sprHeart[i]->draw = 1;
+//				for ( i = 0; i < 3; i++ )
+//					sprHeart[i]->draw = 1;
 
 //				timeTextOver->a = timeTextOver->oa;
 			}
@@ -232,6 +232,7 @@ void RunFrontendGameLoop (void)
 
 	if (frameCount == 1)
 	{
+		DisableHUD();
 		strcpy(arcadeStr,"No Mode");
 		for (i=0; i<MAX_SPARKLES; i++)
 		{
