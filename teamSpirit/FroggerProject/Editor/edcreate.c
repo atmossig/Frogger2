@@ -131,7 +131,7 @@ void EditorCreateEntities(void)
 			enemy->path = path;
 			enemy->active = 0;
 			enemy->uid = create->ID;
-			act = NULL;
+			enemy->nmeActor = act = NULL;
 			AddEnemy(enemy);
 
 			counts[0]++;
