@@ -528,7 +528,6 @@ void SlurpCamPosition(long cam)
 */
 void UpdateCameraPosition(long cam)
 {
-
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
 	
@@ -657,7 +656,7 @@ void UpdateCameraPosition(long cam)
 
 	if( swingCam )
 	{
-		// if the player is on their last life - give the swaying camera more 'urgency' - subtle
+		// if the player is on their last life - give the swaying camera more 'urgency' - subtle - stoopid
 		if(player[0].lives < 3)
 		{
 			swayModifier	= 3.0f;
@@ -672,6 +671,7 @@ void UpdateCameraPosition(long cam)
 		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed*swayModifier)*sideSwayAmt) * camDist.v[2]) / 350.0;
 	}
 }
+
 
 void CameraShake(float amount)
 {
