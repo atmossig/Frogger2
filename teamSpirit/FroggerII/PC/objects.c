@@ -296,6 +296,31 @@ void LoadObjectBank(int num)
 		case ANCIENTMULTI_OBJ_BANK:
 			strcat (file,"ancientsmulti");
 			break;
+
+		
+		case TOYSHOPMASTER_OBJ_BANK:
+			strcat (file,"toymaster");
+			break;
+		
+		case TOYSHOPLEV1_OBJ_BANK:
+			strcat (file,"toy1");
+			break;
+
+		case TOYSHOPLEV2_OBJ_BANK:
+			strcat (file,"toy2");
+			break;
+
+		case TOYSHOPLEV3_OBJ_BANK:
+			strcat (file,"toy3");
+			break;
+
+		case TOYSHOPBONUS_OBJ_BANK:
+			strcat (file,"toybonus");
+			break;
+
+		case TOYSHOPMULTI_OBJ_BANK:
+			strcat (file,"toymulti");
+			break;
 	
 		case LABORATORYMASTER_OBJ_BANK:
 			strcat (file,"labmaster");

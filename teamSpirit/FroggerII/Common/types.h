@@ -137,6 +137,11 @@ typedef struct
 
 typedef struct
 {
+	unsigned short	v[3];
+}USHORTVECTOR;
+
+typedef struct
+{
 	UBYTE r,g,b,a;
 }COLOUR;
 

@@ -16,6 +16,8 @@
 
 #define LODDist (700 * 700)
 
+#define BETWEEN(x,a,b) ((x>a) && (x<b))
+
 VECTOR pointVec = {0,0,1};
 
 float hedSpeed = 0.2;
@@ -66,7 +68,7 @@ long InitOneOverTable(void)
 {
 	int i;
 	for(i=1; i<65535; i++)
-		oneOver[i] = 1/i;
+		oneOver[i] = 1.0/(float)i;
 }
 
 
@@ -270,23 +272,6 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
 		DrawAHardwarePoly(vIn,vInCount,faceList,j,texture);
 	}
-
-/*	xb = vIn[0].sx;
-	yb = vIn[0].sy;
-	ub = vIn[0].tu;
-	vb = vIn[0].tv;
-
-	for (int i=1; i<(vInCount-1); i++)
-	{
-		DrawPolygon (
-			xb, yb,
-				ub, vb,
-			vIn[i].sx, vIn[i].sy,
-				vIn[i].tu, vIn[i].tv,
-			vIn[i+1].sx, vIn[i+1].sy, 
-				vIn[i+1].tu, vIn[i+1].tv);
-	}*/
-
 }
 
 /*	--------------------------------------------------------------------------------
@@ -564,6 +549,9 @@ void XformActor(ACTOR *actor)
 	OBJECT_CONTROLLER *objectC = actor->objectController;
 	float animTime;
 
+	if (!objectC)
+		return;
+
 	if((actor->xluOverride == 0) || (objectC->object->xlu == 0))
 	{
 		actor->visible = 0;
@@ -757,37 +745,43 @@ void TransformObject(OBJECT *obj, float time)
 		QUATERNION quat, rot = {0,1,0,0};
 		VECTOR actVec;
 
-		if (pointOfInterest)
+		if(player[0].canJump)
 		{
-			SubVector (&actVec,pointOfInterest,&(frog[0]->actor->pos));
-		}
-		else
-		{
-			SetVector (&actVec,&(currTile[0]->dirVector[frogFacing[0]]));
-		}
+			if (pointOfInterest)
+			{
+				SubVector (&actVec,pointOfInterest,&(frog[0]->actor->pos));
+			}
+			else
+			{
+				SetVector (&actVec,&(currTile[0]->dirVector[frogFacing[0]]));
+			}
 
-		MakeUnit (&actVec);
+			MakeUnit (&actVec);
 
-		pointVec.v[X] += (actVec.v[X] - pointVec.v[X]) * hedSpeed;
-		pointVec.v[Y] += (actVec.v[Y] - pointVec.v[Y]) * hedSpeed;
-		pointVec.v[Z] += (actVec.v[Z] - pointVec.v[Z]) * hedSpeed;
+			pointVec.v[X] += (actVec.v[X] - pointVec.v[X]) * hedSpeed;
+			pointVec.v[Y] += (actVec.v[Y] - pointVec.v[Y]) * hedSpeed;
+			pointVec.v[Z] += (actVec.v[Z] - pointVec.v[Z]) * hedSpeed;
 		
-		MakeUnit (&pointVec);
+			MakeUnit (&pointVec);
 
-		// Could cause problems if point pass through frog... Should never Happen.
+			// Could cause problems if point pass through frog... Should never Happen.
 	
-		CrossProduct( (VECTOR *)&rot, &(currTile[0]->dirVector[frogFacing[0]]),&pointVec);
-		rot.w = DotProduct(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
-		if (rot.w>1)
-			rot.w = 0;
-		else
-			rot.w = acos(rot.w);
+			CrossProduct( (VECTOR *)&rot, &(currTile[0]->dirVector[frogFacing[0]]),&pointVec);
+			rot.w = DotProduct(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
+			if (rot.w>1)
+				rot.w = 0;
+			else
+				rot.w = acos(rot.w);
 
 		
-		GetQuaternionFromRotation (&quat,&rot);
-		QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
-		guMtxCatF(rotmat,rotmat2,rotmat);
-
+			GetQuaternionFromRotation (&quat,&rot);
+			QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
+			guMtxCatF(rotmat,rotmat2,rotmat);
+		}
+		else
+		{
+			SetVector(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
+		}
 	}
 
 	rotmat[3][0] = translation.v[X] * actorScale->v[X] * parentScaleStack[parentScaleStackLevel].v[X];
@@ -958,251 +952,6 @@ void DrawActor(ACTOR *actor)
 	//DrawObject(objectC->object, objectC->object->drawList, FALSE);
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: 
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-
-void PCDrawObject(OBJECT *obj, float m[4][4])
-{
-	short fce[3] = {0,1,2};		
-	D3DTLVERTEX v[3],*vTemp;
-	float *mTemp;
-	VECTOR *in,*c1,*c2,*c3,*vTemp2;
-	float c[4][4];
-	float f[4][4];
-	int i;
-	long drawme;
-	
-	in = obj->mesh->vertices;
-
-	//if ((xl<0.99) || (xluFade<0.99))
-	{
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
-	}
-
-	guLookAtF(c,
-			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
-			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
-			//stx,sty,stz,
-			//ctx,cty,ctz,
-			//0,1,0);
-			camVect.v[X],camVect.v[Y],camVect.v[Z]);
-	
-	guMtxCatF(m,c,f);
-	
-	vTemp2 = tV;
-	
-	for (i=0; i<obj->mesh->numVertices; i++)
-	{
-		if (xl<0.99)
-		{
-			if (player[0].frogState & FROGSTATUS_ISDEAD)
-			{
-				player[0].lives = 5;
-				if (frog[0]->action.deathBy & DEATHBY_DROWNING)
-				{
-					float val;
-					VECTOR me,me2;
-					me.v[X] = in->v[X]*sclW;
-					me.v[Y] = in->v[Y]*sclW;
-					me.v[Z] = in->v[Z]*sclW;
-
-					guMtxXFMF(m,me.v[X],me.v[Y],me.v[Z],
-								&me2.v[0],&me2.v[1],&me2.v[2]); 
-					
-					val = 1+DistanceBetweenPoints2DSquared(&destTile[0]->centre,&me2);
-					if (val<thresh)
-						val = thresh;
-					val = rval / (val/rval2);
-
-					val = (1+sinf(val*fmody2+frameCount*fmody)) * val * svall;
-					if (frog[0]->action.dead>sofs)
-						val *= ((frog[0]->action.dead-sofs) / 75.0);
-					else
-						val*=0;
-
-					val += (2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2)))*valWater;
-					
-					mV[i] = (2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2)))*valWater;
-
-					guMtxXFMF(f,in->v[X],in->v[Y] - val, in->v[Z],
-
-					&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
-				}
-			}
-			else
-			{
-				mV[i] =(	(2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2))) + 
-					(2+(sin((in->v[Z]+50)*sinSpeedVert+frameCount*sinSpeedWater)+cos((in->v[X]+50)*sinSpeedVert2+frameCount*sinSpeedWater2)))
-					)*valWater/2;
-				guMtxXFMF(f,in->v[X],in->v[Y]-
-				mV[i]
-				,in->v[Z],
-				&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
-			}
-		}
-		else
-		{
-			guMtxXFMF(f,in->v[X],in->v[Y],in->v[Z],
-			&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
-		}
-	
-		if (((vTemp2->v[Z]+DIST)>nearClip) &&
-			((noClipping) ||   
-			(((vTemp2->v[Z]+DIST)<farClip) &&
-			((vTemp2->v[X])>-horizClip) &&
-			((vTemp2->v[X])<horizClip) &&
-			((vTemp2->v[Y])>-vertClip) &&
-			((vTemp2->v[Y])<vertClip))))
-		{
-			float oozd = -1/(vTemp2->v[Z]+DIST);
-			vTemp2->v[X] = 320+((vTemp2->v[X] * FOV) * oozd);
-			vTemp2->v[Y] = 220+((vTemp2->v[Y] * FOV) * oozd);
-		}
-		else
-			vTemp2->v[Z] = 0;
-
-		vTemp2++;
-		in++;
-		mV[i]*=scVC;
-	}
-	
-	for (i=0; i<obj->mesh->numFaces; i++)
-	{
-		long v0 = obj->mesh->faceIndex[i].v[0];
-		long v1 = obj->mesh->faceIndex[i].v[1];
-		long v2 = obj->mesh->faceIndex[i].v[2];
-		long v0a,v1a,v2a;
-		TEXENTRY *tex = (TEXENTRY *)(obj->mesh->textureIDs[i]);
-
-		v0a = i*3;
-		v1a = v0a+1;
-		v2a = v1a+1;
-
-		if (tV[v0].v[Z])
-		if (tV[v1].v[Z])
-		if (tV[v2].v[Z])
-		if (tex)
-		{
-			c1 = &(((VECTOR *)obj->mesh->vertexNormals)[v0a]);
-			c2 = &(((VECTOR *)obj->mesh->vertexNormals)[v1a]);
-			c3 = &(((VECTOR *)obj->mesh->vertexNormals)[v2a]);
-			
-			drawme = 1;
-
-			vTemp = v;
-			
-			vTemp->specular = 0;
-			vTemp->sx = tV[v0].v[X];
-			vTemp->sy = tV[v0].v[Y];
-			vTemp->sz = (tV[v0].v[Z]+DIST)/2000;///2000;
-			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*(1.0/1024.0));
-			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*(1.0/1024.0));
-			vTemp->color = D3DRGBA(1,1,1,1);//D3DRGBA(c1->v[2],c1->v[1],c1->v[0],xl);
-			if (xl<0.99)
-			{
-				vTemp->specular = D3DRGB(mV[v0],mV[v0],mV[v0]);
-			}
-			else
-			{
-				vTemp->specular = D3DRGB(rCol,gCol,bCol);
-			}
-
-			vTemp++;
-
-			vTemp->specular = 0;
-			vTemp->sx = tV[v1].v[X];
-			vTemp->sy = tV[v1].v[Y];
-			vTemp->sz = (tV[v1].v[Z]+DIST)/2000;//2000;
-			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*(1.0/1024.0));
-			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*(1.0/1024.0));
-			vTemp->color = D3DRGBA(1,1,1,1);//(c2->v[2],c2->v[1],c2->v[0],xl);
-			if (xl<0.99)
-			{
-				vTemp->specular = D3DRGB(mV[v1],mV[v1],mV[v1]);
-			}
-			else
-			{
-				vTemp->specular = D3DRGB(rCol,gCol,bCol);
-			}
-
-			vTemp++;
-
-			vTemp->specular = 0;
-			vTemp->sx = tV[v2].v[X];
-			vTemp->sy = tV[v2].v[Y];
-			vTemp->sz = (tV[v2].v[Z]+DIST)/2000;///2000;
-			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*(1.0/1024.0));
-			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*(1.0/1024.0));
-			vTemp->color = D3DRGBA(1,1,1,1);//D3DRGBA(c3->v[2],c3->v[1],c3->v[0],xl);
-			if (xl<0.99)
-			{
-				vTemp->specular = D3DRGB(mV[v2],mV[v2],mV[v2]);
-			}
-			else
-			{
-				vTemp->specular = D3DRGB(rCol,gCol,bCol);
-			}
-		
-
-			if (v[0].sx <0)
-				if (v[1].sx<0)
-					if (v[2].sx<0)
-						drawme = 0;
-			
-			if (v[0].sy <0)
-				if (v[1].sy<0)
-					if (v[2].sy<0)
-						drawme = 0;
-
-			if (v[0].sx >640)
-				if (v[1].sx>640)
-					if (v[2].sx>640)
-						drawme = 0;
-			
-			if (v[0].sy >480)
-				if (v[1].sy>480)
-					if (v[2].sy>480)
-						drawme = 0;
-
-			if (drawme)
-				Clip3DPolygon(v,tex->hdl);
-		
-		/*	SetTexture (obj->mesh->textureIDs[i]);
-			if (obj->mesh->textureIDs[i])
-			{
-				ClipPolygon(
-					tV[v0].v[X],tV[v0].v[Y],
-						obj->mesh->faceTC[v0a].v[0]>>2,
-						obj->mesh->faceTC[v0a].v[1]>>2,
-					tV[v1].v[X],tV[v1].v[Y],
-						obj->mesh->faceTC[v1a].v[0]>>2,
-						obj->mesh->faceTC[v1a].v[1]>>2,
-					tV[v2].v[X],
-					tV[v2].v[Y],
-						obj->mesh->faceTC[v2a].v[0]>>2,
-						obj->mesh->faceTC[v2a].v[1]>>2);
-			}*/
-
-		}
-	}
-
-//	if ((xl<0.99) || (xluFade<0.99))
-	{
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
-	}
-
-	return;
-}
-
-
-
 
 
 
@@ -1302,15 +1051,18 @@ void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4])
 		in = &mesh->vertices[j];
 
 		// Transform by our matrix
-		guMtxXFMF(f,in->v[X],in->v[Y],in->v[Z],
-		&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
+		vTemp2->v[X] = (f[0][0]*in->v[X])+(f[1][0]*in->v[Y])+(f[2][0]*in->v[Z])+(f[3][0]);
+		vTemp2->v[Y] = (f[0][1]*in->v[X])+(f[1][1]*in->v[Y])+(f[2][1]*in->v[Z])+(f[3][1]);
+		vTemp2->v[Z] = (f[0][2]*in->v[X])+(f[1][2]*in->v[Y])+(f[2][2]*in->v[Z])+(f[3][2]);
 
 		// Transform to screen space
 		if (IsNotClipped(vTemp2))
 		{
-			float oozd = -1/(vTemp2->v[Z]+DIST);
-			vTemp2->v[X] = 320+((vTemp2->v[X] * FOV) * oozd);
-			vTemp2->v[Y] = 220+((vTemp2->v[Y] * FOV) * oozd);
+			long x = vTemp2->v[Z]+DIST;
+			float oozd = -FOV * oneOver[x];///(vTemp2->v[Z]+DIST);
+			
+			vTemp2->v[X] = 320+(vTemp2->v[X] * oozd);
+			vTemp2->v[Y] = 220+(vTemp2->v[Y] * oozd);
 		}
 		else
 		{
@@ -1319,35 +1071,6 @@ void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4])
 
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void PCPrepareObject (OBJECT *obj, MESH *me, float m[4][4])
 {
@@ -1373,59 +1096,10 @@ void PCPrepareObject (OBJECT *obj, MESH *me, float m[4][4])
 	
 	for (i=0; i<obj->mesh->numVertices; i++)
 	{
-		if (xl<0.99)
-		{
-			if (player[0].frogState & FROGSTATUS_ISDEAD)
-			{
-				player[0].lives = 5;
-				if (frog[0]->action.deathBy & DEATHBY_DROWNING)
-				{
-					float val;
-					VECTOR me,me2;
-					me.v[X] = in->v[X]*sclW;
-					me.v[Y] = in->v[Y]*sclW;
-					me.v[Z] = in->v[Z]*sclW;
+		vTemp2->v[X] = (f[0][0]*in->v[X])+(f[1][0]*in->v[Y])+(f[2][0]*in->v[Z])+(f[3][0]);
+		vTemp2->v[Y] = (f[0][1]*in->v[X])+(f[1][1]*in->v[Y])+(f[2][1]*in->v[Z])+(f[3][1]);
+		vTemp2->v[Z] = (f[0][2]*in->v[X])+(f[1][2]*in->v[Y])+(f[2][2]*in->v[Z])+(f[3][2]);
 
-					guMtxXFMF(m,me.v[X],me.v[Y],me.v[Z],
-								&me2.v[0],&me2.v[1],&me2.v[2]); 
-					
-					val = 1+DistanceBetweenPoints2DSquared(&destTile[0]->centre,&me2);
-					if (val<thresh)
-						val = thresh;
-					val = rval / (val/rval2);
-
-					val = (1+sinf(val*fmody2+frameCount*fmody)) * val * svall;
-					if (frog[0]->action.dead>sofs)
-						val *= ((frog[0]->action.dead-sofs) / 75.0);
-					else
-						val*=0;
-
-					val += (2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2)))*valWater;
-					
-					mV[i] = (2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2)))*valWater;
-
-					guMtxXFMF(f,in->v[X],in->v[Y] - val, in->v[Z],
-
-					&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
-				}
-			}
-			else
-			{
-				mV[i] =(	(2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2))) + 
-					(2+(sin((in->v[Z]+50)*sinSpeedVert+frameCount*sinSpeedWater)+cos((in->v[X]+50)*sinSpeedVert2+frameCount*sinSpeedWater2)))
-					)*valWater/2;
-				guMtxXFMF(f,in->v[X],in->v[Y]-
-				mV[i]
-				,in->v[Z],
-				&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
-			}
-		}
-		else
-		{
-			guMtxXFMF(f,in->v[X],in->v[Y],in->v[Z],
-			&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
-		}
-	
 		if (((vTemp2->v[Z]+DIST)>nearClip) &&
 			((noClipping) ||   
 			(((vTemp2->v[Z]+DIST)<farClip) &&
@@ -1434,9 +1108,11 @@ void PCPrepareObject (OBJECT *obj, MESH *me, float m[4][4])
 			((vTemp2->v[Y])>-vertClip) &&
 			((vTemp2->v[Y])<vertClip))))
 		{
-			float oozd = -1/(vTemp2->v[Z]+DIST);
-			vTemp2->v[X] = 320+((vTemp2->v[X] * FOV) * oozd);
-			vTemp2->v[Y] = 220+((vTemp2->v[Y] * FOV) * oozd);
+			long x = vTemp2->v[Z]+DIST;
+			float oozd = -FOV * oneOver[x];///(vTemp2->v[Z]+DIST);
+			
+			vTemp2->v[X] = 320+(vTemp2->v[X] * oozd);
+			vTemp2->v[Y] = 220+(vTemp2->v[Y] * oozd);
 		}
 		else
 			vTemp2->v[Z] = 0;
@@ -1447,6 +1123,141 @@ void PCPrepareObject (OBJECT *obj, MESH *me, float m[4][4])
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+short facesON[3] = {0,1,2};
+
+void PCRenderObject (OBJECT *obj)
+{
+	unsigned long i,j;
+	unsigned short fce[3] = {0,1,2};		
+	VECTOR *c1,*c2,*c3;
+	D3DTLVERTEX v[3],*vTemp;
+	USHORTVECTOR *facesIdx;
+	unsigned long drawme,x1on,x2on,x3on,y1on,y2on,y3on;
+	unsigned long v0,v1,v2;
+	unsigned long v0a,v1a,v2a;
+	TEXENTRY *tex;
+	TEXTURE **tex2;
+	VECTOR *tV0,*tV1,*tV2,*cols;
+
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+
+	facesIdx = obj->mesh->faceIndex;
+	tex2 = obj->mesh->textureIDs;
+	cols = ((VECTOR *)obj->mesh->vertexNormals);
+
+	for (j=0, i=0; i<obj->mesh->numFaces; i++, j+=3)
+	{
+		// Get information from the mesh!
+		v0 = facesIdx->v[0];
+		v1 = facesIdx->v[1];
+		v2 = facesIdx->v[2];
+		
+		tV0 = &tV[v0];
+		tV1 = &tV[v1];
+		tV2 = &tV[v2];
+
+		tex = (TEXENTRY *)(*tex2);
+		
+		// If we are to be drawn.
+		if (((tV0->v[Z]) && (tV1->v[Z]) && (tV2->v[Z])) && (tex))
+		{
+			// Get rest of info from mesh
+			v0a = j;
+			v1a = j+1;
+			v2a = j+2;
+
+			c1 = &(cols[v0a]);
+			c2 = &(cols[v1a]);
+			c3 = &(cols[v2a]);
+			
+			// Fill out D3DVertices...
+			vTemp = v;
+			
+			vTemp->specular = 0;
+			vTemp->sx = tV0->v[X];
+			vTemp->sy = tV0->v[Y];
+			vTemp->sz = (tV[v0].v[Z]) * 0.0005F;///2000;
+			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F);
+			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F);
+			vTemp->color = D3DRGBA(c1->v[0],c1->v[1],c1->v[2],xl);
+			
+			vTemp++;
+
+			vTemp->specular = 0;
+			vTemp->sx = tV1->v[X];
+			vTemp->sy = tV1->v[Y];
+			vTemp->sz = (tV1->v[Z]) * 0.0005F;//2000;
+			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F);
+			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F);
+			vTemp->color = D3DRGBA(c2->v[0],c2->v[1],c2->v[2],xl);
+			
+			vTemp++;
+
+			vTemp->specular = 0;
+			
+			vTemp->sx = tV2->v[X];
+			vTemp->sy = tV2->v[Y];
+			vTemp->sz = (tV2->v[Z]) * 0.0005F;///2000;
+
+			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F);
+			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F);
+			vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
+			
+			x1on = BETWEEN(v[0].sx,0,640);
+			x2on = BETWEEN(v[1].sx,0,640);
+			x3on = BETWEEN(v[2].sx,0,640);
+			y1on = BETWEEN(v[0].sy,0,480);
+			y2on = BETWEEN(v[1].sy,0,480);
+			y3on = BETWEEN(v[2].sy,0,480);
+
+			if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+			{
+				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
+				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
+				DrawAHardwarePoly(v,3,facesON,3,tex->hdl);
+			}
+			else
+			{
+				if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+					Clip3DPolygon(v,tex->hdl);
+			}
+			
+		}
+
+		// Update our pointers
+		facesIdx++;
+		tex2++;
+	}
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+}
+
+
+/*
 void PCRenderObject (OBJECT *obj)
 {
 	unsigned long i;
@@ -1454,7 +1265,7 @@ void PCRenderObject (OBJECT *obj)
 	VECTOR *c1,*c2,*c3;
 	D3DTLVERTEX v[3],*vTemp;
 	long drawme;
-	
+		
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
 
@@ -1490,6 +1301,7 @@ void PCRenderObject (OBJECT *obj)
 			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*(1.0/1024.0));
 			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*(1.0/1024.0));
 			vTemp->color = D3DRGBA(c1->v[0],c1->v[1],c1->v[2],xl);
+
 			if (xl<0.99)
 			{
 				vTemp->specular = D3DRGB(mV[v0],mV[v0],mV[v0]);
@@ -1556,24 +1368,9 @@ void PCRenderObject (OBJECT *obj)
 					if (v[2].sy>480)
 						drawme = 0;
 
-			if (drawme)
-				Clip3DPolygon(v,tex->hdl);
+			//if (drawme)
+			//	Clip3DPolygon(v,tex->hdl);
 		
-		/*	SetTexture (obj->mesh->textureIDs[i]);
-			if (obj->mesh->textureIDs[i])
-			{
-				ClipPolygon(
-					tV[v0].v[X],tV[v0].v[Y],
-						obj->mesh->faceTC[v0a].v[0]>>2,
-						obj->mesh->faceTC[v0a].v[1]>>2,
-					tV[v1].v[X],tV[v1].v[Y],
-						obj->mesh->faceTC[v1a].v[0]>>2,
-						obj->mesh->faceTC[v1a].v[1]>>2,
-					tV[v2].v[X],
-					tV[v2].v[Y],
-						obj->mesh->faceTC[v2a].v[0]>>2,
-						obj->mesh->faceTC[v2a].v[1]>>2);
-			}*/
 
 		}
 	}
@@ -1581,3 +1378,4 @@ void PCRenderObject (OBJECT *obj)
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 }
+*/
