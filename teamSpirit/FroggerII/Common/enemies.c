@@ -36,6 +36,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur );
 void UpdateFlappyThing( ENEMY *cur );
 void UpdateFrogWatcher( ENEMY *cur );
 
+
 /*	--------------------------------------------------------------------------------
 	Function		: 
 	Purpose			: 
@@ -164,16 +165,28 @@ void UpdateEnemies()
 					if (!frog[0]->action.dead && !frog[0]->action.safe &&
 						(DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos)<((frog[0]->radius+act->radius)*(frog[0]->radius+act->radius))) )
 					{
-						NMEDamageFrog(0,cur);
+						if( cur->flags & ENEMY_NEW_BABYFROG )
+						{
+							if( PickupBabyFrog( cur->nmeActor ) )
+								cur->active = 0;
+						}
+						else NMEDamageFrog(0,cur);
 					}
 				}
-				else 
+				else
+				{
 					if( (currTile[0] == cur->inTile) && !frog[0]->action.dead && !frog[0]->action.safe &&
 						(!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 						!currPlatform[0] && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE) )
 					{
-						NMEDamageFrog(0,cur);
+						if( cur->flags & ENEMY_NEW_BABYFROG )
+						{
+							if( PickupBabyFrog( cur->nmeActor ) )
+								cur->active = 0;
+						}
+						else NMEDamageFrog(0,cur);
 					}
+				}
 			}
 			else
 			{
@@ -1107,7 +1120,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 {
 	int enemyType = 0;
 	float shadowRadius = 0;
-	int initFlags;
+	int initFlags,i;
 
 	ENEMY *newItem = (ENEMY *)JallocAlloc(sizeof(ENEMY),YES,"NME");
 	AddEnemy(newItem);
@@ -1171,6 +1184,14 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 		newItem->Update = UpdateMoveOnMoveNME;
 	else if( newItem->flags & ENEMY_NEW_FLAPPYTHING )
 		newItem->Update = UpdateFlappyThing;
+
+	if( newItem->flags & ENEMY_NEW_BABYFROG )
+		for( i=0; i<numBabies; i++ )
+			if( !babyList[i].baby )
+			{
+				babyList[i].baby = newItem->nmeActor;
+				break;
+			}
 
 	return newItem;
 }
