@@ -635,7 +635,11 @@ void MakeUniqueActor(ACTOR *actor,int type)
 	OBJECT_CONTROLLER	*objCont;
 	short	unique = TRUE;
 	short	i;
-	int		CRC = UpdateCRC(actor->objectController->object->name);
+	int		CRC;
+	
+	if (!actor->objectController) return;
+		
+	CRC = UpdateCRC(actor->objectController->object->name);
 
 	//check all crc's to see if actor is among them
 	for(i = 0; i < numUniqueActors; i++)
