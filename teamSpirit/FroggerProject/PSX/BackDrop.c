@@ -18,25 +18,37 @@ void InitBackdrop ( char * filename )
 		return;
 
 	backDrop.init = 1;
-	backDrop.rect.x = 0;			// leave the y till the update
-	backDrop.rect.y = 0;
-	backDrop.rect.w = 512; 
-	backDrop.rect.h = 256;
 
-	DrawSync(0);
+#if PALMODE==1
+	backDrop.rect.x = 512;			// leave the y till the update
+	backDrop.rect.y = 256+8;
+	backDrop.rect.w = 512; 
+	backDrop.rect.h = 256-16;
+#else
+	backDrop.rect.x = 512;			// leave the y till the update
+	backDrop.rect.y = 256+8;
+	backDrop.rect.w = 512; 
+	backDrop.rect.h = 256-16;
+
+#endif
+
+	/*DrawSync(0);
 	ClearImage2(&backDrop.rect, 0,0,0);
 	DrawSync(0);
 	backDrop.rect.y = 256;
 	DrawSync(0);
 	ClearImage2(&backDrop.rect, 0,0,0);
+	DrawSync(0);*/
+
+
+	//strcat ( filename, ".RAW" );
+	backDrop.data = fileLoad(filename, NULL);
+
+	DrawSync(0);
+	LoadImage ( &backDrop.rect, (ULONG *) backDrop.data );
 	DrawSync(0);
 
 	backDrop.rect.y = 0;
-
-	strcat ( filename, ".RAW" );
-	backDrop.data = fileLoad(filename, NULL);
-
-
 	// set the drawing clscols to NOT clearscreen
 //	INTERUPT_ScreenClear(INTERUPT_CLEAR_OFF);
 }
@@ -54,12 +66,148 @@ void DrawBackDrop ( void )
 	if ( ( backDrop.init ) && ( backDrop.data ) )
 	{
 
+
+#if PALMODE==1
+	static RECT rect = {512,256,512,256};
+#else
+	static RECT rect = {512,256+8,512,256-16};
+#endif
+//	static RECT rect = {512,256+8,512,256-8};
+	displayPageType *targetpage;
+	DR_MOVE *si = (void *)currentDisplayPage->primPtr;
+	POLY_F4 *si4;
+
+	targetpage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+
+
+//	printf("%d\n",currentDisplayPage->dispenv.disp.y,currentDisplayPage->dispenv.screen.y);
+
+
+/*
+	BEGINPRIM(si4, POLY_F4);
+	si4->r0 = 0;
+	si4->g0 = 64;
+	si4->b0 = 0;
+
+	si4->x0 = si4->x2 = -130;
+	si4->x1 = si4->x3 =  130;
+
+	si4->y0 = si4->y1 =    0;
+	si4->y2 = si4->y3 =   100;
+
+	setPolyF4(si4);
+	ENDPRIM(si4, 1023, POLY_F4);
+*/
+
+// Test Borders
+
+
+/*
+	BEGINPRIM(si4, POLY_F4);
+	si4->r0 = 0;
+	si4->g0 = 64;
+	si4->b0 = 0;
+
+	si4->x0 = si4->x2 = -256;
+	si4->x1 = si4->x3 = -240;
+#if PALMODE==1
+	si4->y0 = si4->y1 =  -127;
+	si4->y2 = si4->y3 =   127;
+#else
+	si4->y0 = si4->y1 =  -119;
+	si4->y2 = si4->y3 =   119;
+#endif
+
+	setPolyF4(si4);
+	ENDPRIM(si4, 1023, POLY_F4);
+
+	BEGINPRIM(si4, POLY_F4);
+	si4->r0 = 0;
+	si4->g0 = 64;
+	si4->b0 = 0;
+
+	si4->x0 = si4->x2 = 240;
+	si4->x1 = si4->x3 = 256;
+
+	si4->y0 = si4->y1 =  -127;
+	si4->y2 = si4->y3 =   127;
+
+	setPolyF4(si4);
+	ENDPRIM(si4, 1023, POLY_F4);
+
+
+
+
+
+
+
+	BEGINPRIM(si4, POLY_F4);
+	si4->r0 = 0;
+	si4->g0 = 64;
+	si4->b0 = 0;
+
+	si4->x0 = si4->x2 = -240;
+	si4->x1 = si4->x3 = 240;
+
+	si4->y0 = si4->y1 =  -119;
+	si4->y2 = si4->y3 =  -110;
+
+	setPolyF4(si4);
+	ENDPRIM(si4, 1023, POLY_F4);
+
+	BEGINPRIM(si4, POLY_F4);
+	si4->r0 = 0;
+	si4->g0 = 64;
+	si4->b0 = 0;
+
+	si4->x0 = si4->x2 = -240;
+	si4->x1 = si4->x3 = 240;
+
+	si4->y0 = si4->y1 =  110;
+	si4->y2 = si4->y3 =  119;
+
+	setPolyF4(si4);
+	ENDPRIM(si4, 1023, POLY_F4);
+*/
+
+
+
+
+	BEGINPRIM(si, DR_MOVE);
+// disp or screen. dunno which
+	SetDrawMove(si,&rect,0,targetpage->dispenv.disp.y);
+	ENDPRIM(si, 1023, DR_MOVE);	// 0 or 1023
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //	rect.x = 0;
 //	rect.y = 0;//(TITAN_SCREEN_H-OVERLAY_BACKDROP_H)/2;		// Center on screen
 //	rect.w = 512; 
 //	rect.h = 256;
 
-	if( !ScreenGetBuffer() )
+/*	if( !ScreenGetBuffer() )
 	{
 		backDrop.rect.y = 0;
 		DrawSync(0);
@@ -238,16 +386,16 @@ void FreeBackdrop ( void )
 {
 	backDrop.init = 0;
 
-	backDrop.rect.y = 0;
+/*	backDrop.rect.y = 0;
 	DrawSync(0);
 	ClearImage2(&backDrop.rect, 0,0,0);
 	DrawSync(0);
 	backDrop.rect.y = 256;
 	DrawSync(0);
 	ClearImage2(&backDrop.rect, 0,0,0);
-	DrawSync(0);
+	DrawSync(0);*/
 
-	backDrop.rect.y = 0;
+	//backDrop.rect.y = 0;
 
 	FREE(backDrop.data);
 
