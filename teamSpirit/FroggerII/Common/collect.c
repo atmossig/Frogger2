@@ -422,8 +422,8 @@ void UpdateGaribs()
 
 		if( garib->sprite )
 		{
-			garib->sprite->scaleX = (64 + SineWave(2,frameCount + garib->type * 2,0) * 10) * scale;
-			garib->sprite->scaleY = (64 + SineWave(2,frameCount + garib->type * 2,0) * 10) * scale;
+			garib->sprite->scaleX = (64 + (SineWave(2,frameCount + garib->type * 2,0) * 10)) * scale;
+			garib->sprite->scaleY = (64 + (SineWave(2,frameCount + garib->type * 2,0) * 10)) * scale;
 		}
 
 		// Drop Garibs.............
