@@ -385,7 +385,7 @@ int main ( )
 #endif
 */
 
-
+//		drawGame = 0;
 
 		actorInitialise();
 		//InitBackdrop ( "FROGGER2.RAW" );
@@ -398,6 +398,8 @@ int main ( )
 
 
 		
+//		TIMER_START(TIMER_TOTAL);
+
 		
 		//*****************//
 		//*** MAIN LOOP ***//
@@ -421,6 +423,9 @@ int main ( )
 			actorCount = 0;
 
 
+			timerDisplay();
+
+//		TIMER_START(TIMER_TOTAL);
 
 			//for timing optimised functions
 			//remember to stop really timing GameLoop
@@ -486,16 +491,22 @@ int main ( )
 
 
 			TIMER_STOP(TIMER_TOTAL);
-			TIMER_ENDFRAME;
-			TIMER_ZERO;
 
 			VSync(2);
+
+//			TIMER_START(TIMER_TOTAL);
 
 			PutDispEnv(&currentDisplayPage->dispenv);
 			PutDrawEnv(&currentDisplayPage->drawenv);
 
 			// JH:  Main Draw Function That Runs All The Draw Functions.
 			MainDrawFunction();
+
+			DrawOTag(currentDisplayPage->ot+(1024-1));
+
+			TIMER_ENDFRAME;
+
+			TIMER_ZERO;
 
 
 			if ( padData.digital[1] & PAD_DOWN )
@@ -567,7 +578,6 @@ int main ( )
 				quitMainLoop = 1;
 
 
-			DrawOTag(currentDisplayPage->ot+(1024-1));
 
 			if(gameState.mode!=PAUSE_MODE)
 			{
@@ -649,8 +659,6 @@ void MainDrawFunction ( void )
 			TIMER_STOP0(TIMER_PROCTEX);
 
 
-			timerDisplay();
-
-			DrawBackDrop();
+//			DrawBackDrop();
 }
 
