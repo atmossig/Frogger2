@@ -1259,9 +1259,7 @@ BOOL GameTileTooHigh(GAMETILE *tile,long pl)
 	VECTOR diff;
 		
 	SubVector(&diff,&tile->centre,&frog[pl]->actor->pos);
-	h = Magnitude(&diff);
-	MakeUnit(&diff);
-	height = (h * DotProduct(&diff,&tile->normal));
+	height = DotProduct(&diff,&currTile[pl]->normal);
 
 	return
 		height > (player[pl].isSuperHopping ? MAX_SUPERHOP_HEIGHT : MAX_HOP_HEIGHT);
