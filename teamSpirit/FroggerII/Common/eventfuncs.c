@@ -135,6 +135,61 @@ int OnTrigger( TRIGGER *trigger )
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function 	: LogicalAND
+	Purpose 	: Trigger if an arbitrary number of other triggers are all true
+	Parameters 	: Pointer to trigger structure
+	Returns 	: Boolean
+	Info 		: First parameter is the number of other triggers, the rest are pointers to triggers
+*/
+int LogicalAND( TRIGGER *trigger )
+{
+	int numT = *(int *)trigger->data[0];
+	long i;
+	short fireFlag = 1;
+	TRIGGER *t;
+
+	for( i=0; i<numT; i++ )
+	{
+		t = (TRIGGER *)trigger->data[i+1];
+		if( !t->func(t) )
+			fireFlag = 0;
+	}
+
+	if( fireFlag )
+		return 1;
+
+	return 0;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: LogicalOR
+	Purpose 	: Trigger if any one of an arbitrary number of other triggers is true
+	Parameters 	: Pointer to trigger structure
+	Returns 	: Boolean
+	Info 		: First parameter is the number of other triggers, the rest are 
+					pointers to triggers
+*/
+int LogicalOR( TRIGGER *trigger )
+{
+	int numT = *(int *)trigger->data[0];
+	long i;
+	short fireFlag = 0;
+	TRIGGER *t;
+
+	for( i=0; i<numT; i++ )
+	{
+		t = (TRIGGER *)trigger->data[i+1];
+		if( t->func(t) )
+			fireFlag = 1;
+	}
+
+	if( fireFlag )
+		return 1;
+
+	return 0;
+}
+
 /*----- [ EVENT FUNCTIONS ] --------------------------------------------------------------------*/
 
 /*	--------------------------------------------------------------------------------
@@ -398,8 +453,8 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			AttachEvent( trigger, event, TRIGGER_DELAY, 100 );
 			*/
 		}
-		else if( levelID == LEVELID_GARDENTREETOPSA )
-		{
+		//else if( levelID == LEVELID_GARDENTREETOPSA )
+		//{
 			/*// This should change to level when you hop onto the first platform
 			args = AllocArgs(2);
 			args[0] = (void *)frog[0];
@@ -421,6 +476,6 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
 			*/
 
-		}
+		//}
 	} // etc
 }

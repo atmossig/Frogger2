@@ -20,6 +20,8 @@ extern int FrogOnPlatform( TRIGGER *trigger );
 extern int ActorWithinRadius( TRIGGER *trigger );
 extern int OnTimeout( TRIGGER *trigger );
 extern int OnTrigger( TRIGGER *trigger );
+extern int LogicalAND( TRIGGER *trigger );
+extern int LogicalOR( TRIGGER *trigger );
 
 /*----- [ EVENT PROTOTYPES ] -------------------------------------------------------------------*/
 extern void ChangeActorScale( EVENT *event );
