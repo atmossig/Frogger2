@@ -60,7 +60,7 @@ void LoadObjectBank ( int objectBank )
 	switch ( objectBank )
 	{
 		case INGAMEGENERIC_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\GENERIC.BFF" );					
+					sprintf ( BFFfileName, "OBJECTS\\GENERIC.BFF" );					
 					sprintf ( PILfileName, "OBJECTS\\GENERIC.PIL" );					
 				break;
 
