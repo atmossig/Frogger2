@@ -150,7 +150,10 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 			if (cur->dirCamMustFace)
 				camFacing = cur->dirCamMustFace - 1;
 
-			transCamSpeedMult = cur->speed;
+			if( cur->speed )
+				transCamSpeedMult = cur->speed;
+			else
+				transCamSpeedMult = 1.0F;
 
 			yFOVNew = cur->FOV;
 
