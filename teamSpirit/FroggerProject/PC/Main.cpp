@@ -376,7 +376,7 @@ long LoopFunc(void)
 
 	UpdateWater();
 	DrawLoop();
-
+	
 	if(networkPlay && (gameState.mode == INGAME_MODE))
 	{
 		
@@ -393,6 +393,8 @@ long LoopFunc(void)
 		}
 		else
 		{
+			SendUpdateMessage();
+
 			if (DPInfo.bIsHost)
 			{
 				if (actFrameCount >	nextSynchAt)
@@ -423,7 +425,6 @@ long LoopFunc(void)
 				}
 			}
 		}
-		SendUpdateMessage();
 	}
 
 	return 0;
