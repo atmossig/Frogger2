@@ -174,10 +174,6 @@ void GameProcessController(long pl)
 		// update player idleTime
 		player[pl].idleTime = MAX_IDLE_TIME;
 
-//		frogTrail[pl] = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 0.95, 0.05, 1 );
-//		frogTrail[pl]->follow = frog[pl]->actor;
-//		SetFXColour( frogTrail[pl], 50, 200, 50 );
-
 		if( ((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && !(player[pl].hasDoubleJumped) )
 		{
 			int dir=-1;
@@ -212,6 +208,10 @@ void GameProcessController(long pl)
 		}
 		else if(!(player[pl].isSuperHopping) && !(player[pl].inputPause))
 		{
+//			frogTrail[pl] = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 0.95, 0.05, 1 );
+//			frogTrail[pl]->follow = frog[pl]->actor;
+//			SetFXColour( frogTrail[pl], 50, 200, 50 );
+
 			// frog is wanting superhop
 			player[pl].isSuperHopping = 1;
 			player[pl].hasJumped = 1;

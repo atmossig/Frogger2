@@ -861,12 +861,10 @@ void UpdateFXTrail( SPECFX *fx )
 	{
 		fx->particles[fx->start].a = 0;
 		if( ++fx->start >= fx->numP )
-		{
 			fx->start = 0;
-			// If no more particles in list, time to die
-			if( (fx->start == fx->end-1) && !fx->follow && !fx->deadCount )
-				fx->deadCount = 5;
-		}
+		// If no more particles in list, time to die
+		if( (fx->start == fx->end-1) && !fx->follow && !fx->deadCount )
+			fx->deadCount = 5;
 	}
 }
 
@@ -1120,20 +1118,20 @@ void ProcessAttachedEffects( void *entity, int type )
 		path = plt->path;
 	}
 
-	// For timings value1 has to round down to a non-zero integer
-	if( (int)act->value1 )
-	{
-		if( act->effects & EF_RANDOMCREATE )
-			r = Random(act->value1)+1;
-		else
-			r = act->value1;
-	}
-	else r = 10;
-
 	fxDist = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos);
 
 	if(fxDist < ACTOR_DRAWDISTANCEOUTER)
 	{
+		// For timings value1 has to round down to a non-zero integer
+		if( (int)act->value1 )
+		{
+			if( act->effects & EF_RANDOMCREATE )
+				r = Random(act->value1)+1;
+			else
+				r = act->value1;
+		}
+		else r = 10;
+
 		if( !(actFrameCount%r) )
 		{
 			if( act->effects & EF_RIPPLE_RINGS )
