@@ -165,6 +165,9 @@ enum TOOLBARCOMMANDS
 	TB_FLAG_TWINKLE,
 	TB_SET_FLAGSOUND,
 	TB_SET_ORIENTATION,
+	TB_SET_PSXSHIFT,
+
+	TBNUMCOMMANDS
 };
 
 // Dynamically changing icon - don't forget to increment this if you add a button before it!
@@ -178,7 +181,7 @@ extern TOOLBAR_ENTRY TOOLBARBUTTONS[], TOOLBAR_MULTI[], TOOLBAR_ENEMY[], TOOLBAR
 	TOOLBAR_GARIB[], TOOLBAR_INFO[], TOOLBAR_FLAG[], TOOLBAR_TILES[], TOOLBAR_TESTING[],
 	TOOLBAR_CLEAR[], TOOLBAR_PLACEHOLDER[], TOOLBAR_CAMERA[], TOOLBAR_EFFECTS[];
 
-extern char *tooltips[];
+extern char *tooltips[TBNUMCOMMANDS];
 
 #ifdef __cplusplus
 }

@@ -276,7 +276,7 @@ void DrawMouse(void)
 	//DrawFlatRect(r, D3DRGBA(1,1,1,1));
 
 	DrawTexturedRect(
-		r, D3DRGBA(1,1,1,0.6),
+		r, D3DRGBA(1,1,1,0.9),
 		editicons[0].surface,
 		0, 0, 0.25f, 0.25f);
 }
@@ -1366,7 +1366,6 @@ void EditorKeypress(char c)
 	char *p;
 	int i;
 	double d;
-	EDITVARFUNC editFunc;
 
 	if (editText.active)
 	{
@@ -1403,9 +1402,24 @@ void EditorKeypress(char c)
 				break;
 
 			case EDITVAR_PASSTOFUNCTION:
-				editFunc = (EDITVARFUNC)editText.variable;
-				editFunc(editText.string);
-				//FUNC_SetPathSpeed(editText.string);
+				{
+					EDITVARFUNC editFunc;
+					editFunc = (EDITVARFUNC)editText.variable;
+					editFunc(editText.string);
+					//FUNC_SetPathSpeed(editText.string);
+					break;
+				}
+
+			case EDITVAR_GROUPFUNCINT:
+				ForAllGroupNodesInt(selectionList, editText.var, (CREATEFUNCINT)editText.variable);
+				break;
+				
+			case EDITVAR_GROUPFUNCFLOAT:
+				ForAllGroupNodesFloat(selectionList, editText.var, (CREATEFUNCFLOAT)editText.variable);
+				break;
+
+			case EDITVAR_GROUPFUNCSTR:
+				ForAllGroupNodesStr(selectionList, editText.var, (CREATEFUNCSTR)editText.variable);
 				break;
 			}
 			editText.active = FALSE;

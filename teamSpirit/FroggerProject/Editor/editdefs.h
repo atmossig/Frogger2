@@ -62,6 +62,10 @@ extern int ToggleRectTileSelection(int ax, int ay, int bx, int by, EDITGROUP *se
 extern int ToggleRectFlagSelection(int ax, int ay, int bx, int by, EDITGROUP *selection, EDITPATH *path);
 extern int CountGroupMembers(EDITGROUP *group);
 
+int ForAllGroupNodesStr(EDITGROUP*, const char*, void(*)(CREATEENTITY*,const char*));
+int ForAllGroupNodesInt(EDITGROUP*, const char*, void(*)(CREATEENTITY*,const int));
+int ForAllGroupNodesFloat(EDITGROUP*, const char*, void(*)(CREATEENTITY*,const float));
+
 #ifdef __cplusplus
 }
 #endif

@@ -60,6 +60,8 @@ typedef struct TAGCREATEENTITY
 	float	scale, radius, animSpeed, value1; // Value1 is quite random
 	EDVECTOR	camera;
 
+	char	PSX_shift;	// sorting hack value for PSX
+
 } CREATEENTITY;
 
 typedef struct _KMAP
@@ -78,8 +80,22 @@ typedef struct tagEDLOADSTATE
 
 typedef struct { int icon, command; } TOOLBAR_ENTRY;
 typedef TOOLBAR_ENTRY *TOOLBAR_SUBMENU;
-typedef enum { EDITVAR_STRING, EDITVAR_INT, EDITVAR_FLOAT, EDITVAR_PASSTOFUNCTION } EDITVAR;
-typedef enum { CREATE_ENEMY, CREATE_PLATFORM, CREATE_GARIB, CREATE_CAMERACASE, CREATE_PLACEHOLDER } CREATETYPE;
+
+typedef enum {
+	EDITVAR_STRING,
+	EDITVAR_INT,
+	EDITVAR_FLOAT,
+	EDITVAR_PASSTOFUNCTION,
+	EDITVAR_GROUPFUNCINT,
+	EDITVAR_GROUPFUNCSTR,
+	EDITVAR_GROUPFUNCFLOAT } EDITVAR;
+
+typedef enum {
+	CREATE_ENEMY,
+	CREATE_PLATFORM,
+	CREATE_GARIB,
+	CREATE_CAMERACASE,
+	CREATE_PLACEHOLDER } CREATETYPE;
 
 /* ------------------------------------------------------------------------- */
 

@@ -77,7 +77,15 @@ void UpdateStatusString();
 
 void AutomapBabies( );
 
+/*	--------------------------------------------------------------------------------
+	Lots of little "set" functions
+
+*/
+
+void SetPSXshift(CREATEENTITY*node, int shift) { node->PSX_shift = (char)shift; }
+
 /*	-------------------------------------------------------------------------------- */
+
 
 void CreateAndLoadScript(const char *filename)
 {
@@ -543,6 +551,10 @@ void ToolbarSelect(int command)
 
 	case TB_SET_VALUE1:	// a miscellaneous value
 		if (selectionList) EditVariable("Value 1", EDITVAR_PASSTOFUNCTION, FUNC_SetValue1);
+		break;
+
+	case TB_SET_PSXSHIFT:
+		EditVariable("PSX sort hack", EDITVAR_GROUPFUNCINT, SetPSXshift);
 		break;
 
 	case TB_PASTE_SELECTION:
@@ -1756,6 +1768,9 @@ void EditVariable(char *name, EDITVAR t, void *var)
 		sprintf(editText.string, "%.2f", *(float *)var);
 		break;
 
+	case EDITVAR_GROUPFUNCINT:
+	case EDITVAR_GROUPFUNCFLOAT:
+	case EDITVAR_GROUPFUNCSTR:
 	case EDITVAR_PASSTOFUNCTION:
 		editText.string[0] = 0;
 		break;

@@ -706,6 +706,60 @@ int CountGroupMembers(EDITGROUP *group)
 }
 
 /*	--------------------------------------------------------------------------------
+	Function		: ForAllGroupNodesStr
+	Parameters		: group, str, function(node, str)
+	Returns			: 
+*/
+int ForAllGroupNodesStr(EDITGROUP *group, const char* str, void(*func)(CREATEENTITY*,const char*))
+{
+	EDITGROUPNODE *enode;
+	int count;
+
+	if (!group) return 0;
+
+	for (enode = group->nodes, count=0; enode; enode = enode->link, count++)
+		func((CREATEENTITY*)enode->thing, str);
+	return count;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: ForAllGroupNodesInt
+	Parameters		: group, int, proc(node, int)
+	Returns			: 
+*/
+int ForAllGroupNodesInt(EDITGROUP *group, const char *str, void(*func)(CREATEENTITY*,const int))
+{
+	EDITGROUPNODE *enode;
+	int count, i;
+	
+	if (!group) return 0;
+
+	i = atoi(str);
+
+	for (enode = group->nodes, count=0; enode; enode = enode->link, count++)
+		func((CREATEENTITY*)enode->thing, i);
+	return count;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: ForAllGroupNodesFloat
+	Parameters		: group, float, proc(node, float)
+	Returns			: 
+*/
+int ForAllGroupNodesFloat(EDITGROUP *group, const char *str, void(*func)(CREATEENTITY*,const float))
+{
+	EDITGROUPNODE *enode;
+	int count;
+	float f = (float)atof(str);
+
+	if (!group) return 0;
+
+	for (enode = group->nodes, count=0; enode; enode = enode->link, count++)
+		func((CREATEENTITY*)enode->thing, f);
+	return count;
+}
+
+/*	--------------------------------------------------------------------------------
 	Function		: EdXfmPoint
 	Parameters		: 
 	Returns			: 

@@ -172,6 +172,8 @@ TOOLBAR_ENTRY TOOLBAR_EFFECTS[] =
 	{ 115,			TB_FLAG_TINTRED },
 	{ 116,			TB_FLAG_TINTGREEN },
 	{ 117,			TB_FLAG_TINTBLUE },
+	{ -1, 0 },
+	{ 140 + TB_ON,	TB_SET_PSXSHIFT },
 	{ -1, -1 }
 };
 
@@ -290,7 +292,7 @@ TOOLBAR_ENTRY TOOLBAR_TESTING[] =
 /*
 *	Must be in order of enumeration
 */
-char *tooltips[] = 
+char *tooltips[TBNUMCOMMANDS] = 
 {
 	"",						//TB_NONE,
 	"Save DAT File",		//TB_SAVE,
@@ -433,5 +435,6 @@ char *tooltips[] =
 	"Twinkle",				// TB_FLAG_TWINKLE
 	"Sound for flag",		// TB_SET_FLAGSOUND
 	"Faces Direction",		// TB_SET_ORIENTATION
+	"PSX Sorting hack",		// TB_SET_PSXSHIFT
 };
 

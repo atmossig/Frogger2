@@ -22,7 +22,7 @@
 #include "islutil.h"
 #include "collect.h"
 
-const UBYTE fileVersion = 14;
+const UBYTE fileVersion = 15;
 const UBYTE releaseVersion = 100;
 
 int releaseQuality = 0;
@@ -40,8 +40,8 @@ EDITGROUP *ReadTileGroup(HANDLE f);
 
 int bytesWritten, bytesRead;
 
-void WriteByte(UBYTE v, HANDLE f)	{ WriteFile(f, &v, 1, &bytesWritten, NULL); }
-void WriteWord(WORD v, HANDLE f)	{ WriteFile(f, &v, 2, &bytesWritten, NULL); }
+void WriteByte(int v, HANDLE f)		{ BYTE b = (BYTE)v; WriteFile(f, &b, 1, &bytesWritten, NULL); }
+void WriteWord(int v, HANDLE f)		{ WORD w = (WORD)v; WriteFile(f, &w, 2, &bytesWritten, NULL); }
 void WriteInt(int v, HANDLE f)		{ WriteFile(f, &v, 4, &bytesWritten, NULL); }
 void WriteFloat(float v, HANDLE f)	{ WriteInt((int)(v * 0x10000), f); }
 
@@ -97,6 +97,7 @@ BOOL LoadEntity(EDLOADSTATE *state, int type)
 {
 	int flags, i, ID, start, effects, objFlags;
 	float scale, radius, animSpeed, value1;
+	char PSXshift;
 	char name[MAXTYPELENGTH];
 	unsigned char facing;
 	HANDLE f = state->f;
@@ -134,6 +135,14 @@ BOOL LoadEntity(EDLOADSTATE *state, int type)
 		objFlags = 0;
 	}
 
+	if (state->ver > 14)
+	{
+		PSXshift = ReadByte(f);
+		for (i=1; i<4; i++) ReadByte(f);
+	}
+	else
+		PSXshift = 0;
+
 	if(state->ver > 11 ) effects = ReadInt(f); else effects = 0;
 
 	start = ReadInt(f);
@@ -164,6 +173,7 @@ BOOL LoadEntity(EDLOADSTATE *state, int type)
 		create->effects = effects;
 		create->facing = facing;
 		create->objFlags = objFlags;
+		create->PSX_shift = PSXshift;
 	}
 
 	FreeEditPath(ep);
@@ -405,6 +415,11 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 			WriteFloat(create->value1, f);
 			WriteByte(create->facing, f);
 			WriteInt(create->objFlags, f);
+			
+			// version 15+ has 4 bytes of platform-specific info after 'objflags'
+			WriteByte(create->PSX_shift, f);
+			for (i=1; i<4; i++) WriteByte(0, f);
+
 			WriteInt(create->effects, f);
 			WriteInt(create->startNode, f);
 
