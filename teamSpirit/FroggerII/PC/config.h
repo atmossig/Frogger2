@@ -30,6 +30,7 @@ extern void GetArgs(char *arglist);
 extern void ReadConfigFile (void);
 
 //
+extern int debugKeys;
 
 #ifdef __cplusplus
 }

@@ -26,6 +26,8 @@ extern unsigned long synchRecovery;
 extern unsigned long rKeying;
 extern unsigned long rPlaying;
 extern int audioEnabled;
+
+int debugKeys = 0;
 }
 
 CONFIG cfgOptList[] = 
@@ -98,6 +100,11 @@ void GetArgs(char *arglist)
 					case 'D': case 'd':
 						playDemos = !playDemos;
 						dprintf"Demo mode DISABLED!\n"));
+						break;
+
+					case 'K': case 'k':
+						debugKeys = !debugKeys;
+						dprintf"Debug Keys Enabled\n"));
 						break;
 
 					case ' ':

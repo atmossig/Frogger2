@@ -15,6 +15,7 @@
 
 #include <ultra64.h>
 #include "incs.h"
+#include "config.h"
 
 
 //----------------------------------------------------------------------
@@ -358,29 +359,43 @@ void GameProcessController(long pl)
 		StopDrawing("end");
 	}
 */
-	if( !fixedPos && !fixedDir )
+	if( debugKeys )
 	{
-		int j;
-		if((button[pl] & CONT_F) && !(lastbutton[pl] & CONT_F))
+		if( !fixedPos && !fixedDir )
 		{
-			for( j=0; j<NUM_FROGS; j++ )
+			int j;
+			if((button[pl] & CONT_F) && !(lastbutton[pl] & CONT_F))
 			{
-				camFacing[j]--;
-				camFacing[j] &= 3;
+				for( j=0; j<NUM_FROGS; j++ )
+				{
+					camFacing[j]--;
+					camFacing[j] &= 3;
+				}
+				if ( recordKeying )
+					AddPlayingActionToList ( CAMERA_LEFT, frameCount );
 			}
-			if ( recordKeying )
-				AddPlayingActionToList ( CAMERA_LEFT, frameCount );
+
+			if((button[pl] & CONT_C) && !(lastbutton[pl] & CONT_C))
+			{
+				for( j=0; j<NUM_FROGS; j++ )
+				{
+					camFacing[j]++;
+					camFacing[j] &= 3;
+				}
+				if ( recordKeying )
+					AddPlayingActionToList ( CAMERA_RIGHT, frameCount );
+			}
 		}
 
-		if((button[pl] & CONT_C) && !(lastbutton[pl] & CONT_C))
+		if((button[pl] & CONT_R) && !(lastbutton[pl] & CONT_R))
 		{
-			for( j=0; j<NUM_FROGS; j++ )
+			if(numBabies)
 			{
-				camFacing[j]++;
-				camFacing[j] &= 3;
+				bby++;
+				bby %= numBabies;
+				if(bTStart[bby])
+					SetFroggerStartPos(bTStart[bby],pl);
 			}
-			if ( recordKeying )
-				AddPlayingActionToList ( CAMERA_RIGHT, frameCount );
 		}
 	}
 
@@ -398,19 +413,6 @@ void GameProcessController(long pl)
 			idleCamera = 0;
 		}
 	}
-
-#ifdef _DEBUG
-	if((button[pl] & CONT_R) && !(lastbutton[pl] & CONT_R))
-	{
-		if(numBabies)
-		{
-			bby++;
-			bby %= numBabies;
-			if(bTStart[bby])
-				SetFroggerStartPos(bTStart[bby],pl);
-		}
-    }
-#endif
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{

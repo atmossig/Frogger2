@@ -20,6 +20,8 @@
 #include "network.h"
 #include "netgame.h"
 
+#include "config.h"
+
 extern "C"
 {
 #include <ultra64.h>
@@ -582,28 +584,30 @@ void ProcessUserInput(HWND hWnd)
 
 	if (!keysEnabled) return;
 
-#ifdef _DEBUG
-
-	if (editorOk)
+//#ifdef _DEBUG
+	if( debugKeys )
 	{
-		if (KEYPRESS(DIK_NUMPAD7))
+		if (editorOk)
 		{
-			farClip*=1.2;
-			horizClip*=1.2;
-			vertClip*=1.2;
+			if (KEYPRESS(DIK_NUMPAD7))
+			{
+				farClip*=1.2;
+				horizClip*=1.2;
+				vertClip*=1.2;
+			}
+
+			if (KEYPRESS(DIK_NUMPAD9))
+			{
+				farClip/=1.2;
+				horizClip/=1.2;
+				vertClip/=1.2;
+			}
 		}
 
-		if (KEYPRESS(DIK_NUMPAD9))
-		{
-			farClip/=1.2;
-			horizClip/=1.2;
-			vertClip/=1.2;
-		}
+		if (KEYPRESS(DIK_Z))
+			ShowJalloc();
 	}
-
-	if (KEYPRESS(DIK_Z))
-		ShowJalloc();
-#endif
+//#endif
 
 	if (rPlayOK)
 	{

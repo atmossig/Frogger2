@@ -356,36 +356,38 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		}
 		if(appActive)
 		{
-			if (KEYPRESS(DIK_F1))
-				camDist.v[1]+=2*gameSpeed;
-
-				
-			if (KEYPRESS(DIK_F2))
-				camDist.v[1]-=2*gameSpeed;
-
-			/*if (KEYPRESS(DIK_F1))
-				speedKill++;
-
-			if (KEYPRESS(DIK_F2))
-				if (speedKill>0)
-					speedKill--;
-*/
-			if (KEYPRESS(DIK_F3))
+			if( debugKeys )
 			{
-				if (KEYPRESS(DIK_LCONTROL))
-					camSideOfs+=2*gameSpeed;
-				else
-					camDist.v[2]+=2*gameSpeed;
-			}
-		
-			if (KEYPRESS(DIK_F4))
-			{
-				if (KEYPRESS(DIK_LCONTROL))
-					camSideOfs-=2*gameSpeed;
-				else
-					camDist.v[2]-=2*gameSpeed;
-			}
+				if (KEYPRESS(DIK_F1))
+					camDist.v[1]+=2*gameSpeed;
 
+					
+				if (KEYPRESS(DIK_F2))
+					camDist.v[1]-=2*gameSpeed;
+
+				/*if (KEYPRESS(DIK_F1))
+					speedKill++;
+
+				if (KEYPRESS(DIK_F2))
+					if (speedKill>0)
+						speedKill--;
+	*/
+				if (KEYPRESS(DIK_F3))
+				{
+					if (KEYPRESS(DIK_LCONTROL))
+						camSideOfs+=2*gameSpeed;
+					else
+						camDist.v[2]+=2*gameSpeed;
+				}
+			
+				if (KEYPRESS(DIK_F4))
+				{
+					if (KEYPRESS(DIK_LCONTROL))
+						camSideOfs-=2*gameSpeed;
+					else
+						camDist.v[2]-=2*gameSpeed;
+				}
+			}
 		
 			if (KEYPRESS(DIK_F8))
 			{
@@ -437,22 +439,25 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 //				if( KEYPRESS(DIK_F8) )
 //				fog.mode = 1;//!(fog.mode);
 
-#ifdef USE_EDITOR
-				if( KEYPRESS(DIK_F10) )
+				if( debugKeys )
 				{
-					editorOk = !editorOk; 
-					keyDelay = 20;
-				}
+#ifdef USE_EDITOR
+					if( KEYPRESS(DIK_F10) )
+					{
+						editorOk = !editorOk; 
+						keyDelay = 20;
+					}
 #endif
 				
-				if (KEYPRESS(DIK_F5))
-				{
-					if (drawTimers<3)
-						drawTimers++;
-					else
-						drawTimers = 0;
+					if (KEYPRESS(DIK_F5))
+					{
+						if (drawTimers<3)
+							drawTimers++;
+						else
+							drawTimers = 0;
 
-					keyDelay = 20;
+						keyDelay = 20;
+					}
 				}
 /*
 				if( KEYPRESS(DIK_SPACE) )
