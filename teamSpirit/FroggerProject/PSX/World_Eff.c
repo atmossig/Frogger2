@@ -236,8 +236,8 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 	currentDisplayPage->primPtr = (char *)packet;
 
-	if ( jiggledVerts )
-		FREE ( jiggledVerts );
+//	if ( jiggledVerts )
+//		FREE ( jiggledVerts );
 }
 
 
@@ -609,8 +609,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	currentDisplayPage->primPtr = (char *)packet;
 
-	if ( jiggledVerts )
-		FREE ( jiggledVerts );
+//	if ( jiggledVerts )
+//		FREE ( jiggledVerts );
 }
 
 void PTTextureLoad ( void )
