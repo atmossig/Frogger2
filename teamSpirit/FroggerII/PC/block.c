@@ -28,6 +28,7 @@
 #include "mavis.h"
 #include "config.h"
 
+void SetupViewMatrix(void);
 void AnimateTexturePointers(void);
 
 #define DEBUG_FILE "C:\\frogger2.log"
@@ -441,7 +442,10 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 				keyDelay-=gameSpeed;
 			
 			if (editorOk)
+			{
+				SetupViewMatrix();
 				RunEditor();
+			}
 
 			if( gameState.multi == MULTIREMOTE && gameState.mode == INGAME_MODE )
 				RefreshMPFrogs( );

@@ -45,6 +45,7 @@ extern long noClipping;
 #define WATER_XLU 70
 long waterObject = 0;
 long modgyObject = 0;
+long sludgeObject = 0;
 int objectMatrix = 0;
 long showActorNames = 0;
 ACTOR2 *actList = NULL;				// entire actor list
@@ -269,6 +270,12 @@ void DrawObjects(void)
 				{
 					// Draw a waterbased object, this does the setting, and setting back of states since it is called far less frequently
 					waterObject = 1;
+						
+					if (cur->flags & ACTOR_SLUDGE)
+						sludgeObject = 1;
+					else
+						sludgeObject = 0;
+
 					SwapFrame(2);
 
 					DrawActor(cur->actor);

@@ -1317,6 +1317,7 @@ short facesON[3] = {0,1,2};
 
 float naddr = 0.25;
 float nmult = 4.0;
+extern unsigned long sludgeObject;
 
 void PCRenderObject (OBJECT *obj)
 {
@@ -1392,7 +1393,10 @@ void PCRenderObject (OBJECT *obj)
 		//		vTemp->color = D3DRGBA(1,1,1,1);
 				if (waterObject)
 				{
-					vTemp->color = SETALPHA(*((long *)(&(c1->x))),alphaVal*c1->w*((naddr+mV[v0])*nmult));
+					if (!sludgeObject)
+						vTemp->color = SETALPHA(*((long *)(&(c1->x))),alphaVal*c1->w*((naddr+mV[v0])*nmult));
+					else
+						vTemp->color = SETALPHA(*((long *)(&(c1->x))),alphaVal*c1->w);
 					vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F)+mV[v0];
 					vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F)+mV[v0];
 				}
@@ -1429,7 +1433,11 @@ void PCRenderObject (OBJECT *obj)
 
 				if (waterObject)
 				{
-					vTemp->color = SETALPHA(*((long *)(&(c2->x))),alphaVal*c2->w*((naddr+mV[v1])*nmult));
+					if (!sludgeObject)
+						vTemp->color = SETALPHA(*((long *)(&(c2->x))),alphaVal*c2->w*((naddr+mV[v1])*nmult));
+					else
+						vTemp->color = SETALPHA(*((long *)(&(c2->x))),alphaVal*c2->w);
+					
 					vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F)+mV[v1];
 					vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F)+mV[v1];
 				}
@@ -1466,7 +1474,10 @@ void PCRenderObject (OBJECT *obj)
 
 				if (waterObject)
 				{
-					vTemp->color = SETALPHA(*((long *)(&(c3->x))),alphaVal*c3->w*((naddr+mV[v2])*nmult));
+					if (!sludgeObject)
+						vTemp->color = SETALPHA(*((long *)(&(c3->x))),alphaVal*c3->w*((naddr+mV[v2])*nmult));
+					else
+						vTemp->color = SETALPHA(*((long *)(&(c3->x))),alphaVal*c3->w);
 					vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F)+mV[v2];
 					vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F)+mV[v2];
 				}
