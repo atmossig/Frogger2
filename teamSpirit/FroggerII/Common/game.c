@@ -623,6 +623,7 @@ void RunGameLoop (void)
 		}
 
 		ChangeCameraSetting();
+		CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
 
 		lastActFrameCount = 0;
 	}

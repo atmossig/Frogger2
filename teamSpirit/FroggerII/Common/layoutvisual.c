@@ -469,7 +469,7 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID)
 	dprintf"Loading...\n"));
 	LoadTextureBank(SYSTEM_TEX_BANK);
 	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
-	LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
+//	LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
 	LoadTextureBank(texBankToUse);
 	LoadObjectBank(objBankToUse);
 
@@ -560,6 +560,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 	player[0].worldNum = worldID;
 	player[0].levelNum = levelID;
+
+	pOIDistance = 50000.0;
+	pointOfInterest = NULL;
 
 	CreateLevelObjects(worldID,levelID);
 
@@ -655,6 +658,9 @@ void FreeAllLists()
 	aMapBank = NULL;
 	globalPtrEntityBank = NULL;
 #endif
+
+	pOIDistance = 50000.0;
+	pointOfInterest = NULL;
 
 	dprintf"-----------------------------\n"));
 

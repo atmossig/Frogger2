@@ -187,6 +187,11 @@ void FreeTransCameraList()
 	}
 
 	transCameraList = NULL;
+
+	controlCamera = 0;
+	fixedDir = 0;
+	fixedPos = 0;
+	firstPerson = 0;
 }
 
 
