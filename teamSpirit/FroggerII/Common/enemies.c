@@ -245,7 +245,10 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 			{
 				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog+NUM_DEATHTYPES] (pl);
 				if( reactiveAnims[nme->reactiveNumber].animChar != -1 )
+				{
 					AnimateActor( nme->nmeActor->actor, reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25, 0, 0 );
+					AnimateActor( nme->nmeActor->actor, 0, YES, YES, 0.25, 0, 0 );
+				}
 			}
 		}
 		else deathAnims[NUM_DEATHTYPES] (pl); // DEATHBY_NORMAL
