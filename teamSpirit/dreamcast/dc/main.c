@@ -959,7 +959,6 @@ void main()
 
 
 // *ASL* 10/08/2000
-
 /* ---------------------------------------------------------
    Function : vblankCallback
    Purpose : vblanking callback
