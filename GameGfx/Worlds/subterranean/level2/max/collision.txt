@@ -1,0 +1,79 @@
+Summary Info for collision.max (at Frame 0)
+
+Objects:
+  			Cast	Receive	Motion		
+  Name (Type)	Verts	Faces	Shadows	Shadows	Blur	Hidden	Frozen	Material (Type)
+  ------------------------	------------	------------	------------	------------	------------	------------	------------	------------------------
+  Camera01.Target (Target)	-	-	Yes	Yes	No	No	No	default (Std)
+  collision (Editable Mesh)	1463	1941	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  cam_start (Editable Mesh)	8	8	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  cam_mid (Editable Mesh)	8	8	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  cam_mid01 (Editable Mesh)	8	8	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  cam_mid02 (Editable Mesh)	8	8	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  cam_mid03 (Editable Mesh)	8	8	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  cam_mid04 (Editable Mesh)	8	8	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  cam_mid05 (Editable Mesh)	8	8	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  cam_mid06 (Editable Mesh)	8	8	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  cam_mid07 (Editable Mesh)	8	8	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  submush (Editable Mesh)	29	42	Yes	Yes	No	No	No	default (Std)
+  spl_antb (Editable Mesh)	46	44	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_antb01 (Editable Mesh	46	44	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_antb02 (Editable Mesh	46	44	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_antb03 (Editable Mesh	46	44	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_antb04 (Editable Mesh	46	44	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_antb05 (Editable Mesh	46	44	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_anta (Editable Mesh)	62	60	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_antc (Editable Mesh)	18	16	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_antd (Editable Mesh)	96	92	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_ante (Editable Mesh)	34	32	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  spl_antf (Editable Mesh)	26	24	Yes	Yes	No	No	No	collisionmat (Multi/Sub-Object)
+  spl_antsa (Editable Mesh)	76	72	Yes	Yes	No	No	No	Material #7 (Standard)
+  spm_antsb (Editable Mesh)	38	36	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_across (Editable Mesh	49	72	Yes	Yes	No	No	No	Material #7 (Standard)
+  world (Editable Mesh)	1	0	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2a (Editable Mesh)	133	187	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2b (Editable Mesh)	110	178	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2c (Editable Mesh)	124	188	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2d (Editable Mesh)	143	231	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2e (Editable Mesh)	83	111	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2f (Editable Mesh)	212	360	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2g (Editable Mesh)	136	222	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2h (Editable Mesh)	94	145	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2i (Editable Mesh)	132	222	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2j (Editable Mesh)	60	56	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2k (Editable Mesh)	193	331	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2l (Editable Mesh)	142	245	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2m (Editable Mesh)	88	128	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2n (Editable Mesh)	112	156	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2o (Editable Mesh)	96	128	Yes	Yes	No	No	No	Material #7 (Standard)
+  sub2p (Editable Mesh)	200	296	Yes	Yes	No	No	No	Material #7 (Standard)
+  spikea (Editable Mesh)	21	26	Yes	Yes	No	No	No	Material #7 (Standard)
+  spikeb (Editable Mesh)	27	38	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_aconc (Editable Mesh)	112	104	Yes	Yes	No	No	No	Material #7 (Standard)
+  spm_aconc (Editable Mesh)	20	16	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_acona (Editable Mesh)	144	136	Yes	Yes	No	No	No	Material #7 (Standard)
+  spl_aconb (Editable Mesh)	136	128	Yes	Yes	No	No	No	Material #7 (Standard)
+  spm_acona (Editable Mesh)	72	68	Yes	Yes	No	No	No	Material #7 (Standard)
+  spm_aconb (Editable Mesh)	68	64	Yes	Yes	No	No	No	Material #7 (Standard)
+  wat_poola (Editable Mesh)	22	20	Yes	Yes	No	No	No	Material #7 (Standard)
+  wat_poolb (Editable Mesh)	22	20	Yes	Yes	No	No	No	Material #7 (Standard)
+
+
+Cameras:
+  		
+  Name (Type)	Hidden	Frozen
+  ------------------------	------------	------------
+  Camera01 (Target Camera)	Yes	No
+
+
+Scene Totals:
+  Objects: 53
+  Shapes: 0
+  Cameras: 1
+  Lights: 0
+  Helpers: 0
+  Space Warps: 0
+  Total: 54
+
+
+

@@ -1,0 +1,36 @@
+Garden (incomplete)
+
+Bee.obe
+	BeeA.wav - buzz
+
+moa.obe
+	MoaA.wav
+
+Mole.obe
+	MoleA.wav - attack
+
+	MoleB.wav - down 1(s)
+
+	MoleD.wav - scratch - one shot
+
+
+Owlhed.obe
+
+Pecker.obe
+	PeckerC.wav - peck
+
+Roll.obe
+	RollA.wav
+
+Roto.obe
+
+Topi.obe
+
+Snapper.obe
+	SnapperA.wav - rustling
+
+	SnapperB.wav - Attack
+
+	SnapperC.wav - yawn
+	
+	SnapperD.wav - sleep

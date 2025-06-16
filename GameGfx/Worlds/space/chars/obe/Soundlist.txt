@@ -1,0 +1,62 @@
+Space (Near complete)
+
+Bbot.obe
+	bbotA.wav - walk - 1s length loops
+	bbotB.wav - spin1 - 1s length loops
+	bbotC.wav - spin2 - 1.067 length loops
+	bbotD.wav - tumble - one shot
+
+Beast.obe
+	beastA.wav - idle - don't loop, (trigger at random intervals)
+	beastB.wav - attack
+	beastC.wav - scratch
+
+Fishead.obe
+	fisheadA.wav - swim cycle - looping 1 sec
+	fisheadB.wav - popup - one shot
+muzap.obe
+	muzapA.wav - on - one shot
+	muzapB.wav - fire - loop
+	muzapC.wav - off - one shot
+	muzapD.wav - zap (all 3 sequences) - one shot
+
+Sbast.obe
+	?
+
+Seel.obe
+	seelA.wav - cycle - looping, 1 sec long
+
+Seyeball.obe
+	seyeballA.wav - cycle - 1.33s looping
+	(my info)	frame 	type
+			3	quiet
+			5	loud
+			10	med
+			11	q
+			12	q
+			13	q
+			14	q
+			19	m	
+
+Smine.obe
+	?
+
+Snail.obe
+	?
+
+ssnail.obe
+	ssnail.wav - cycle - looping
+
+sprop.obe
+	spropA.wav - cycle - looping
+
+ssat.obe
+	ssatA.wav - cycle - looping
+
+ssheep.obe
+	?
+
+tank.obe
+	tankA.wav - rumble - looping
+
+plus laser zaps, electrical arcs, gloopy bubbling nad general spacey sounds...

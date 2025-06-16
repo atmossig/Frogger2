@@ -1,0 +1,30 @@
+City 
+(This *will* change, but the following should remain)
+
+dog.obe
+		DogA.wav - dog yap - 1.333 s
+		(my ref) 2 barks one at start 
+		one at frame 10 (0.667 s)
+	
+		DogB.wav - dog cok head length 5.067 s 
+		cock head at 2.6 s
+		
+
+pigion.obe
+		PigeonA.wav - pecker - length 1.333 s
+		(my ref) pecks at:
+			0.133
+			0.467
+			0.8
+			1.133
+
+rat.obe
+		RatA.wav - running - length 1.333s
+		(my ref) feet hit ground at	0.333
+						0.933
+
+hammer.obe
+
+fork.obe
+
+Roach.obe
