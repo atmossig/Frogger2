@@ -1,0 +1,10 @@
+This folder contains Character Studio Biped motion files (.bip) created "by hand" and using motion capture data which can be imported directly.
+
+
+The freeform folder contains animations that do not utilize Biped footsteps.
+
+The footstep folder contains animations that are footstep-driven.
+
+The Mocap folder contains raw motion capture data that can be imported into biped and filtered - either as free-form, or footstep animations, depending on the nature of the raw motion capture file.
+
+Motion captured motions are organized in sub-folders by type

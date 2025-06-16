@@ -1,0 +1,32 @@
+This folder contains raw motion capture data in the Character Studio Marker format (csm).  
+
+These files can be imported in to Character Studio 2.0 using the Load MoCap button in the Motion Capture Rollout of Biped.
+
+See also cstudio\Docs for more information on the CSM and MNM file syntax and Biped's use of it.
+
+
+**********************************************************************
+
+The Peak Performance Technologies, Inc. Motus system uses optical, marker-based motion capture and videotape-based tracking with stationary or moving cameras to allow a virtually unlimited capture space. Real life movements recorded indoors, outdoors, underwater, or in other natural environments can be easily used to create animated human or animal characters.
+
+Peak has been supplying motion capture systems to industry, the biological sciences, biomedical research, and sport science for over ten years.  Our products are currently used in over twenty-five countries.
+
+The Peak Motus system integrates three types of motion capture.  These include:
+
+Basic Video System: 15/30Hz-video motion capture for outdoors or non-complex movements, in 2D or 3D.
+
+Advanced Video System: This higher resolution, field-accurate system provides a platform that can expand to include tracking motion with or without reflective markers from videotape, pan & tilt (to capture large areas), and high-speed cameras for slow-motion effects.  This is particularly good for complex outdoor sport motions or for motions that cannot use markers (animals, children, swimming, stuntmen, etc.).
+
+Optical Motion Capture  System: The Peak Motus optical coordinate capture system uses 4 to 12 cameras to track the coordinate position of reflective markers in a studio space.  This provides a fast process to capture standard motions such as walking, running, many sports and so forth.
+
+All modules can be integrated to provide the best solution to fit the needs of any animation project.
+
+Peak Performance Tech., Inc.
+7388 S. Revere Parkway
+Suite 603
+Englewood, CO 80112
+1.800.PIK.PEAK
++303.799.8686
++303.799.8690 fax
+peakinfo@peakperform.com
+www.peakperform.com

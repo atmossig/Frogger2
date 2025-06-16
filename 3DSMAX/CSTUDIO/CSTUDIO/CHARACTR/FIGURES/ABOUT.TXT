@@ -1,0 +1,1 @@
+This directory contains Character Studio ".fig" figure files.  These files represent the basic structure of a customized Biped character.

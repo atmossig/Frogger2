@@ -1,0 +1,1 @@
+This folder contains additional information on Character Studio import, export, and general operations.

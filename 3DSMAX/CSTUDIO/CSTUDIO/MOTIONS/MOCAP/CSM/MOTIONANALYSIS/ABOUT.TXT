@@ -1,0 +1,61 @@
+This Motion Analysis Corporation CSM data was captured with a ten camera 
+system at Modern Uprising Studios in New York City.  Files were captured 
+for Riverbed's "Biped" project with Merce Cunningham. In the duet data, 
+both dancers were captured at the same time. 
+
+These files can be imported into Character Studio using the "Load Motion
+Capture File" button in the Motion Capture Rollout of Biped. First load 
+the MNM marker mapping name file followed by the CSM motion capture 
+file. Please reference the Character Studio manual and documentation for 
+more information on CSM motion capture data. 
+	
+Motion Analysis Corporation is the leading provider of Optical Motion 
+Capture systems for entertainment, medicine, sports and research with 
+over 500 systems installed worldwide.  Their entertainment customers 
+include Electronic Arts, Sony, Netter Digital Entertainment, and 
+Acclaim Entertainment.  
+
+Motion Analysis Corporation (MAC) breakthroughs: 
+
+* Real-Time Optical "RealView" for 3D computer graphic viewing of actors 
+moving in Real-Time
+
+* Advanced Editing Tools for MoCap using the "Director/Sequencer" for 
+desktop motion editing and creation, blending, time shifting, motion 
+creation with layering, full-skeleton manipulation, visualization with a 
+skinned body, and using props in the edit scene.
+
+* "MoCap Solver" for re-targeting MoCap data to characters of different 
+sizes and for stopping footsliding.
+
+* Customer Successes:  Using the MAC animation "production pipeline", 
+several customers recently went from MAC system installation to finished 
+production work in less than four weeks as demonstrated by Netter 
+Digital (3D TV programs) and Brilliant Digital Entertainment (multi-path 
+PC movies).
+
+For more information about Motion Analysis, please contact:
+
+Dean LaCoe
+Vice President New Media
+Motion Analysis Corporation
+Phone: 707-579-6500
+Fax:   707-526-0629
+Dean.lacoe@motionanalysis.com
+www.motionanalysis.com
+
+Service bureaus around the world using Motion Analysis systems can
+capture and provide you with the industry's highest quality data for 
+your next project. For information, contact your local service bureau.
+
+Los Angeles: Performance Capture Studios, www.performancecapture.com
+             Pyros Pictures, www.pyrospictures.com
+New York:    Modern Uprising, www.modernuprising.com
+Seattle:     Monolith Productions, www.lith.com
+London:      Centroid, www.centroid3d.com
+Paris:       Ecoutez Voir, www.ecoutez-voir.com
+Italy:       CNR Instituto, www.area.na.cnr.it
+Sydney:      Brilliant Digital Entertainment, www.bde3d.com
+Hong Kong:   Centro Digital Pictures, www.centro.com.hk
+Tokyo:       Visual Science Laboratory, www.vsl.co.jp
+Taiwan:      Institute for Information Industry, www.iii.org.tw

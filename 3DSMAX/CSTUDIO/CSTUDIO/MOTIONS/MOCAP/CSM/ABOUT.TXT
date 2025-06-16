@@ -1,0 +1,9 @@
+This folder contains raw motion capture data in the Character Studio Marker format (csm).  
+
+These files can be imported in to Character Studio 2.0 using the Load MoCap button in the Motion Capture Rollout of Biped.
+
+
+See also cstudio\Docs for more information on the CSM and MNM file syntax and Biped's use of it.
+
+
+

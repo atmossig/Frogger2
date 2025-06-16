@@ -1,0 +1,4 @@
+This folder contains footstep-driven Biped motion files.  These files have been created using hand-animation techniques and motion capture import.  They can be used with any Biped figure.
+
+Motion capture conversions correspond to raw .bip motion capture files available in the cstudio\mocap\bip folder.
+

@@ -1,0 +1,4 @@
+This folder contains free-form Biped motion files.  These files have been created using hand-animation and motion capture import.  They can be mapped onto any Biped figure.
+
+Motion capture conversions correspond to raw .bip motion capture files available in the mocap\bip folder.
+
