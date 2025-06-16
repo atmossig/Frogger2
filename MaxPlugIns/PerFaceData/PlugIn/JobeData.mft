@@ -1,0 +1,259 @@
+// ** Max Face Template for Jobe Polygon Info
+// ** Based on the following structure:
+// **
+// **  typedef struct
+// **  {
+// ** 	 // common data 
+// ** 	 UCHAR		polyRGB[3];							// polygon colour						 0	+ 1*3
+// ** 	 char		transMode;							// transluceny mode						 3	+ 1*1
+// ** 	 char		transValue;							// transluceny value					 4	+ 1*1
+// ** 	 char		gourMode;							// gouraud mode							 5	+ 1*1	+ 2
+// ** 	 long		uTile, vTile;						// UV tiling							 8	+ 4*2
+// ** 	 short		flags;								// polygon flags						16	+ 2*1
+// ** 
+// ** 	 // polygon vertices								
+// ** 	 char		vertLights[3];						// lighting intensity					18	+ 1*3
+// ** 	 UCHAR		vertRGBA[3][4];						// gouraud colours						21	+ 1*12	+ 3
+// ** 
+// ** 	 // sprite data									
+// ** 	 float		sprxPos, spryPos, sprzPos;			// position								36	+ 4*3
+// ** 	 float		sprxSize, sprySize;					// size									48	+ 4*2
+// ** 	 char		sprxFlipped, spryFlipped;			// flipped								56	+ 1*2	+ 2
+// ** 
+// ** 	 // additional data								
+// ** 	 long		terFlag;							// terrain flag							60	+ 4*1
+// ** 	 long		NDOFlag;							// NDO Flag								64	+ 4*1
+// ** 	 char		dualTexture[32];					// dual texture map						68	+ 1*32
+// ** 
+// **  } TPolygonData;									// total:								100
+
+
+// Jobe Polygon Data Rollup
+Rollup
+{
+	name = "Jobe Polygon Data"
+
+	Group
+	{
+		name = "Common"
+
+		// polygon colour
+		Colour													// 0
+		{
+			ident = "Polygon Colour"
+			name = "Poly Col"
+			default = 255, 255, 255
+		}
+
+		// polygon translucency
+		Int
+		{														// 3
+			ident = "Trans Mode"
+			name = "Trans Mode"
+			type = "uchar"
+			list = "Alpha", "Semi", "Additive", "Subtractive"
+			default = "Alpha"
+			close = true
+		}
+
+		Int
+		{														// 4
+			ident = "Trans Value"
+			name = "Trans Value"
+			type = "uchar"
+			default = 255
+		}
+
+		// gouraud shading
+		Enum
+		{														// 5
+			ident = "Gouraud Mode"
+			name = "Gouraud"
+			type = "uchar"
+			list = "None", "Lighting", "Colour"
+			default = "None"
+		}
+
+		// UV Tiling
+		Int														// 8
+		{
+			ident = "Tiling U"
+			name = "U Tile *1K"
+			type = "sint"
+			min = 1
+			max = 32000
+			default = 1000
+			close = true
+		}
+
+		Int
+		{														// 12
+			ident = "Tiling V"
+			name = "V Tile *1K"
+			type = "sint"
+			min = 1
+			max = 32000
+			default = 1000
+		}
+
+		Int
+		{														// 16
+			ident = "Polygon Flags"
+			name = "Flags"
+			type = "sshort"
+			default = 32
+		}
+	}
+
+	Group
+	{
+		name = "Vertices"
+
+		Int
+		{														// 18
+			ident = "Vert0 Light"
+			name = "V0 Light"
+			type = "uchar"
+			default = 0
+			close = true
+		}
+
+		Int
+		{														// 19
+			ident = "Vert1 Light"
+			name = "V1 Light"
+			type = "uchar"
+			default = 0
+			close = true
+		}
+
+		Int
+		{														// 20
+			ident = "Vert2 Light"
+			name = "V2 Light"
+			type = "uchar"
+			default = 0
+		}
+
+		Colour
+		{														// 21
+			ident = "Vert0 Colour"
+			name = "V0 Colour"
+			default = 255,255,255, 255
+			alpha = true
+			close = true
+		}
+
+		Colour
+		{														// 25
+			ident = "Vert1 Colour"
+			name = "V1 Colour"
+			default = 255,255,255, 255
+			alpha = true
+			close = true
+		}
+
+		Colour
+		{														// 29
+			ident = "Vert2 Colour"
+			name = "V2 Colour"
+			default = 255,255,255, 255
+			alpha = true
+		}
+	}
+
+	Group
+	{
+		name = "Sprites"
+
+		Float
+		{														// 36
+			ident = "Sprite XPos"
+			name = "X Pos"
+			close = true
+		}
+
+		Float
+		{														// 40
+			ident = "Sprite YPos"
+			name = "Y Pos"
+			close = true
+		}
+
+		Float
+		{														// 44
+			ident = "Sprite ZPos"
+			name = "Z Pos"
+		}
+
+		Float
+		{														// 48
+			ident = "Sprite XSize"
+			name = "X Size"
+			close = true
+		}
+
+		Float
+		{														// 52
+			ident = "Sprite YSize"
+			name = "Y Size"
+		}
+
+		BOOL
+		{														// 56
+			ident = "Sprite XFlip"
+			name = "X Flip"
+			default = false
+			close = true
+		}
+
+		BOOL
+		{														// 57
+			ident = "Sprite YFlip"
+			name = "Y Flip"
+			default = false
+		}
+	}
+}
+
+// Jobe Extra Data Rollup
+Rollup
+{
+	name = "Jobe Extra Data"
+
+	Group
+	{
+		name = "Terrain"
+
+		Int
+		{														// 60
+			ident = "Terrain Flags"
+			name = "Flags"
+			type = "uint"
+		}
+	}
+
+	Group
+	{
+		name = "NDOs"
+
+		Int
+		{														// 64
+			ident = "NDO Flags"
+			name = "Flags"
+			type = "uint"
+		}
+	}
+
+	Group
+	{
+		name = "Dual Texture Map"
+
+		String
+		{														// 68
+			ident = "Dual Texture Map"
+			name = "Name"
+			length = 32
+		}
+	}
+}

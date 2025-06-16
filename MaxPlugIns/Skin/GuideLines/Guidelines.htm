@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//SoftQuad//DTD HoTMetaL PRO 5.0::19980907::extensions to HTML 4.0//EN" "hmpro5.dtd">
+ 
+<HTML>
+ 
+<HEAD>
+<TITLE></TITLE>
+<LINK REL="STYLESHEET" HREF="../../../General.css"> 
+</HEAD>
+ 
+<BODY BGCOLOR="#FFFFFF">
+<TABLE WIDTH="100%">
+<TR>
+<TD BACKGROUND="Guidelines.jpg" HEIGHT="32">&nbsp; </TD>
+</TR>
+</TABLE>
+<P>These guidelines are presented in the hope of making the skin plugin easier
+to use and minimising potential problems which could occur later. Any user of
+the skin plugin is invited to contribute to this section for the benefit of
+all.</P>
+<P>A debug log file is created while using the skin plugin called
+c:\skinDebug.log.</P>
+<P>If you have any problems whilst using this plugin, please send me the
+following: the file you were working on, the debug log, and a short message
+describing what you were doing or intended to do.</P>
+<BR>
+<P STYLE="border-bottom: thin black solid"><B>Before Using The Skin PlugIn</B> 
+</P>
+<P>If after you have copied the plugin into you MAX plugins directory and you
+find it isn't available in the Create / SpaceWarps menu you probably need to
+copy <A HREF="file:///X|/TechTeam/MaxPlugIns/Msvcrtd.dll">Msvcrtd.dll</A> into
+your Windows / System directory. If the file already exists, don't bother
+overwriting the file. This file is used internally for debug logging. </P>
+<BR>
+<P STYLE="border-bottom: thin black solid"><B>General Use</B> </P>
+<P>Always make sure that you are using the latest version of the plugin before
+reporting any problems.</P>
+<BR>
+ <P STYLE="border-bottom: thin black solid"><B>Preparing An Object For
+Skinning</B> </P>
+<P>Although it is perfectly acceptable to add a skin to any object, it is
+recommended the user convert the object to an editable mesh before binding.</P>
+<P>It is also recommended that before adding a skin to an object that the
+objects &quot;Pivot&quot; transform is reset to identity. Use the
+<A HREF="../../Index.htm#Pivot%20Reset">Pivot</A> plugin for this purpose. </P>
+<BR>
+<P STYLE="border-bottom: thin black solid"><B>Creating The Skeleton</B> </P>
+<P>When constructing the bone skeleton for the skinned object, make sure the
+&quot;Assign To Children&quot; check box under the &quot;IK Controller&quot; in
+&quot;Bone Parameters&quot; is cleared. The image below shows the correct bone
+creation panel.</P>
+<IMG SRC="bone%20create.jpg" ALT="{short description of image}" WIDTH="179"
+ HEIGHT="459" BORDER="0"><P>For the moment the only animation method supported
+is linear, so make sure the default assign controller is linear. The image
+below shows what the assign controller should be like for all bones used</P>
+<IMG SRC="bone%20assign.jpg" ALT="{short description of image}" WIDTH="181"
+ HEIGHT="327" BORDER="0"> <P>Make sure that before assigning vertices to bones,
+that key frame zero (the reference frame) have their scale and rotate values at
+identity. The images below show what the scale and rotate values should be for
+all the bones at frame zero.</P>
+<P><IMG SRC="bone%20frame0%20-%20scale.jpg" ALT="{short description of image}"
+WIDTH="295" HEIGHT="126" BORDER="0" ALIGN="TEXTTOP"><IMG
+SRC="bone%20frame0%20-%20rotate.jpg" ALT="{short description of image}"
+WIDTH="292" HEIGHT="126" BORDER="0" ALIGN="TEXTTOP"></P>
+<BR>
+<P STYLE="border-bottom: thin black solid"><B>Assigning Vertices</B></P>
+<P>Always perform the vertex assignments at frame zero. This is because the
+assignment is made relative to the bones reference frame which is frame zero of
+the animation.</P>
+<BR>
+<P STYLE="border-bottom: thin black solid"><B>Modifying The Mesh After Vertex
+Assignment</B></P>
+<P>Modifications to the mesh after assignment should be picked up automatically
+by the modifier and the assignments updated. If this doesn't happen please let
+me know.</P>
+<P>There seems to be a problem with MAX temporarily losing internal references
+inside the skin modifier if you make any mesh modifications. One way to prevent
+this is before moving back to the skin modifier in the modify stack, select ALL
+vertices in the Edit Mesh modifier. </P>
+</BODY>
+</HTML>
+ 
