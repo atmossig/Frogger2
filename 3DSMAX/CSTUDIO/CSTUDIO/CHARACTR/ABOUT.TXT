@@ -1,3 +1,0 @@
-
-
-The files Boy.max, girl.max, mancasul.max, mansuit.max, womcasul.max, womsuit.max each contain low resolution Character Studio models using rigid vertex assignments with no blending.  This is typical usage for real-time games.  Adjustments to these characters must be done at Vertex sub-object level or reinitialize and create envelopes.

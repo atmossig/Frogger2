@@ -1,1 +1,0 @@
-This directory contains 3D Studio MAX 2 files that represent character skin geometry.  They do not include any Biped structure or Physique modifiers.  They are intended as samples.

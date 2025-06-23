@@ -1,4 +1,0 @@
-This folder contains groups of motion capture data, organized by format.  These are the formats that can be read by Character Studio 2.0.
-
-An additional set of over 300 motion capture data samples can be found on the Character Studio R2 CD in the "bonus" directory.  These additional samples have not been tested, but are valuable for production and demonstration uses.
-
