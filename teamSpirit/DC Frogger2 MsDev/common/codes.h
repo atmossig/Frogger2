@@ -72,4 +72,5 @@
 #define TR_FROGONPLATFORM        2
 #define TR_FROGONTILE            1
 #define TR_ENEMYONTILE           0
+
 #endif
