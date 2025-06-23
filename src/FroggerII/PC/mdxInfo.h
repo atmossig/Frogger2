@@ -1,44 +1,36 @@
 /*
-
-	This file is part of the M libraries,
-
-	File		: mliReport.h
-	Programmer	: Matthew Cloy
-	Date		: 
-
------------------------------------------------------------------------------------------------ */
-
-#ifndef MGEINFO_H_INCLUDED
-#define MGEINFO_H_INCLUDED
-
-#ifdef __cplusplus
-
-extern "C"
-{
-#endif
-
-/*	--------------------------------------------------------------------------------
-	Function	: ddShowCaps
-	Purpose		: Prints out the capabilities held in a DDCAPS structure
-	Parameters	: pointer to caps structure
-	Returns		: nothing
-	Info		: 
+*	Original Author: Matthew Cloy
+* 
+*	File: mdxInfo.h
+*	Programmer: atmossig (re-programmed from the ground up)
+*	Date: 06-23-2025
+* 
+*	Description:
+*		DX12 info.
 */
 
-void ddShowCaps(DDCAPS *me);
+#ifndef MDXINFO_H_
+#define MDXINFO_H_
 
-/*	--------------------------------------------------------------------------------
-	Function	: ddShowError
-	Purpose		: Converts a DirectDraw Error to a string describing the error, and prints it
-	Parameters	: error value
-	Returns		: 
-	Info		: 
-*/
+// Easier instead of #ifdef __cplusplus
+//
+// No worries about including 'global.h'
+// since it is force included with the rest of the project
+// in C++ > Advanced
+BEGIN_C
 
-void ddShowError(HRESULT error);
+#include <d3d12.h>
+#include <dxgi1_6.h>
+#include <wrl/client.h>
 
-#ifdef __cplusplus
-}
-#endif
+using Microsoft::WRL::ComPtr;
 
-#endif
+// Show capabilities of the adapter device.
+void d3d12ShowCaps(IDXGIAdapter4* pAdapter);
+
+// Convert D3D12 error.
+void d3d12ShowError(HRESULT error);
+
+END_C
+
+#endif // MDXINFO_H_

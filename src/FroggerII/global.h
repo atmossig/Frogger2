@@ -7,6 +7,19 @@
 #ifndef _GLOBAL_H
 #define _GLOBAL_H
 
+// __cplusplus def (easier) instead of #ifdef __cplusplus and all that.
+#define BEGIN_C extern "C" {
+#define END_C }
+
+// Libraries we need
+//
+// d3d12.lib		For DirectX 12 of course.
+// d3dcompiler.lib	For shader compiling.
+// dxgi.lib			For Misc.
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "dxgi.lib")
+
 // Platform definitions
 #if defined(__WIN32) || defined(_WIN64)
 #define PC_VERSION
