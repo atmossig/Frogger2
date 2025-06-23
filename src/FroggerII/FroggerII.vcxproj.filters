@@ -213,6 +213,27 @@
     <ClCompile Include="PC\texture.c">
       <Filter>PC</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\edcamera.c">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\edcommand.c">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\edglobals.c">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\editdefs.c">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\editfile.c">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\editor.c">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\edtoolbars.c">
+      <Filter>Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\actor.h">
@@ -425,5 +446,30 @@
     <ClInclude Include="PC\texture.h">
       <Filter>PC</Filter>
     </ClInclude>
+    <ClInclude Include="Editor\edcamera.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\edcommand.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\edglobals.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\editdefs.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\editfile.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\editor.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\edittypes.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\edtoolbars.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="global.h" />
   </ItemGroup>
 </Project>

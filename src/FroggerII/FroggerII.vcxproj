@@ -99,9 +99,12 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <ForcedIncludeFiles>$(SolutionDir)src\FroggerII\global.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>..\FroggerII;..\FroggerII\Common;..\FroggerII\Editor;..\FroggerII\PC;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -113,9 +116,12 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <ForcedIncludeFiles>$(SolutionDir)src\FroggerII\global.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>..\FroggerII;..\FroggerII\Common;..\FroggerII\Editor;..\FroggerII\PC;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -165,6 +171,13 @@
     <ClCompile Include="Common\tongue.c" />
     <ClCompile Include="Common\water.c" />
     <ClCompile Include="Common\Zbuffer.c" />
+    <ClCompile Include="Editor\edcamera.c" />
+    <ClCompile Include="Editor\edcommand.c" />
+    <ClCompile Include="Editor\edglobals.c" />
+    <ClCompile Include="Editor\editdefs.c" />
+    <ClCompile Include="Editor\editfile.c" />
+    <ClCompile Include="Editor\editor.c" />
+    <ClCompile Include="Editor\edtoolbars.c" />
     <ClCompile Include="PC\3DText.c" />
     <ClCompile Include="PC\audio.c" />
     <ClCompile Include="PC\block.c" />
@@ -238,6 +251,15 @@
     <ClInclude Include="Common\types.h" />
     <ClInclude Include="Common\types2dgfx.h" />
     <ClInclude Include="Common\water.h" />
+    <ClInclude Include="Editor\edcamera.h" />
+    <ClInclude Include="Editor\edcommand.h" />
+    <ClInclude Include="Editor\edglobals.h" />
+    <ClInclude Include="Editor\editdefs.h" />
+    <ClInclude Include="Editor\editfile.h" />
+    <ClInclude Include="Editor\editor.h" />
+    <ClInclude Include="Editor\edittypes.h" />
+    <ClInclude Include="Editor\edtoolbars.h" />
+    <ClInclude Include="global.h" />
     <ClInclude Include="PC\3DText.h" />
     <ClInclude Include="PC\audio.h" />
     <ClInclude Include="PC\block.h" />
