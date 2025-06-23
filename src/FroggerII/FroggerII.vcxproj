@@ -17,7 +17,6 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -53,27 +52,24 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="Shared" >
+  <ImportGroup Label="Shared">
   </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -83,7 +79,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,7 +93,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -109,7 +105,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -123,11 +119,150 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-
-  <ItemGroup></ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Common\actor.c" />
+    <ClCompile Include="Common\anim.c" />
+    <ClCompile Include="Common\babyfrogs.c" />
+    <ClCompile Include="Common\cam.c" />
+    <ClCompile Include="Common\character.c" />
+    <ClCompile Include="Common\collect.c" />
+    <ClCompile Include="Common\crc32.c" />
+    <ClCompile Include="Common\decomp.c" />
+    <ClCompile Include="Common\DefaultData.c" />
+    <ClCompile Include="Common\enemies.c" />
+    <ClCompile Include="Common\event.c" />
+    <ClCompile Include="Common\eventfuncs.c" />
+    <ClCompile Include="Common\frogger.c" />
+    <ClCompile Include="Common\frogmove.c" />
+    <ClCompile Include="Common\frontend.c" />
+    <ClCompile Include="Common\game.c" />
+    <ClCompile Include="Common\general.c" />
+    <ClCompile Include="Common\hud.c" />
+    <ClCompile Include="Common\Jalloc.c" />
+    <ClCompile Include="Common\l10n.c" />
+    <ClCompile Include="Common\language.c" />
+    <ClCompile Include="Common\layoutvisual.c" />
+    <ClCompile Include="Common\levelplaying.c" />
+    <ClCompile Include="Common\LevelProgression.c" />
+    <ClCompile Include="Common\maths.c" />
+    <ClCompile Include="Common\memload.c" />
+    <ClCompile Include="Common\menus.c" />
+    <ClCompile Include="Common\multi.c" />
+    <ClCompile Include="Common\overlays.c" />
+    <ClCompile Include="Common\particle.c" />
+    <ClCompile Include="Common\path.c" />
+    <ClCompile Include="Common\platform.c" />
+    <ClCompile Include="Common\ptexture.c" />
+    <ClCompile Include="Common\script.c" />
+    <ClCompile Include="Common\sndview.c" />
+    <ClCompile Include="Common\specfx.c" />
+    <ClCompile Include="Common\sprite.c" />
+    <ClCompile Include="Common\story.c" />
+    <ClCompile Include="Common\textoverlays.c" />
+    <ClCompile Include="Common\tongue.c" />
+    <ClCompile Include="Common\water.c" />
+    <ClCompile Include="Common\Zbuffer.c" />
+    <ClCompile Include="PC\3DText.c" />
+    <ClCompile Include="PC\audio.c" />
+    <ClCompile Include="PC\block.c" />
+    <ClCompile Include="PC\config.cpp" />
+    <ClCompile Include="PC\Controll.cpp" />
+    <ClCompile Include="PC\directx.cpp" />
+    <ClCompile Include="PC\dx_sound.cpp" />
+    <ClCompile Include="PC\font.c" />
+    <ClCompile Include="PC\map.c" />
+    <ClCompile Include="PC\mavis.cpp" />
+    <ClCompile Include="PC\mdxD3D.cpp" />
+    <ClCompile Include="PC\mdxDDraw.cpp" />
+    <ClCompile Include="PC\mdxDrivers.cpp" />
+    <ClCompile Include="PC\mdxInfo.cpp" />
+    <ClCompile Include="PC\mgeReport.cpp" />
+    <ClCompile Include="PC\netchat.cpp" />
+    <ClCompile Include="PC\netgame.cpp" />
+    <ClCompile Include="PC\network.cpp" />
+    <ClCompile Include="PC\objects.c" />
+    <ClCompile Include="PC\pcmisc.cpp" />
+    <ClCompile Include="PC\printgfx.c" />
+    <ClCompile Include="PC\savegame.c" />
+    <ClCompile Include="PC\software.cpp" />
+    <ClCompile Include="PC\Subcube.c" />
+    <ClCompile Include="PC\texture.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common\actor.h" />
+    <ClInclude Include="Common\anim.h" />
+    <ClInclude Include="Common\babyfrogs.h" />
+    <ClInclude Include="Common\Cam.h" />
+    <ClInclude Include="Common\character.h" />
+    <ClInclude Include="Common\codes.h" />
+    <ClInclude Include="Common\collect.h" />
+    <ClInclude Include="Common\crc32.h" />
+    <ClInclude Include="Common\decomp.h" />
+    <ClInclude Include="Common\DefaultData.h" />
+    <ClInclude Include="Common\define.h" />
+    <ClInclude Include="Common\enemies.h" />
+    <ClInclude Include="Common\event.h" />
+    <ClInclude Include="Common\eventfuncs.h" />
+    <ClInclude Include="Common\frogger.h" />
+    <ClInclude Include="Common\frogmove.h" />
+    <ClInclude Include="Common\frontend.h" />
+    <ClInclude Include="Common\game.h" />
+    <ClInclude Include="Common\general.h" />
+    <ClInclude Include="Common\hud.h" />
+    <ClInclude Include="Common\incs.h" />
+    <ClInclude Include="Common\jalloc.h" />
+    <ClInclude Include="Common\l10n.h" />
+    <ClInclude Include="Common\language.h" />
+    <ClInclude Include="Common\layoutvisual.h" />
+    <ClInclude Include="Common\levelplaying.h" />
+    <ClInclude Include="Common\LevelProgession.h" />
+    <ClInclude Include="Common\maths.h" />
+    <ClInclude Include="Common\memload.h" />
+    <ClInclude Include="Common\menus.h" />
+    <ClInclude Include="Common\multi.h" />
+    <ClInclude Include="Common\overlays.h" />
+    <ClInclude Include="Common\particle.h" />
+    <ClInclude Include="Common\path.h" />
+    <ClInclude Include="Common\platform.h" />
+    <ClInclude Include="Common\ptexture.h" />
+    <ClInclude Include="Common\script.h" />
+    <ClInclude Include="Common\sndview.h" />
+    <ClInclude Include="Common\specfx.h" />
+    <ClInclude Include="Common\sprite.h" />
+    <ClInclude Include="Common\story.h" />
+    <ClInclude Include="Common\textoverlays.h" />
+    <ClInclude Include="Common\tongue.h" />
+    <ClInclude Include="Common\types.h" />
+    <ClInclude Include="Common\types2dgfx.h" />
+    <ClInclude Include="Common\water.h" />
+    <ClInclude Include="PC\3DText.h" />
+    <ClInclude Include="PC\audio.h" />
+    <ClInclude Include="PC\block.h" />
+    <ClInclude Include="PC\config.h" />
+    <ClInclude Include="PC\Controll.h" />
+    <ClInclude Include="PC\directx.h" />
+    <ClInclude Include="PC\dx_sound.h" />
+    <ClInclude Include="PC\font.h" />
+    <ClInclude Include="PC\map.h" />
+    <ClInclude Include="PC\mavis.h" />
+    <ClInclude Include="PC\mdxD3D.h" />
+    <ClInclude Include="PC\mdxDDraw.h" />
+    <ClInclude Include="PC\mdxInfo.h" />
+    <ClInclude Include="PC\mgeReport.h" />
+    <ClInclude Include="PC\netchat.h" />
+    <ClInclude Include="PC\netgame.h" />
+    <ClInclude Include="PC\network.h" />
+    <ClInclude Include="PC\objects.h" />
+    <ClInclude Include="PC\pcmisc.h" />
+    <ClInclude Include="PC\printgfx.h" />
+    <ClInclude Include="PC\savegame.h" />
+    <ClInclude Include="PC\software.h" />
+    <ClInclude Include="PC\Subcube.h" />
+    <ClInclude Include="PC\texture.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
